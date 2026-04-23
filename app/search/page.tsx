@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Search, Tv2, Film, Music, Users } from 'lucide-react'
 import ContentCard from '@/components/ContentCard'
 import { serials } from '@/data/serials'
@@ -18,8 +19,9 @@ const TABS: { id: TabType; label: string; icon: React.ElementType }[] = [
   { id: 'actors', label: 'Artists', icon: Users },
 ]
 
-export default function SearchPage() {
-  const [query, setQuery] = useState('')
+function SearchContent() {
+  const searchParams = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [tab, setTab] = useState<TabType>('all')
 
   const q = query.toLowerCase().trim()
@@ -187,5 +189,18 @@ export default function SearchPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+        <Search className="w-10 h-10 text-muted mx-auto mb-4 opacity-40 animate-pulse" />
+        <p className="text-muted">Loading search...</p>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   )
 }

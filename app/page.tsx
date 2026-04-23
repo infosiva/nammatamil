@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Tv2, Film, Music, Globe, ArrowRight, TrendingUp, Star, Play } from 'lucide-react'
+import { Tv2, Film, Music, Globe, ArrowRight, TrendingUp, Star, Play, Search } from 'lucide-react'
 import ContentCard from '@/components/ContentCard'
 import AdUnit from '@/components/AdUnit'
 import { serials } from '@/data/serials'
@@ -49,7 +49,7 @@ export default function HomePage() {
             <span className="text-gradient">நம்ம</span>
             <br />
             <span className="text-white">Tamil</span>
-            <span className="text-gold-500">.tv</span>
+            <span className="text-gold-500">.live</span>
           </h1>
 
           <p className="text-slate-300 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -57,7 +57,7 @@ export default function HomePage() {
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-wrap gap-4 justify-center mb-14">
+          <div className="flex flex-wrap gap-4 justify-center mb-8">
             <Link
               href="/serials"
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-gold-500 to-gold-600 text-dark-900 font-bold text-sm hover:from-gold-400 hover:to-gold-500 transition-all glow-gold hover:scale-105"
@@ -73,6 +73,25 @@ export default function HomePage() {
               Browse Movies
             </Link>
           </div>
+
+          {/* Hero search bar */}
+          <form action="/search" className="flex items-center gap-2 max-w-xl mx-auto mb-10">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none" />
+              <input
+                name="q"
+                type="text"
+                placeholder="Search serials, movies, albums, artists..."
+                className="w-full pl-12 pr-4 py-3.5 rounded-2xl glass border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/30 bg-transparent transition-all"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-5 py-3.5 rounded-2xl bg-gold-500 text-dark-900 font-bold text-sm hover:bg-gold-400 transition-all flex-shrink-0"
+            >
+              Search
+            </button>
+          </form>
 
           {/* Stats bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto">
