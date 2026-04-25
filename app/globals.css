@@ -111,13 +111,13 @@
   }
 }
 
-/* Animated gradient background for hero */
+/* Animated gradient background for hero — TVK red + purple + gold */
 .hero-bg {
   background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,58,237,0.30) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(220,38,38,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 20% 80%, rgba(245,158,11,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 70% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,58,237,0.28) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 90% 60%, rgba(225,29,72,0.20) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 10% 80%, rgba(225,29,72,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 20% 80%, rgba(245,158,11,0.10) 0%, transparent 60%),
     #07010f;
 }
 
@@ -171,6 +171,13 @@
 
 .ticker-inner:hover {
   animation-play-state: paused;
+}
+
+/* TVK manifesto bottom ticker */
+.tvk-ticker-inner {
+  animation: ticker 20s linear infinite;
+  display: flex;
+  width: max-content;
 }
 
 /* Keyframes for countdown flip */

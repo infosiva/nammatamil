@@ -46,6 +46,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+        <Script
+          src="http://31.97.56.148:3098/t.js"
+          data-site="nammatamil.live"
+          strategy="lazyOnload"
+        />
       </head>
       <body className="min-h-screen flex flex-col bg-site">
         <Header />
