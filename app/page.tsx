@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Tv2, Film, Music, Globe, ArrowRight, TrendingUp, Star, Play, Search } from 'lucide-react'
 import ContentCard from '@/components/ContentCard'
 import AdUnit from '@/components/AdUnit'
-import TVKWidget from '@/components/TVKWidget'
+import OTTExplorer from '@/components/OTTExplorer'
 import { serials } from '@/data/serials'
 import { movies } from '@/data/movies'
 import { albums } from '@/data/albums'
@@ -129,11 +129,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── TVK Election Widget ───────────────────────────────────────── */}
-      <div className="pt-10 pb-2">
-        <TVKWidget />
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-14">
 
         {/* ── Category Cards ───────────────────────────────────────────── */}
@@ -226,6 +221,9 @@ export default function HomePage() {
 
         {/* ── AdSense mid-page ─────────────────────────────────────────── */}
         <AdUnit format="rectangle" className="min-h-[250px]" />
+
+        {/* ── OTT Explorer ─────────────────────────────────────────────── */}
+        <OTTExplorer />
 
         {/* ── Tamil Dubbed Gems ─────────────────────────────────────────── */}
         <section>
