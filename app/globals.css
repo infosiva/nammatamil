@@ -114,10 +114,47 @@
 /* Animated gradient background for hero */
 .hero-bg {
   background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,58,237,0.25) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(220,38,38,0.15) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 20% 80%, rgba(245,158,11,0.1) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,58,237,0.30) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(220,38,38,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 20% 80%, rgba(245,158,11,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 70% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
     #07010f;
+}
+
+/* Particle dots scattered across hero */
+.hero-particles::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(245,158,11,0.6) 1px, transparent 1px),
+    radial-gradient(circle, rgba(220,38,38,0.4) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px);
+  background-size: 80px 80px, 120px 120px, 60px 60px;
+  background-position: 0 0, 40px 40px, 20px 20px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* TVK golden border pulse */
+.tvk-glow {
+  box-shadow: 0 0 0 1px rgba(245,158,11,0.3), 0 0 20px rgba(245,158,11,0.15), 0 0 40px rgba(124,58,237,0.1);
+}
+
+/* Election countdown timer digits */
+.countdown-digit {
+  background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(124,58,237,0.15));
+  border: 1px solid rgba(245,158,11,0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Vijay spotlight card */
+.vijay-card {
+  background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(124,58,237,0.08) 100%);
+  border: 1px solid rgba(245,158,11,0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 /* Scrolling ticker animation */
@@ -134,4 +171,32 @@
 
 .ticker-inner:hover {
   animation-play-state: paused;
+}
+
+/* Keyframes for countdown flip */
+@keyframes flipIn {
+  0% { transform: rotateX(-90deg); opacity: 0; }
+  100% { transform: rotateX(0deg); opacity: 1; }
+}
+
+.flip-in {
+  animation: flipIn 0.4s ease-out forwards;
+}
+
+/* Gradient border animation for TVK banner */
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(245,158,11,0.3); }
+  50% { border-color: rgba(124,58,237,0.5); }
+}
+
+.border-animate {
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+/* Compact card adjustments */
+.card-compact .h-48 { height: 9rem; }
+
+/* No-image card gradient fallback */
+.no-image-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
 }
