@@ -55,7 +55,12 @@ export default function HomePage() {
 
           {/* Stats — compact pill row */}
           <div className="flex justify-center gap-2">
-            {STATS.map(({ label, value }) => (
+            {STATS.map(({ label, value }) => ({
+              <div key={label} className='flex items-center gap-1.5 px-3 py-1 rounded-full glass border border-white/5'>
+                <span className='text-sm font-black text-gold-400 leading-none'>{value}</span>
+                <span className='text-[10px] text-white/30'>{label}</span>
+              </div>
+            ))}
               <div key={label} className="flex items-center gap-1.5 px-3 py-1 rounded-full glass border border-white/5">
                 <span className="text-sm font-black text-gold-400 leading-none">{value}</span>
                 <span className="text-[10px] text-white/30">{label}</span>
