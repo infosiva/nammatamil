@@ -114,8 +114,6 @@ function FeaturedTab({ movies, serials, albums }: Props) {
         ))}
       </Shelf>
 
-      <AdUnit format="horizontal" className="min-h-[90px]" />
-
       {/* Latest Videos */}
       <section>
         <h2 className="text-sm font-black text-white flex items-center gap-1.5 mb-3">
@@ -347,7 +345,6 @@ function CricketTab() {
           <p className="text-white/20 text-[9px]">* Indicative — check ESPNCricinfo for official standings</p>
         </div>
       </div>
-      <AdUnit format="horizontal" className="min-h-[90px]" />
     </div>
   )
 }

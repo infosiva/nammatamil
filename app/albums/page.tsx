@@ -14,24 +14,22 @@ export default function AlbumsPage() {
   const others = albums.filter(a => a.artist !== 'A.R. Rahman')
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-10">
-        <div className="flex items-center gap-3 mb-3">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
           <div className="p-2 rounded-xl bg-pink-500/10 border border-pink-500/20">
-            <Music className="w-6 h-6 text-pink-400" />
+            <Music className="w-5 h-5 text-pink-400" />
           </div>
-          <h1 className="text-4xl font-black text-white">Tamil Music Albums</h1>
+          <h1 className="text-3xl font-black text-white">Tamil Music Albums</h1>
         </div>
-        <p className="text-muted max-w-2xl">
+        <p className="text-muted text-sm max-w-xl">
           From Ilaiyaraaja&apos;s classics to AR Rahman&apos;s revolutions — the greatest Tamil film soundtracks ever recorded.
         </p>
       </div>
 
-      <AdUnit format="horizontal" className="mb-10 min-h-[90px]" />
-
-      <section className="mb-16">
-        <h2 className="text-2xl font-bold text-white mb-2">A.R. Rahman</h2>
-        <p className="text-muted text-sm mb-6">The Mozart of Madras — defining Tamil music for 3 decades</p>
+      <section className="mb-12">
+        <h2 className="text-xl font-bold text-white mb-1">A.R. Rahman</h2>
+        <p className="text-muted text-xs mb-5">The Mozart of Madras — defining Tamil music for 3 decades</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {rahman.map((a) => (
             <ContentCard key={a.id} href={`/albums/${a.slug}`} title={a.title} subtitle={`${a.artist} · ${a.year}`} gradient={a.gradient} type="album" badge={a.badge} year={a.year} tags={a.genre} />
@@ -39,11 +37,11 @@ export default function AlbumsPage() {
         </div>
       </section>
 
-      <AdUnit format="rectangle" className="mb-16 min-h-[250px]" />
+      <AdUnit format="horizontal" className="mb-10 min-h-[90px]" />
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-2">Other Legendary Composers</h2>
-        <p className="text-muted text-sm mb-6">Ilaiyaraaja, GV Prakash, Sam CS, Govind Vasantha & more</p>
+        <h2 className="text-xl font-bold text-white mb-1">Other Legendary Composers</h2>
+        <p className="text-muted text-xs mb-5">Ilaiyaraaja, GV Prakash, Sam CS, Govind Vasantha & more</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {others.map((a) => (
             <ContentCard key={a.id} href={`/albums/${a.slug}`} title={a.title} subtitle={`${a.artist} · ${a.year}`} gradient={a.gradient} type="album" badge={a.badge} year={a.year} tags={a.genre} />
