@@ -9,7 +9,7 @@ interface AdUnitProps {
 }
 
 export default function AdUnit({ slot = '1234567890', format = 'auto', className = '' }: AdUnitProps) {
-  const publisherId = process.env.NEXT_PUBLIC_ADSENSE_ID
+  const publisherId = process.env.NEXT_PUBLIC_ADSENSE_ID ?? 'ca-pub-4237294630161176'
 
   useEffect(() => {
     try {
