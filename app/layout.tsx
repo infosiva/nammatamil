@@ -7,30 +7,29 @@ import TVKWidget from '@/components/TVKWidget'
 
 export const metadata: Metadata = {
   title: {
-    default: 'NammaTamil.tv — Tamil Entertainment & TVK Election 2026',
+    default: 'NammaTamil.tv — Tamil Entertainment Hub',
     template: '%s | NammaTamil.tv',
   },
-  description: 'Complete database of Tamil serials, Tamil movies, Tamil dubbed films and music albums. Proud supporters of TVK — Tamilaga Vettri Kazhagam led by Vijay. Tamil Nadu Elections May 4, 2026.',
+  description: 'Complete database of Tamil serials, Tamil movies, Tamil dubbed films and music albums. Movies on OTT, IPL Cricket, and more — all in one place for the Tamil diaspora.',
   keywords: [
     'Tamil serials', 'Tamil movies', 'Tamil dubbed movies',
     'Sun TV serials', 'Vijay TV serials', 'Tamil albums',
     'Tamil dubbed Malayalam movies', 'NammaTamil',
-    'TVK', 'Tamilaga Vettri Kazhagam', 'Vijay actor', 'Vijay politics',
-    'Tamil Nadu election 2026', 'May 4 election', 'Tamil politics',
-    'Thalapathy Vijay', 'TVK party',
+    'Tamil OTT', 'Netflix Tamil', 'Amazon Prime Tamil',
+    'Thalapathy Vijay', 'Tamil cinema 2026',
   ],
   metadataBase: new URL('https://nammatamil.live'),
   openGraph: {
     type: 'website',
     siteName: 'NammaTamil.tv',
-    title: 'NammaTamil.tv — Tamil Entertainment & TVK 2026',
-    description: 'Tamil serials, movies, dubbed films, and music albums — all in one place. Supporting TVK & Thalapathy Vijay for Tamil Nadu Elections 2026.',
+    title: 'NammaTamil.tv — Tamil Entertainment Hub',
+    description: 'Tamil serials, movies, dubbed films, and music albums — all in one place for the Tamil diaspora worldwide.',
     locale: 'ta_IN',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NammaTamil.tv — Tamil Entertainment & TVK',
-    description: 'Your complete Tamil entertainment universe. Proud TVK supporters. Tamil Nadu Elections May 4, 2026.',
+    title: 'NammaTamil.tv — Tamil Entertainment Hub',
+    description: 'Your complete Tamil entertainment universe — movies, serials, OTT, cricket and more.',
   },
   robots: { index: true, follow: true },
 }
