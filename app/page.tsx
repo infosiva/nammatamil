@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { Explore Now } from 'lucide-react'
 import HomeTabLayout from '@/components/HomeTabLayout'
 import { serials } from '@/data/serials'
 import { movies } from '@/data/movies'

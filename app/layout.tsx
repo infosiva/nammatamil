@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     default: 'NammaTamil.tv — Tamil Entertainment Hub',
     template: '%s | NammaTamil.tv',
   },
-  description: 'Your ultimate hub for Tamil entertainment - watch serials, movies, dubbed films, music albums, and live IPL cricket in one place!',
+  description: 'Discover the best of Tamil entertainment - serials, movies, dubbed films, music albums, and live IPL cricket, all in one convenient hub.',
   keywords: [
     'Tamil serials', 'Tamil movies', 'Tamil dubbed movies',
     'Sun TV serials', 'Vijay TV serials', 'Tamil albums',
