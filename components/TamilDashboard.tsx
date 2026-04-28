@@ -64,10 +64,10 @@ export default function TamilDashboard() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Section header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <h2 className="text-white font-black text-xl sm:text-2xl">தமிழ் டேஷ்போர்ட்</h2>
-          <span className="text-white/30 text-xs hidden sm:inline">Tamil Dashboard</span>
+          <h2 className="text-white font-black text-2xl sm:text-3xl tracking-tight">தமிழ் டேஷ்போர்ட்</h2>
+          <span className="text-white/25 text-xs hidden sm:inline">News · Weather · Live updates</span>
         </div>
         <div className="flex items-center gap-2">
           {updatedAt && <span className="text-white/25 text-[10px] hidden sm:inline">Updated {updatedAt}</span>}
@@ -110,7 +110,7 @@ export default function TamilDashboard() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="shimmer rounded-xl h-14" />
+                <div key={i} className="shimmer rounded-xl h-16" />
               ))}
             </div>
           ) : news.length === 0 ? (
@@ -125,27 +125,30 @@ export default function TamilDashboard() {
                   rel="noopener noreferrer"
                   data-track="tamil-news"
                   data-track-value={item.source}
-                  className="group flex items-start gap-2.5 p-3 rounded-xl transition-all hover:scale-[1.01]"
+                  className={`group flex items-start gap-3 p-3.5 rounded-xl news-card-hover ${i === 0 ? 'sm:col-span-2' : ''}`}
                   style={{
-                    background: 'rgba(255,255,255,0.025)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.07)',
                   }}
                 >
-                  {/* Source dot */}
-                  <span
-                    className="mt-1 w-2 h-2 rounded-full flex-shrink-0"
-                    style={{ background: item.color }}
-                  />
+                  {/* Source color bar */}
+                  <div className="flex-shrink-0 flex flex-col items-center gap-2 pt-0.5">
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
+                    {i === 0 && <div className="w-0.5 flex-1 rounded-full min-h-[20px]" style={{ background: `${item.color}30` }} />}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white/85 text-xs sm:text-sm leading-snug line-clamp-2 group-hover:text-white transition-colors">
+                    <p className={`text-white/85 leading-snug line-clamp-2 group-hover:text-white transition-colors ${i === 0 ? 'text-sm sm:text-base font-semibold' : 'text-xs sm:text-sm'}`}>
                       {item.title}
                     </p>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <span className="text-[9px] font-bold" style={{ color: item.color }}>{item.source}</span>
-                      {item.timeAgo && <span className="text-white/20 text-[9px]">· {item.timeAgo}</span>}
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        style={{ background: `${item.color}18`, color: item.color }}>
+                        {item.source}
+                      </span>
+                      {item.timeAgo && <span className="text-white/20 text-[10px]">{item.timeAgo}</span>}
                     </div>
                   </div>
-                  <ExternalLink className="w-3 h-3 text-white/15 group-hover:text-white/40 flex-shrink-0 mt-0.5 transition-colors" />
+                  <ExternalLink className="w-3.5 h-3.5 text-white/15 group-hover:text-white/50 flex-shrink-0 mt-0.5 transition-colors" />
                 </a>
               ))}
             </div>
