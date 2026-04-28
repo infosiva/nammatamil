@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Tv2, Film, Music, Globe, ArrowRight, TrendingUp, Star, Play,
@@ -83,30 +83,80 @@ function ShelfCard({ children }: { children: React.ReactNode }) {
   return <div className="flex-shrink-0 w-28 sm:w-32">{children}</div>
 }
 
-/* ── Recent Episodes data (latest YouTube episode clips for top serials) ─────── */
-const RECENT_EPISODES = [
-  { id: 're1', serialSlug: 'pandian-stores',    title: 'Pandian Stores', episode: 'Latest Episode', youtubeId: 'PLFMg3Wg8v7g', channel: 'Vijay TV', color: '#f97316' },
-  { id: 're2', serialSlug: 'baakiyalakshmi',    title: 'Baakiyalakshmi', episode: 'Latest Episode', youtubeId: '5-GkuN8QT6E', channel: 'Vijay TV', color: '#ec4899' },
-  { id: 're3', serialSlug: 'raja-rani',         title: 'Raja Rani S2',   episode: 'Latest Episode', youtubeId: 'fFDolUh5mXw', channel: 'Zee Tamil', color: '#06b6d4' },
-  { id: 're4', serialSlug: 'vijay-tv-serials',  title: 'Chithi',         episode: 'Latest Episode', youtubeId: 'dY8K5PdZBQk', channel: 'Sun TV',   color: '#f59e0b' },
-  { id: 're5', serialSlug: 'anandham',          title: 'Anandham',       episode: 'Latest Episode', youtubeId: 'mHSoNLpHKBI', channel: 'Sun TV',   color: '#10b981' },
-  { id: 're6', serialSlug: 'rettai-roja',       title: 'Rettai Roja',    episode: 'Latest Episode', youtubeId: '2V9UiWnSi1c', channel: 'Colors Tamil', color: '#a855f7' },
+interface RecentEp {
+  id: string
+  title: string
+  videoId: string
+  channelName: string
+  channelColor: string
+  publishedAt: string
+  thumbnail: string
+}
+
+const FALLBACK_EPS: RecentEp[] = [
+  { id: 'fb1', title: 'Pandian Stores Latest Episode',  videoId: 'PLFMg3Wg8v7g', channelName: 'Vijay TV',     channelColor: '#f97316', publishedAt: '', thumbnail: 'https://img.youtube.com/vi/PLFMg3Wg8v7g/mqdefault.jpg' },
+  { id: 'fb2', title: 'Baakiyalakshmi Latest Episode',  videoId: '5-GkuN8QT6E',  channelName: 'Vijay TV',     channelColor: '#f97316', publishedAt: '', thumbnail: 'https://img.youtube.com/vi/5-GkuN8QT6E/mqdefault.jpg'  },
+  { id: 'fb3', title: 'Raja Rani S2 Latest Episode',    videoId: 'fFDolUh5mXw',  channelName: 'Zee Tamil',    channelColor: '#7c3aed', publishedAt: '', thumbnail: 'https://img.youtube.com/vi/fFDolUh5mXw/mqdefault.jpg'  },
+  { id: 'fb4', title: 'Chithi Latest Episode',          videoId: 'dY8K5PdZBQk',  channelName: 'Sun TV',       channelColor: '#dc2626', publishedAt: '', thumbnail: 'https://img.youtube.com/vi/dY8K5PdZBQk/mqdefault.jpg'  },
+  { id: 'fb5', title: 'Anandham Latest Episode',        videoId: 'mHSoNLpHKBI',  channelName: 'Sun TV',       channelColor: '#dc2626', publishedAt: '', thumbnail: 'https://img.youtube.com/vi/mHSoNLpHKBI/mqdefault.jpg'  },
+  { id: 'fb6', title: 'Rettai Roja Latest Episode',     videoId: '2V9UiWnSi1c',  channelName: 'Colors Tamil', channelColor: '#ec4899', publishedAt: '', thumbnail: 'https://img.youtube.com/vi/2V9UiWnSi1c/mqdefault.jpg'  },
 ]
 
-function RecentEpisodeCard({ ep }: { ep: typeof RECENT_EPISODES[0] }) {
-  const thumb = `https://img.youtube.com/vi/${ep.youtubeId}/mqdefault.jpg`
+function useRecentEpisodes() {
+  const [eps, setEps] = useState<RecentEp[]>(FALLBACK_EPS)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Check local cache first (6h TTL in sessionStorage)
+    try {
+      const raw = sessionStorage.getItem('recent_eps')
+      if (raw) {
+        const { data, ts } = JSON.parse(raw) as { data: RecentEp[]; ts: number }
+        if (Date.now() - ts < 6 * 60 * 60 * 1000) {
+          setEps(data)
+          setLoading(false)
+          return
+        }
+      }
+    } catch { /* ignore */ }
+
+    fetch('/api/recent-episodes')
+      .then(r => r.json())
+      .then(({ episodes }: { episodes: RecentEp[] }) => {
+        if (episodes?.length) {
+          setEps(episodes)
+          try { sessionStorage.setItem('recent_eps', JSON.stringify({ data: episodes, ts: Date.now() })) } catch { /* ignore */ }
+        }
+      })
+      .catch(() => { /* keep fallback */ })
+      .finally(() => setLoading(false))
+  }, [])
+
+  return { eps, loading }
+}
+
+function dayLabel(publishedAt: string) {
+  if (!publishedAt) return 'Recent'
+  const diff = Date.now() - new Date(publishedAt).getTime()
+  const days = Math.floor(diff / 86_400_000)
+  if (days === 0) return 'Today'
+  if (days === 1) return 'Yesterday'
+  return `${days}d ago`
+}
+
+function RecentEpisodeCard({ ep }: { ep: RecentEp }) {
   return (
     <a
-      href={`https://www.youtube.com/watch?v=${ep.youtubeId}`}
+      href={`https://www.youtube.com/watch?v=${ep.videoId}`}
       target="_blank"
       rel="noopener noreferrer"
       className="group block"
       style={{ textDecoration: 'none' }}
     >
-      <div className="rounded-xl overflow-hidden" style={{ background: '#0d0018', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="rounded-xl overflow-hidden" style={{ background: '#100008', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="relative aspect-video overflow-hidden bg-black">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={thumb} alt={ep.title}
+          <img src={ep.thumbnail} alt={ep.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85 group-hover:opacity-100"
             loading="lazy" />
           <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
@@ -115,15 +165,15 @@ function RecentEpisodeCard({ ep }: { ep: typeof RECENT_EPISODES[0] }) {
             </div>
           </div>
           <div className="absolute top-2 left-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white"
-            style={{ background: ep.color + 'dd' }}>
-            <Clock className="w-2.5 h-2.5" /> Today
+            style={{ background: ep.channelColor + 'dd' }}>
+            <Clock className="w-2.5 h-2.5" /> {dayLabel(ep.publishedAt)}
           </div>
         </div>
         <div className="px-3 py-2">
-          <p className="text-white text-xs font-bold truncate">{ep.title}</p>
+          <p className="text-white text-xs font-bold truncate leading-snug">{ep.title}</p>
           <div className="flex items-center gap-1 mt-0.5">
             <Youtube className="w-2.5 h-2.5 text-red-500" />
-            <span className="text-white/35 text-[10px] truncate">{ep.channel}</span>
+            <span className="text-white/35 text-[10px] truncate">{ep.channelName}</span>
           </div>
         </div>
       </div>
@@ -137,6 +187,7 @@ function FeaturedTab({ movies, serials, albums }: Props) {
   const featuredMovies  = movies.filter(m => m.language === 'Tamil').slice(0, 10)
   const dubbedMovies    = movies.filter(m => m.language === 'Tamil Dubbed').slice(0, 8)
   const featuredAlbums  = albums.slice(0, 8)
+  const { eps, loading } = useRecentEpisodes()
 
   return (
     <div className="space-y-7">
@@ -146,18 +197,26 @@ function FeaturedTab({ movies, serials, albums }: Props) {
           <h2 className="text-sm font-black text-white flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-red-400" />
             Recent Episodes
-            <span className="text-[10px] font-normal text-white/30 ml-1">Today&apos;s drama clips</span>
+            <span className="text-[10px] font-normal text-white/30 ml-1">Last 7 days</span>
           </h2>
           <a href="https://www.youtube.com/@SunTV" target="_blank" rel="noopener noreferrer"
             className="text-red-400 text-[11px] flex items-center gap-0.5 hover:text-red-300 transition-colors">
             <Youtube className="w-3 h-3" /> YouTube
           </a>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {RECENT_EPISODES.map(ep => (
-            <RecentEpisodeCard key={ep.id} ep={ep} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-xl aspect-video shimmer" style={{ background: 'rgba(255,255,255,0.04)' }} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {eps.slice(0, 6).map(ep => (
+              <RecentEpisodeCard key={ep.id} ep={ep} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Popular Serials — wider cards, more visible */}

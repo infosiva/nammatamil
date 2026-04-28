@@ -10,7 +10,7 @@
   html { scroll-behavior: smooth; }
 
   body {
-    background-color: #0a0a0a;
+    background-color: #0b0005;
     color: #f1f5f9;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -95,8 +95,8 @@
 }
 
 @layer utilities {
-  .bg-site { background-color: #0a0a0a; }
-  .bg-card { background-color: #111111; }
+  .bg-site { background-color: #0b0005; }
+  .bg-card { background-color: #130008; }
   .text-muted { color: #94a3b8; }
   .border-subtle { border-color: rgba(255,255,255,0.07); }
 
@@ -111,12 +111,13 @@
   }
 }
 
-/* Hero background — pure black with subtle gold/red accents */
+/* Hero background — deep maroon with crimson/gold accents (Sun TV / Vijay TV inspired) */
 .hero-bg {
   background:
-    radial-gradient(ellipse 60% 50% at 50% -5%, rgba(220,38,38,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 90% 50%, rgba(245,158,11,0.08) 0%, transparent 55%),
-    #0a0a0a;
+    radial-gradient(ellipse 70% 50% at 50% -5%, rgba(185,28,28,0.18) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 95% 40%, rgba(245,158,11,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 30% 40% at 0% 100%, rgba(185,28,28,0.08) 0%, transparent 50%),
+    #0b0005;
 }
 
 /* Particle dots scattered across hero */

@@ -1,172 +1,144 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
+import { Tv2, Circle } from 'lucide-react'
 
-// May 4 2026 polling starts at 8:00 AM IST
-const POLLING_DATE = new Date('2026-05-04T08:00:00+05:30')
-
-// TVK Manifesto points — rotated randomly
-const MANIFESTO = [
-  { tamil: 'இலவச உயர்கல்வி',              en: 'Free higher education' },
-  { tamil: 'விவசாயிகளுக்கு கடன் தள்ளுபடி', en: 'Farmer loan waiver' },
-  { tamil: 'பெண்கள் பாதுகாப்பு',           en: 'Women\'s safety first' },
-  { tamil: 'வேலைவாய்ப்பு உறுதி',           en: 'Employment guarantee' },
-  { tamil: 'குடிநீர் உரிமை',               en: 'Right to clean water' },
-  { tamil: 'ஊழல் ஒழிப்பு',                en: 'Zero corruption' },
-  { tamil: 'சுகாதார காப்பீடு',             en: 'Universal health cover' },
-  { tamil: 'இலவச பேருந்து பயணம்',          en: 'Free bus travel' },
-  { tamil: 'தொழிலாளர் உரிமைகள்',          en: 'Workers\' rights' },
-  { tamil: 'கல்வி சீர்திருத்தம்',          en: 'Education reform' },
+// Tamil TV prime-time schedule (IST) — slot: [hhmm, title, channel, channelColor]
+const SCHEDULE: { time: string; show: string; channel: string; color: string; type: 'serial' | 'movie' | 'show' }[] = [
+  { time: '18:00', show: 'Pandian Stores',    channel: 'Vijay TV',     color: '#f97316', type: 'serial'  },
+  { time: '18:30', show: 'Baakiyalakshmi',    channel: 'Vijay TV',     color: '#f97316', type: 'serial'  },
+  { time: '19:00', show: 'Chithi',            channel: 'Sun TV',       color: '#dc2626', type: 'serial'  },
+  { time: '19:30', show: 'Anandham',          channel: 'Sun TV',       color: '#dc2626', type: 'serial'  },
+  { time: '19:00', show: 'Raja Rani S2',      channel: 'Zee Tamil',    color: '#7c3aed', type: 'serial'  },
+  { time: '19:30', show: 'Rettai Roja',       channel: 'Colors Tamil', color: '#ec4899', type: 'serial'  },
+  { time: '20:00', show: 'Kana Kaanum Kalangal', channel: 'Sun TV',    color: '#dc2626', type: 'show'    },
+  { time: '20:30', show: 'Super Singer',      channel: 'Vijay TV',     color: '#f97316', type: 'show'    },
+  { time: '21:00', show: 'Tamil Movie',       channel: 'Sun TV',       color: '#dc2626', type: 'movie'   },
+  { time: '21:00', show: 'Bigg Boss Tamil',   channel: 'Vijay TV',     color: '#f97316', type: 'show'    },
+  { time: '22:00', show: 'Tamil Dubbed Movie', channel: 'Zee Tamil',   color: '#7c3aed', type: 'movie'   },
 ]
 
-function pad(n: number) {
-  return String(n).padStart(2, '0')
+function getISTMinutes() {
+  const now = new Date()
+  // IST = UTC+5:30
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000
+  const istMs = utcMs + 5.5 * 3_600_000
+  const ist = new Date(istMs)
+  return ist.getHours() * 60 + ist.getMinutes()
 }
 
-function getTimeLeft() {
-  const now = Date.now()
-  const diff = POLLING_DATE.getTime() - now
-  if (diff <= 0) return null
-  const d = Math.floor(diff / 86_400_000)
-  const h = Math.floor((diff % 86_400_000) / 3_600_000)
-  const m = Math.floor((diff % 3_600_000) / 60_000)
-  const s = Math.floor((diff % 60_000) / 1_000)
-  return { d, h, m, s }
+function timeToMinutes(t: string) {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
+}
+
+function formatTime(t: string) {
+  const [h, m] = t.split(':').map(Number)
+  const ampm = h >= 12 ? 'PM' : 'AM'
+  const h12 = h % 12 || 12
+  return `${h12}:${String(m).padStart(2, '0')} ${ampm}`
 }
 
 export default function TVKWidget() {
-  const [time, setTime] = useState(getTimeLeft)
-  const [mIdx, setMIdx] = useState(() => Math.floor(Math.random() * MANIFESTO.length))
-  const [mVisible, setMVisible] = useState(true)
+  const [nowMin, setNowMin] = useState(getISTMinutes)
+  const [collapsed, setCollapsed] = useState(false)
 
-  // 1-second countdown
   useEffect(() => {
-    const id = setInterval(() => setTime(getTimeLeft()), 1000)
+    const id = setInterval(() => setNowMin(getISTMinutes()), 30_000)
     return () => clearInterval(id)
   }, [])
 
-  // Rotate manifesto every 4 s
-  useEffect(() => {
-    const id = setInterval(() => {
-      setMVisible(false)
-      setTimeout(() => {
-        setMIdx(() => Math.floor(Math.random() * MANIFESTO.length))
-        setMVisible(true)
-      }, 300)
-    }, 4000)
-    return () => clearInterval(id)
-  }, [])
+  // Sort by start time, find what's current and upcoming
+  const sorted = [...SCHEDULE].sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time))
+  const current = sorted.filter(s => {
+    const start = timeToMinutes(s.time)
+    return start <= nowMin && nowMin < start + 60
+  })
+  const upcoming = sorted.filter(s => timeToMinutes(s.time) > nowMin).slice(0, 4)
+  const shown = current.length > 0 ? current : upcoming.slice(0, 1)
+  const next = upcoming.slice(0, collapsed ? 0 : 3)
 
-  const item = MANIFESTO[mIdx]
+  const h = Math.floor(nowMin / 60)
+  const m = nowMin % 60
+  const ampm = h >= 12 ? 'PM' : 'AM'
+  const h12 = h % 12 || 12
+  const timeStr = `${h12}:${String(m).padStart(2, '0')} ${ampm} IST`
 
   return (
     <div className="fixed top-3 right-3 z-[200] select-none">
       <div
         className="w-52 rounded-2xl overflow-hidden shadow-2xl"
         style={{
-          background: '#0c0c0c',
-          border: '1px solid rgba(220,38,38,0.4)',
-          boxShadow: '0 0 0 1px rgba(220,38,38,0.08), 0 12px 40px rgba(0,0,0,0.7)',
+          background: '#0c0005',
+          border: '1px solid rgba(220,38,38,0.35)',
+          boxShadow: '0 0 0 1px rgba(220,38,38,0.06), 0 12px 40px rgba(0,0,0,0.75)',
         }}
       >
-        {/* TVK flag stripe — red | black | white */}
-        <div className="flex h-1.5 w-full">
-          <div className="flex-1" style={{ background: '#dc2626' }} />
-          <div className="flex-1 bg-black" />
-          <div className="flex-1 bg-white" />
-        </div>
-
-        {/* Header — TVK logo + title */}
-        <div
-          className="flex items-center gap-2 px-3 pt-2.5 pb-2"
-          style={{ borderBottom: '1px solid rgba(220,38,38,0.15)' }}
-        >
-          {/* TVK emblem — stylised torch/sun icon */}
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{
-              background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
-              boxShadow: '0 0 8px rgba(220,38,38,0.5)',
-            }}
-          >
-            {/* Rising sun / torch SVG */}
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="9" r="3.5" fill="white" opacity="0.9" />
-              <rect x="7.3" y="1" width="1.4" height="3" rx="0.7" fill="white" opacity="0.8" />
-              <rect x="7.3" y="12" width="1.4" height="3" rx="0.7" fill="white" opacity="0.5" />
-              <rect x="1" y="8.3" width="3" height="1.4" rx="0.7" fill="white" opacity="0.8" />
-              <rect x="12" y="8.3" width="3" height="1.4" rx="0.7" fill="white" opacity="0.5" />
-              <rect x="3" y="3" width="1.4" height="3" rx="0.7" fill="white" opacity="0.6" transform="rotate(45 3 3)" />
-              <rect x="11.6" y="3" width="1.4" height="3" rx="0.7" fill="white" opacity="0.6" transform="rotate(-45 12.6 3)" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-[10px] font-black tracking-wider uppercase" style={{ color: '#dc2626' }}>TVK</div>
-            <div className="text-[8px] text-white/30 leading-tight">தமிழக வெற்றி கழகம்</div>
-          </div>
-        </div>
-
-        {/* Countdown section */}
-        <div className="px-3 py-2.5">
-          <p className="text-[9px] text-white/40 uppercase tracking-widest text-center mb-2 font-semibold">
-            வாக்குப்பதிவு நாள் — May 4, 8AM
-          </p>
-
-          {time ? (
-            <div className="grid grid-cols-4 gap-1 mb-1">
-              {[
-                { val: time.d, label: 'நாள்' },
-                { val: time.h, label: 'மணி' },
-                { val: time.m, label: 'நிமி' },
-                { val: time.s, label: 'விநா' },
-              ].map(({ val, label }) => (
-                <div key={label} className="flex flex-col items-center">
-                  <div
-                    className="w-full text-center text-base font-black rounded-lg py-1 leading-none"
-                    style={{
-                      background: 'rgba(220,38,38,0.12)',
-                      border: '1px solid rgba(220,38,38,0.25)',
-                      color: '#f87171',
-                      fontVariantNumeric: 'tabular-nums',
-                    }}
-                  >
-                    {pad(val)}
-                  </div>
-                  <span className="text-[8px] text-white/25 mt-0.5">{label}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div
-              className="text-center py-2 rounded-lg text-[11px] font-black"
-              style={{ background: 'rgba(220,38,38,0.15)', color: '#f87171' }}
-            >
-              🗳️ இன்று வாக்களிக்கும் நாள்!
-            </div>
-          )}
-        </div>
-
-        {/* Manifesto rolling ticker */}
-        <div
-          className="px-3 pb-2.5 pt-1"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-        >
-          <div
-            className="transition-all duration-300 text-center"
-            style={{ opacity: mVisible ? 1 : 0, transform: mVisible ? 'translateY(0)' : 'translateY(4px)' }}
-          >
-            <p className="text-[10px] font-bold leading-snug" style={{ color: '#fca5a5' }}>
-              {item.tamil}
-            </p>
-            <p className="text-[8px] text-white/25 mt-0.5">{item.en}</p>
-          </div>
-        </div>
-
-        {/* Bottom flag stripe */}
+        {/* Channel colour stripe */}
         <div className="flex h-1 w-full">
           <div className="flex-1" style={{ background: '#dc2626' }} />
-          <div className="flex-1 bg-black" />
-          <div className="flex-1 bg-white" />
+          <div className="flex-1" style={{ background: '#f97316' }} />
+          <div className="flex-1" style={{ background: '#7c3aed' }} />
+          <div className="flex-1" style={{ background: '#f59e0b' }} />
+        </div>
+
+        {/* Header */}
+        <button
+          onClick={() => setCollapsed(c => !c)}
+          className="w-full flex items-center gap-2 px-3 pt-2.5 pb-2 hover:bg-white/3 transition-colors"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <div
+            className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #dc2626, #991b1b)', boxShadow: '0 0 8px rgba(220,38,38,0.4)' }}
+          >
+            <Tv2 className="w-3.5 h-3.5 text-white" />
+          </div>
+          <div className="flex-1 text-left">
+            <div className="text-[10px] font-black tracking-wider uppercase" style={{ color: '#f87171' }}>TV Schedule</div>
+            <div className="text-[8px] text-white/25 leading-tight">{timeStr}</div>
+          </div>
+          <span className="text-white/20 text-[10px]">{collapsed ? '▼' : '▲'}</span>
+        </button>
+
+        {/* On Now */}
+        {!collapsed && (
+          <div className="px-3 py-2.5 space-y-1.5">
+            <p className="text-[8px] font-bold uppercase tracking-widest text-white/25 mb-1">On Now</p>
+            {shown.map((s, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Circle className="w-1.5 h-1.5 flex-shrink-0 fill-current" style={{ color: s.color }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-[11px] font-bold truncate leading-tight">{s.show}</p>
+                  <p className="text-[9px] truncate" style={{ color: s.color + 'cc' }}>{s.channel} · {formatTime(s.time)}</p>
+                </div>
+              </div>
+            ))}
+
+            {/* Upcoming */}
+            {next.length > 0 && (
+              <>
+                <p className="text-[8px] font-bold uppercase tracking-widest text-white/20 pt-1">Up Next</p>
+                {next.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2 opacity-60">
+                    <span className="text-[8px] text-white/30 w-9 flex-shrink-0 text-right">{formatTime(s.time)}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white/70 text-[10px] truncate leading-tight">{s.show}</p>
+                      <p className="text-[8px] text-white/25 truncate">{s.channel}</p>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Bottom stripe */}
+        <div className="flex h-0.5 w-full">
+          <div className="flex-1" style={{ background: '#dc2626' }} />
+          <div className="flex-1" style={{ background: '#f97316' }} />
+          <div className="flex-1" style={{ background: '#7c3aed' }} />
+          <div className="flex-1" style={{ background: '#f59e0b' }} />
         </div>
       </div>
     </div>
