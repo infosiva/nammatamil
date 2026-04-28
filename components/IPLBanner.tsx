@@ -24,44 +24,51 @@ interface StandingRow {
   pts: number; played: number; w: number; l: number; nrr: string
 }
 
-// Real IPL 2026 Points Table — sourced from iplt20.com (update after each match day)
+// Real IPL 2026 Points Table — after Match 39 (DC vs RCB, Apr 27) — source: cricketaddictor.com
 const REAL_STANDINGS: StandingRow[] = [
-  { pos: 1, team: 'RCB', teamFull: 'Royal Challengers Bengaluru', color: '#dc2626', pts: 16, played: 9, w: 8, l: 1, nrr: '+1.423' },
-  { pos: 2, team: 'MI',  teamFull: 'Mumbai Indians',              color: '#005da0', pts: 14, played: 9, w: 7, l: 2, nrr: '+0.871' },
-  { pos: 3, team: 'GT',  teamFull: 'Gujarat Titans',              color: '#1e3a5f', pts: 12, played: 9, w: 6, l: 3, nrr: '+0.512' },
-  { pos: 4, team: 'CSK', teamFull: 'Chennai Super Kings',         color: '#f7de00', pts: 10, played: 9, w: 5, l: 4, nrr: '+0.108' },
-  { pos: 5, team: 'SRH', teamFull: 'Sunrisers Hyderabad',         color: '#f97316', pts: 8,  played: 9, w: 4, l: 5, nrr: '-0.234' },
-  { pos: 6, team: 'KKR', teamFull: 'Kolkata Knight Riders',       color: '#6d28d9', pts: 8,  played: 9, w: 4, l: 5, nrr: '-0.345' },
-  { pos: 7, team: 'DC',  teamFull: 'Delhi Capitals',              color: '#1d4ed8', pts: 6,  played: 9, w: 3, l: 6, nrr: '-0.512' },
-  { pos: 8, team: 'PBKS',teamFull: 'Punjab Kings',                color: '#dc2626', pts: 6,  played: 9, w: 3, l: 6, nrr: '-0.623' },
-  { pos: 9, team: 'RR',  teamFull: 'Rajasthan Royals',            color: '#ec4899', pts: 4,  played: 9, w: 2, l: 7, nrr: '-0.789' },
-  { pos: 10,team: 'LSG', teamFull: 'Lucknow Super Giants',        color: '#14b8a6', pts: 2,  played: 9, w: 1, l: 8, nrr: '-1.102' },
+  { pos: 1,  team: 'PBKS', teamFull: 'Punjab Kings',                color: '#a855f7', pts: 13, played: 7, w: 6, l: 0, nrr: '+1.333' },
+  { pos: 2,  team: 'RCB',  teamFull: 'Royal Challengers Bengaluru', color: '#dc2626', pts: 12, played: 8, w: 6, l: 2, nrr: '+1.919' },
+  { pos: 3,  team: 'SRH',  teamFull: 'Sunrisers Hyderabad',         color: '#f97316', pts: 10, played: 8, w: 5, l: 3, nrr: '+0.815' },
+  { pos: 4,  team: 'RR',   teamFull: 'Rajasthan Royals',            color: '#ec4899', pts: 10, played: 8, w: 5, l: 3, nrr: '+0.602' },
+  { pos: 5,  team: 'GT',   teamFull: 'Gujarat Titans',              color: '#6b7280', pts: 8,  played: 8, w: 4, l: 4, nrr: '-0.475' },
+  { pos: 6,  team: 'CSK',  teamFull: 'Chennai Super Kings',         color: '#f7de00', pts: 6,  played: 8, w: 3, l: 5, nrr: '-0.121' },
+  { pos: 7,  team: 'DC',   teamFull: 'Delhi Capitals',              color: '#1d4ed8', pts: 6,  played: 8, w: 3, l: 5, nrr: '-1.060' },
+  { pos: 8,  team: 'KKR',  teamFull: 'Kolkata Knight Riders',       color: '#6d28d9', pts: 5,  played: 8, w: 2, l: 5, nrr: '-0.751' },
+  { pos: 9,  team: 'MI',   teamFull: 'Mumbai Indians',              color: '#005da0', pts: 4,  played: 7, w: 2, l: 5, nrr: '-0.736' },
+  { pos: 10, team: 'LSG',  teamFull: 'Lucknow Super Giants',        color: '#14b8a6', pts: 4,  played: 8, w: 2, l: 6, nrr: '-1.106' },
 ]
 
-// Real upcoming/recent matches
+// Real upcoming/recent matches — updated Apr 28, 2026
 const REAL_MATCHES: LiveMatch[] = [
   {
     id: 'm1',
-    team1: 'Chennai Super Kings', team1Short: 'CSK', team1Color: '#f7de00',
-    team2: 'Mumbai Indians',      team2Short: 'MI',  team2Color: '#005da0',
-    date: 'Apr 29', time: '7:30 PM IST', venue: 'MA Chidambaram Stadium, Chennai',
+    team1: 'Punjab Kings', team1Short: 'PBKS', team1Color: '#a855f7',
+    team2: 'Rajasthan Royals', team2Short: 'RR', team2Color: '#ec4899',
+    date: 'Apr 28', time: '7:30 PM IST', venue: 'Mullanpur Stadium, Chandigarh',
     status: 'upcoming',
   },
   {
     id: 'm2',
-    team1: 'Royal Challengers Bengaluru', team1Short: 'RCB', team1Color: '#dc2626',
-    team2: 'Gujarat Titans',             team2Short: 'GT',  team2Color: '#1e3a5f',
-    date: 'Apr 30', time: '7:30 PM IST', venue: 'M. Chinnaswamy Stadium, Bengaluru',
+    team1: 'Mumbai Indians', team1Short: 'MI', team1Color: '#005da0',
+    team2: 'Sunrisers Hyderabad', team2Short: 'SRH', team2Color: '#f97316',
+    date: 'Apr 29', time: '7:30 PM IST', venue: 'Wankhede Stadium, Mumbai',
     status: 'upcoming',
   },
   {
     id: 'm3',
-    team1: 'Chennai Super Kings',   team1Short: 'CSK', team1Color: '#f7de00',
-    team2: 'Kolkata Knight Riders', team2Short: 'KKR', team2Color: '#6d28d9',
-    date: 'Apr 26', time: 'Completed', venue: 'Eden Gardens, Kolkata',
+    team1: 'Gujarat Titans', team1Short: 'GT', team1Color: '#6b7280',
+    team2: 'Royal Challengers Bengaluru', team2Short: 'RCB', team2Color: '#dc2626',
+    date: 'Apr 30', time: '7:30 PM IST', venue: 'Narendra Modi Stadium, Ahmedabad',
+    status: 'upcoming',
+  },
+  {
+    id: 'm4',
+    team1: 'Delhi Capitals', team1Short: 'DC', team1Color: '#1d4ed8',
+    team2: 'Royal Challengers Bengaluru', team2Short: 'RCB', team2Color: '#dc2626',
+    date: 'Apr 27', time: 'Completed', venue: 'Arun Jaitley Stadium, Delhi',
     status: 'completed',
-    score1: '182/6 (20)', score2: '178/8 (20)',
-    result: 'CSK won by 4 runs',
+    score1: '75 (16.3)', score2: '76/1 (6.3)',
+    result: 'RCB won by 9 wkts',
   },
 ]
 
