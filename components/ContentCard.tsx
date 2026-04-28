@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Star, Tv2, Film, Music, Globe, Sparkles } from 'lucide-react'
+import { Star, Tv2, Film, Music, Globe, Zap } from 'lucide-react'
 import clsx from 'clsx'
 
 interface ContentCardProps {
@@ -15,150 +15,154 @@ interface ContentCardProps {
   year?: number
   status?: string
   tags?: string[]
-  /** Optional thumbnail image URL — shown instead of gradient when provided */
   thumbnail?: string
-  /** Reduce poster height for dense grid layouts */
   compact?: boolean
 }
 
-const TYPE_ICON = {
-  serial: Tv2,
-  movie: Film,
-  album: Music,
-}
+const TYPE_ICON = { serial: Tv2, movie: Film, album: Music }
 
-const CHANNEL_COLORS: Record<string, string> = {
-  'Sun TV': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  'Vijay TV': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  'Star Vijay': 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  'Zee Tamil': 'bg-teal-500/20 text-teal-400 border-teal-500/30',
+const CHANNEL_PILL: Record<string, { bg: string; text: string }> = {
+  'Sun TV':     { bg: 'rgba(234,88,12,0.18)',   text: '#fb923c' },
+  'Vijay TV':   { bg: 'rgba(59,130,246,0.18)',  text: '#60a5fa' },
+  'Star Vijay': { bg: 'rgba(139,92,246,0.18)',  text: '#a78bfa' },
+  'Zee Tamil':  { bg: 'rgba(20,184,166,0.18)',  text: '#2dd4bf' },
 }
 
 export default function ContentCard({
-  href,
-  title,
-  subtitle,
-  gradient,
-  type,
-  badge,
-  rating,
-  language,
-  channel,
-  year,
-  status,
-  tags = [],
-  thumbnail,
-  compact = false,
+  href, title, subtitle, gradient, type, badge, rating,
+  language, channel, year, status, tags = [], thumbnail, compact = false,
 }: ContentCardProps) {
-  const Icon = TYPE_ICON[type]
+  const Icon      = TYPE_ICON[type]
   const isOngoing = status === 'Ongoing'
-  const posterH = compact ? 'h-44' : 'h-52'
+  const posterH   = compact ? 'h-40' : 'h-52'
+  const ch        = channel ? (CHANNEL_PILL[channel] ?? null) : null
 
   return (
     <Link href={href} className="group block">
-      <div className="glass rounded-xl overflow-hidden card-hover border border-white/5 h-full">
-
-        {/* Poster / Gradient Art */}
-        <div className={clsx('relative overflow-hidden', thumbnail ? '' : `bg-gradient-to-br ${gradient}`, posterH)}>
-          {/* Thumbnail image when provided */}
+      <div
+        className="rounded-2xl overflow-hidden card-hover h-full"
+        style={{
+          background: '#0d0d18',
+          border: '1px solid rgba(255,255,255,0.07)',
+        }}
+      >
+        {/* ── Poster ── */}
+        <div className={clsx('relative overflow-hidden', posterH, !thumbnail && `bg-gradient-to-br ${gradient}`)}>
           {thumbnail && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={thumbnail} alt={title}
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy" />
+            <img
+              src={thumbnail}
+              alt={title}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
           )}
-          {/* Decorative circles (gradient only) */}
+
+          {/* Decorative blobs on gradient cards */}
           {!thumbnail && (
             <>
-              <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-700" />
-              <div className="absolute -bottom-3 -left-3 w-14 h-14 rounded-full bg-black/20 group-hover:scale-150 transition-transform duration-700" />
+              <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/8 transition-transform duration-700 group-hover:scale-150" />
+              <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-black/20 transition-transform duration-700 group-hover:scale-150" />
             </>
           )}
 
-          {/* Type icon */}
-          <div className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/30 backdrop-blur-sm">
-            <Icon className="w-3.5 h-3.5 text-white" />
+          {/* Type icon — top-left */}
+          <div
+            className="absolute top-2 left-2 p-1.5 rounded-lg"
+            style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)' }}
+          >
+            <Icon className="w-3 h-3 text-white/80" />
           </div>
 
-          {/* Badge or AI sparkle */}
+          {/* Badge / AI pill — top-right */}
           {badge ? (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gold-500 text-dark-900 text-[10px] font-bold leading-tight max-w-[60px] truncate">
+            <div
+              className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold truncate max-w-[64px]"
+              style={{ background: '#f59e0b', color: '#000' }}
+            >
               {badge}
             </div>
           ) : (
             <div
               className="absolute top-2 right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full"
-              style={{ background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.3)' }}
+              style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}
             >
-              <Sparkles className="w-2.5 h-2.5 text-gold-400" />
-              <span className="text-[9px] font-bold text-gold-400 leading-none">AI</span>
+              <Zap className="w-2.5 h-2.5 text-amber-400" />
+              <span className="text-[9px] font-bold text-amber-400">AI</span>
             </div>
           )}
 
-          {/* Language tag for dubbed */}
+          {/* Dubbed pill — bottom-left */}
           {language === 'Tamil Dubbed' && (
-            <div className="absolute bottom-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/20">
-              <Globe className="w-2.5 h-2.5 text-cyan-400" />
-              <span className="text-cyan-400 text-[10px] font-medium">Dubbed</span>
+            <div
+              className="absolute bottom-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold"
+              style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.15)', color: '#67e8f9' }}
+            >
+              <Globe className="w-2.5 h-2.5" />
+              Dubbed
             </div>
           )}
 
-          {/* Ongoing dot */}
+          {/* Ongoing dot — bottom-right */}
           {isOngoing && (
             <div className="absolute bottom-2 right-2 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-green-400 text-[10px] font-medium">Live</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-emerald-400 text-[9px] font-semibold">Live</span>
             </div>
           )}
 
-          {/* Year tag (when no channel) */}
+          {/* Year pill when no channel */}
           {year && !channel && !compact && (
-            <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/40 text-slate-300 text-[10px]">
+            <div
+              className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded text-[9px]"
+              style={{ background: 'rgba(0,0,0,0.45)', color: 'rgba(255,255,255,0.5)' }}
+            >
               {year}
             </div>
           )}
 
-          {/* Title overlay */}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent pt-6 pb-2 px-2.5">
-            <h3 className="text-white font-bold text-sm leading-tight line-clamp-2 group-hover:text-gold-300 transition-colors">
+          {/* Title overlay gradient */}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pt-8 pb-2.5 px-2.5">
+            <h3 className="text-white font-bold text-[12px] leading-tight line-clamp-2 group-hover:text-amber-300 transition-colors duration-200">
               {title}
             </h3>
           </div>
         </div>
 
-        {/* Card body — hidden in compact mode to save vertical space */}
+        {/* ── Card body (non-compact) ── */}
         {!compact && (
-          <div className="p-2.5 space-y-1.5">
-            {/* Meta row */}
-            <div className="flex items-center justify-between gap-1">
+          <div className="px-2.5 py-2 space-y-1.5">
+            <div className="flex items-center justify-between gap-1 min-w-0">
               <div className="flex items-center gap-1 min-w-0 overflow-hidden">
-                {channel && (
-                  <span className={clsx('badge border text-[10px] px-1.5 py-0.5 truncate max-w-[80px]', CHANNEL_COLORS[channel] ?? 'bg-white/10 text-slate-300 border-white/20')}>
+                {ch ? (
+                  <span
+                    className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full truncate max-w-[80px]"
+                    style={{ background: ch.bg, color: ch.text }}
+                  >
                     {channel}
                   </span>
-                )}
-                {year && !channel && (
-                  <span className="text-muted text-[10px]">{year}</span>
-                )}
+                ) : year ? (
+                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{year}</span>
+                ) : null}
               </div>
               {rating !== undefined && (
                 <div className="flex items-center gap-0.5 flex-shrink-0">
-                  <Star className="w-2.5 h-2.5 text-gold-400 fill-gold-400" />
-                  <span className="text-gold-400 text-[10px] font-semibold">{rating.toFixed(1)}</span>
+                  <Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
+                  <span className="text-amber-400 text-[10px] font-bold">{rating.toFixed(1)}</span>
                 </div>
               )}
             </div>
-
-            {/* Subtitle */}
             {subtitle && (
-              <p className="text-muted text-[10px] truncate leading-tight">{subtitle}</p>
+              <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,0.3)' }}>{subtitle}</p>
             )}
-
-            {/* Tags */}
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {tags.slice(0, 2).map((tag) => (
-                  <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-slate-400 capitalize">
+              <div className="flex gap-1 flex-wrap">
+                {tags.slice(0, 2).map(tag => (
+                  <span
+                    key={tag}
+                    className="text-[9px] px-1.5 py-0.5 rounded-md capitalize"
+                    style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)' }}
+                  >
                     {tag}
                   </span>
                 ))}
@@ -167,18 +171,25 @@ export default function ContentCard({
           </div>
         )}
 
-        {/* Compact mode: just rating pill below poster */}
-        {compact && rating !== undefined && (
-          <div className="px-2 py-1 flex items-center justify-between">
-            <div className="flex items-center gap-0.5">
-              <Star className="w-2.5 h-2.5 text-gold-400 fill-gold-400" />
-              <span className="text-gold-400 text-[10px] font-semibold">{rating.toFixed(1)}</span>
-            </div>
+        {/* ── Compact footer ── */}
+        {compact && (rating !== undefined || channel || year) && (
+          <div className="px-2 py-1.5 flex items-center justify-between">
+            {rating !== undefined ? (
+              <div className="flex items-center gap-0.5">
+                <Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
+                <span className="text-amber-400 text-[10px] font-bold">{rating.toFixed(1)}</span>
+              </div>
+            ) : <span />}
             {channel && (
-              <span className="text-[9px] text-slate-500 truncate ml-1">{channel}</span>
+              <span
+                className="text-[9px] truncate ml-1"
+                style={{ color: ch?.text ?? 'rgba(255,255,255,0.3)' }}
+              >
+                {channel}
+              </span>
             )}
             {year && !channel && (
-              <span className="text-[9px] text-slate-500">{year}</span>
+              <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{year}</span>
             )}
           </div>
         )}

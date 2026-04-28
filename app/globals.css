@@ -6,47 +6,42 @@
 
 @layer base {
   * { box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
 
   body {
-    /* TVK theme: deep black with golden amber accent */
-    background-color: #060501;
-    color: #f1f5f9;
+    background-color: #080810;
+    color: #e2e8f0;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: #111; }
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #f59e0b, #dc2626);
-    border-radius: 99px;
-  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(245,158,11,0.5); }
 
-  ::selection { background: rgba(245,158,11,0.3); color: #fff; }
+  ::selection { background: rgba(245,158,11,0.25); color: #fff; }
 }
 
 @layer components {
-  /* Glass card */
+  /* ── Glass surfaces ── */
   .glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.07);
   }
 
   .glass-gold {
-    background: rgba(245, 158, 11, 0.06);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(245, 158, 11, 0.15);
+    background: rgba(245,158,11,0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(245,158,11,0.18);
   }
 
-  /* Gradient text */
+  /* ── Gradient text ── */
   .text-gradient {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 40%, #dc2626 100%);
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -59,156 +54,157 @@
     background-clip: text;
   }
 
-  /* Glow effects */
-  .glow-gold {
-    box-shadow: 0 0 30px rgba(245, 158, 11, 0.25), 0 0 60px rgba(245, 158, 11, 0.1);
-  }
+  /* ── Glow ── */
+  .glow-gold    { box-shadow: 0 0 24px rgba(245,158,11,0.2), 0 0 48px rgba(245,158,11,0.07); }
+  .glow-gold-sm { box-shadow: 0 0 10px rgba(245,158,11,0.25); }
 
-  .glow-gold-sm {
-    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
-  }
+  /* ── Badge ── */
+  .badge { @apply inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold; }
 
-  /* Badge */
-  .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
-  }
-
-  /* Hover card lift */
-  .card-hover {
-    @apply transition-all duration-300;
-  }
+  /* ── Card hover ── */
+  .card-hover { @apply transition-all duration-300; }
   .card-hover:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(245,158,11,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 16px rgba(245,158,11,0.08);
   }
 
-  /* Section heading */
-  .section-title {
-    @apply text-2xl md:text-3xl font-bold text-white;
-  }
+  /* ── Section title ── */
+  .section-title { @apply text-xl md:text-2xl font-bold text-white tracking-tight; }
 
-  /* Shimmer loading */
+  /* ── Shimmer skeleton ── */
   .shimmer {
-    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0.03) 25%,
+      rgba(255,255,255,0.07) 50%,
+      rgba(255,255,255,0.03) 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+
+  /* ── Surface tiers ── */
+  .surface-1 { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+  .surface-2 { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); }
+  .surface-gold { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.18); }
+
+  /* ── Pill chip ── */
+  .chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-all;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    color: rgba(255,255,255,0.5);
+  }
+  .chip:hover { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.8); }
+  .chip-active {
+    background: rgba(245,158,11,0.12);
+    border-color: rgba(245,158,11,0.35);
+    color: #f59e0b;
   }
 }
 
 @layer utilities {
-  /* TVK theme — rich black + gold */
-  .bg-site { background-color: #060501; }
-  .bg-card { background-color: #0d0b02; }
-  .text-muted { color: #94a3b8; }
+  .bg-site   { background-color: #080810; }
+  .bg-card   { background-color: #0d0d18; }
+  .text-muted { color: rgba(148,163,184,0.7); }
   .border-subtle { border-color: rgba(255,255,255,0.07); }
 
-  /* Noise texture overlay */
-  .noise::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
+  /* Hide scrollbar */
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
-/* Hero background — TVK theme: black with golden amber glow */
+/* ── Site background: deep indigo-black with ambient glows ── */
 .hero-bg {
   background:
-    radial-gradient(ellipse 80% 50% at 50% -5%, rgba(245,158,11,0.12) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 30% at 95% 40%, rgba(245,158,11,0.07) 0%, transparent 55%),
-    radial-gradient(ellipse 30% 40% at 0% 100%, rgba(217,119,6,0.06) 0%, transparent 50%),
-    #060501;
+    radial-gradient(ellipse 70% 45% at 50% -10%, rgba(245,158,11,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 35% at 90% 30%, rgba(99,102,241,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 30% 40% at 5% 85%, rgba(217,119,6,0.05) 0%, transparent 50%),
+    #080810;
 }
 
-/* Particle dots scattered across hero */
-.hero-particles::before {
+/* Subtle dot-grid background */
+body::before {
   content: '';
-  position: absolute;
+  position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(circle, rgba(245,158,11,0.6) 1px, transparent 1px),
-    radial-gradient(circle, rgba(220,38,38,0.4) 1px, transparent 1px),
-    radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px);
-  background-size: 80px 80px, 120px 120px, 60px 60px;
-  background-position: 0 0, 40px 40px, 20px 20px;
+    radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
   pointer-events: none;
-  opacity: 0.4;
+  z-index: 0;
 }
 
-/* TVK golden border pulse */
-.tvk-glow {
-  box-shadow: 0 0 0 1px rgba(245,158,11,0.3), 0 0 20px rgba(245,158,11,0.15), 0 0 40px rgba(124,58,237,0.1);
+/* All page content above the grid */
+body > * { position: relative; z-index: 1; }
+
+/* ── Scrolling ticker ── */
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-inner     { animation: ticker 30s linear infinite; display: flex; width: max-content; }
+.ticker-inner:hover { animation-play-state: paused; }
+.tvk-ticker-inner { animation: ticker 20s linear infinite; display: flex; width: max-content; }
+
+/* ── Shimmer keyframe ── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
 
-/* Election countdown timer digits */
+/* ── Flip animation (countdown) ── */
+@keyframes flipIn {
+  0%   { transform: rotateX(-90deg); opacity: 0; }
+  100% { transform: rotateX(0deg);  opacity: 1; }
+}
+.flip-in { animation: flipIn 0.35s ease-out forwards; }
+
+/* ── Border glow pulse ── */
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(245,158,11,0.25); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+  50%       { border-color: rgba(245,158,11,0.5);  box-shadow: 0 0 12px rgba(245,158,11,0.12); }
+}
+.border-animate { animation: borderGlow 3s ease-in-out infinite; }
+
+/* ── Election / countdown digit box ── */
 .countdown-digit {
-  background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(124,58,237,0.15));
-  border: 1px solid rgba(245,158,11,0.25);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-/* Vijay spotlight card */
+/* ── TVK card ── */
 .vijay-card {
-  background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(124,58,237,0.08) 100%);
-  border: 1px solid rgba(245,158,11,0.18);
+  background: linear-gradient(135deg, rgba(245,158,11,0.07), rgba(99,102,241,0.07));
+  border: 1px solid rgba(245,158,11,0.16);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* Scrolling ticker animation */
-@keyframes ticker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* ── TVK glow border ── */
+.tvk-glow {
+  box-shadow: 0 0 0 1px rgba(245,158,11,0.25), 0 0 18px rgba(245,158,11,0.1), 0 0 36px rgba(99,102,241,0.07);
 }
 
-.ticker-inner {
-  animation: ticker 30s linear infinite;
-  display: flex;
-  width: max-content;
+/* ── Gradient border on cards (via ::before pseudo) ── */
+.card-gradient-border {
+  position: relative;
+}
+.card-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(99,102,241,0.1));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
-.ticker-inner:hover {
-  animation-play-state: paused;
+/* ── Focus ring ── */
+*:focus-visible {
+  outline: 2px solid rgba(245,158,11,0.5);
+  outline-offset: 2px;
 }
-
-/* TVK manifesto bottom ticker */
-.tvk-ticker-inner {
-  animation: ticker 20s linear infinite;
-  display: flex;
-  width: max-content;
-}
-
-/* Keyframes for countdown flip */
-@keyframes flipIn {
-  0% { transform: rotateX(-90deg); opacity: 0; }
-  100% { transform: rotateX(0deg); opacity: 1; }
-}
-
-.flip-in {
-  animation: flipIn 0.4s ease-out forwards;
-}
-
-/* Gradient border animation for TVK banner */
-@keyframes borderGlow {
-  0%, 100% { border-color: rgba(245,158,11,0.3); }
-  50% { border-color: rgba(124,58,237,0.5); }
-}
-
-.border-animate {
-  animation: borderGlow 3s ease-in-out infinite;
-}
-
-/* Compact card adjustments */
-.card-compact .h-48 { height: 9rem; }
-
-/* No-image card gradient fallback */
-.no-image-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-}
-
-/* Hide scrollbar for tab bar */
-.scrollbar-hide::-webkit-scrollbar { display: none; }
-.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

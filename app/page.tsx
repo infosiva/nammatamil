@@ -23,33 +23,49 @@ export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
 
-      {/* ── Slim Hero / Search Bar ───────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-3">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          {/* Left: tagline */}
+      {/* ── Hero strip ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+
+          {/* Left: live stats */}
           <div className="flex-shrink-0">
-            <p className="text-[10px] text-white/30 uppercase tracking-widest">தமிழ் பொழுதுபோக்கு உலகம்</p>
-            <div className="flex flex-wrap items-baseline gap-1 mt-0.5">
+            <p className="text-[10px] font-semibold tracking-[0.2em] uppercase mb-1.5"
+              style={{ color: 'rgba(255,255,255,0.2)' }}>
+              தமிழ் பொழுதுபோக்கு உலகம்
+            </p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               {STATS.map(({ label, value }) => (
-                <span key={label} className="text-[10px] text-white/25">
-                  <span className="text-gold-400 font-bold">{value}</span> {label}
-                  <span className="mx-1 text-white/10">·</span>
+                <span key={label} className="flex items-center gap-1 text-[11px]"
+                  style={{ color: 'rgba(255,255,255,0.3)' }}>
+                  <span className="font-black text-sm" style={{ color: '#f59e0b' }}>{value}</span>
+                  {label}
                 </span>
               ))}
             </div>
           </div>
-          {/* Right: search */}
-          <form action="/search" className="flex items-center gap-2 w-full sm:max-w-md sm:ml-auto">
+
+          {/* Right: search bar */}
+          <form action="/search" className="flex items-center gap-2 w-full sm:max-w-sm sm:ml-auto">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none"
+                style={{ color: 'rgba(255,255,255,0.25)' }} />
               <input
                 name="q"
                 type="text"
-                placeholder="Search movies, serials, actors…"
-                className="w-full pl-9 pr-4 py-2 rounded-xl glass border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold-500/50 bg-transparent transition-all"
+                placeholder="Search movies, serials, artists…"
+                className="w-full pl-9 pr-4 py-2 rounded-xl text-sm text-white outline-none transition-all focus:ring-1 focus:ring-amber-500/40"
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.09)',
+                  color: 'white',
+                }}
               />
             </div>
-            <button type="submit" className="px-4 py-2 rounded-xl bg-gold-500 text-dark-900 font-bold text-sm hover:bg-gold-400 transition-all flex-shrink-0">
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl text-sm font-bold flex-shrink-0 transition-all hover:brightness-110"
+              style={{ background: '#f59e0b', color: '#000' }}
+            >
               Search
             </button>
           </form>

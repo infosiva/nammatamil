@@ -52,6 +52,30 @@ function SearchBar({ value, onChange, placeholder }: { value: string; onChange: 
 }
 
 /* ── Horizontal scroll shelf ────────────────────────────────────────────────── */
+function SectionHeader({ title, icon: Icon, iconClass, href }: {
+  title: string; icon: React.ElementType; iconClass: string; href?: string
+}) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-[13px] font-black text-white flex items-center gap-2 tracking-tight">
+        <span className={`w-6 h-6 rounded-lg flex items-center justify-center ${iconClass.replace('text-', 'bg-').replace('-400','-500/10')}`}>
+          <Icon className={`w-3.5 h-3.5 ${iconClass}`} />
+        </span>
+        {title}
+      </h2>
+      {href && (
+        <Link href={href}
+          className="flex items-center gap-1 text-[11px] font-semibold transition-colors"
+          style={{ color: 'rgba(245,158,11,0.7)' }}
+          onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#f59e0b')}
+          onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(245,158,11,0.7)')}>
+          View all <ArrowRight className="w-3 h-3" />
+        </Link>
+      )}
+    </div>
+  )
+}
+
 function Shelf({
   title, icon: Icon, iconClass, href, children,
 }: {
@@ -59,18 +83,7 @@ function Shelf({
 }) {
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-black text-white flex items-center gap-1.5">
-          <Icon className={`w-4 h-4 ${iconClass}`} />
-          {title}
-        </h2>
-        {href && (
-          <Link href={href} className="text-gold-400 text-[11px] flex items-center gap-0.5 hover:text-gold-300 transition-colors">
-            See all <ArrowRight className="w-3 h-3" />
-          </Link>
-        )}
-      </div>
-      {/* Horizontal scroll row */}
+      <SectionHeader title={title} icon={Icon} iconClass={iconClass} href={href} />
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
         {children}
       </div>
@@ -194,14 +207,16 @@ function FeaturedTab({ movies, serials, albums }: Props) {
       {/* Recent Episodes */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-black text-white flex items-center gap-2">
-            <Clock className="w-5 h-5 text-red-400" />
+          <h2 className="text-[13px] font-black text-white flex items-center gap-2 tracking-tight">
+            <span className="w-6 h-6 rounded-lg flex items-center justify-center bg-red-500/10">
+              <Clock className="w-3.5 h-3.5 text-red-400" />
+            </span>
             Recent Episodes
-            <span className="text-xs font-normal text-white/30 ml-1">Last 7 days</span>
+            <span className="text-[10px] font-normal ml-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Last 7 days</span>
           </h2>
           <a href="https://www.youtube.com/@SunTV" target="_blank" rel="noopener noreferrer"
-            className="text-red-400 text-xs flex items-center gap-1 hover:text-red-300 transition-colors font-semibold">
-            <Youtube className="w-3.5 h-3.5" /> YouTube
+            className="flex items-center gap-1 text-[11px] font-semibold text-red-400 hover:text-red-300 transition-colors">
+            <Youtube className="w-3 h-3" /> YouTube
           </a>
         </div>
         {loading ? (
@@ -219,18 +234,10 @@ function FeaturedTab({ movies, serials, albums }: Props) {
         )}
       </section>
 
-      {/* Popular Serials — bigger cards, fewer columns */}
+      {/* Popular Serials */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-black text-white flex items-center gap-2">
-            <Tv2 className="w-5 h-5 text-orange-400" />
-            Popular Serials
-          </h2>
-          <Link href="/serials" className="text-gold-400 text-xs flex items-center gap-1 hover:text-gold-300 transition-colors font-semibold">
-            See all <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+        <SectionHeader title="Popular Serials" icon={Tv2} iconClass="text-orange-400" href="/serials" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
           {featuredSerials.slice(0, 10).map(s => (
             <ContentCard key={s.id} href={`/serials/${s.slug}`} title={s.title} subtitle={s.channel}
               gradient={s.gradient} type="serial" rating={s.rating} language={s.language}
@@ -244,16 +251,8 @@ function FeaturedTab({ movies, serials, albums }: Props) {
 
       {/* Must-Watch Movies */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-black text-white flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-crimson-500" />
-            Must-Watch Movies
-          </h2>
-          <Link href="/movies" className="text-gold-400 text-xs flex items-center gap-1 hover:text-gold-300 transition-colors font-semibold">
-            See all <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+        <SectionHeader title="Must-Watch Movies" icon={TrendingUp} iconClass="text-red-400" href="/movies" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
           {featuredMovies.slice(0, 10).map(m => (
             <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director}
               gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge}
@@ -264,10 +263,7 @@ function FeaturedTab({ movies, serials, albums }: Props) {
 
       {/* Latest Videos */}
       <section>
-        <h2 className="text-base font-black text-white flex items-center gap-2 mb-4">
-          <Youtube className="w-5 h-5 text-red-400" />
-          Latest Videos &amp; Trailers
-        </h2>
+        <SectionHeader title="Latest Videos & Trailers" icon={Youtube} iconClass="text-red-400" />
         <VideoShowcase />
       </section>
 
@@ -276,16 +272,8 @@ function FeaturedTab({ movies, serials, albums }: Props) {
 
       {/* Tamil Dubbed Gems */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-black text-white flex items-center gap-2">
-            <Globe className="w-5 h-5 text-cyan-400" />
-            Tamil Dubbed Gems
-          </h2>
-          <Link href="/movies" className="text-gold-400 text-xs flex items-center gap-1 hover:text-gold-300 transition-colors font-semibold">
-            See all <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+        <SectionHeader title="Tamil Dubbed Gems" icon={Globe} iconClass="text-cyan-400" href="/movies" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
           {dubbedMovies.slice(0, 10).map(m => (
             <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title}
               subtitle={`${m.director} · ${m.originalLanguage}`}
@@ -297,16 +285,8 @@ function FeaturedTab({ movies, serials, albums }: Props) {
 
       {/* Iconic Albums */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-black text-white flex items-center gap-2">
-            <Music className="w-5 h-5 text-pink-400" />
-            Iconic Albums
-          </h2>
-          <Link href="/albums" className="text-gold-400 text-xs flex items-center gap-1 hover:text-gold-300 transition-colors font-semibold">
-            See all <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+        <SectionHeader title="Iconic Albums" icon={Music} iconClass="text-pink-400" href="/albums" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
           {featuredAlbums.slice(0, 10).map(a => (
             <ContentCard href={`/albums/${a.slug}`} title={a.title} subtitle={a.artist}
               gradient={a.gradient} type="album" badge={a.badge} year={a.year} tags={a.genre} />
@@ -484,18 +464,18 @@ function AlbumsTab({ albums }: { albums: Album[] }) {
   )
 }
 
-// Real IPL 2026 standings — matches IPLBanner data
+// Real IPL 2026 standings — after Match 39 (Apr 27) — source: cricketaddictor.com
 const IPL_2026_STANDINGS = [
-  { pos: 1, team: 'Royal Challengers Bengaluru', short: 'RCB', played: 9, w: 8, l: 1, pts: 16, nrr: '+1.423', color: '#dc2626' },
-  { pos: 2, team: 'Mumbai Indians',              short: 'MI',  played: 9, w: 7, l: 2, pts: 14, nrr: '+0.871', color: '#005da0' },
-  { pos: 3, team: 'Gujarat Titans',              short: 'GT',  played: 9, w: 6, l: 3, pts: 12, nrr: '+0.512', color: '#1e3a5f' },
-  { pos: 4, team: 'Chennai Super Kings',         short: 'CSK', played: 9, w: 5, l: 4, pts: 10, nrr: '+0.108', color: '#f7de00' },
-  { pos: 5, team: 'Sunrisers Hyderabad',         short: 'SRH', played: 9, w: 4, l: 5, pts: 8,  nrr: '-0.234', color: '#f97316' },
-  { pos: 6, team: 'Kolkata Knight Riders',       short: 'KKR', played: 9, w: 4, l: 5, pts: 8,  nrr: '-0.345', color: '#6d28d9' },
-  { pos: 7, team: 'Delhi Capitals',              short: 'DC',  played: 9, w: 3, l: 6, pts: 6,  nrr: '-0.512', color: '#1d4ed8' },
-  { pos: 8, team: 'Punjab Kings',                short: 'PBKS',played: 9, w: 3, l: 6, pts: 6,  nrr: '-0.623', color: '#dc2626' },
-  { pos: 9, team: 'Rajasthan Royals',            short: 'RR',  played: 9, w: 2, l: 7, pts: 4,  nrr: '-0.789', color: '#ec4899' },
-  { pos: 10,team: 'Lucknow Super Giants',        short: 'LSG', played: 9, w: 1, l: 8, pts: 2,  nrr: '-1.102', color: '#14b8a6' },
+  { pos: 1,  team: 'Punjab Kings',                short: 'PBKS', played: 7, w: 6, l: 0, pts: 13, nrr: '+1.333', color: '#a855f7' },
+  { pos: 2,  team: 'Royal Challengers Bengaluru', short: 'RCB',  played: 8, w: 6, l: 2, pts: 12, nrr: '+1.919', color: '#ef4444' },
+  { pos: 3,  team: 'Sunrisers Hyderabad',         short: 'SRH',  played: 8, w: 5, l: 3, pts: 10, nrr: '+0.815', color: '#f97316' },
+  { pos: 4,  team: 'Rajasthan Royals',            short: 'RR',   played: 8, w: 5, l: 3, pts: 10, nrr: '+0.602', color: '#ec4899' },
+  { pos: 5,  team: 'Gujarat Titans',              short: 'GT',   played: 8, w: 4, l: 4, pts: 8,  nrr: '-0.475', color: '#6b7280' },
+  { pos: 6,  team: 'Chennai Super Kings',         short: 'CSK',  played: 8, w: 3, l: 5, pts: 6,  nrr: '-0.121', color: '#eab308' },
+  { pos: 7,  team: 'Delhi Capitals',              short: 'DC',   played: 8, w: 3, l: 5, pts: 6,  nrr: '-1.060', color: '#3b82f6' },
+  { pos: 8,  team: 'Kolkata Knight Riders',       short: 'KKR',  played: 8, w: 2, l: 5, pts: 5,  nrr: '-0.751', color: '#7c3aed' },
+  { pos: 9,  team: 'Mumbai Indians',              short: 'MI',   played: 7, w: 2, l: 5, pts: 4,  nrr: '-0.736', color: '#0ea5e9' },
+  { pos: 10, team: 'Lucknow Super Giants',        short: 'LSG',  played: 8, w: 2, l: 6, pts: 4,  nrr: '-1.106', color: '#14b8a6' },
 ]
 
 /* ── Cricket Tab ─────────────────────────────────────────────────────────────── */
@@ -569,21 +549,26 @@ export default function HomeTabLayout({ movies, serials, albums }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      {/* Tab Bar */}
-      <div className="relative mb-5 -mx-4 sm:mx-0">
-        <div className="flex gap-0.5 overflow-x-auto scrollbar-hide px-4 sm:px-0 pb-1">
+      {/* ── Tab Bar ── */}
+      <div className="mb-5 -mx-4 sm:mx-0">
+        <div className="flex gap-1 overflow-x-auto scrollbar-hide px-4 sm:px-0 pb-1">
           {TABS.map(({ id, label, icon: Icon, color }) => {
             const isActive = activeTab === id
-            const [textColor, borderColor] = color.split(' ')
+            const [textColor] = color.split(' ')
             return (
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 border-b-2 ${
-                  isActive
-                    ? `${textColor} ${borderColor} bg-white/5`
-                    : 'text-white/35 border-transparent hover:text-white/60'
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
+                  isActive ? textColor : 'text-white/30 hover:text-white/60'
                 }`}
+                style={isActive ? {
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                } : {
+                  background: 'transparent',
+                  border: '1px solid transparent',
+                }}
               >
                 <Icon className="w-3.5 h-3.5" />
                 {label}
@@ -591,7 +576,7 @@ export default function HomeTabLayout({ movies, serials, albums }: Props) {
             )
           })}
         </div>
-        <div className="h-px bg-white/5 -mx-4 sm:mx-0" />
+        <div className="h-px mt-1" style={{ background: 'rgba(255,255,255,0.05)' }} />
       </div>
 
       {/* Tab Content */}
@@ -603,10 +588,8 @@ export default function HomeTabLayout({ movies, serials, albums }: Props) {
         {activeTab === 'videos'   && (
           <div className="space-y-4">
             <div>
-              <h2 className="text-sm font-black text-white mb-1 flex items-center gap-2">
-                <Youtube className="w-4 h-4 text-red-400" /> Tamil Trailers &amp; Highlights
-              </h2>
-              <p className="text-white/25 text-xs mb-4">Latest trailers, song releases, IPL highlights</p>
+              <SectionHeader title="Tamil Trailers & Highlights" icon={Youtube} iconClass="text-red-400" />
+              <p className="text-[11px] mb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>Latest trailers, song releases, IPL highlights</p>
             </div>
             <VideoShowcase />
             <AdUnit format="rectangle" className="min-h-[250px]" />
