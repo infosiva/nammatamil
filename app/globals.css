@@ -10,7 +10,7 @@
   html { scroll-behavior: smooth; }
 
   body {
-    background-color: #07010f;
+    background-color: #0a0a0a;
     color: #f1f5f9;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -18,7 +18,7 @@
 
   /* Custom scrollbar */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: #0f0020; }
+  ::-webkit-scrollbar-track { background: #111; }
   ::-webkit-scrollbar-thumb {
     background: linear-gradient(to bottom, #f59e0b, #dc2626);
     border-radius: 99px;
@@ -30,10 +30,10 @@
 @layer components {
   /* Glass card */
   .glass {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .glass-gold {
@@ -95,8 +95,8 @@
 }
 
 @layer utilities {
-  .bg-site { background-color: #07010f; }
-  .bg-card { background-color: #0f0020; }
+  .bg-site { background-color: #0a0a0a; }
+  .bg-card { background-color: #111111; }
   .text-muted { color: #94a3b8; }
   .border-subtle { border-color: rgba(255,255,255,0.07); }
 
@@ -111,14 +111,12 @@
   }
 }
 
-/* Animated gradient background for hero — TVK red + purple + gold */
+/* Hero background — pure black with subtle gold/red accents */
 .hero-bg {
   background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,58,237,0.28) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 40% at 90% 60%, rgba(225,29,72,0.20) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 40% at 10% 80%, rgba(225,29,72,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 20% 80%, rgba(245,158,11,0.10) 0%, transparent 60%),
-    #07010f;
+    radial-gradient(ellipse 60% 50% at 50% -5%, rgba(220,38,38,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 90% 50%, rgba(245,158,11,0.08) 0%, transparent 55%),
+    #0a0a0a;
 }
 
 /* Particle dots scattered across hero */
@@ -207,3 +205,7 @@
 .no-image-card {
   background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
 }
+
+/* Hide scrollbar for tab bar */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

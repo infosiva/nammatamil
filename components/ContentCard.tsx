@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Star, Tv2, Film, Music, Globe } from 'lucide-react'
+import { Star, Tv2, Film, Music, Globe, Sparkles } from 'lucide-react'
 import clsx from 'clsx'
 
 interface ContentCardProps {
@@ -66,10 +66,18 @@ export default function ContentCard({
             <Icon className="w-3.5 h-3.5 text-white" />
           </div>
 
-          {/* Badge */}
-          {badge && (
+          {/* Badge or AI sparkle */}
+          {badge ? (
             <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-gold-500 text-dark-900 text-[10px] font-bold leading-tight max-w-[60px] truncate">
               {badge}
+            </div>
+          ) : (
+            <div
+              className="absolute top-2 right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full"
+              style={{ background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.3)' }}
+            >
+              <Sparkles className="w-2.5 h-2.5 text-gold-400" />
+              <span className="text-[9px] font-bold text-gold-400 leading-none">AI</span>
             </div>
           )}
 
