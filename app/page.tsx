@@ -1,6 +1,7 @@
 import { Search } from 'lucide-react'
 import HomeTabLayout from '@/components/HomeTabLayout'
 import AdUnit from '@/components/AdUnit'
+import TamilDashboard from '@/components/TamilDashboard'
 import { serials } from '@/data/serials'
 import { movies } from '@/data/movies'
 import { albums } from '@/data/albums'
@@ -57,6 +58,11 @@ export default function HomePage() {
 
       {/* ── Tabbed Content ───────────────────────────────────────────── */}
       <HomeTabLayout movies={movies} serials={serials} albums={albums} />
+
+      {/* ── Tamil Dashboard: News + Weather ─────────────────────────── */}
+      <div className="border-t border-white/5">
+        <TamilDashboard />
+      </div>
 
       {/* ── AdSense ──────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
