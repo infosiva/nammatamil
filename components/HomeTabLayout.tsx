@@ -196,14 +196,15 @@ function RecentEpisodeCard({ ep }: { ep: RecentEp }) {
 
 /* ── Featured / Home Tab ─────────────────────────────────────────────────────── */
 function FeaturedTab({ movies, serials, albums }: Props) {
-  const featuredSerials = serials.slice(0, 10)
-  const featuredMovies  = movies.filter(m => m.language === 'Tamil').slice(0, 10)
+  const ongoingSerials  = serials.filter(s => s.status === 'Ongoing').slice(0, 10)
+  const featuredMovies  = movies.filter(m => m.language === 'Tamil').sort((a,b) => b.rating - a.rating).slice(0, 10)
   const dubbedMovies    = movies.filter(m => m.language === 'Tamil Dubbed').slice(0, 8)
   const featuredAlbums  = albums.slice(0, 8)
   const { eps, loading } = useRecentEpisodes()
 
   return (
     <div className="space-y-10">
+
       {/* Recent Episodes */}
       <section>
         <div className="flex items-center justify-between mb-4">
@@ -220,13 +221,13 @@ function FeaturedTab({ movies, serials, albums }: Props) {
           </a>
         </div>
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="rounded-xl aspect-video shimmer" style={{ background: 'rgba(255,255,255,0.04)' }} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {eps.slice(0, 6).map(ep => (
               <RecentEpisodeCard key={ep.id} ep={ep} />
             ))}
@@ -234,24 +235,23 @@ function FeaturedTab({ movies, serials, albums }: Props) {
         )}
       </section>
 
-      {/* Popular Serials */}
-      <section>
-        <SectionHeader title="Popular Serials" icon={Tv2} iconClass="text-orange-400" href="/serials" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-          {featuredSerials.slice(0, 10).map(s => (
-            <ContentCard key={s.id} href={`/serials/${s.slug}`} title={s.title} subtitle={s.channel}
+      {/* On Air — Ongoing Serials as a horizontal shelf */}
+      <Shelf title="On Air Now" icon={Tv2} iconClass="text-orange-400" href="/serials">
+        {ongoingSerials.map(s => (
+          <ShelfCard key={s.id}>
+            <ContentCard href={`/serials/${s.slug}`} title={s.title} subtitle={s.channel}
               gradient={s.gradient} type="serial" rating={s.rating} language={s.language}
-              channel={s.channel} status={s.status} tags={s.tags} />
-          ))}
-        </div>
-      </section>
+              channel={s.channel} status={s.status} tags={s.tags} compact />
+          </ShelfCard>
+        ))}
+      </Shelf>
 
       {/* Ad slot 1 */}
       <AdUnit format="horizontal" className="min-h-[90px]" />
 
-      {/* Must-Watch Movies */}
+      {/* Top Rated Movies grid */}
       <section>
-        <SectionHeader title="Must-Watch Movies" icon={TrendingUp} iconClass="text-red-400" href="/movies" />
+        <SectionHeader title="Top Rated Movies" icon={TrendingUp} iconClass="text-red-400" href="/movies" />
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
           {featuredMovies.slice(0, 10).map(m => (
             <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director}
@@ -270,29 +270,27 @@ function FeaturedTab({ movies, serials, albums }: Props) {
       {/* Ad slot 2 */}
       <AdUnit format="horizontal" className="min-h-[90px]" />
 
-      {/* Tamil Dubbed Gems */}
-      <section>
-        <SectionHeader title="Tamil Dubbed Gems" icon={Globe} iconClass="text-cyan-400" href="/movies" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-          {dubbedMovies.slice(0, 10).map(m => (
-            <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title}
+      {/* Tamil Dubbed Gems — horizontal shelf */}
+      <Shelf title="Tamil Dubbed Gems" icon={Globe} iconClass="text-cyan-400" href="/movies">
+        {dubbedMovies.map(m => (
+          <ShelfCard key={m.id}>
+            <ContentCard href={`/movies/${m.slug}`} title={m.title}
               subtitle={`${m.director} · ${m.originalLanguage}`}
               gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge}
-              year={m.year} language={m.language} />
-          ))}
-        </div>
-      </section>
+              year={m.year} language={m.language} compact />
+          </ShelfCard>
+        ))}
+      </Shelf>
 
-      {/* Iconic Albums */}
-      <section>
-        <SectionHeader title="Iconic Albums" icon={Music} iconClass="text-pink-400" href="/albums" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-          {featuredAlbums.slice(0, 10).map(a => (
+      {/* Iconic Albums shelf */}
+      <Shelf title="Iconic Albums" icon={Music} iconClass="text-pink-400" href="/albums">
+        {featuredAlbums.map(a => (
+          <ShelfCard key={a.id}>
             <ContentCard href={`/albums/${a.slug}`} title={a.title} subtitle={a.artist}
-              gradient={a.gradient} type="album" badge={a.badge} year={a.year} tags={a.genre} />
-          ))}
-        </div>
-      </section>
+              gradient={a.gradient} type="album" badge={a.badge} year={a.year} tags={a.genre} compact />
+          </ShelfCard>
+        ))}
+      </Shelf>
 
       {/* Ad slot 3 */}
       <AdUnit format="rectangle" className="min-h-[250px]" />
