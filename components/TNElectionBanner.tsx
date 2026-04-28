@@ -58,13 +58,20 @@ const PARTIES = [
     color: '#f59e0b',
     bg: 'rgba(245,158,11,0.15)',
     border: 'rgba(245,158,11,0.4)',
-    // TVK symbol: Pen (writing instrument — Thalapathy Vijay's party)
+    // TVK symbol: Whistle (விசில் — Thalapathy Vijay's party symbol)
     symbolSvg: (
       <svg viewBox="0 0 32 32" className="w-6 h-6 mx-auto">
-        <rect x="13" y="4" width="6" height="18" rx="2" fill="#f59e0b"/>
-        <polygon points="13,22 19,22 16,28" fill="#f59e0b"/>
-        <rect x="13" y="4" width="6" height="4" rx="2" fill="#92400e"/>
-        <line x1="16" y1="8" x2="16" y2="22" stroke="#92400e" strokeWidth="0.8" opacity="0.5"/>
+        {/* Whistle body */}
+        <rect x="4" y="12" width="16" height="10" rx="5" fill="#f59e0b"/>
+        {/* Mouthpiece stem */}
+        <rect x="18" y="15" width="8" height="4" rx="2" fill="#d97706"/>
+        {/* Air hole on top */}
+        <rect x="7" y="10" width="5" height="3" rx="1.5" fill="#d97706"/>
+        {/* Ball inside whistle (circle detail) */}
+        <circle cx="12" cy="17" r="2.5" fill="none" stroke="#92400e" strokeWidth="1.2"/>
+        <circle cx="12" cy="17" r="1" fill="#92400e" opacity="0.6"/>
+        {/* Ring/loop at left end */}
+        <circle cx="5" cy="17" r="2.5" fill="none" stroke="#f59e0b" strokeWidth="1.5"/>
       </svg>
     ),
     seats: null,
