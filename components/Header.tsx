@@ -3,15 +3,16 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
-import { Menu, X, Search, Tv2, Film, Music, Users, Home } from 'lucide-react'
+import { Menu, X, Search, Tv2, Film, Music, Users, Home, PlayCircle } from 'lucide-react'
 import clsx from 'clsx'
 
 const NAV = [
-  { href: '/',        label: 'Home',    icon: Home  },
-  { href: '/serials', label: 'Serials', icon: Tv2   },
-  { href: '/movies',  label: 'Movies',  icon: Film  },
-  { href: '/albums',  label: 'Albums',  icon: Music },
-  { href: '/actors',  label: 'Artists', icon: Users },
+  { href: '/',          label: 'Home',      icon: Home       },
+  { href: '/serials',   label: 'Serials',   icon: Tv2        },
+  { href: '/movies',    label: 'Movies',    icon: Film       },
+  { href: '/albums',    label: 'Albums',    icon: Music      },
+  { href: '/actors',    label: 'Artists',   icon: Users      },
+  { href: '/ott-plans', label: 'OTT Plans', icon: PlayCircle },
 ]
 
 export default function Header() {
