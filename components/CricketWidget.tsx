@@ -13,11 +13,11 @@ interface Match {
   matchType?: string
 }
 
-// Static IPL 2025 schedule as fallback
+// Static IPL 2026 schedule as fallback
 const STATIC_MATCHES: Match[] = [
   {
     id: 's1',
-    name: 'IPL 2025 — Chennai Super Kings vs Mumbai Indians',
+    name: 'IPL 2026 — Chennai Super Kings vs Mumbai Indians',
     status: 'Today 7:30 PM IST',
     venue: 'MA Chidambaram Stadium, Chennai',
     teams: [
@@ -29,7 +29,7 @@ const STATIC_MATCHES: Match[] = [
   },
   {
     id: 's2',
-    name: 'IPL 2025 — Royal Challengers Bangalore vs Kolkata Knight Riders',
+    name: 'IPL 2026 — Royal Challengers Bangalore vs Kolkata Knight Riders',
     status: 'Tomorrow 3:30 PM IST',
     venue: 'M. Chinnaswamy Stadium, Bengaluru',
     teams: [
@@ -125,7 +125,7 @@ export default function CricketWidget() {
       <div className="flex items-center justify-between px-3 py-2 border-b border-green-500/10">
         <div className="flex items-center gap-2">
           <Trophy className="w-3.5 h-3.5 text-green-400" />
-          <span className="text-[10px] font-black uppercase tracking-[0.15em] text-white/60">IPL 2025</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.15em] text-white/60">IPL 2026</span>
           {liveCount > 0 && (
             <span className="flex items-center gap-1 text-[9px] font-bold text-green-400">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />

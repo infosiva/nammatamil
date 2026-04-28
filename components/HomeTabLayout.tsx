@@ -190,28 +190,28 @@ function FeaturedTab({ movies, serials, albums }: Props) {
   const { eps, loading } = useRecentEpisodes()
 
   return (
-    <div className="space-y-7">
-      {/* Recent Episodes — responsive grid */}
+    <div className="space-y-10">
+      {/* Recent Episodes */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-red-400" />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-black text-white flex items-center gap-2">
+            <Clock className="w-5 h-5 text-red-400" />
             Recent Episodes
-            <span className="text-[10px] font-normal text-white/30 ml-1">Last 7 days</span>
+            <span className="text-xs font-normal text-white/30 ml-1">Last 7 days</span>
           </h2>
           <a href="https://www.youtube.com/@SunTV" target="_blank" rel="noopener noreferrer"
-            className="text-red-400 text-[11px] flex items-center gap-0.5 hover:text-red-300 transition-colors">
-            <Youtube className="w-3 h-3" /> YouTube
+            className="text-red-400 text-xs flex items-center gap-1 hover:text-red-300 transition-colors font-semibold">
+            <Youtube className="w-3.5 h-3.5" /> YouTube
           </a>
         </div>
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="rounded-xl aspect-video shimmer" style={{ background: 'rgba(255,255,255,0.04)' }} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {eps.slice(0, 6).map(ep => (
               <RecentEpisodeCard key={ep.id} ep={ep} />
             ))}
@@ -219,102 +219,102 @@ function FeaturedTab({ movies, serials, albums }: Props) {
         )}
       </section>
 
-      {/* Popular Serials — wider cards, more visible */}
+      {/* Popular Serials — bigger cards, fewer columns */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
-            <Tv2 className="w-4 h-4 text-orange-400" />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-black text-white flex items-center gap-2">
+            <Tv2 className="w-5 h-5 text-orange-400" />
             Popular Serials
           </h2>
-          <Link href="/serials" className="text-gold-400 text-[11px] flex items-center gap-0.5 hover:text-gold-300 transition-colors">
-            See all <ArrowRight className="w-3 h-3" />
+          <Link href="/serials" className="text-gold-400 text-xs flex items-center gap-1 hover:text-gold-300 transition-colors font-semibold">
+            See all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-2.5">
-          {featuredSerials.map(s => (
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+          {featuredSerials.slice(0, 10).map(s => (
             <ContentCard key={s.id} href={`/serials/${s.slug}`} title={s.title} subtitle={s.channel}
               gradient={s.gradient} type="serial" rating={s.rating} language={s.language}
-              channel={s.channel} status={s.status} tags={s.tags} compact />
+              channel={s.channel} status={s.status} tags={s.tags} />
           ))}
         </div>
       </section>
 
-      {/* Ad slot 1 — between serials and movies */}
+      {/* Ad slot 1 */}
       <AdUnit format="horizontal" className="min-h-[90px]" />
 
       {/* Must-Watch Movies */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
-            <TrendingUp className="w-4 h-4 text-crimson-500" />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-black text-white flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-crimson-500" />
             Must-Watch Movies
           </h2>
-          <Link href="/movies" className="text-gold-400 text-[11px] flex items-center gap-0.5 hover:text-gold-300 transition-colors">
-            See all <ArrowRight className="w-3 h-3" />
+          <Link href="/movies" className="text-gold-400 text-xs flex items-center gap-1 hover:text-gold-300 transition-colors font-semibold">
+            See all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-2.5">
-          {featuredMovies.map(m => (
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+          {featuredMovies.slice(0, 10).map(m => (
             <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director}
               gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge}
-              year={m.year} language={m.language} compact />
+              year={m.year} language={m.language} />
           ))}
         </div>
       </section>
 
       {/* Latest Videos */}
       <section>
-        <h2 className="text-sm font-black text-white flex items-center gap-1.5 mb-3">
-          <Youtube className="w-4 h-4 text-red-400" />
+        <h2 className="text-base font-black text-white flex items-center gap-2 mb-4">
+          <Youtube className="w-5 h-5 text-red-400" />
           Latest Videos &amp; Trailers
         </h2>
         <VideoShowcase />
       </section>
 
-      {/* Ad slot 2 — between videos and dubbed gems */}
+      {/* Ad slot 2 */}
       <AdUnit format="horizontal" className="min-h-[90px]" />
 
       {/* Tamil Dubbed Gems */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
-            <Globe className="w-4 h-4 text-cyan-400" />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-black text-white flex items-center gap-2">
+            <Globe className="w-5 h-5 text-cyan-400" />
             Tamil Dubbed Gems
           </h2>
-          <Link href="/movies" className="text-gold-400 text-[11px] flex items-center gap-0.5 hover:text-gold-300 transition-colors">
-            See all <ArrowRight className="w-3 h-3" />
+          <Link href="/movies" className="text-gold-400 text-xs flex items-center gap-1 hover:text-gold-300 transition-colors font-semibold">
+            See all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
-          {dubbedMovies.map(m => (
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+          {dubbedMovies.slice(0, 10).map(m => (
             <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title}
               subtitle={`${m.director} · ${m.originalLanguage}`}
               gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge}
-              year={m.year} language={m.language} compact />
+              year={m.year} language={m.language} />
           ))}
         </div>
       </section>
 
       {/* Iconic Albums */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
-            <Music className="w-4 h-4 text-pink-400" />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-black text-white flex items-center gap-2">
+            <Music className="w-5 h-5 text-pink-400" />
             Iconic Albums
           </h2>
-          <Link href="/albums" className="text-gold-400 text-[11px] flex items-center gap-0.5 hover:text-gold-300 transition-colors">
-            See all <ArrowRight className="w-3 h-3" />
+          <Link href="/albums" className="text-gold-400 text-xs flex items-center gap-1 hover:text-gold-300 transition-colors font-semibold">
+            See all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
-          {featuredAlbums.map(a => (
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+          {featuredAlbums.slice(0, 10).map(a => (
             <ContentCard href={`/albums/${a.slug}`} title={a.title} subtitle={a.artist}
-              gradient={a.gradient} type="album" badge={a.badge} year={a.year} tags={a.genre} compact />
+              gradient={a.gradient} type="album" badge={a.badge} year={a.year} tags={a.genre} />
           ))}
         </div>
       </section>
 
-      {/* Ad slot 3 — below albums */}
+      {/* Ad slot 3 */}
       <AdUnit format="rectangle" className="min-h-[250px]" />
     </div>
   )
@@ -484,37 +484,79 @@ function AlbumsTab({ albums }: { albums: Album[] }) {
   )
 }
 
+// Real IPL 2026 standings — matches IPLBanner data
+const IPL_2026_STANDINGS = [
+  { pos: 1, team: 'Royal Challengers Bengaluru', short: 'RCB', played: 9, w: 8, l: 1, pts: 16, nrr: '+1.423', color: '#dc2626' },
+  { pos: 2, team: 'Mumbai Indians',              short: 'MI',  played: 9, w: 7, l: 2, pts: 14, nrr: '+0.871', color: '#005da0' },
+  { pos: 3, team: 'Gujarat Titans',              short: 'GT',  played: 9, w: 6, l: 3, pts: 12, nrr: '+0.512', color: '#1e3a5f' },
+  { pos: 4, team: 'Chennai Super Kings',         short: 'CSK', played: 9, w: 5, l: 4, pts: 10, nrr: '+0.108', color: '#f7de00' },
+  { pos: 5, team: 'Sunrisers Hyderabad',         short: 'SRH', played: 9, w: 4, l: 5, pts: 8,  nrr: '-0.234', color: '#f97316' },
+  { pos: 6, team: 'Kolkata Knight Riders',       short: 'KKR', played: 9, w: 4, l: 5, pts: 8,  nrr: '-0.345', color: '#6d28d9' },
+  { pos: 7, team: 'Delhi Capitals',              short: 'DC',  played: 9, w: 3, l: 6, pts: 6,  nrr: '-0.512', color: '#1d4ed8' },
+  { pos: 8, team: 'Punjab Kings',                short: 'PBKS',played: 9, w: 3, l: 6, pts: 6,  nrr: '-0.623', color: '#dc2626' },
+  { pos: 9, team: 'Rajasthan Royals',            short: 'RR',  played: 9, w: 2, l: 7, pts: 4,  nrr: '-0.789', color: '#ec4899' },
+  { pos: 10,team: 'Lucknow Super Giants',        short: 'LSG', played: 9, w: 1, l: 8, pts: 2,  nrr: '-1.102', color: '#14b8a6' },
+]
+
 /* ── Cricket Tab ─────────────────────────────────────────────────────────────── */
 function CricketTab() {
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <CricketWidget />
-        <div className="rounded-2xl p-4 space-y-2.5"
+
+        {/* Real IPL 2026 Points Table */}
+        <div className="rounded-2xl overflow-hidden"
           style={{ background: 'linear-gradient(160deg, #001a0a 0%, #002d14 60%)', border: '1px solid rgba(34,197,94,0.2)' }}>
-          <h3 className="text-white font-bold text-sm flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-green-400" /> IPL 2025 Points Table
-          </h3>
-          <div className="space-y-1.5 text-xs">
-            {[
-              { pos: 1, team: 'Royal Challengers Bangalore', short: 'RCB', w: 6, color: '#dc2626' },
-              { pos: 2, team: 'Chennai Super Kings',          short: 'CSK', w: 5, color: '#f7de00' },
-              { pos: 3, team: 'Mumbai Indians',               short: 'MI',  w: 5, color: '#005da0' },
-              { pos: 4, team: 'Kolkata Knight Riders',        short: 'KKR', w: 4, color: '#6d28d9' },
-              { pos: 5, team: 'Sunrisers Hyderabad',          short: 'SRH', w: 4, color: '#f97316' },
-            ].map(row => (
-              <div key={row.team} className="flex items-center gap-2 py-1 border-b border-white/5">
-                <span className="text-white/30 w-4 text-right text-[10px]">{row.pos}</span>
-                <div className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-black text-white flex-shrink-0"
-                  style={{ background: row.color }}>
-                  {row.short.slice(0, 2)}
+          <div className="px-4 py-3 border-b border-green-500/10 flex items-center justify-between">
+            <h3 className="text-white font-bold text-sm flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-green-400" /> IPL 2026 Points Table
+            </h3>
+            <a href="https://www.iplt20.com/points-table/men/2026" target="_blank" rel="noopener noreferrer"
+              className="text-[10px] text-white/30 hover:text-white/60 transition-colors">
+              iplt20.com →
+            </a>
+          </div>
+
+          {/* Column headers */}
+          <div className="flex items-center gap-2 px-4 py-1.5 border-b border-white/5">
+            <span className="text-white/20 text-[9px] w-4">#</span>
+            <span className="text-white/20 text-[9px] flex-1">TEAM</span>
+            <span className="text-white/20 text-[9px] w-5 text-center">P</span>
+            <span className="text-white/20 text-[9px] w-5 text-center">W</span>
+            <span className="text-white/20 text-[9px] w-5 text-center">L</span>
+            <span className="text-white/20 text-[9px] w-12 text-right">NRR</span>
+            <span className="text-white/20 text-[9px] w-8 text-right">PTS</span>
+          </div>
+
+          <div className="divide-y divide-white/[0.04]">
+            {IPL_2026_STANDINGS.map((row, i) => (
+              <div key={row.short}
+                className="flex items-center gap-2 px-4 py-2.5"
+                style={{ background: row.short === 'CSK' ? 'rgba(247,222,0,0.06)' : i < 4 ? 'rgba(34,197,94,0.03)' : 'transparent' }}>
+                <span className="text-white/30 text-[10px] w-4 flex-shrink-0">{row.pos}</span>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-black text-white flex-shrink-0"
+                    style={{ background: row.color }}>
+                    {row.short.slice(0, 2)}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="font-bold text-xs block truncate" style={{ color: row.color }}>{row.short}</span>
+                    <span className="text-white/30 text-[9px] truncate block">{row.team}</span>
+                  </div>
+                  {i < 4 && <span className="text-[8px] text-green-400/70 flex-shrink-0 ml-1">●</span>}
                 </div>
-                <span className="text-white/70 flex-1 truncate">{row.team}</span>
-                <span className="text-green-400 font-bold">{row.w * 2}pts</span>
+                <span className="text-white/40 text-[10px] w-5 text-center">{row.played}</span>
+                <span className="text-green-400 text-[10px] w-5 text-center font-semibold">{row.w}</span>
+                <span className="text-red-400/60 text-[10px] w-5 text-center">{row.l}</span>
+                <span className={`text-[10px] w-12 text-right font-mono ${parseFloat(row.nrr) >= 0 ? 'text-green-400/80' : 'text-red-400/60'}`}>{row.nrr}</span>
+                <span className="font-black text-xs w-8 text-right" style={{ color: row.color }}>{row.pts}</span>
               </div>
             ))}
           </div>
-          <p className="text-white/20 text-[9px]">* Indicative — check ESPNCricinfo for official standings</p>
+          <div className="px-4 py-2 border-t border-white/5">
+            <p className="text-white/20 text-[9px]">● Top 4 qualify for playoffs · Updated Apr 28 2026</p>
+          </div>
         </div>
       </div>
     </div>

@@ -52,7 +52,7 @@ export default function ContentCard({
 }: ContentCardProps) {
   const Icon = TYPE_ICON[type]
   const isOngoing = status === 'Ongoing'
-  const posterH = compact ? 'h-36' : 'h-44'
+  const posterH = compact ? 'h-44' : 'h-52'
 
   return (
     <Link href={href} className="group block">
@@ -120,7 +120,7 @@ export default function ContentCard({
 
           {/* Title overlay */}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent pt-6 pb-2 px-2.5">
-            <h3 className="text-white font-bold text-xs leading-tight line-clamp-2 group-hover:text-gold-300 transition-colors">
+            <h3 className="text-white font-bold text-sm leading-tight line-clamp-2 group-hover:text-gold-300 transition-colors">
               {title}
             </h3>
           </div>
