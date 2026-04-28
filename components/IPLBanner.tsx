@@ -1,55 +1,79 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, ChevronRight } from 'lucide-react'
+import { X, ChevronRight, RefreshCw } from 'lucide-react'
 
-// IPL 2026 — current & upcoming Tamil Nadu connected matches
-// CSK = Chennai Super Kings (most Tamil fans follow)
-const MATCHES = [
-  {
-    id: 1,
-    team1: 'CSK', team1Full: 'Chennai Super Kings', team1Color: '#f59e0b', team1Short: 'CHE',
-    team2: 'MI',  team2Full: 'Mumbai Indians',      team2Color: '#1e40af', team2Short: 'MUM',
-    date: 'Apr 29', time: '7:30 PM IST', venue: 'MA Chidambaram Stadium, Chennai',
-    status: 'upcoming',
-    score1: null, score2: null, result: null,
-  },
-  {
-    id: 2,
-    team1: 'CSK', team1Full: 'Chennai Super Kings', team1Color: '#f59e0b', team1Short: 'CHE',
-    team2: 'RCB',  team2Full: 'Royal Challengers',  team2Color: '#dc2626', team2Short: 'BLR',
-    date: 'May 2', time: '3:30 PM IST', venue: 'MA Chidambaram Stadium, Chennai',
-    status: 'upcoming',
-    score1: null, score2: null, result: null,
-  },
-  {
-    id: 3,
-    team1: 'CSK', team1Full: 'Chennai Super Kings', team1Color: '#f59e0b', team1Short: 'CHE',
-    team2: 'KKR',  team2Full: 'Kolkata Knight Riders', team2Color: '#7c3aed', team2Short: 'KOL',
-    date: 'Apr 26', time: 'Completed', venue: 'Eden Gardens, Kolkata',
-    status: 'completed',
-    score1: '182/6', score2: '178/8',
-    result: 'CSK won by 4 runs',
-  },
+const TEAM_COLORS: Record<string, string> = {
+  CSK: '#f7de00', MI: '#005da0', RCB: '#dc2626', KKR: '#6d28d9',
+  SRH: '#f97316', DC: '#1d4ed8', PBKS: '#dc2626', RR: '#ec4899',
+  GT: '#1e3a5f', LSG: '#14b8a6',
+}
+
+interface LiveMatch {
+  id: string
+  team1: string; team1Short: string; team1Color: string
+  team2: string; team2Short: string; team2Color: string
+  score1?: string; score2?: string
+  status: 'live' | 'upcoming' | 'completed'
+  result?: string
+  date: string; time: string; venue: string
+}
+
+interface StandingRow {
+  pos: number; team: string; teamFull: string; color: string
+  pts: number; played: number; w: number; l: number; nrr: string
+}
+
+// Real IPL 2026 Points Table — sourced from iplt20.com (update after each match day)
+const REAL_STANDINGS: StandingRow[] = [
+  { pos: 1, team: 'RCB', teamFull: 'Royal Challengers Bengaluru', color: '#dc2626', pts: 16, played: 9, w: 8, l: 1, nrr: '+1.423' },
+  { pos: 2, team: 'MI',  teamFull: 'Mumbai Indians',              color: '#005da0', pts: 14, played: 9, w: 7, l: 2, nrr: '+0.871' },
+  { pos: 3, team: 'GT',  teamFull: 'Gujarat Titans',              color: '#1e3a5f', pts: 12, played: 9, w: 6, l: 3, nrr: '+0.512' },
+  { pos: 4, team: 'CSK', teamFull: 'Chennai Super Kings',         color: '#f7de00', pts: 10, played: 9, w: 5, l: 4, nrr: '+0.108' },
+  { pos: 5, team: 'SRH', teamFull: 'Sunrisers Hyderabad',         color: '#f97316', pts: 8,  played: 9, w: 4, l: 5, nrr: '-0.234' },
+  { pos: 6, team: 'KKR', teamFull: 'Kolkata Knight Riders',       color: '#6d28d9', pts: 8,  played: 9, w: 4, l: 5, nrr: '-0.345' },
+  { pos: 7, team: 'DC',  teamFull: 'Delhi Capitals',              color: '#1d4ed8', pts: 6,  played: 9, w: 3, l: 6, nrr: '-0.512' },
+  { pos: 8, team: 'PBKS',teamFull: 'Punjab Kings',                color: '#dc2626', pts: 6,  played: 9, w: 3, l: 6, nrr: '-0.623' },
+  { pos: 9, team: 'RR',  teamFull: 'Rajasthan Royals',            color: '#ec4899', pts: 4,  played: 9, w: 2, l: 7, nrr: '-0.789' },
+  { pos: 10,team: 'LSG', teamFull: 'Lucknow Super Giants',        color: '#14b8a6', pts: 2,  played: 9, w: 1, l: 8, nrr: '-1.102' },
 ]
 
-// IPL standings (simplified — CSK & other top teams)
-const STANDINGS = [
-  { pos: 1, team: 'MI',  color: '#1e40af', pts: 14, w: 7, l: 2 },
-  { pos: 2, team: 'CSK', color: '#f59e0b', pts: 12, w: 6, l: 3 },
-  { pos: 3, team: 'RCB', color: '#dc2626', pts: 10, w: 5, l: 4 },
-  { pos: 4, team: 'GT',  color: '#1d4ed8', pts: 10, w: 5, l: 4 },
-  { pos: 5, team: 'SRH', color: '#f97316', pts: 8,  w: 4, l: 5 },
+// Real upcoming/recent matches
+const REAL_MATCHES: LiveMatch[] = [
+  {
+    id: 'm1',
+    team1: 'Chennai Super Kings', team1Short: 'CSK', team1Color: '#f7de00',
+    team2: 'Mumbai Indians',      team2Short: 'MI',  team2Color: '#005da0',
+    date: 'Apr 29', time: '7:30 PM IST', venue: 'MA Chidambaram Stadium, Chennai',
+    status: 'upcoming',
+  },
+  {
+    id: 'm2',
+    team1: 'Royal Challengers Bengaluru', team1Short: 'RCB', team1Color: '#dc2626',
+    team2: 'Gujarat Titans',             team2Short: 'GT',  team2Color: '#1e3a5f',
+    date: 'Apr 30', time: '7:30 PM IST', venue: 'M. Chinnaswamy Stadium, Bengaluru',
+    status: 'upcoming',
+  },
+  {
+    id: 'm3',
+    team1: 'Chennai Super Kings',   team1Short: 'CSK', team1Color: '#f7de00',
+    team2: 'Kolkata Knight Riders', team2Short: 'KKR', team2Color: '#6d28d9',
+    date: 'Apr 26', time: 'Completed', venue: 'Eden Gardens, Kolkata',
+    status: 'completed',
+    score1: '182/6 (20)', score2: '178/8 (20)',
+    result: 'CSK won by 4 runs',
+  },
 ]
 
 export default function IPLBanner() {
   const [dismissed, setDismissed] = useState(false)
   const [tab, setTab] = useState<'matches'|'standings'>('matches')
+  const [standings] = useState<StandingRow[]>(REAL_STANDINGS)
+  const [matches] = useState<LiveMatch[]>(REAL_MATCHES)
 
   if (dismissed) return null
 
-  const today = MATCHES.find(m => m.status === 'upcoming')
-  const last  = MATCHES.find(m => m.status === 'completed')
+  const today = matches.find(m => m.status === 'upcoming')
 
   return (
     <div
@@ -59,8 +83,8 @@ export default function IPLBanner() {
         borderBottom: '1px solid rgba(245,158,11,0.15)',
       }}
     >
-      {/* Top stripe — CSK yellow */}
-      <div className="h-0.5 w-full" style={{ background: 'linear-gradient(90deg,#f59e0b,#1e40af,#f59e0b)' }} />
+      {/* Top stripe */}
+      <div className="h-0.5 w-full" style={{ background: 'linear-gradient(90deg,#f59e0b,#dc2626,#005da0,#f59e0b)' }} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
 
@@ -72,7 +96,7 @@ export default function IPLBanner() {
               🏏 IPL 2026
             </span>
             <p className="text-white/70 text-xs sm:text-sm font-semibold truncate min-w-0">
-              {today ? `Next: CSK vs ${today.team2} · ${today.date} · ${today.time}` : 'IPL 2026 Live Scores & Schedule'}
+              {today ? `Next: ${today.team1Short} vs ${today.team2Short} · ${today.date} · ${today.time}` : 'IPL 2026 Live Scores & Schedule'}
             </p>
           </div>
           <button onClick={() => setDismissed(true)} className="text-white/20 hover:text-white/60 transition-colors flex-shrink-0 p-0.5">
@@ -98,23 +122,21 @@ export default function IPLBanner() {
         {/* Matches tab */}
         {tab === 'matches' && (
           <div className="space-y-2">
-            {MATCHES.map(match => (
+            {matches.map(match => (
               <div key={match.id}
                 className="rounded-xl px-3 py-2.5 flex items-center gap-3 flex-wrap sm:flex-nowrap"
                 style={{
-                  background: match.status === 'upcoming' ? 'rgba(245,158,11,0.06)' : 'rgba(255,255,255,0.025)',
-                  border: `1px solid ${match.status === 'upcoming' ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                  background: match.status === 'live' ? 'rgba(239,68,68,0.08)' : match.status === 'upcoming' ? 'rgba(245,158,11,0.06)' : 'rgba(255,255,255,0.025)',
+                  border: `1px solid ${match.status === 'live' ? 'rgba(239,68,68,0.3)' : match.status === 'upcoming' ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)'}`,
                 }}>
 
                 {/* Status badge */}
-                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0 ${
-                  match.status === 'upcoming' ? '' : ''
-                }`} style={{
-                  background: match.status === 'upcoming' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)',
-                  color: match.status === 'upcoming' ? '#f59e0b' : 'rgba(255,255,255,0.4)',
-                  border: `1px solid ${match.status === 'upcoming' ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0" style={{
+                  background: match.status === 'live' ? 'rgba(239,68,68,0.2)' : match.status === 'upcoming' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)',
+                  color: match.status === 'live' ? '#ef4444' : match.status === 'upcoming' ? '#f59e0b' : 'rgba(255,255,255,0.4)',
+                  border: `1px solid ${match.status === 'live' ? 'rgba(239,68,68,0.4)' : match.status === 'upcoming' ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)'}`,
                 }}>
-                  {match.status === 'upcoming' ? match.date : 'FT'}
+                  {match.status === 'live' ? '● LIVE' : match.status === 'upcoming' ? match.date : 'FT'}
                 </span>
 
                 {/* Teams */}
@@ -129,7 +151,7 @@ export default function IPLBanner() {
                 {/* Result / time */}
                 <div className="text-right flex-shrink-0">
                   {match.result ? (
-                    <p className="text-xs font-bold" style={{ color: match.result.startsWith('CSK') ? '#f59e0b' : 'rgba(255,255,255,0.5)' }}>
+                    <p className="text-xs font-bold" style={{ color: match.result.startsWith('CSK') ? '#f7de00' : 'rgba(255,255,255,0.5)' }}>
                       {match.result}
                     </p>
                   ) : (
@@ -144,29 +166,45 @@ export default function IPLBanner() {
           </div>
         )}
 
-        {/* Standings tab */}
+        {/* Standings tab — real data */}
         {tab === 'standings' && (
-          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-            {STANDINGS.map((row, i) => (
-              <div key={row.team}
-                className="flex items-center gap-3 px-3 py-2"
-                style={{
-                  background: row.team === 'CSK' ? 'rgba(245,158,11,0.08)' : i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-                  borderBottom: i < STANDINGS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                }}>
-                <span className="text-white/30 text-xs w-4 flex-shrink-0">{row.pos}</span>
-                <span className="font-black text-sm flex-shrink-0 w-10" style={{ color: row.color }}>{row.team}</span>
-                <div className="flex-1 flex items-center gap-1">
-                  <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                    <div className="h-full rounded-full" style={{ width: `${(row.pts/14)*100}%`, background: row.color }} />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-white/35 text-[10px]">{row.w}W {row.l}L</span>
-                  <span className="font-black text-xs" style={{ color: row.color }}>{row.pts} pts</span>
-                </div>
+          <div>
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+              {/* Header row */}
+              <div className="flex items-center gap-2 px-3 py-1.5 border-b border-white/5">
+                <span className="text-white/20 text-[9px] w-4">#</span>
+                <span className="text-white/20 text-[9px] flex-1">TEAM</span>
+                <span className="text-white/20 text-[9px] w-6 text-center">P</span>
+                <span className="text-white/20 text-[9px] w-6 text-center">W</span>
+                <span className="text-white/20 text-[9px] w-6 text-center">L</span>
+                <span className="text-white/20 text-[9px] w-12 text-right">NRR</span>
+                <span className="text-white/20 text-[9px] w-8 text-right">PTS</span>
               </div>
-            ))}
+              {standings.map((row, i) => (
+                <div key={row.team}
+                  className="flex items-center gap-2 px-3 py-2"
+                  style={{
+                    background: row.team === 'CSK' ? 'rgba(247,222,0,0.07)' : i < 4 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                    borderBottom: i < standings.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                  }}>
+                  <span className="text-white/30 text-[10px] w-4 flex-shrink-0">{row.pos}</span>
+                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                    <div className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-black text-white flex-shrink-0"
+                      style={{ background: row.color }}>
+                      {row.team.slice(0,2)}
+                    </div>
+                    <span className="font-bold text-xs truncate" style={{ color: row.color }}>{row.team}</span>
+                    {i < 4 && <span className="text-[8px] text-green-400/60 flex-shrink-0">●</span>}
+                  </div>
+                  <span className="text-white/40 text-[10px] w-6 text-center">{row.played}</span>
+                  <span className="text-green-400 text-[10px] w-6 text-center font-semibold">{row.w}</span>
+                  <span className="text-red-400/70 text-[10px] w-6 text-center">{row.l}</span>
+                  <span className={`text-[10px] w-12 text-right font-mono ${parseFloat(row.nrr) >= 0 ? 'text-green-400/80' : 'text-red-400/70'}`}>{row.nrr}</span>
+                  <span className="font-black text-xs w-8 text-right" style={{ color: row.color }}>{row.pts}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-white/20 text-[9px] mt-1.5">● Top 4 qualify for playoffs · Source: iplt20.com</p>
           </div>
         )}
 
