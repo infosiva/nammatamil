@@ -19,8 +19,8 @@ export default function AdUnit({ slot = '1234567890', format = 'auto', className
   }, [])
 
   return (
-    <div className={`overflow-hidden rounded-xl glass border border-subtle ${className}`}>
-      <ins className='adsbygoogle' style={{ display: 'block' }} data-ad-client={publisherId} data-ad-slot={slot} data-ad-format={format} data-full-width-responsive='true'>Sponsored Content</ins>
+    <div className={`overflow-hidden rounded-xl glass border border-white/5 ${className}`}>
+      <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
         data-ad-client={publisherId}
