@@ -100,7 +100,7 @@ function RecentEpisodeCard({ ep }: { ep: typeof RECENT_EPISODES[0] }) {
       href={`https://www.youtube.com/watch?v=${ep.youtubeId}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex-shrink-0 w-40 sm:w-48 block"
+      className="group block"
       style={{ textDecoration: 'none' }}
     >
       <div className="rounded-xl overflow-hidden" style={{ background: '#0d0018', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -110,20 +110,20 @@ function RecentEpisodeCard({ ep }: { ep: typeof RECENT_EPISODES[0] }) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85 group-hover:opacity-100"
             loading="lazy" />
           <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
-            <div className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center shadow group-hover:scale-110 transition-transform">
-              <Play className="w-3 h-3 text-white ml-0.5 fill-white" />
+            <div className="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <Play className="w-4 h-4 text-white ml-0.5 fill-white" />
             </div>
           </div>
-          <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white"
+          <div className="absolute top-2 left-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white"
             style={{ background: ep.color + 'dd' }}>
             <Clock className="w-2.5 h-2.5" /> Today
           </div>
         </div>
-        <div className="px-2 py-1.5">
-          <p className="text-white text-[11px] font-bold truncate">{ep.title}</p>
+        <div className="px-3 py-2">
+          <p className="text-white text-xs font-bold truncate">{ep.title}</p>
           <div className="flex items-center gap-1 mt-0.5">
             <Youtube className="w-2.5 h-2.5 text-red-500" />
-            <span className="text-white/35 text-[9px] truncate">{ep.channel}</span>
+            <span className="text-white/35 text-[10px] truncate">{ep.channel}</span>
           </div>
         </div>
       </div>
@@ -140,7 +140,7 @@ function FeaturedTab({ movies, serials, albums }: Props) {
 
   return (
     <div className="space-y-7">
-      {/* Recent Episodes */}
+      {/* Recent Episodes — responsive grid */}
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-black text-white flex items-center gap-1.5">
@@ -153,37 +153,55 @@ function FeaturedTab({ movies, serials, albums }: Props) {
             <Youtube className="w-3 h-3" /> YouTube
           </a>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {RECENT_EPISODES.map(ep => (
             <RecentEpisodeCard key={ep.id} ep={ep} />
           ))}
         </div>
       </section>
 
-      {/* Popular Serials */}
-      <Shelf title="Popular Serials" icon={Tv2} iconClass="text-orange-400" href="/serials">
-        {featuredSerials.map(s => (
-          <ShelfCard key={s.id}>
-            <ContentCard href={`/serials/${s.slug}`} title={s.title} subtitle={s.channel}
+      {/* Popular Serials — wider cards, more visible */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
+            <Tv2 className="w-4 h-4 text-orange-400" />
+            Popular Serials
+          </h2>
+          <Link href="/serials" className="text-gold-400 text-[11px] flex items-center gap-0.5 hover:text-gold-300 transition-colors">
+            See all <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-2.5">
+          {featuredSerials.map(s => (
+            <ContentCard key={s.id} href={`/serials/${s.slug}`} title={s.title} subtitle={s.channel}
               gradient={s.gradient} type="serial" rating={s.rating} language={s.language}
               channel={s.channel} status={s.status} tags={s.tags} compact />
-          </ShelfCard>
-        ))}
-      </Shelf>
+          ))}
+        </div>
+      </section>
 
       {/* Ad slot 1 — between serials and movies */}
       <AdUnit format="horizontal" className="min-h-[90px]" />
 
       {/* Must-Watch Movies */}
-      <Shelf title="Must-Watch Movies" icon={TrendingUp} iconClass="text-crimson-500" href="/movies">
-        {featuredMovies.map(m => (
-          <ShelfCard key={m.id}>
-            <ContentCard href={`/movies/${m.slug}`} title={m.title} subtitle={m.director}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
+            <TrendingUp className="w-4 h-4 text-crimson-500" />
+            Must-Watch Movies
+          </h2>
+          <Link href="/movies" className="text-gold-400 text-[11px] flex items-center gap-0.5 hover:text-gold-300 transition-colors">
+            See all <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-2.5">
+          {featuredMovies.map(m => (
+            <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director}
               gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge}
               year={m.year} language={m.language} compact />
-          </ShelfCard>
-        ))}
-      </Shelf>
+          ))}
+        </div>
+      </section>
 
       {/* Latest Videos */}
       <section>
@@ -198,26 +216,44 @@ function FeaturedTab({ movies, serials, albums }: Props) {
       <AdUnit format="horizontal" className="min-h-[90px]" />
 
       {/* Tamil Dubbed Gems */}
-      <Shelf title="Tamil Dubbed Gems" icon={Globe} iconClass="text-cyan-400" href="/movies?lang=Tamil+Dubbed">
-        {dubbedMovies.map(m => (
-          <ShelfCard key={m.id}>
-            <ContentCard href={`/movies/${m.slug}`} title={m.title}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
+            <Globe className="w-4 h-4 text-cyan-400" />
+            Tamil Dubbed Gems
+          </h2>
+          <Link href="/movies" className="text-gold-400 text-[11px] flex items-center gap-0.5 hover:text-gold-300 transition-colors">
+            See all <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+          {dubbedMovies.map(m => (
+            <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title}
               subtitle={`${m.director} · ${m.originalLanguage}`}
               gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge}
               year={m.year} language={m.language} compact />
-          </ShelfCard>
-        ))}
-      </Shelf>
+          ))}
+        </div>
+      </section>
 
       {/* Iconic Albums */}
-      <Shelf title="Iconic Albums" icon={Music} iconClass="text-pink-400" href="/albums">
-        {featuredAlbums.map(a => (
-          <ShelfCard key={a.id}>
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
+            <Music className="w-4 h-4 text-pink-400" />
+            Iconic Albums
+          </h2>
+          <Link href="/albums" className="text-gold-400 text-[11px] flex items-center gap-0.5 hover:text-gold-300 transition-colors">
+            See all <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+          {featuredAlbums.map(a => (
             <ContentCard href={`/albums/${a.slug}`} title={a.title} subtitle={a.artist}
               gradient={a.gradient} type="album" badge={a.badge} year={a.year} tags={a.genre} compact />
-          </ShelfCard>
-        ))}
-      </Shelf>
+          ))}
+        </div>
+      </section>
 
       {/* Ad slot 3 — below albums */}
       <AdUnit format="rectangle" className="min-h-[250px]" />
