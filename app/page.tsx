@@ -20,7 +20,7 @@ export default function HomePage() {
             <span className="text-gold-500">.live</span>
           </h1>
 
-          {/* Search bar */}
+          {/* Explore Now bar */}
           <form action="/search" className="flex items-center gap-2 max-w-sm mx-auto">
             <div className="flex-1 relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
