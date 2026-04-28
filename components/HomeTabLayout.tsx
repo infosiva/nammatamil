@@ -103,6 +103,9 @@ function FeaturedTab({ movies, serials, albums }: Props) {
         ))}
       </Shelf>
 
+      {/* Ad slot 1 — between serials and movies */}
+      <AdUnit format="horizontal" className="min-h-[90px]" />
+
       {/* Must-Watch Movies */}
       <Shelf title="Must-Watch Movies" icon={TrendingUp} iconClass="text-crimson-500" href="/movies">
         {featuredMovies.map(m => (
@@ -122,6 +125,9 @@ function FeaturedTab({ movies, serials, albums }: Props) {
         </h2>
         <VideoShowcase />
       </section>
+
+      {/* Ad slot 2 — between videos and dubbed gems */}
+      <AdUnit format="horizontal" className="min-h-[90px]" />
 
       {/* Tamil Dubbed Gems */}
       <Shelf title="Tamil Dubbed Gems" icon={Globe} iconClass="text-cyan-400" href="/movies?lang=Tamil+Dubbed">
@@ -144,6 +150,9 @@ function FeaturedTab({ movies, serials, albums }: Props) {
           </ShelfCard>
         ))}
       </Shelf>
+
+      {/* Ad slot 3 — below albums */}
+      <AdUnit format="rectangle" className="min-h-[250px]" />
     </div>
   )
 }
