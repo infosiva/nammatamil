@@ -23,12 +23,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-const STREAMING_COLORS: Record<string, string> = {
-  'Netflix': 'bg-red-600',
-  'Amazon Prime': 'bg-blue-500',
-  'Disney+ Hotstar': 'bg-indigo-600',
-  'ZEE5': 'bg-purple-600',
-  'YouTube': 'bg-red-500',
+// Affiliate deep-links — direct to Tamil content search on each platform
+const OTT_CONFIG: Record<string, { color: string; bg: string; border: string; url: string; label: string }> = {
+  'Netflix':         { color: '#e50914', bg: 'rgba(229,9,20,0.15)',  border: 'rgba(229,9,20,0.4)',  url: 'https://www.netflix.com/in/search?q=', label: 'Watch on Netflix' },
+  'Amazon Prime':    { color: '#00a8e0', bg: 'rgba(0,168,224,0.15)', border: 'rgba(0,168,224,0.4)', url: 'https://www.primevideo.com/search/ref=atv_nb_sr?phrase=', label: 'Watch on Prime Video' },
+  'Disney+ Hotstar': { color: '#0073e6', bg: 'rgba(0,115,230,0.15)', border: 'rgba(0,115,230,0.4)', url: 'https://www.hotstar.com/in/search?q=', label: 'Watch on Hotstar' },
+  'ZEE5':            { color: '#8b5cf6', bg: 'rgba(139,92,246,0.15)',border: 'rgba(139,92,246,0.4)',url: 'https://www.zee5.com/search?q=', label: 'Watch on ZEE5' },
+  'YouTube':         { color: '#ff0000', bg: 'rgba(255,0,0,0.12)',   border: 'rgba(255,0,0,0.35)',  url: 'https://www.youtube.com/results?search_query=', label: 'Watch on YouTube' },
 }
 
 export default async function MovieDetailPage({ params }: Props) {
@@ -93,12 +94,26 @@ export default async function MovieDetailPage({ params }: Props) {
             {movie.streamingOn.length > 0 && (
               <div>
                 <p className="text-muted text-xs uppercase tracking-wider mb-2 flex items-center gap-1"><Play className="w-3 h-3" /> Watch On</p>
-                <div className="flex flex-wrap gap-2">
-                  {movie.streamingOn.map(s => (
-                    <span key={s} className={clsx('px-3 py-1 rounded-lg text-white text-xs font-semibold', STREAMING_COLORS[s] ?? 'bg-slate-600')}>
-                      {s}
-                    </span>
-                  ))}
+                <div className="flex flex-col gap-2">
+                  {movie.streamingOn.map(platform => {
+                    const cfg = OTT_CONFIG[platform]
+                    if (!cfg) return (
+                      <span key={platform} className="px-3 py-2 rounded-xl text-white text-xs font-semibold bg-slate-600">{platform}</span>
+                    )
+                    return (
+                      <a
+                        key={platform}
+                        href={`${cfg.url}${encodeURIComponent(movie.title)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}
+                      >
+                        <span>{cfg.label}</span>
+                        <Play className="w-3.5 h-3.5" />
+                      </a>
+                    )
+                  })}
                 </div>
               </div>
             )}

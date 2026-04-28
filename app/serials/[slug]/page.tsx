@@ -1,10 +1,20 @@
 import { notFound } from 'next/navigation'
-import { Star, Tv2, Globe, Calendar, Users } from 'lucide-react'
+import { Star, Tv2, Globe, Calendar, Users, Play, ExternalLink } from 'lucide-react'
 import AdUnit from '@/components/AdUnit'
 import ContentCard from '@/components/ContentCard'
 import { serials } from '@/data/serials'
 import type { Metadata } from 'next'
 import clsx from 'clsx'
+
+const STREAMING_LINKS: Record<string, { color: string; bg: string; border: string; url: string }> = {
+  'Sun TV':        { color: '#f97316', bg: 'rgba(249,115,22,0.12)', border: 'rgba(249,115,22,0.35)', url: 'https://www.sunnxt.com/show/' },
+  'Vijay TV':      { color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.35)', url: 'https://www.hotstar.com/in/search?q=' },
+  'Star Vijay':    { color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.35)', url: 'https://www.hotstar.com/in/search?q=' },
+  'Zee Tamil':     { color: '#06b6d4', bg: 'rgba(6,182,212,0.12)',  border: 'rgba(6,182,212,0.35)',  url: 'https://www.zee5.com/search?q=' },
+  'Colors Tamil':  { color: '#ec4899', bg: 'rgba(236,72,153,0.12)', border: 'rgba(236,72,153,0.35)', url: 'https://www.voot.com/search?q=' },
+  'Netflix':       { color: '#e50914', bg: 'rgba(229,9,20,0.12)',   border: 'rgba(229,9,20,0.35)',   url: 'https://www.netflix.com/in/search?q=' },
+  'Amazon Prime':  { color: '#00a8e0', bg: 'rgba(0,168,224,0.12)',  border: 'rgba(0,168,224,0.35)',  url: 'https://www.primevideo.com/search/ref=atv_nb_sr?phrase=' },
+}
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -82,6 +92,24 @@ export default async function SerialDetailPage({ params }: Props) {
                 </div>
               )}
             </div>
+
+            {/* Watch / Stream CTA */}
+            {serial.channel && (() => {
+              const cfg = STREAMING_LINKS[serial.channel]
+              if (!cfg) return null
+              return (
+                <a
+                  href={`${cfg.url}${encodeURIComponent(serial.title)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between w-full px-4 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}
+                >
+                  <span className="flex items-center gap-2"><Play className="w-4 h-4" /> Watch {serial.title}</span>
+                  <ExternalLink className="w-3.5 h-3.5 opacity-60" />
+                </a>
+              )
+            })()}
           </div>
         </div>
       </div>
