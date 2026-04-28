@@ -15,6 +15,8 @@ export interface Movie {
   badge?: string
   /** OTT premiere date — "YYYY-MM-DD" for released, "Coming Soon" for upcoming */
   ottDate?: string
+  /** Optional poster/thumbnail image URL */
+  thumbnail?: string
 }
 
 export const movies: Movie[] = [

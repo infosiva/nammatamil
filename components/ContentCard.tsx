@@ -15,6 +15,8 @@ interface ContentCardProps {
   year?: number
   status?: string
   tags?: string[]
+  /** Optional thumbnail image URL — shown instead of gradient when provided */
+  thumbnail?: string
   /** Reduce poster height for dense grid layouts */
   compact?: boolean
 }
@@ -45,6 +47,7 @@ export default function ContentCard({
   year,
   status,
   tags = [],
+  thumbnail,
   compact = false,
 }: ContentCardProps) {
   const Icon = TYPE_ICON[type]
@@ -56,10 +59,21 @@ export default function ContentCard({
       <div className="glass rounded-xl overflow-hidden card-hover border border-white/5 h-full">
 
         {/* Poster / Gradient Art */}
-        <div className={clsx('relative bg-gradient-to-br overflow-hidden', gradient, posterH)}>
-          {/* Decorative circles */}
-          <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-700" />
-          <div className="absolute -bottom-3 -left-3 w-14 h-14 rounded-full bg-black/20 group-hover:scale-150 transition-transform duration-700" />
+        <div className={clsx('relative overflow-hidden', thumbnail ? '' : `bg-gradient-to-br ${gradient}`, posterH)}>
+          {/* Thumbnail image when provided */}
+          {thumbnail && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={thumbnail} alt={title}
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy" />
+          )}
+          {/* Decorative circles (gradient only) */}
+          {!thumbnail && (
+            <>
+              <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-700" />
+              <div className="absolute -bottom-3 -left-3 w-14 h-14 rounded-full bg-black/20 group-hover:scale-150 transition-transform duration-700" />
+            </>
+          )}
 
           {/* Type icon */}
           <div className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/30 backdrop-blur-sm">

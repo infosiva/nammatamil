@@ -14,6 +14,8 @@ export interface Serial {
   tags: string[]
   rating: number
   gradient: string
+  /** Optional poster/thumbnail image URL */
+  thumbnail?: string
 }
 
 export const serials: Serial[] = [

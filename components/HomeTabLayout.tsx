@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import {
   Tv2, Film, Music, Globe, ArrowRight, TrendingUp, Star, Play,
-  Youtube, Trophy, Search, X,
+  Youtube, Trophy, Search, X, Clock,
 } from 'lucide-react'
 import ContentCard from '@/components/ContentCard'
 import OTTExplorer from '@/components/OTTExplorer'
@@ -83,6 +83,54 @@ function ShelfCard({ children }: { children: React.ReactNode }) {
   return <div className="flex-shrink-0 w-28 sm:w-32">{children}</div>
 }
 
+/* ── Recent Episodes data (latest YouTube episode clips for top serials) ─────── */
+const RECENT_EPISODES = [
+  { id: 're1', serialSlug: 'pandian-stores',    title: 'Pandian Stores', episode: 'Latest Episode', youtubeId: 'PLFMg3Wg8v7g', channel: 'Vijay TV', color: '#f97316' },
+  { id: 're2', serialSlug: 'baakiyalakshmi',    title: 'Baakiyalakshmi', episode: 'Latest Episode', youtubeId: '5-GkuN8QT6E', channel: 'Vijay TV', color: '#ec4899' },
+  { id: 're3', serialSlug: 'raja-rani',         title: 'Raja Rani S2',   episode: 'Latest Episode', youtubeId: 'fFDolUh5mXw', channel: 'Zee Tamil', color: '#06b6d4' },
+  { id: 're4', serialSlug: 'vijay-tv-serials',  title: 'Chithi',         episode: 'Latest Episode', youtubeId: 'dY8K5PdZBQk', channel: 'Sun TV',   color: '#f59e0b' },
+  { id: 're5', serialSlug: 'anandham',          title: 'Anandham',       episode: 'Latest Episode', youtubeId: 'mHSoNLpHKBI', channel: 'Sun TV',   color: '#10b981' },
+  { id: 're6', serialSlug: 'rettai-roja',       title: 'Rettai Roja',    episode: 'Latest Episode', youtubeId: '2V9UiWnSi1c', channel: 'Colors Tamil', color: '#a855f7' },
+]
+
+function RecentEpisodeCard({ ep }: { ep: typeof RECENT_EPISODES[0] }) {
+  const thumb = `https://img.youtube.com/vi/${ep.youtubeId}/mqdefault.jpg`
+  return (
+    <a
+      href={`https://www.youtube.com/watch?v=${ep.youtubeId}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group flex-shrink-0 w-40 sm:w-48 block"
+      style={{ textDecoration: 'none' }}
+    >
+      <div className="rounded-xl overflow-hidden" style={{ background: '#0d0018', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="relative aspect-video overflow-hidden bg-black">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={thumb} alt={ep.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85 group-hover:opacity-100"
+            loading="lazy" />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
+            <div className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center shadow group-hover:scale-110 transition-transform">
+              <Play className="w-3 h-3 text-white ml-0.5 fill-white" />
+            </div>
+          </div>
+          <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white"
+            style={{ background: ep.color + 'dd' }}>
+            <Clock className="w-2.5 h-2.5" /> Today
+          </div>
+        </div>
+        <div className="px-2 py-1.5">
+          <p className="text-white text-[11px] font-bold truncate">{ep.title}</p>
+          <div className="flex items-center gap-1 mt-0.5">
+            <Youtube className="w-2.5 h-2.5 text-red-500" />
+            <span className="text-white/35 text-[9px] truncate">{ep.channel}</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  )
+}
+
 /* ── Featured / Home Tab ─────────────────────────────────────────────────────── */
 function FeaturedTab({ movies, serials, albums }: Props) {
   const featuredSerials = serials.slice(0, 10)
@@ -92,6 +140,26 @@ function FeaturedTab({ movies, serials, albums }: Props) {
 
   return (
     <div className="space-y-7">
+      {/* Recent Episodes */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-black text-white flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-red-400" />
+            Recent Episodes
+            <span className="text-[10px] font-normal text-white/30 ml-1">Today&apos;s drama clips</span>
+          </h2>
+          <a href="https://www.youtube.com/@SunTV" target="_blank" rel="noopener noreferrer"
+            className="text-red-400 text-[11px] flex items-center gap-0.5 hover:text-red-300 transition-colors">
+            <Youtube className="w-3 h-3" /> YouTube
+          </a>
+        </div>
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+          {RECENT_EPISODES.map(ep => (
+            <RecentEpisodeCard key={ep.id} ep={ep} />
+          ))}
+        </div>
+      </section>
+
       {/* Popular Serials */}
       <Shelf title="Popular Serials" icon={Tv2} iconClass="text-orange-400" href="/serials">
         {featuredSerials.map(s => (
