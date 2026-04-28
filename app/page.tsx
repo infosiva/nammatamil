@@ -4,15 +4,21 @@ import AdUnit from '@/components/AdUnit'
 import { serials } from '@/data/serials'
 import { movies } from '@/data/movies'
 import { albums } from '@/data/albums'
-
-const STATS = [
-  { label: 'Movies',  value: '2000+' },
-  { label: 'Serials', value: '500+'  },
-  { label: 'Albums',  value: '300+'  },
-  { label: 'IPL',     value: '🏏'    },
-]
+import { actors } from '@/data/actors'
 
 export default function HomePage() {
+  const tamilMovies  = movies.filter(m => m.language === 'Tamil').length
+  const dubbedMovies = movies.filter(m => m.language === 'Tamil Dubbed').length
+  const ongoingSerials = serials.filter(s => s.status === 'Ongoing').length
+
+  const STATS = [
+    { label: 'Movies',   value: String(tamilMovies + dubbedMovies) },
+    { label: 'Serials',  value: String(serials.length)             },
+    { label: 'Albums',   value: String(albums.length)              },
+    { label: 'Artists',  value: String(actors.length)              },
+    { label: 'On Air',   value: String(ongoingSerials)             },
+  ]
+
   return (
     <div className="overflow-x-hidden">
 
@@ -22,7 +28,7 @@ export default function HomePage() {
           {/* Left: tagline */}
           <div className="flex-shrink-0">
             <p className="text-[10px] text-white/30 uppercase tracking-widest">தமிழ் பொழுதுபோக்கு உலகம்</p>
-            <div className="flex items-baseline gap-1 mt-0.5">
+            <div className="flex flex-wrap items-baseline gap-1 mt-0.5">
               {STATS.map(({ label, value }) => (
                 <span key={label} className="text-[10px] text-white/25">
                   <span className="text-gold-400 font-bold">{value}</span> {label}

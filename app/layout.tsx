@@ -4,11 +4,17 @@ import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import TVKWidget from '@/components/TVKWidget'
+import TNElectionBanner from '@/components/TNElectionBanner'
 
 export const metadata: Metadata = {
   title: {
     default: 'NammaTamil.tv — Tamil Entertainment Hub',
     template: '%s | NammaTamil.tv',
+  },
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
   },
   description: 'Discover the best of Tamil entertainment - serials, movies, dubbed films, music, and more. Your ultimate hub for Tamil cinema, TV shows, and culture, including Tamil dubbed movies.',
   keywords: [
@@ -55,6 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col bg-site">
         <TVKWidget />
         <Header />
+        <TNElectionBanner />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

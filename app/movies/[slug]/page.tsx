@@ -1,10 +1,13 @@
 import { notFound } from 'next/navigation'
-import { Star, Film, Globe, Calendar, Users, Play, Tv2 } from 'lucide-react'
+import { Star, Film, Globe, Calendar, Users, Play, ShoppingBag } from 'lucide-react'
 import AdUnit from '@/components/AdUnit'
 import ContentCard from '@/components/ContentCard'
 import { movies } from '@/data/movies'
 import type { Metadata } from 'next'
 import clsx from 'clsx'
+
+// Amazon Associates tag — Tamil music/DVD
+const AMAZON_TAG = 'nammatamil-21'
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -106,6 +109,8 @@ export default async function MovieDetailPage({ params }: Props) {
                         href={`${cfg.url}${encodeURIComponent(movie.title)}`}
                         target="_blank"
                         rel="noopener noreferrer"
+                        data-track="watch-cta"
+                        data-track-value={`${platform}-${movie.title}`}
                         className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
                         style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}
                       >
@@ -122,6 +127,34 @@ export default async function MovieDetailPage({ params }: Props) {
       </div>
 
       <AdUnit format="horizontal" className="mb-10 min-h-[90px]" />
+
+      {/* Amazon affiliate — soundtrack & movie */}
+      <div className="glass rounded-2xl p-4 mb-10 border border-white/5 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div>
+          <p className="text-white font-bold text-sm">🎵 Buy the Soundtrack / DVD</p>
+          <p className="text-white/40 text-xs mt-0.5">Support Tamil cinema — buy from Amazon</p>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <a
+            href={`https://www.amazon.co.uk/s?k=${encodeURIComponent(movie!.title + ' Tamil soundtrack')}&tag=${AMAZON_TAG}`}
+            target="_blank" rel="noopener noreferrer sponsored"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:scale-105"
+            style={{ background: 'linear-gradient(135deg,#f90,#e47911)', border: '1px solid rgba(249,153,17,0.4)' }}
+          >
+            <ShoppingBag className="w-3.5 h-3.5" /> Soundtrack (UK)
+          </a>
+          <a
+            href={`https://www.amazon.co.uk/s?k=${encodeURIComponent(movie!.title + ' Tamil DVD')}&tag=${AMAZON_TAG}`}
+            target="_blank" rel="noopener noreferrer sponsored"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:scale-105"
+            style={{ background: 'rgba(249,153,17,0.12)', border: '1px solid rgba(249,153,17,0.3)', color: '#f90' }}
+          >
+            <ShoppingBag className="w-3.5 h-3.5" /> DVD / Blu-ray
+          </a>
+        </div>
+      </div>
+
+      <AdUnit format="rectangle" className="mb-10 min-h-[250px]" />
 
       {related.length > 0 && (
         <section>

@@ -10,7 +10,8 @@
   html { scroll-behavior: smooth; }
 
   body {
-    background-color: #0b0005;
+    /* TVK theme: deep black with golden amber accent */
+    background-color: #060501;
     color: #f1f5f9;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -95,8 +96,9 @@
 }
 
 @layer utilities {
-  .bg-site { background-color: #0b0005; }
-  .bg-card { background-color: #130008; }
+  /* TVK theme — rich black + gold */
+  .bg-site { background-color: #060501; }
+  .bg-card { background-color: #0d0b02; }
   .text-muted { color: #94a3b8; }
   .border-subtle { border-color: rgba(255,255,255,0.07); }
 
@@ -111,13 +113,13 @@
   }
 }
 
-/* Hero background — deep maroon with crimson/gold accents (Sun TV / Vijay TV inspired) */
+/* Hero background — TVK theme: black with golden amber glow */
 .hero-bg {
   background:
-    radial-gradient(ellipse 70% 50% at 50% -5%, rgba(185,28,28,0.18) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 30% at 95% 40%, rgba(245,158,11,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 30% 40% at 0% 100%, rgba(185,28,28,0.08) 0%, transparent 50%),
-    #0b0005;
+    radial-gradient(ellipse 80% 50% at 50% -5%, rgba(245,158,11,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 95% 40%, rgba(245,158,11,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 30% 40% at 0% 100%, rgba(217,119,6,0.06) 0%, transparent 50%),
+    #060501;
 }
 
 /* Particle dots scattered across hero */

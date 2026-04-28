@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
-import { Star, Tv2, Globe, Calendar, Users, Play, ExternalLink } from 'lucide-react'
+import { Star, Tv2, Globe, Calendar, Users, Play, ExternalLink, ShoppingBag } from 'lucide-react'
 import AdUnit from '@/components/AdUnit'
+
+const AMAZON_TAG = 'nammatamil-21'
 import ContentCard from '@/components/ContentCard'
 import { serials } from '@/data/serials'
 import type { Metadata } from 'next'
@@ -102,6 +104,8 @@ export default async function SerialDetailPage({ params }: Props) {
                   href={`${cfg.url}${encodeURIComponent(serial.title)}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-track="watch-cta"
+                  data-track-value={`${serial.channel}-${serial.title}`}
                   className="flex items-center justify-between w-full px-4 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
                   style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}
                 >
@@ -115,6 +119,26 @@ export default async function SerialDetailPage({ params }: Props) {
       </div>
 
       <AdUnit format="horizontal" className="mb-10 min-h-[90px]" />
+
+      {/* Amazon affiliate — serial soundtrack / merch */}
+      <div className="glass rounded-2xl p-4 mb-10 border border-white/5 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div>
+          <p className="text-white font-bold text-sm">🎵 Serial Soundtrack & Merchandise</p>
+          <p className="text-white/40 text-xs mt-0.5">Find {serial!.title} music on Amazon</p>
+        </div>
+        <a
+          href={`https://www.amazon.co.uk/s?k=${encodeURIComponent(serial!.title + ' Tamil serial soundtrack')}&tag=${AMAZON_TAG}`}
+          target="_blank" rel="noopener noreferrer sponsored"
+          data-track="amazon-affiliate"
+          data-track-value={`serial-soundtrack-${serial!.title}`}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:scale-105 flex-shrink-0"
+          style={{ background: 'linear-gradient(135deg,#f90,#e47911)', border: '1px solid rgba(249,153,17,0.4)' }}
+        >
+          <ShoppingBag className="w-3.5 h-3.5" /> Find on Amazon UK
+        </a>
+      </div>
+
+      <AdUnit format="rectangle" className="mb-10 min-h-[250px]" />
 
       {/* Related */}
       {related.length > 0 && (
