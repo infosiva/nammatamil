@@ -49,7 +49,7 @@ export default function HomePage() {
               type="submit"
               className="px-4 py-2.5 rounded-2xl bg-gold-500 text-dark-900 font-bold text-sm hover:bg-gold-400 transition-all flex-shrink-0"
             >
-              Go
+              Explore Now
             </button>
           </form>
 
