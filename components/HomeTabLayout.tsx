@@ -275,122 +275,72 @@ function AlbumsTab({ albums }: { albums: Album[] }) {
   )
 }
 
-// ── News Tab (replaces Live) ───────────────────────────────────────────────────
+// ── News Tab (real-time Tamil entertainment news) ─────────────────────────────
 interface NewsItem {
   id: string
   title: string
-  summary: string
   category: string
   categoryColor: string
   thumbnail: string
   timeAgo: string
   source: string
+  link?: string
+  color?: string
 }
 
-const STATIC_NEWS: NewsItem[] = [
-  {
-    id: 'n1',
-    title: 'Coolie: Rajinikanth & Lokesh Kanagaraj wrap final schedule in Hyderabad',
-    summary: 'The most awaited film of 2025 has completed its final shooting schedule. LCU fans can expect Coolie to hit theatres by mid-2025.',
-    category: 'Movies',
-    categoryColor: '#60a5fa',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/kr36awqmziEI5mfUElsHB0pj9zP.jpg',
-    timeAgo: '2h ago',
-    source: 'Filmibeat',
-  },
-  {
-    id: 'n2',
-    title: 'Thug Life: Kamal Haasan\'s crime saga set for June 2025 worldwide release',
-    summary: 'Mani Ratnam\'s Thug Life starring Kamal Haasan and STR is confirmed for a summer 2025 release. Trailer already broke YouTube records.',
-    category: 'Movies',
-    categoryColor: '#60a5fa',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/DmBbUtbA3T9sdVXDgIJ8bsIDw0.jpg',
-    timeAgo: '4h ago',
-    source: 'Cinema Express',
-  },
-  {
-    id: 'n3',
-    title: 'Suriya\'s Retro crosses ₹200 Cr at box office in first week',
-    summary: 'Karthik Subbaraj\'s period action romance starring Suriya and Pooja Hegde has become the biggest Tamil hit of April 2025.',
-    category: 'Box Office',
-    categoryColor: '#4ade80',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/pJPK57REXsaLydpOPgHwWAQMdqz.jpg',
-    timeAgo: '6h ago',
-    source: 'TrackTollywood',
-  },
-  {
-    id: 'n4',
-    title: 'Thalapathy 70: Vijay\'s political film officially launched — details inside',
-    summary: 'Thalapathy Vijay\'s comeback film (Thalapathy 70) has been officially launched with a puja ceremony. The film is directed by H. Vinoth.',
-    category: 'Movies',
-    categoryColor: '#60a5fa',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/t1oAdt8JjUs4sHEBvE8fKtjV7er.jpg',
-    timeAgo: '8h ago',
-    source: 'Times of India',
-  },
-  {
-    id: 'n5',
-    title: 'L2: Empuraan OTT release — Amazon Prime breaks viewership records',
-    summary: 'Mohanlal\'s L2: Empuraan shattered Amazon Prime India viewing records in its first weekend. Tamil dubbed version equally massive.',
-    category: 'OTT',
-    categoryColor: '#a78bfa',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/dfaZipN3Aw5BK85nEvfr2FNg4EW.jpg',
-    timeAgo: '10h ago',
-    source: 'OTTPlay',
-  },
-  {
-    id: 'n6',
-    title: 'AR Rahman announces new album with GV Prakash — Tamil music fraternity excited',
-    summary: 'Musical legends AR Rahman and GV Prakash Kumar are collaborating on a fresh Tamil album. First single drops in May 2025.',
-    category: 'Music',
-    categoryColor: '#f472b6',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/yx7AYFLoupzBfdfEAlDFuOiei2A.jpg',
-    timeAgo: '12h ago',
-    source: 'Music Plus',
-  },
-  {
-    id: 'n7',
-    title: 'Ajith\'s Good Bad Ugly becomes biggest comedy blockbuster of 2025',
-    summary: 'Ajith Kumar\'s mass entertainer Good Bad Ugly has crossed ₹300 Cr worldwide — the biggest Tamil comedy blockbuster ever made.',
-    category: 'Box Office',
-    categoryColor: '#4ade80',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/yx7AYFLoupzBfdfEAlDFuOiei2A.jpg',
-    timeAgo: '1d ago',
-    source: 'Box Office India',
-  },
-  {
-    id: 'n8',
-    title: 'Sun TV unveils 5 new Tamil serials for Summer 2025 season',
-    summary: 'Sun TV has announced 5 brand new serials starting May 2025. Popular time slots to see major reshuffling with fresh storylines.',
-    category: 'Serials',
-    categoryColor: '#f97316',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/hIoZgUixXD13M3cecGyYcQ7y7Ot.jpg',
-    timeAgo: '1d ago',
-    source: 'Sun TV',
-  },
-  {
-    id: 'n9',
-    title: 'Marco Tamil dubbed version gets massive opening on Disney+ Hotstar',
-    summary: 'The Malayalam action blockbuster Marco has debuted on Disney+ Hotstar with Tamil dubbing — trending #1 in India in its first 48 hours.',
-    category: 'OTT',
-    categoryColor: '#a78bfa',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/kdzZb1VEK47lKh7GtjE4NALfDI6.jpg',
-    timeAgo: '2d ago',
-    source: 'OTTPlay',
-  },
-]
+const REFRESH_MS = 10 * 60 * 1000 // 10 minutes
+
+function NewsSkeletons() {
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl h-44 shimmer" />
+      {[1, 2, 3].map(i => (
+        <div key={i} className="flex gap-3 p-3 rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="w-20 h-20 rounded-xl flex-shrink-0 shimmer" />
+          <div className="flex-1 space-y-2 pt-1">
+            <div className="h-3 w-16 rounded shimmer" />
+            <div className="h-4 rounded shimmer" />
+            <div className="h-3 w-24 rounded shimmer" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function LiveTab() {
-  const [news, setNews] = useState<NewsItem[]>(STATIC_NEWS)
+  const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [updatedAt, setUpdatedAt] = useState('')
 
-  useEffect(() => {
+  const fetchNews = () => {
     fetch('/api/tamil-news')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.news?.length) setNews(d.news) })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => {
+        if (d?.news?.length) {
+          setNews(d.news)
+          setUpdatedAt(d.updatedAt ?? '')
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    fetchNews()
+    const id = setInterval(fetchNews, REFRESH_MS)
+    return () => clearInterval(id)
   }, [])
+
+  if (loading) return <NewsSkeletons />
+
+  const featured = news[0]
+  const cards    = news.slice(1, 5)
+  const compact  = news.slice(5)
+
+  const lastUpdated = updatedAt
+    ? new Date(updatedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    : ''
 
   return (
     <div className="space-y-4">
@@ -398,74 +348,105 @@ function LiveTab() {
       <div className="flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
         <span className="text-base font-black text-white">Tamil Entertainment News</span>
-        <span className="ml-auto text-xs text-white/25">Latest updates</span>
+        <div className="ml-auto flex items-center gap-2">
+          {lastUpdated && (
+            <span className="text-[10px] text-white/20">updated {lastUpdated}</span>
+          )}
+          <button onClick={fetchNews}
+            className="text-[10px] text-white/30 hover:text-white/60 transition-colors px-2 py-0.5 rounded"
+            style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+            ↻ Refresh
+          </button>
+        </div>
       </div>
 
-      {/* Featured news card (large) */}
-      {news[0] && (
-        <div className="rounded-2xl overflow-hidden group cursor-pointer"
-          style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div className="relative h-44 overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={news[0].thumbnail} alt={news[0].title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy" />
-            <div className="absolute inset-0"
-              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)' }} />
-            <div className="absolute top-3 left-3">
-              <span className="px-2 py-1 rounded-full text-xs font-black"
-                style={{ background: news[0].categoryColor + '25', color: news[0].categoryColor, border: `1px solid ${news[0].categoryColor}40` }}>
-                {news[0].category}
-              </span>
-            </div>
-            <div className="absolute bottom-0 inset-x-0 p-4">
-              <p className="text-white font-black text-base leading-snug line-clamp-2 mb-1">{news[0].title}</p>
-              <p className="text-white/50 text-xs">{news[0].source} · {news[0].timeAgo}</p>
-            </div>
-          </div>
+      {/* No news fallback */}
+      {news.length === 0 && (
+        <div className="text-center py-16 text-white/25">
+          <Radio className="w-10 h-10 mx-auto mb-3 opacity-30" />
+          <p className="text-sm">Could not load news — try refreshing</p>
         </div>
       )}
 
-      {/* News grid (2-col cards) */}
-      <div className="grid grid-cols-1 gap-3">
-        {news.slice(1, 5).map(item => (
-          <div key={item.id} className="flex gap-3 rounded-xl overflow-hidden group cursor-pointer p-3 transition-all"
-            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)' }}>
-            <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.thumbnail} alt={item.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                loading="lazy" />
+      {/* Featured story */}
+      {featured && (
+        <a href={featured.link ?? '#'} target="_blank" rel="noopener noreferrer"
+          className="block rounded-2xl overflow-hidden group"
+          style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="relative h-44 overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={featured.thumbnail} alt={featured.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="eager"
+              onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+            <div className="absolute inset-0"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 55%, transparent 100%)' }} />
+            <div className="absolute top-3 left-3">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black"
+                style={{ background: (featured.categoryColor ?? '#60a5fa') + '28', color: featured.categoryColor ?? '#60a5fa', border: `1px solid ${featured.categoryColor ?? '#60a5fa'}45` }}>
+                {featured.category}
+              </span>
             </div>
-            <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: item.categoryColor }}>{item.category}</span>
-              <p className="text-white text-sm font-bold leading-snug line-clamp-2 mt-0.5">{item.title}</p>
-              <p className="text-white/35 text-xs mt-1">{item.source} · {item.timeAgo}</p>
+            <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] text-white/60"
+              style={{ background: 'rgba(0,0,0,0.5)' }}>
+              {featured.source}
+            </div>
+            <div className="absolute bottom-0 inset-x-0 p-4">
+              <p className="text-white font-black text-base leading-snug line-clamp-2 mb-1">{featured.title}</p>
+              <p className="text-white/45 text-xs">{featured.timeAgo}</p>
             </div>
           </div>
-        ))}
-      </div>
+        </a>
+      )}
 
-      {/* Remaining news as compact list */}
-      <div className="space-y-2">
-        {news.slice(5).map(item => (
-          <div key={item.id} className="flex gap-2.5 items-start py-2.5 cursor-pointer group"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.thumbnail} alt={item.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                loading="lazy" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-white/85 text-xs font-bold leading-snug line-clamp-2 group-hover:text-white transition-colors">{item.title}</p>
-              <p className="text-white/30 text-[10px] mt-1">{item.source} · {item.timeAgo}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Card list */}
+      {cards.length > 0 && (
+        <div className="space-y-2.5">
+          {cards.map(item => (
+            <a key={item.id} href={item.link ?? '#'} target="_blank" rel="noopener noreferrer"
+              className="flex gap-3 rounded-xl overflow-hidden group p-3 transition-all"
+              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)' }}>
+              <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-white/5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.thumbnail} alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: item.categoryColor ?? '#60a5fa' }}>{item.category}</span>
+                <p className="text-white text-sm font-bold leading-snug line-clamp-2 mt-0.5 group-hover:text-amber-200 transition-colors">{item.title}</p>
+                <p className="text-white/35 text-xs mt-1">{item.source} · {item.timeAgo}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* Compact tail */}
+      {compact.length > 0 && (
+        <div className="space-y-0">
+          {compact.map(item => (
+            <a key={item.id} href={item.link ?? '#'} target="_blank" rel="noopener noreferrer"
+              className="flex gap-2.5 items-start py-2.5 group transition-all"
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.thumbnail} alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white/80 text-xs font-bold leading-snug line-clamp-2 group-hover:text-white transition-colors">{item.title}</p>
+                <p className="text-white/30 text-[10px] mt-1">{item.source} · {item.timeAgo}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

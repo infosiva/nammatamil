@@ -17,7 +17,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'image.tmdb.org' },
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      { protocol: 'https', hostname: 'th-i.thgim.com' },
+      { protocol: 'https', hostname: '**.thgim.com' },
+      { protocol: 'https', hostname: 'static.toiimg.com' },
+      { protocol: 'https', hostname: '**.indiatimes.com' },
+      { protocol: 'https', hostname: 'images.indianexpress.com' },
+      { protocol: 'https', hostname: '**.indianexpress.com' },
+      { protocol: 'https', hostname: 'img.youtube.com' },
     ],
+    unoptimized: true,
   },
 }
 
