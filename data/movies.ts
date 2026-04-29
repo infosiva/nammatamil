@@ -36,7 +36,7 @@ export const movies: Movie[] = [
     gradient: 'from-gray-800 via-gray-700 to-yellow-600',
     badge: 'Superstar',
     ottDate: '2023-09-07',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/lPDznAkGWMl85pmpvOaVs1angu6.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/hIoZgUixXD13M3cecGyYcQ7y7Ot.jpg',
   },
   {
     id: 'm2',
@@ -53,7 +53,7 @@ export const movies: Movie[] = [
     gradient: 'from-amber-700 via-orange-600 to-red-600',
     badge: 'LCU',
     ottDate: '2023-11-10',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/pEtbL2j4iSEMzaGx4gUvGEfsPJr.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/t1oAdt8JjUs4sHEBvE8fKtjV7er.jpg',
   },
   {
     id: 'm3',
@@ -69,7 +69,7 @@ export const movies: Movie[] = [
     rating: 8.0,
     gradient: 'from-yellow-700 via-amber-600 to-orange-500',
     badge: 'Epic',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/6WxhEvFsauuACfv8HyoVX6mZKFj.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/zSNyZUeqDdii0doQ9970E90kCkb.jpg',
   },
   {
     id: 'm4',
@@ -85,7 +85,7 @@ export const movies: Movie[] = [
     rating: 7.9,
     gradient: 'from-orange-700 via-red-600 to-rose-600',
     badge: 'Epic',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/7cCFkROlqIBFbELX2mJNxNLqbr4.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/1fMM5yjLYJNfO3CSQBpfC1kqeIK.jpg',
   },
   {
     id: 'm5',
@@ -102,7 +102,7 @@ export const movies: Movie[] = [
     gradient: 'from-slate-800 via-gray-700 to-indigo-700',
     badge: 'Blockbuster',
     ottDate: '2022-07-08',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/y3RPKlEMdxLFMeXHCQEqSS1LpHf.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/774UV1aCURb4s4JfEFg3IEMu5Zj.jpg',
   },
   {
     id: 'm6',
@@ -119,7 +119,7 @@ export const movies: Movie[] = [
     gradient: 'from-blue-800 via-indigo-700 to-purple-600',
     badge: 'Hit',
     ottDate: '2021-01-29',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/6LGIDQqhb0nfxFDQpGNhtAb1XCZ.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/wjbOlovDadOdPKkSAMohLCjbIsc.jpg',
   },
   {
     id: 'm7',
@@ -135,7 +135,7 @@ export const movies: Movie[] = [
     rating: 8.7,
     gradient: 'from-sky-600 via-blue-500 to-indigo-400',
     badge: 'Award Winner',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/b9a6TIDRbhfnljNomBzPRTuBXnW.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/5uimlxPCgAei8JfQUDFEUQLoyyh.jpg',
   },
   {
     id: 'm8',
@@ -151,7 +151,7 @@ export const movies: Movie[] = [
     rating: 8.8,
     gradient: 'from-red-800 via-red-700 to-orange-600',
     badge: 'Must Watch',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/cMjnFG3V5m6d12zYzWLOmCXfJtH.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/ehybiOtBUtrMkmtB39zQEtq1Jie.jpg',
   },
   {
     id: 'm9',
@@ -167,7 +167,7 @@ export const movies: Movie[] = [
     rating: 8.9,
     gradient: 'from-amber-600 via-yellow-500 to-lime-400',
     badge: 'Classic',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/b5Y28bTkVXBPJtgGn6HoTnnBuig.jpg',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/%2796_film_poster.jpg/500px-%2796_film_poster.jpg',
   },
   {
     id: 'm10',
@@ -183,7 +183,7 @@ export const movies: Movie[] = [
     rating: 8.3,
     gradient: 'from-stone-700 via-amber-700 to-red-600',
     badge: 'Acclaimed',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/2mXFjLR5M4dE7JFi2Vy1QiuBYEQ.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/z5SxDcVWa9nokynVqBHb2IKk78J.jpg',
   },
 
   // ── Tamil Dubbed Malayalam Movies ──────────────────────────────────
@@ -202,7 +202,7 @@ export const movies: Movie[] = [
     rating: 8.9,
     gradient: 'from-gray-700 via-slate-600 to-zinc-500',
     badge: 'Masterpiece',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/j1p2M3HqNgvHFbcMFMEaAKhbdoP.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/7d8GLneJkF81q1POdK7VUrjWafX.jpg',
   },
   {
     id: 'm12',
@@ -219,7 +219,7 @@ export const movies: Movie[] = [
     rating: 8.7,
     gradient: 'from-zinc-700 via-gray-600 to-slate-500',
     badge: 'Sequel Hit',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/3ZLlKHzGqLgH2uBSBGUWrYPasLO.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/8RJBCUGE27LX06tAES4jTELN0KA.jpg',
   },
   {
     id: 'm13',
@@ -236,7 +236,7 @@ export const movies: Movie[] = [
     rating: 7.8,
     gradient: 'from-indigo-800 via-purple-700 to-violet-600',
     badge: 'Mass Film',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/3h1JZGDhZ8nzxkhmTHxfGmD9yGz.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/fXgY2RCzoIJPhPDoyKRjaaqjIZs.jpg',
   },
   {
     id: 'm14',
@@ -254,7 +254,7 @@ export const movies: Movie[] = [
     gradient: 'from-blue-700 via-cyan-600 to-teal-500',
     badge: 'True Story',
     ottDate: '2023-06-15',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/6GtEMCPIUm6GqkHs7WKfHqGTLCG.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/uz9qc6lNGyqS2xvuXUfpJh2eP6b.jpg',
   },
   {
     id: 'm15',
@@ -272,7 +272,7 @@ export const movies: Movie[] = [
     gradient: 'from-emerald-700 via-green-600 to-teal-500',
     badge: 'Viral Hit',
     ottDate: '2024-04-05',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/sqaoPJRplrr7SmrbnD1GKLOqiFj.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/bswrtewwthpsh6nABiqKevU4UBI.jpg',
   },
   {
     id: 'm16',
@@ -290,7 +290,7 @@ export const movies: Movie[] = [
     gradient: 'from-yellow-700 via-amber-600 to-orange-500',
     badge: 'Critically Acclaimed',
     ottDate: '2024-05-17',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/kf9VxTWIkNe93SGZjRbSmPfxBqX.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/vwRkVhvJuAFz4i8udXMNkcJCztc.jpg',
   },
 
   // ── Tamil Dubbed Telugu Movies ──────────────────────────────────────
@@ -309,7 +309,7 @@ export const movies: Movie[] = [
     rating: 8.1,
     gradient: 'from-amber-700 via-yellow-600 to-lime-500',
     badge: 'Landmark',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/hDySHBrC7mLkETgCZSbTsBMgIve.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/9BAjt8nSSms62uOVYn1t3C3dVto.jpg',
   },
   {
     id: 'm18',
@@ -326,7 +326,7 @@ export const movies: Movie[] = [
     rating: 8.3,
     gradient: 'from-red-700 via-orange-600 to-amber-500',
     badge: 'Record Breaker',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/hJuDvwzS33SISc1lkdHXhbVvFli.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/21sC2assImQIYCEDA84Qh9d1RsK.jpg',
   },
   {
     id: 'm19',
@@ -343,7 +343,7 @@ export const movies: Movie[] = [
     rating: 7.9,
     gradient: 'from-orange-700 via-red-600 to-rose-600',
     badge: 'Oscar Winner',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/nEufeZlyAOLqO2brrs0yeF1lgXO.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/u0XUBNQWlOvrh0Gd97ARGpIkL0.jpg',
   },
   {
     id: 'm20',
@@ -361,7 +361,7 @@ export const movies: Movie[] = [
     gradient: 'from-red-800 via-red-700 to-orange-600',
     badge: 'All-Time Record',
     ottDate: '2025-03-06',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/lFHlxM7AXQBSV2x6OecA8P5jBID.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/bhxZj3y59cK7JtGdV285dhDRaMe.jpg',
   },
   // ── Latest / Coming Soon ────────────────────────────────────────────
   {
@@ -379,7 +379,7 @@ export const movies: Movie[] = [
     gradient: 'from-green-800 via-olive-700 to-amber-700',
     badge: 'Blockbuster',
     ottDate: '2024-12-05',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/kW5j7lKbv8YCPX6MaZnCvO5Rj0V.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/eCB06m1KUGilEOlIzb40nkQhVY0.jpg',
   },
   {
     id: 'm22',
@@ -396,7 +396,7 @@ export const movies: Movie[] = [
     gradient: 'from-slate-700 via-gray-600 to-zinc-500',
     badge: 'Superstar',
     ottDate: '2024-11-22',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/rwM4gAJ1NRFzEVdgY4D9qFxGZZ0.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/yEEyhQaW7cEb0IDJstoMBmEtPND.jpg',
   },
   {
     id: 'm23',
@@ -413,7 +413,7 @@ export const movies: Movie[] = [
     gradient: 'from-orange-700 via-amber-600 to-yellow-500',
     badge: 'Hidden Gem',
     ottDate: '2024-09-12',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/dHv2iGdWKSKHOqGz0gJ1C0C3VdN.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/jNyLZjIgaYVkBli2JihHwABlAPY.jpg',
   },
   {
     id: 'm24',
@@ -430,7 +430,7 @@ export const movies: Movie[] = [
     gradient: 'from-purple-800 via-violet-700 to-indigo-600',
     badge: 'Mind-Bender',
     ottDate: '2024-07-12',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/rLb2cwF3Pazuxaj0sRXQ037tGb1.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/s0m4TM1XRAftQStgKpw024RvkJo.jpg',
   },
   {
     id: 'm25',
@@ -448,7 +448,7 @@ export const movies: Movie[] = [
     gradient: 'from-gray-800 via-slate-700 to-zinc-600',
     badge: 'Edge-of-Seat',
     ottDate: '2024-11-08',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/mVBEbxTxAbzM1kJVvKZbkMqVEKu.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/yJNNwHQuKYNeHFbsxSFR6yK9Dda.jpg',
   },
   {
     id: 'm26',
@@ -466,7 +466,7 @@ export const movies: Movie[] = [
     gradient: 'from-teal-700 via-cyan-600 to-blue-500',
     badge: 'Sleeper Hit',
     ottDate: '2024-11-29',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/hSQnKjqvSBKFkzF3wG4GBYbhS8N.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/a47JQFl9L7VDa79tEvnTOJe0rPa.jpg',
   },
   {
     id: 'm27',
@@ -477,12 +477,13 @@ export const movies: Movie[] = [
     cast: ['Suriya', 'Pooja Hegde', 'Joju George'],
     genre: ['Action', 'Romance', 'Drama'],
     language: 'Tamil',
-    description: 'Suriya and Karthik Subbaraj reunite for a period action romance. Expected to be a visually grand experience with the raw intensity that defines both artist\'s best work.',
+    description: 'Suriya and Karthik Subbaraj reunite for a period action romance set across decades. A visually grand experience blending raw action with heartfelt emotion.',
     streamingOn: ['Netflix'],
     rating: 7.8,
     gradient: 'from-rose-700 via-pink-600 to-fuchsia-500',
     badge: 'New Release',
-    ottDate: 'Coming Soon',
+    ottDate: '2025-06-20',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/pJPK57REXsaLydpOPgHwWAQMdqz.jpg',
   },
   {
     id: 'm28',
@@ -495,9 +496,44 @@ export const movies: Movie[] = [
     language: 'Tamil',
     description: 'Rajinikanth plays a coolie worker with a mysterious past in Lokesh Kanagaraj\'s next LCU entry. One of the most anticipated Tamil films — Superstar meets the LCU universe.',
     streamingOn: ['Netflix'],
-    rating: 0,
-    gradient: 'from-amber-800 via-yellow-700 to-gold-500',
+    rating: 8.2,
+    gradient: 'from-amber-800 via-yellow-700 to-orange-600',
     badge: 'Most Awaited',
     ottDate: 'Coming Soon',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/kr36awqmziEI5mfUElsHB0pj9zP.jpg',
+  },
+  {
+    id: 'm29',
+    slug: 'vidaamuyarchi-2025',
+    title: 'Vidaamuyarchi',
+    year: 2025,
+    director: 'Magizh Thirumeni',
+    cast: ['Ajith Kumar', 'Trisha', 'Arjun Sarja', 'Regina Cassandra'],
+    genre: ['Action', 'Thriller', 'Drama'],
+    language: 'Tamil',
+    description: 'Ajith Kumar stars as a man desperately searching for his missing wife in a foreign land, battling dangerous criminals and a corrupt system. A gripping action-thriller with stunning visuals.',
+    streamingOn: ['Amazon Prime'],
+    rating: 7.4,
+    gradient: 'from-slate-700 via-gray-600 to-stone-500',
+    badge: 'AK 63',
+    ottDate: '2025-03-14',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/yx7AYFLoupzBfdfEAlDFuOiei2A.jpg',
+  },
+  {
+    id: 'm30',
+    slug: 'good-bad-ugly-2025',
+    title: 'Good Bad Ugly',
+    year: 2025,
+    director: 'Adhik Ravichandran',
+    cast: ['Ajith Kumar', 'Trisha', 'Prabhu Deva', 'Suresh Gopi'],
+    genre: ['Action', 'Comedy', 'Mass Entertainer'],
+    language: 'Tamil',
+    description: 'Ajith Kumar in a high-energy mass entertainer — a commercial potboiler with comedy, action, and full-on entertainment. Directed by Adhik Ravichandran, this one is pure fun from start to finish.',
+    streamingOn: ['Netflix'],
+    rating: 7.1,
+    gradient: 'from-yellow-700 via-amber-600 to-red-500',
+    badge: 'AK 64',
+    ottDate: '2025-04-10',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/yx7AYFLoupzBfdfEAlDFuOiei2A.jpg',
   },
 ]
