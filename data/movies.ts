@@ -36,6 +36,7 @@ export const movies: Movie[] = [
     gradient: 'from-gray-800 via-gray-700 to-yellow-600',
     badge: 'Superstar',
     ottDate: '2023-09-07',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/lPDznAkGWMl85pmpvOaVs1angu6.jpg',
   },
   {
     id: 'm2',
@@ -52,6 +53,7 @@ export const movies: Movie[] = [
     gradient: 'from-amber-700 via-orange-600 to-red-600',
     badge: 'LCU',
     ottDate: '2023-11-10',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/pEtbL2j4iSEMzaGx4gUvGEfsPJr.jpg',
   },
   {
     id: 'm3',
