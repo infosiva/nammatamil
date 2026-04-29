@@ -6,13 +6,15 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; font-size: 16px; }
 
   body {
     background-color: #060612;
     color: #e2e8f0;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    font-size: 1rem;
+    line-height: 1.6;
   }
 
   ::-webkit-scrollbar { width: 4px; height: 4px; }

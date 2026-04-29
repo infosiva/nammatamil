@@ -87,7 +87,7 @@ export default function Header() {
               >
                 <Tv2 className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="text-[15px] font-black tracking-tight">
+              <span className="text-base font-black tracking-tight">
                 <span className="text-gradient">நம்ம</span>
                 <span className="text-white">Tamil</span>
                 <span className="text-xs font-bold" style={{ color: '#f59e0b', opacity: 0.7 }}>.live</span>
@@ -102,7 +102,7 @@ export default function Header() {
                   <Link
                     key={href}
                     href={href}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150"
                     style={{
                       background: isActive ? 'rgba(245,158,11,0.1)' : 'transparent',
                       color: isActive ? '#f59e0b' : 'rgba(255,255,255,0.5)',

@@ -46,7 +46,7 @@ function GradientPoster({
     <div className={clsx(
       'relative w-full overflow-hidden',
       `bg-gradient-to-br ${gradient}`,
-      compact ? 'h-44' : 'h-52',
+      compact ? 'h-48' : 'h-56',
     )}>
 
       {/* Background pattern — subtle grid */}
@@ -120,7 +120,7 @@ function GradientPoster({
       {/* Title overlay */}
       <div className="absolute inset-x-0 bottom-0 pt-10 pb-2.5 px-2.5"
         style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%)' }}>
-        <h3 className="text-white font-black text-[12px] leading-tight line-clamp-2 group-hover:text-amber-200 transition-colors duration-200 drop-shadow">
+        <h3 className="text-white font-black text-sm leading-tight line-clamp-2 group-hover:text-amber-200 transition-colors duration-200 drop-shadow">
           {title}
         </h3>
       </div>
@@ -146,7 +146,7 @@ export default function ContentCard({
       >
         {/* ── Poster ── */}
         {thumbnail ? (
-          <div className={clsx('relative overflow-hidden', compact ? 'h-44' : 'h-52')}>
+          <div className={clsx('relative overflow-hidden', compact ? 'h-48' : 'h-56')}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={thumbnail}
@@ -167,7 +167,7 @@ export default function ContentCard({
             )}
             <div className="absolute inset-x-0 bottom-0 pb-2.5 px-2.5 pt-10"
               style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%)' }}>
-              <h3 className="text-white font-black text-[12px] leading-tight line-clamp-2 group-hover:text-amber-200 transition-colors">
+              <h3 className="text-white font-black text-sm leading-tight line-clamp-2 group-hover:text-amber-200 transition-colors">
                 {title}
               </h3>
             </div>

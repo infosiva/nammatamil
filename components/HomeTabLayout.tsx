@@ -3,96 +3,113 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import {
-  Tv2, Film, Music, Globe, ArrowRight, TrendingUp, Star, Play,
-  Youtube, Trophy, Search, X, Clock, Zap, Radio, Users,
+  Tv2, Film, Music, Play, Youtube, Trophy, Search, X,
+  Clock, Zap, Radio, Users, TrendingUp, ChevronRight,
 } from 'lucide-react'
 import ContentCard from '@/components/ContentCard'
 import OTTExplorer from '@/components/OTTExplorer'
 import CricketWidget from '@/components/CricketWidget'
-import AdUnit from '@/components/AdUnit'
 import type { Movie } from '@/data/movies'
 import type { Serial } from '@/data/serials'
 import type { Album } from '@/data/albums'
 
-// ── Tabs ─────────────────────────────────────────────────────────────────────
+// ── Tabs ──────────────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'movies',   label: 'Movies',  icon: Film,       color: '#60a5fa' },
-  { id: 'serials',  label: 'Serials', icon: Tv2,        color: '#f97316' },
-  { id: 'live',     label: 'Live',    icon: Radio,      color: '#f87171' },
-  { id: 'cricket',  label: 'Cricket', icon: Trophy,     color: '#4ade80' },
-  { id: 'albums',   label: 'Albums',  icon: Music,      color: '#f472b6' },
-  { id: 'ott',      label: 'OTT',     icon: Play,       color: '#a78bfa' },
+  { id: 'movies',  label: 'Movies',  icon: Film,   color: '#60a5fa' },
+  { id: 'serials', label: 'Serials', icon: Tv2,    color: '#f97316' },
+  { id: 'live',    label: 'Live',    icon: Radio,  color: '#f87171' },
+  { id: 'cricket', label: 'Cricket', icon: Trophy, color: '#4ade80' },
+  { id: 'albums',  label: 'Albums',  icon: Music,  color: '#f472b6' },
+  { id: 'ott',     label: 'OTT',     icon: Play,   color: '#a78bfa' },
 ]
 
 interface Props { movies: Movie[]; serials: Serial[]; albums: Album[] }
 
-// ── Search bar ───────────────────────────────────────────────────────────────
-function SearchBar({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+// ── YouTube thumbnails for serials ────────────────────────────────────────────
+const SERIAL_YT_THUMB: Record<string, string> = {
+  's1':  'https://img.youtube.com/vi/PLFMg3Wg8v7g/mqdefault.jpg',
+  's2':  'https://img.youtube.com/vi/5-GkuN8QT6E/mqdefault.jpg',
+  's3':  'https://img.youtube.com/vi/p5pV7EbHnYs/mqdefault.jpg',
+  's4':  'https://img.youtube.com/vi/P6o1OGxjp4k/mqdefault.jpg',
+  's5':  'https://img.youtube.com/vi/jLsGu5YVLHE/mqdefault.jpg',
+  's6':  'https://img.youtube.com/vi/hS0hLdIR5Kw/mqdefault.jpg',
+  's7':  'https://img.youtube.com/vi/q7cAzLy17ic/mqdefault.jpg',
+  's8':  'https://img.youtube.com/vi/dY8K5PdZBQk/mqdefault.jpg',
+  's9':  'https://img.youtube.com/vi/vq_qVvECW_o/mqdefault.jpg',
+  's10': 'https://img.youtube.com/vi/fPBG0l1FWTU/mqdefault.jpg',
+  's11': 'https://img.youtube.com/vi/y5gLCFYWYCo/mqdefault.jpg',
+  's12': 'https://img.youtube.com/vi/aDgVBHwXbHo/mqdefault.jpg',
+  's13': 'https://img.youtube.com/vi/OvqhuvJnz-M/mqdefault.jpg',
+  's14': 'https://img.youtube.com/vi/uNE-7AWZQRM/mqdefault.jpg',
+  's15': 'https://img.youtube.com/vi/z5UMIbvTkBk/mqdefault.jpg',
+}
+
+// ── Section header ────────────────────────────────────────────────────────────
+function SectionHeader({ label, count, href, color }: { label: string; count?: number; href?: string; color?: string }) {
   return (
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
-      <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full pl-9 pr-8 py-2 rounded-xl text-sm text-white placeholder-white/20 outline-none"
-        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-        onFocus={e => (e.currentTarget.style.borderColor = 'rgba(245,158,11,0.4)')}
-        onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')} />
-      {value && (
-        <button onClick={() => onChange('')}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors">
-          <X className="w-3.5 h-3.5" />
-        </button>
+    <div className="flex items-center justify-between mb-3">
+      <h3 className="font-black text-base text-white flex items-center gap-2">
+        {label}
+        {count !== undefined && (
+          <span className="text-xs font-normal text-white/30">{count}</span>
+        )}
+      </h3>
+      {href && (
+        <Link href={href} className="text-sm font-semibold flex items-center gap-1 transition-colors hover:text-white"
+          style={{ color: color ?? 'rgba(255,255,255,0.35)' }}>
+          All <ChevronRight className="w-3.5 h-3.5" />
+        </Link>
       )}
     </div>
   )
 }
 
-// ── Compact card with real thumbnail support ──────────────────────────────────
-function PosterCard({ href, title, subtitle, gradient, type, rating, badge, year, language, status, tags, thumbnail, compact = true }: {
-  href: string; title: string; subtitle?: string; gradient: string
-  type: 'movie' | 'serial' | 'album'; rating?: number; badge?: string
-  year?: number; language?: string; status?: string; tags?: string[]
-  thumbnail?: string; compact?: boolean
-}) {
+// ── Card grid (3 cols by default, bigger cards) ───────────────────────────────
+function CardGrid({ children }: { children: React.ReactNode }) {
   return (
-    <ContentCard
-      href={href} title={title} subtitle={subtitle} gradient={gradient}
-      type={type} rating={rating} badge={badge} year={year}
-      language={language} status={status} tags={tags}
-      thumbnail={thumbnail} compact={compact}
-    />
+    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-3">
+      {children}
+    </div>
   )
 }
 
-// ── Real-time YouTube thumbnails for serials ──────────────────────────────────
-// These YouTube video IDs map to real Tamil serial episodes — thumbnails load from YouTube CDN
-const SERIAL_YT_THUMB: Record<string, string> = {
-  's1':  'https://img.youtube.com/vi/PLFMg3Wg8v7g/mqdefault.jpg',  // Pandian Stores
-  's2':  'https://img.youtube.com/vi/5-GkuN8QT6E/mqdefault.jpg',   // Baakiyalakshmi
-  's3':  'https://img.youtube.com/vi/p5pV7EbHnYs/mqdefault.jpg',   // Bharathi Kannamma
-  's4':  'https://img.youtube.com/vi/P6o1OGxjp4k/mqdefault.jpg',   // Kana Kaanum Kaalangal
-  's5':  'https://img.youtube.com/vi/jLsGu5YVLHE/mqdefault.jpg',   // Nenjam Marappathillai
-  's6':  'https://img.youtube.com/vi/hS0hLdIR5Kw/mqdefault.jpg',   // Roja
-  's7':  'https://img.youtube.com/vi/q7cAzLy17ic/mqdefault.jpg',   // Chellamae
-  's8':  'https://img.youtube.com/vi/dY8K5PdZBQk/mqdefault.jpg',   // Ponni
-  's9':  'https://img.youtube.com/vi/vq_qVvECW_o/mqdefault.jpg',   // Siragadikka Aasai
-  's10': 'https://img.youtube.com/vi/fPBG0l1FWTU/mqdefault.jpg',   // Sillunu Oru Kadhal
-  's11': 'https://img.youtube.com/vi/y5gLCFYWYCo/mqdefault.jpg',   // Agni Siragugal
-  's12': 'https://img.youtube.com/vi/aDgVBHwXbHo/mqdefault.jpg',   // En Iniya Pon Nilave
-  's13': 'https://img.youtube.com/vi/OvqhuvJnz-M/mqdefault.jpg',   // Thirumagal
-  's14': 'https://img.youtube.com/vi/uNE-7AWZQRM/mqdefault.jpg',   // Ninaithale Inikkum
-  's15': 'https://img.youtube.com/vi/z5UMIbvTkBk/mqdefault.jpg',   // Thendral Vanthu Theendum Pothu
+// ── Inline search toggle ───────────────────────────────────────────────────────
+function SearchToggle({ placeholder, value, onChange }: { placeholder: string; value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false)
+  return open ? (
+    <div className="relative flex-1">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30 pointer-events-none" />
+      <input
+        autoFocus
+        type="text" value={value} onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full pl-9 pr-8 py-2 rounded-xl text-sm text-white placeholder-white/25 outline-none"
+        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+      />
+      <button onClick={() => { setOpen(false); onChange('') }}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  ) : (
+    <button onClick={() => setOpen(true)}
+      className="p-2 rounded-xl text-white/35 hover:text-white/70 transition-colors"
+      style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+      <Search className="w-4 h-4" />
+    </button>
+  )
 }
 
 // ── Movies Tab ────────────────────────────────────────────────────────────────
 function MoviesTab({ movies }: { movies: Movie[] }) {
-  const [q, setQ]       = useState('')
-  const [lang, setLang] = useState<'All' | 'Tamil' | 'Tamil Dubbed'>('All')
-  const [sort, setSort] = useState<'rating' | 'year'>('rating')
+  const [q, setQ]     = useState('')
+  const [lang, setLang] = useState<'All' | 'Tamil' | 'Dubbed'>('All')
   const [show, setShow] = useState(false)
 
   const filtered = useMemo(() => {
     let out = movies
-    if (lang !== 'All') out = out.filter(m => m.language === lang)
+    if (lang === 'Tamil')  out = out.filter(m => m.language === 'Tamil')
+    if (lang === 'Dubbed') out = out.filter(m => m.language === 'Tamil Dubbed')
     if (q) {
       const ql = q.toLowerCase()
       out = out.filter(m =>
@@ -101,62 +118,53 @@ function MoviesTab({ movies }: { movies: Movie[] }) {
         m.cast.some(c => c.toLowerCase().includes(ql))
       )
     }
-    return [...out].sort((a, b) => sort === 'rating' ? b.rating - a.rating : b.year - a.year)
-  }, [movies, q, lang, sort])
+    return [...out].sort((a, b) => b.rating - a.rating)
+  }, [movies, q, lang])
 
-  const visible = show ? filtered : filtered.slice(0, 14)
+  const visible = show ? filtered : filtered.slice(0, 9)
 
   return (
-    <div className="space-y-3">
-      {/* Filters row */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <div className="flex-1 min-w-[140px]">
-          <SearchBar value={q} onChange={setQ} placeholder="Title, director, cast…" />
-        </div>
-        <div className="flex gap-1">
-          {(['All','Tamil','Tamil Dubbed'] as const).map(l => (
+    <div className="space-y-4">
+      {/* Controls row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex gap-1 flex-1">
+          {(['All', 'Tamil', 'Dubbed'] as const).map(l => (
             <button key={l} onClick={() => setLang(l)}
-              className="px-2 py-1.5 rounded-lg text-xs font-semibold transition-all"
+              className="px-3 py-1.5 rounded-lg text-sm font-semibold transition-all"
               style={lang === l
                 ? { background: 'rgba(96,165,250,0.18)', color: '#93c5fd', border: '1px solid rgba(96,165,250,0.4)' }
-                : { color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              {l === 'Tamil Dubbed' ? 'Dubbed' : l}
+                : { color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              {l}
             </button>
           ))}
         </div>
-        <select value={sort} onChange={e => setSort(e.target.value as 'rating' | 'year')}
-          className="px-2 py-1.5 rounded-lg text-xs text-white/60 outline-none"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <option value="rating" className="bg-gray-900">Top Rated</option>
-          <option value="year"   className="bg-gray-900">Latest</option>
-        </select>
+        <SearchToggle placeholder="Search movies…" value={q} onChange={setQ} />
       </div>
 
-      <p className="text-white/20 text-[11px]">{filtered.length} movies</p>
+      <SectionHeader label="Top Rated Movies" count={filtered.length} href="/movies" color="#60a5fa" />
 
-      {/* Grid — 4 cols on desktop */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
+      <CardGrid>
         {visible.map(m => (
-          <PosterCard key={m.id} href={`/movies/${m.slug}`}
+          <ContentCard key={m.id} href={`/movies/${m.slug}`}
             title={m.title} subtitle={m.director}
             gradient={m.gradient} type="movie"
             rating={m.rating} badge={m.badge}
             year={m.year} language={m.language}
-            thumbnail={m.thumbnail} />
+            thumbnail={m.thumbnail} compact />
         ))}
-      </div>
+      </CardGrid>
 
-      {filtered.length > 14 && (
+      {filtered.length > 9 && (
         <button onClick={() => setShow(s => !s)}
-          className="w-full py-2 rounded-xl text-xs font-semibold text-white/40 hover:text-white/70 transition-colors"
-          style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+          className="w-full py-2.5 rounded-xl text-sm font-semibold text-white/40 hover:text-white transition-colors"
+          style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
           {show ? 'Show less' : `Show all ${filtered.length} movies`}
         </button>
       )}
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-white/25">
-          <Film className="w-8 h-8 mx-auto mb-2 opacity-30" />
-          <p className="text-sm">No movies found</p>
+        <div className="text-center py-16 text-white/25">
+          <Film className="w-10 h-10 mx-auto mb-3 opacity-30" />
+          <p className="text-base">No movies found</p>
         </div>
       )}
     </div>
@@ -165,71 +173,56 @@ function MoviesTab({ movies }: { movies: Movie[] }) {
 
 // ── Serials Tab ───────────────────────────────────────────────────────────────
 function SerialsTab({ serials }: { serials: Serial[] }) {
-  const [q, setQ]           = useState('')
-  const [channel, setChannel] = useState('All')
-  const [status, setStatus]   = useState<'All' | 'Ongoing' | 'Completed'>('All')
-  const [show, setShow]       = useState(false)
-
-  const channels = useMemo(() => {
-    const s = new Set(serials.map(s => s.channel).filter(Boolean))
-    return ['All', ...Array.from(s).sort()]
-  }, [serials])
+  const [q, setQ]       = useState('')
+  const [status, setStatus] = useState<'All' | 'Ongoing' | 'Completed'>('All')
+  const [show, setShow]     = useState(false)
 
   const filtered = useMemo(() => {
     let out = serials
-    if (channel !== 'All') out = out.filter(s => s.channel === channel)
-    if (status !== 'All')  out = out.filter(s => s.status === status)
+    if (status !== 'All') out = out.filter(s => s.status === status)
     if (q) {
       const ql = q.toLowerCase()
-      out = out.filter(s =>
-        s.title.toLowerCase().includes(ql) ||
-        s.channel?.toLowerCase().includes(ql)
-      )
+      out = out.filter(s => s.title.toLowerCase().includes(ql) || s.channel?.toLowerCase().includes(ql))
     }
     return out
-  }, [serials, q, channel, status])
+  }, [serials, q, status])
 
-  const visible = show ? filtered : filtered.slice(0, 14)
+  const visible = show ? filtered : filtered.slice(0, 9)
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-2 items-center">
-        <div className="flex-1 min-w-[140px]">
-          <SearchBar value={q} onChange={setQ} placeholder="Serial name, channel…" />
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <div className="flex gap-1 flex-1">
+          {(['All', 'Ongoing', 'Completed'] as const).map(s => (
+            <button key={s} onClick={() => setStatus(s)}
+              className="px-3 py-1.5 rounded-lg text-sm font-semibold transition-all"
+              style={status === s
+                ? { background: 'rgba(249,115,22,0.18)', color: '#fdba74', border: '1px solid rgba(249,115,22,0.4)' }
+                : { color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              {s}
+            </button>
+          ))}
         </div>
-        <select value={channel} onChange={e => setChannel(e.target.value)}
-          className="px-2 py-1.5 rounded-lg text-xs text-white/60 outline-none"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          {channels.slice(0, 8).map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
-        </select>
-        {(['All','Ongoing','Completed'] as const).map(s => (
-          <button key={s} onClick={() => setStatus(s)}
-            className="px-2 py-1.5 rounded-lg text-xs font-semibold transition-all"
-            style={status === s
-              ? { background: 'rgba(249,115,22,0.18)', color: '#fdba74', border: '1px solid rgba(249,115,22,0.4)' }
-              : { color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            {s}
-          </button>
-        ))}
+        <SearchToggle placeholder="Search serials…" value={q} onChange={setQ} />
       </div>
 
-      <p className="text-white/20 text-[11px]">{filtered.length} serials</p>
+      <SectionHeader label="Tamil Serials" count={filtered.length} href="/serials" color="#f97316" />
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
+      <CardGrid>
         {visible.map(s => (
-          <PosterCard key={s.id} href={`/serials/${s.slug}`}
+          <ContentCard key={s.id} href={`/serials/${s.slug}`}
             title={s.title} subtitle={s.channel}
             gradient={s.gradient} type="serial"
             rating={s.rating} language={s.language}
             status={s.status} tags={s.tags}
-            thumbnail={SERIAL_YT_THUMB[s.id] || s.thumbnail} />
+            thumbnail={SERIAL_YT_THUMB[s.id] || s.thumbnail} compact />
         ))}
-      </div>
+      </CardGrid>
 
-      {filtered.length > 14 && (
+      {filtered.length > 9 && (
         <button onClick={() => setShow(s => !s)}
-          className="w-full py-2 rounded-xl text-xs font-semibold text-white/40 hover:text-white/70 transition-colors"
-          style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+          className="w-full py-2.5 rounded-xl text-sm font-semibold text-white/40 hover:text-white transition-colors"
+          style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
           {show ? 'Show less' : `Show all ${filtered.length} serials`}
         </button>
       )}
@@ -247,30 +240,34 @@ function AlbumsTab({ albums }: { albums: Album[] }) {
     const ql = q.toLowerCase()
     return albums.filter(a =>
       a.title.toLowerCase().includes(ql) ||
-      a.artist.toLowerCase().includes(ql) ||
-      a.genre?.some(g => g.toLowerCase().includes(ql))
+      a.artist.toLowerCase().includes(ql)
     )
   }, [albums, q])
 
-  const visible = show ? filtered : filtered.slice(0, 12)
+  const visible = show ? filtered : filtered.slice(0, 9)
 
   return (
-    <div className="space-y-3">
-      <SearchBar value={q} onChange={setQ} placeholder="Album, artist, genre…" />
-      <p className="text-white/20 text-[11px]">{filtered.length} albums</p>
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <div className="flex-1" />
+        <SearchToggle placeholder="Search albums…" value={q} onChange={setQ} />
+      </div>
+
+      <SectionHeader label="Tamil Albums" count={filtered.length} href="/albums" color="#f472b6" />
+
+      <CardGrid>
         {visible.map(a => (
-          <PosterCard key={a.id} href={`/albums/${a.slug}`}
+          <ContentCard key={a.id} href={`/albums/${a.slug}`}
             title={a.title} subtitle={a.artist}
             gradient={a.gradient} type="album"
-            badge={a.badge} year={a.year} tags={a.genre}
-            />
+            badge={a.badge} year={a.year} tags={a.genre} compact />
         ))}
-      </div>
-      {filtered.length > 12 && (
+      </CardGrid>
+
+      {filtered.length > 9 && (
         <button onClick={() => setShow(s => !s)}
-          className="w-full py-2 rounded-xl text-xs font-semibold text-white/40 hover:text-white/70 transition-colors"
-          style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+          className="w-full py-2.5 rounded-xl text-sm font-semibold text-white/40 hover:text-white transition-colors"
+          style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
           {show ? 'Show less' : `Show all ${filtered.length} albums`}
         </button>
       )}
@@ -278,126 +275,110 @@ function AlbumsTab({ albums }: { albums: Album[] }) {
   )
 }
 
-// ── Live Tab: TVK spotlight + recent episodes ─────────────────────────────────
-interface ElectionParty { name: string; tamil: string; leader: string; color: string; sentiment: number; voteShare: number; seats: string; trend: string }
+// ── Live Tab ──────────────────────────────────────────────────────────────────
+interface ElectionParty { name: string; tamil: string; color: string; sentiment: number; voteShare: number; seats: string }
+interface Episode { id: string; title: string; videoId: string; channelName: string; channelColor: string; thumbnail: string }
 
 function LiveTab() {
-  const [electionData, setElectionData] = useState<{ parties: ElectionParty[]; narrative: string; source: string } | null>(null)
-  const [eps, setEps] = useState<Array<{ id: string; title: string; videoId: string; channelName: string; channelColor: string; publishedAt: string; thumbnail: string }>>([])
+  const [parties, setParties] = useState<ElectionParty[]>([])
+  const [narrative, setNarrative] = useState('')
+  const [eps, setEps] = useState<Episode[]>([])
 
-  const loadData = useCallback(async () => {
-    try {
-      const [elRes, epRes] = await Promise.allSettled([
-        fetch('/api/election-prediction'),
-        fetch('/api/recent-episodes'),
-      ])
-      if (elRes.status === 'fulfilled' && elRes.value.ok) {
-        setElectionData(await elRes.value.json())
-      }
-      if (epRes.status === 'fulfilled' && epRes.value.ok) {
-        const { episodes } = await epRes.value.json()
-        if (episodes?.length) setEps(episodes)
-      }
-    } catch { /* keep previous */ }
+  const load = useCallback(async () => {
+    const [elRes, epRes] = await Promise.allSettled([
+      fetch('/api/election-prediction'),
+      fetch('/api/recent-episodes'),
+    ])
+    if (elRes.status === 'fulfilled' && elRes.value.ok) {
+      const d = await elRes.value.json()
+      setParties(d.parties ?? [])
+      setNarrative(d.narrative ?? '')
+    }
+    if (epRes.status === 'fulfilled' && epRes.value.ok) {
+      const { episodes } = await epRes.value.json()
+      if (episodes?.length) setEps(episodes)
+    }
   }, [])
 
-  useEffect(() => { loadData() }, [loadData])
-
-  const parties = electionData?.parties ?? []
+  useEffect(() => { load() }, [load])
 
   return (
     <div className="space-y-5">
 
-      {/* ── TVK Hero promo ── */}
-      <div className="relative overflow-hidden rounded-2xl"
-        style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.06) 0%, rgba(248,113,113,0.04) 100%)', border: '1px solid rgba(251,191,36,0.15)' }}>
-        <div className="px-4 py-4">
-          <div className="flex items-start gap-4">
-            {/* Icon */}
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl"
-              style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}>
-              ⭐
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                <span className="text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' }}>
-                  TVK · First Election
-                </span>
-                <span className="text-[10px] text-white/30">Tamil Nadu 2026</span>
-              </div>
-              <h3 className="font-black text-white text-base leading-tight mb-1">தவகவின் முதல் தேர்தல்</h3>
-              <p className="text-white/40 text-xs leading-relaxed">
-                Thalapathy Vijay&apos;s TVK enters TN politics for the first time — 1.2Cr+ members, massive crowd support, projected 18.7% vote share.
-              </p>
-            </div>
+      {/* TVK Banner */}
+      <div className="rounded-2xl overflow-hidden p-4 space-y-3"
+        style={{ background: 'linear-gradient(135deg,rgba(251,191,36,0.08),rgba(248,113,113,0.05))', border: '1px solid rgba(251,191,36,0.2)' }}>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+            style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}>⭐</div>
+          <div>
+            <span className="text-xs font-black text-amber-400 tracking-wider uppercase">TVK · First Election 2026</span>
+            <h3 className="font-black text-white text-lg leading-tight">தவகவின் முதல் தேர்தல்</h3>
           </div>
+        </div>
 
-          {/* Stats row */}
-          <div className="grid grid-cols-3 gap-2 mt-4">
-            {[
-              { label: 'Members',    value: '1.2Cr+', color: '#fbbf24', icon: Users },
-              { label: 'Vote Share', value: '18.7%',  color: '#34d399', icon: TrendingUp },
-              { label: 'AI Signal',  value: `${parties.find(p => p.name === 'TVK')?.sentiment ?? 62}/100`, color: '#f87171', icon: Zap },
-            ].map(({ label, value, color, icon: Icon }) => (
-              <div key={label} className="flex flex-col items-center py-2.5 rounded-xl"
-                style={{ background: color + '0d', border: `1px solid ${color}20` }}>
-                <Icon className="w-3.5 h-3.5 mb-1" style={{ color }} />
-                <span className="font-black text-base leading-none" style={{ color }}>{value}</span>
-                <span className="text-white/30 text-[9px] mt-0.5">{label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* AI narrative */}
-          {electionData?.narrative && (
-            <div className="mt-3 flex items-start gap-1.5 px-3 py-2 rounded-xl"
-              style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' }}>
-              <Zap className="w-3 h-3 text-amber-400/60 flex-shrink-0 mt-0.5" />
-              <p className="text-white/40 text-[11px] leading-relaxed">{electionData.narrative}</p>
+        {/* Stat pills */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: 'Members',    value: '1.2Cr+', color: '#fbbf24', icon: Users },
+            { label: 'Vote Share', value: '18.7%',  color: '#34d399', icon: TrendingUp },
+            { label: 'AI Signal',  value: `${parties.find(p => p.name === 'TVK')?.sentiment ?? 62}/100`, color: '#f87171', icon: Zap },
+          ].map(({ label, value, color, icon: Icon }) => (
+            <div key={label} className="flex flex-col items-center py-3 rounded-xl"
+              style={{ background: color + '0d', border: `1px solid ${color}20` }}>
+              <Icon className="w-4 h-4 mb-1" style={{ color }} />
+              <span className="font-black text-lg leading-none" style={{ color }}>{value}</span>
+              <span className="text-white/30 text-xs mt-1">{label}</span>
             </div>
-          )}
+          ))}
+        </div>
 
-          <div className="flex gap-2 mt-3">
-            <Link href="/tn-election-2026"
-              className="flex-1 py-2 rounded-xl text-xs font-black text-center transition-all hover:brightness-110"
-              style={{ background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#000' }}>
-              Full Predictions →
-            </Link>
-            <Link href="/tn-election-2026#tvk"
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-white/50 hover:text-white transition-colors"
-              style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-              TVK Profile
-            </Link>
+        {narrative && (
+          <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl"
+            style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' }}>
+            <Zap className="w-3.5 h-3.5 text-amber-400/60 flex-shrink-0 mt-0.5" />
+            <p className="text-white/50 text-sm leading-relaxed">{narrative}</p>
           </div>
+        )}
+
+        <div className="flex gap-2">
+          <Link href="/tn-election-2026"
+            className="flex-1 py-2.5 rounded-xl text-sm font-black text-center"
+            style={{ background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#000' }}>
+            Full Predictions →
+          </Link>
+          <Link href="/tn-election-2026#tvk"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white/50 hover:text-white transition-colors"
+            style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+            TVK Profile
+          </Link>
         </div>
       </div>
 
-      {/* ── Party sentiment ── */}
+      {/* Party sentiment */}
       {parties.length > 0 && (
-        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-          <div className="px-4 py-2.5 border-b border-white/5 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-[11px] font-black text-white/60 uppercase tracking-wider">Live AI Sentiment</span>
-            <span className="text-[9px] text-white/20 ml-auto">{electionData?.source === 'live-ai' ? '🔴 Live' : '📡 Cached'}</span>
+        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="px-4 py-3 border-b border-white/5 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-sm font-black text-white/70 uppercase tracking-wider">Live AI Sentiment</span>
           </div>
-          <div className="p-3 space-y-2.5">
+          <div className="p-4 space-y-3">
             {parties.map(p => (
               <div key={p.name}>
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-                    <span className="text-white text-xs font-bold">{p.name}</span>
-                    <span className="text-white/30 text-[10px] hidden sm:inline">{p.tamil}</span>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
+                    <span className="text-white text-sm font-bold">{p.name}</span>
+                    <span className="text-white/30 text-xs">{p.tamil}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-white/40 text-[10px]">{p.seats} seats</span>
-                    <span className="text-[11px] font-black tabular-nums" style={{ color: p.color }}>{p.sentiment}%</span>
+                    <span className="text-white/40 text-xs">{p.seats} seats</span>
+                    <span className="text-sm font-black" style={{ color: p.color }}>{p.sentiment}%</span>
                   </div>
                 </div>
-                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
                   <div className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${p.sentiment}%`, background: `linear-gradient(90deg, ${p.color}60, ${p.color})` }} />
+                    style={{ width: `${p.sentiment}%`, background: `linear-gradient(90deg,${p.color}60,${p.color})` }} />
                 </div>
               </div>
             ))}
@@ -405,15 +386,17 @@ function LiveTab() {
         </div>
       )}
 
-      {/* ── Recent episodes ── */}
+      {/* Recent episodes */}
       {eps.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Clock className="w-3.5 h-3.5 text-red-400" />
-            <span className="text-[12px] font-black text-white/70">Recent Episodes</span>
-            <span className="text-white/20 text-[10px] ml-auto">YouTube</span>
+            <Clock className="w-4 h-4 text-red-400" />
+            <span className="text-base font-black text-white/80">Latest Episodes</span>
+            <span className="text-white/25 text-xs ml-auto flex items-center gap-1">
+              <Youtube className="w-3 h-3" /> YouTube
+            </span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {eps.slice(0, 6).map(ep => (
               <a key={ep.id} href={`https://www.youtube.com/watch?v=${ep.videoId}`}
                 target="_blank" rel="noopener noreferrer"
@@ -425,18 +408,17 @@ function LiveTab() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
                     loading="lazy" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-7 h-7 rounded-full bg-red-600/90 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Play className="w-3.5 h-3.5 text-white fill-white ml-0.5" />
+                    <div className="w-9 h-9 rounded-full bg-red-600/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                      <Play className="w-4 h-4 text-white fill-white ml-0.5" />
                     </div>
                   </div>
-                  <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white"
+                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold text-white"
                     style={{ background: ep.channelColor + 'dd' }}>
-                    <Youtube className="w-2.5 h-2.5 inline mr-0.5" />
                     {ep.channelName}
                   </div>
                 </div>
-                <div className="px-2 py-1.5">
-                  <p className="text-white text-[11px] font-bold line-clamp-2 leading-tight">{ep.title}</p>
+                <div className="px-2.5 py-2">
+                  <p className="text-white text-xs font-bold line-clamp-2 leading-tight">{ep.title}</p>
                 </div>
               </a>
             ))}
@@ -463,72 +445,68 @@ const IPL_STANDINGS = [
 
 function CricketTab() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <CricketWidget />
-
-      {/* Points table */}
-      <div className="rounded-xl overflow-hidden"
-        style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(34,197,94,0.15)' }}>
-        <div className="px-4 py-2.5 border-b border-white/5 flex items-center justify-between">
-          <span className="text-[11px] font-black text-white/60 flex items-center gap-2 uppercase tracking-wider">
-            <Trophy className="w-3.5 h-3.5 text-green-400" /> IPL 2026 Points
+      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(34,197,94,0.15)' }}>
+        <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+          <span className="text-sm font-black text-white/70 flex items-center gap-2 uppercase tracking-wider">
+            <Trophy className="w-4 h-4 text-green-400" /> IPL 2026 Points
           </span>
           <a href="https://www.iplt20.com/points-table/men/2026" target="_blank" rel="noopener noreferrer"
-            className="text-[10px] text-white/25 hover:text-white/50 transition-colors">iplt20.com →</a>
+            className="text-xs text-white/25 hover:text-white/50 transition-colors">iplt20.com →</a>
         </div>
         <div className="divide-y divide-white/[0.04]">
           {IPL_STANDINGS.map((row, i) => (
-            <div key={row.short} className="flex items-center gap-2 px-4 py-2"
+            <div key={row.short} className="flex items-center gap-3 px-4 py-2.5"
               style={{ background: i < 4 ? `${row.color}08` : 'transparent' }}>
-              <span className="text-white/25 text-[10px] w-4">{row.pos}</span>
-              <div className="w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-black text-white flex-shrink-0"
+              <span className="text-white/25 text-xs w-4">{row.pos}</span>
+              <div className="w-7 h-7 rounded-md flex items-center justify-center text-xs font-black text-white flex-shrink-0"
                 style={{ background: row.color }}>
                 {row.short.slice(0, 2)}
               </div>
-              <span className="flex-1 font-bold text-xs" style={{ color: row.color }}>{row.short}</span>
-              {i < 4 && <span className="text-[8px] text-green-400/60">●</span>}
-              <span className="text-white/35 text-[10px] w-5 text-center">{row.played}</span>
-              <span className="text-green-400 text-[10px] w-4 text-center font-semibold">{row.w}</span>
-              <span className="text-red-400/60 text-[10px] w-4 text-center">{row.l}</span>
-              <span className={`text-[10px] w-14 text-right font-mono ${parseFloat(row.nrr) >= 0 ? 'text-green-400/70' : 'text-red-400/60'}`}>{row.nrr}</span>
-              <span className="font-black text-xs w-6 text-right" style={{ color: row.color }}>{row.pts}</span>
+              <span className="flex-1 font-bold text-sm" style={{ color: row.color }}>{row.short}</span>
+              {i < 4 && <span className="text-xs text-green-400/60">●</span>}
+              <span className="text-white/35 text-xs w-5 text-center">{row.played}</span>
+              <span className="text-green-400 text-xs w-4 text-center font-semibold">{row.w}</span>
+              <span className="text-red-400/60 text-xs w-4 text-center">{row.l}</span>
+              <span className={`text-xs w-16 text-right font-mono ${parseFloat(row.nrr) >= 0 ? 'text-green-400/70' : 'text-red-400/60'}`}>{row.nrr}</span>
+              <span className="font-black text-sm w-6 text-right" style={{ color: row.color }}>{row.pts}</span>
             </div>
           ))}
         </div>
         <div className="px-4 py-2 border-t border-white/5">
-          <p className="text-white/15 text-[9px]">● Top 4 qualify · Updated Apr 29 2026</p>
+          <p className="text-white/20 text-xs">● Top 4 qualify · Updated Apr 29 2026</p>
         </div>
       </div>
-      <AdUnit format="horizontal" className="min-h-[90px]" />
     </div>
   )
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
+// ── Main ──────────────────────────────────────────────────────────────────────
 export default function HomeTabLayout({ movies, serials, albums }: Props) {
   const [activeTab, setActiveTab] = useState('movies')
 
   return (
     <div className="flex flex-col gap-0">
 
-      {/* ── Sticky tab bar ── */}
-      <div className="sticky top-0 z-30 rounded-2xl overflow-hidden mb-3"
-        style={{ background: 'rgba(7,1,15,0.95)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)' }}>
-        <div className="flex overflow-x-auto scrollbar-hide p-1 gap-1">
+      {/* Sticky tab bar */}
+      <div className="sticky top-0 z-30 rounded-2xl overflow-hidden mb-4"
+        style={{ background: 'rgba(7,1,15,0.96)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(24px)' }}>
+        <div className="flex overflow-x-auto scrollbar-hide p-1.5 gap-1">
           {TABS.map(({ id, label, icon: Icon, color }) => {
             const isActive = activeTab === id
             return (
               <button key={id} onClick={() => setActiveTab(id)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex-shrink-0"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex-shrink-0"
                 style={isActive ? {
                   background: color + '20',
                   border: `1px solid ${color}40`,
                   color,
                 } : {
-                  color: 'rgba(255,255,255,0.35)',
+                  color: 'rgba(255,255,255,0.40)',
                   border: '1px solid transparent',
                 }}>
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 {label}
               </button>
             )
@@ -536,7 +514,7 @@ export default function HomeTabLayout({ movies, serials, albums }: Props) {
         </div>
       </div>
 
-      {/* ── Tab content ── */}
+      {/* Tab content */}
       <div>
         {activeTab === 'movies'  && <MoviesTab movies={movies} />}
         {activeTab === 'serials' && <SerialsTab serials={serials} />}
