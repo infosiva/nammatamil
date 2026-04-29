@@ -34,6 +34,7 @@ export const serials: Serial[] = [
     tags: ['family', 'village', 'comedy', 'emotions', 'popular'],
     rating: 8.4,
     gradient: 'from-orange-600 via-amber-500 to-yellow-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a5/Pandian_Stores.jpg/220px-Pandian_Stores.jpg',
   },
   {
     id: 's2',
@@ -49,6 +50,7 @@ export const serials: Serial[] = [
     tags: ['women-centric', 'bold', 'family', 'drama'],
     rating: 8.1,
     gradient: 'from-pink-600 via-rose-500 to-red-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/Baakiyalakshmi_serial_poster.jpg/220px-Baakiyalakshmi_serial_poster.jpg',
   },
   {
     id: 's3',
@@ -65,6 +67,7 @@ export const serials: Serial[] = [
     tags: ['romance', 'doctor', 'village-girl', 'drama'],
     rating: 7.9,
     gradient: 'from-violet-600 via-purple-500 to-fuchsia-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/06/Bharathi_Kannamma_Title_Card.jpg/220px-Bharathi_Kannamma_Title_Card.jpg',
   },
   {
     id: 's4',
@@ -81,6 +84,7 @@ export const serials: Serial[] = [
     tags: ['romance', 'arranged-marriage', 'emotional'],
     rating: 8.3,
     gradient: 'from-red-600 via-rose-500 to-pink-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Raja_Rani_Season_2_Titlecard.jpg/220px-Raja_Rani_Season_2_Titlecard.jpg',
   },
   {
     id: 's5',
@@ -97,6 +101,7 @@ export const serials: Serial[] = [
     tags: ['romance', 'modern', 'classic-remake', 'drama'],
     rating: 7.7,
     gradient: 'from-blue-600 via-indigo-500 to-violet-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Mouna_Ragam_Title_Card.jpg/220px-Mouna_Ragam_Title_Card.jpg',
   },
   {
     id: 's6',
@@ -113,6 +118,7 @@ export const serials: Serial[] = [
     tags: ['class-divide', 'romance', 'family-drama', 'hit'],
     rating: 8.0,
     gradient: 'from-emerald-600 via-teal-500 to-cyan-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d5/Sembaruthi_title_card.jpg/220px-Sembaruthi_title_card.jpg',
   },
   {
     id: 's7',
@@ -129,6 +135,7 @@ export const serials: Serial[] = [
     tags: ['fantasy', 'ghost', 'romance', 'supernatural'],
     rating: 7.8,
     gradient: 'from-cyan-600 via-sky-500 to-blue-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c7/Yaaradi_Nee_Mohini_title_card.jpg/220px-Yaaradi_Nee_Mohini_title_card.jpg',
   },
   {
     id: 's8',
@@ -144,6 +151,7 @@ export const serials: Serial[] = [
     tags: ['drama', 'strong-woman', 'family', 'popular'],
     rating: 7.6,
     gradient: 'from-rose-600 via-red-500 to-orange-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/8/84/Roja_Tamil_serial_title_card.jpg/220px-Roja_Tamil_serial_title_card.jpg',
   },
   {
     id: 's9',
@@ -159,6 +167,7 @@ export const serials: Serial[] = [
     tags: ['action', 'social-drama', 'farmer', 'justice'],
     rating: 8.2,
     gradient: 'from-amber-600 via-orange-500 to-red-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/cf/Annamalai_Sun_TV_title_card.jpg/220px-Annamalai_Sun_TV_title_card.jpg',
   },
   {
     id: 's10',
@@ -175,6 +184,7 @@ export const serials: Serial[] = [
     tags: ['comedy', 'family', 'wedding', 'light-hearted'],
     rating: 8.5,
     gradient: 'from-yellow-500 via-amber-400 to-orange-300',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1e/Kalyana_Veedu_serial.jpg/220px-Kalyana_Veedu_serial.jpg',
   },
   {
     id: 's11',
@@ -191,6 +201,7 @@ export const serials: Serial[] = [
     tags: ['romance', 'emotional', 'drama'],
     rating: 7.5,
     gradient: 'from-fuchsia-600 via-pink-500 to-rose-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Eeramana_Rojave_title_card.jpg/220px-Eeramana_Rojave_title_card.jpg',
   },
   {
     id: 's12',
@@ -207,6 +218,7 @@ export const serials: Serial[] = [
     tags: ['brothers', 'family-values', 'emotional', 'drama'],
     rating: 7.8,
     gradient: 'from-green-600 via-emerald-500 to-teal-400',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/47/Naam_Iruvar_Namakku_Iruvar.jpg/220px-Naam_Iruvar_Namakku_Iruvar.jpg',
   },
 
   // ── Tamil Dubbed Serials ──────────────────────────────────────────
@@ -226,6 +238,7 @@ export const serials: Serial[] = [
     tags: ['supernatural', 'third-eye', 'dubbed', 'telugu-original'],
     rating: 7.9,
     gradient: 'from-blue-700 via-blue-600 to-indigo-500',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/58/Trinayani_Telugu_serial.jpg/220px-Trinayani_Telugu_serial.jpg',
   },
   {
     id: 's14',
@@ -242,6 +255,7 @@ export const serials: Serial[] = [
     tags: ['dubbed', 'telugu-original', 'strong-woman', 'family'],
     rating: 7.4,
     gradient: 'from-purple-700 via-violet-600 to-purple-500',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Chandralekha_serial_title_card.jpg/220px-Chandralekha_serial_title_card.jpg',
   },
   {
     id: 's15',
@@ -258,5 +272,6 @@ export const serials: Serial[] = [
     tags: ['classic', 'family', 'daughter-in-law', 'values'],
     rating: 8.6,
     gradient: 'from-orange-700 via-amber-600 to-yellow-500',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/8/8c/Deivam_Thandha_Veedu_title_card.jpg/220px-Deivam_Thandha_Veedu_title_card.jpg',
   },
 ]

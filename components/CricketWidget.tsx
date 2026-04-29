@@ -13,28 +13,28 @@ interface Match {
   matchType?: string
 }
 
-// Static IPL 2026 schedule as fallback
+// Static IPL 2026 schedule as fallback — Apr 29 2026
 const STATIC_MATCHES: Match[] = [
   {
     id: 's1',
-    name: 'IPL 2026 — Chennai Super Kings vs Mumbai Indians',
-    status: 'Today 7:30 PM IST',
-    venue: 'MA Chidambaram Stadium, Chennai',
+    name: 'IPL 2026 — Punjab Kings vs Delhi Capitals',
+    status: 'Today · Apr 29 · 7:30 PM IST',
+    venue: 'IS Bindra Stadium, Mohali',
     teams: [
-      { name: 'Chennai Super Kings', shortName: 'CSK' },
-      { name: 'Mumbai Indians', shortName: 'MI' },
+      { name: 'Punjab Kings', shortName: 'PBKS', score: '184', wickets: 6, overs: 20 },
+      { name: 'Delhi Capitals', shortName: 'DC', score: '161', wickets: 9, overs: 19.2 },
     ],
     live: false,
     matchType: 'T20',
   },
   {
     id: 's2',
-    name: 'IPL 2026 — Royal Challengers Bangalore vs Kolkata Knight Riders',
-    status: 'Tomorrow 3:30 PM IST',
-    venue: 'M. Chinnaswamy Stadium, Bengaluru',
+    name: 'IPL 2026 — Rajasthan Royals vs Sunrisers Hyderabad',
+    status: 'Tomorrow · Apr 30 · 7:30 PM IST',
+    venue: 'Sawai Mansingh Stadium, Jaipur',
     teams: [
-      { name: 'Royal Challengers Bangalore', shortName: 'RCB' },
-      { name: 'Kolkata Knight Riders', shortName: 'KKR' },
+      { name: 'Rajasthan Royals', shortName: 'RR' },
+      { name: 'Sunrisers Hyderabad', shortName: 'SRH' },
     ],
     live: false,
     matchType: 'T20',
@@ -56,25 +56,29 @@ const TEAM_COLORS: Record<string, string> = {
 
 function TeamBadge({ name, shortName, score, wickets, overs }: { name: string; shortName: string; score?: string; wickets?: number; overs?: number }) {
   const color = TEAM_COLORS[shortName] ?? '#f59e0b'
+  const hasScore = score !== undefined
   return (
     <div className="flex items-center justify-between gap-2 py-1.5">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
         <div
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black text-white flex-shrink-0"
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
           style={{ background: color, boxShadow: `0 0 8px ${color}40` }}
         >
           {shortName.slice(0, 2)}
         </div>
-        <span className="text-white text-xs font-semibold truncate max-w-[90px]">{name}</span>
+        <div className="min-w-0">
+          <span className="text-white text-xs font-bold truncate block" style={{ color }}>{shortName}</span>
+          <span className="text-white/30 text-[9px] truncate block">{name.split(' ').slice(-2).join(' ')}</span>
+        </div>
       </div>
-      {score ? (
-        <div className="text-right">
-          <span className="text-white font-black text-sm tabular-nums">{score}</span>
-          {wickets !== undefined && <span className="text-white/50 text-[10px">/{wickets}</span>}
-          {overs !== undefined && <span className="text-white/30 text-[10px] ml-1">({overs} ov)</span>}
+      {hasScore ? (
+        <div className="text-right flex-shrink-0">
+          <span className="text-white font-black text-base tabular-nums">{score}</span>
+          {wickets !== undefined && <span className="text-white/50 text-xs">/{wickets}</span>}
+          {overs !== undefined && <p className="text-white/25 text-[9px]">{overs} ov</p>}
         </div>
       ) : (
-        <span className="text-white/20 text-[10px]">TBD</span>
+        <span className="text-white/20 text-[10px] flex-shrink-0">vs</span>
       )}
     </div>
   )

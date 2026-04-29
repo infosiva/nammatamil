@@ -25,49 +25,31 @@ const TABS = [
 
 interface Props { movies: Movie[]; serials: Serial[]; albums: Album[] }
 
-// ── YouTube thumbnails for serials ────────────────────────────────────────────
-const SERIAL_YT_THUMB: Record<string, string> = {
-  's1':  'https://img.youtube.com/vi/PLFMg3Wg8v7g/mqdefault.jpg',
-  's2':  'https://img.youtube.com/vi/5-GkuN8QT6E/mqdefault.jpg',
-  's3':  'https://img.youtube.com/vi/p5pV7EbHnYs/mqdefault.jpg',
-  's4':  'https://img.youtube.com/vi/P6o1OGxjp4k/mqdefault.jpg',
-  's5':  'https://img.youtube.com/vi/jLsGu5YVLHE/mqdefault.jpg',
-  's6':  'https://img.youtube.com/vi/hS0hLdIR5Kw/mqdefault.jpg',
-  's7':  'https://img.youtube.com/vi/q7cAzLy17ic/mqdefault.jpg',
-  's8':  'https://img.youtube.com/vi/dY8K5PdZBQk/mqdefault.jpg',
-  's9':  'https://img.youtube.com/vi/vq_qVvECW_o/mqdefault.jpg',
-  's10': 'https://img.youtube.com/vi/fPBG0l1FWTU/mqdefault.jpg',
-  's11': 'https://img.youtube.com/vi/y5gLCFYWYCo/mqdefault.jpg',
-  's12': 'https://img.youtube.com/vi/aDgVBHwXbHo/mqdefault.jpg',
-  's13': 'https://img.youtube.com/vi/OvqhuvJnz-M/mqdefault.jpg',
-  's14': 'https://img.youtube.com/vi/uNE-7AWZQRM/mqdefault.jpg',
-  's15': 'https://img.youtube.com/vi/z5UMIbvTkBk/mqdefault.jpg',
-}
 
 // ── Section header ────────────────────────────────────────────────────────────
 function SectionHeader({ label, count, href, color }: { label: string; count?: number; href?: string; color?: string }) {
   return (
-    <div className="flex items-center justify-between mb-3">
-      <h3 className="font-black text-base text-white flex items-center gap-2">
+    <div className="flex items-center justify-between mb-2">
+      <h3 className="font-black text-sm text-white flex items-center gap-1.5">
         {label}
         {count !== undefined && (
-          <span className="text-xs font-normal text-white/30">{count}</span>
+          <span className="text-[11px] font-normal text-white/25">{count}</span>
         )}
       </h3>
       {href && (
-        <Link href={href} className="text-sm font-semibold flex items-center gap-1 transition-colors hover:text-white"
+        <Link href={href} className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-white"
           style={{ color: color ?? 'rgba(255,255,255,0.35)' }}>
-          All <ChevronRight className="w-3.5 h-3.5" />
+          All <ChevronRight className="w-3 h-3" />
         </Link>
       )}
     </div>
   )
 }
 
-// ── Card grid (3 cols by default, bigger cards) ───────────────────────────────
+// ── Card grid — 3 on mobile, 4 on xl ─────────────────────────────────────────
 function CardGrid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-3">
+    <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
       {children}
     </div>
   )
@@ -118,19 +100,20 @@ function MoviesTab({ movies }: { movies: Movie[] }) {
         m.cast.some(c => c.toLowerCase().includes(ql))
       )
     }
-    return [...out].sort((a, b) => b.rating - a.rating)
+    // Sort by year desc first, then rating — newest first
+    return [...out].sort((a, b) => b.year !== a.year ? b.year - a.year : b.rating - a.rating)
   }, [movies, q, lang])
 
   const visible = show ? filtered : filtered.slice(0, 9)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Controls row */}
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex gap-1 flex-1">
           {(['All', 'Tamil', 'Dubbed'] as const).map(l => (
             <button key={l} onClick={() => setLang(l)}
-              className="px-3 py-1.5 rounded-lg text-sm font-semibold transition-all"
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
               style={lang === l
                 ? { background: 'rgba(96,165,250,0.18)', color: '#93c5fd', border: '1px solid rgba(96,165,250,0.4)' }
                 : { color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -141,7 +124,7 @@ function MoviesTab({ movies }: { movies: Movie[] }) {
         <SearchToggle placeholder="Search movies…" value={q} onChange={setQ} />
       </div>
 
-      <SectionHeader label="Top Rated Movies" count={filtered.length} href="/movies" color="#60a5fa" />
+      <SectionHeader label="Latest Movies" count={filtered.length} href="/movies" color="#60a5fa" />
 
       <CardGrid>
         {visible.map(m => (
@@ -190,12 +173,12 @@ function SerialsTab({ serials }: { serials: Serial[] }) {
   const visible = show ? filtered : filtered.slice(0, 9)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center gap-2">
         <div className="flex gap-1 flex-1">
           {(['All', 'Ongoing', 'Completed'] as const).map(s => (
             <button key={s} onClick={() => setStatus(s)}
-              className="px-3 py-1.5 rounded-lg text-sm font-semibold transition-all"
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
               style={status === s
                 ? { background: 'rgba(249,115,22,0.18)', color: '#fdba74', border: '1px solid rgba(249,115,22,0.4)' }
                 : { color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -215,7 +198,7 @@ function SerialsTab({ serials }: { serials: Serial[] }) {
             gradient={s.gradient} type="serial"
             rating={s.rating} language={s.language}
             status={s.status} tags={s.tags}
-            thumbnail={SERIAL_YT_THUMB[s.id] || s.thumbnail} compact />
+            thumbnail={s.thumbnail} compact />
         ))}
       </CardGrid>
 
@@ -511,29 +494,30 @@ export default function HomeTabLayout({ movies, serials, albums }: Props) {
   return (
     <div className="flex flex-col gap-0">
 
-      {/* Sticky tab bar */}
-      <div className="sticky top-0 z-30 rounded-2xl overflow-hidden mb-4"
-        style={{ background: 'rgba(7,1,15,0.96)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(24px)' }}>
-        <div className="flex overflow-x-auto scrollbar-hide p-1.5 gap-1">
+      {/* Sticky tab bar — compact pill style */}
+      <div className="sticky top-[56px] z-20 mb-3"
+        style={{ background: 'rgba(7,1,15,0.97)', backdropFilter: 'blur(20px)' }}>
+        <div className="flex overflow-x-auto scrollbar-hide gap-1 py-2">
           {TABS.map(({ id, label, icon: Icon, color }) => {
             const isActive = activeTab === id
             return (
               <button key={id} onClick={() => setActiveTab(id)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex-shrink-0"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex-shrink-0"
                 style={isActive ? {
                   background: color + '20',
-                  border: `1px solid ${color}40`,
+                  border: `1px solid ${color}45`,
                   color,
                 } : {
-                  color: 'rgba(255,255,255,0.40)',
-                  border: '1px solid transparent',
+                  color: 'rgba(255,255,255,0.35)',
+                  border: '1px solid rgba(255,255,255,0.07)',
                 }}>
-                <Icon className="w-4 h-4" />
+                <Icon className="w-3.5 h-3.5" />
                 {label}
               </button>
             )
           })}
         </div>
+        <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
       </div>
 
       {/* Tab content */}
