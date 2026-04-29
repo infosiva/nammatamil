@@ -450,12 +450,12 @@ function AlbumsTab({ albums }: { albums: Album[] }) {
   )
 }
 
-// Real IPL 2026 standings — after Match 39 (Apr 27) — source: cricketaddictor.com
+// IPL 2026 standings — after Match 40 (Apr 28) · source: Wikipedia / iplt20.com
 const IPL_2026_STANDINGS = [
-  { pos: 1,  team: 'Punjab Kings',                short: 'PBKS', played: 7, w: 6, l: 0, pts: 13, nrr: '+1.333', color: '#a855f7' },
+  { pos: 1,  team: 'Punjab Kings',                short: 'PBKS', played: 8, w: 6, l: 1, pts: 13, nrr: '+1.043', color: '#a855f7' },
   { pos: 2,  team: 'Royal Challengers Bengaluru', short: 'RCB',  played: 8, w: 6, l: 2, pts: 12, nrr: '+1.919', color: '#ef4444' },
-  { pos: 3,  team: 'Sunrisers Hyderabad',         short: 'SRH',  played: 8, w: 5, l: 3, pts: 10, nrr: '+0.815', color: '#f97316' },
-  { pos: 4,  team: 'Rajasthan Royals',            short: 'RR',   played: 8, w: 5, l: 3, pts: 10, nrr: '+0.602', color: '#ec4899' },
+  { pos: 3,  team: 'Rajasthan Royals',            short: 'RR',   played: 9, w: 6, l: 3, pts: 12, nrr: '+0.617', color: '#ec4899' },
+  { pos: 4,  team: 'Sunrisers Hyderabad',         short: 'SRH',  played: 8, w: 5, l: 3, pts: 10, nrr: '+0.815', color: '#f97316' },
   { pos: 5,  team: 'Gujarat Titans',              short: 'GT',   played: 8, w: 4, l: 4, pts: 8,  nrr: '-0.475', color: '#6b7280' },
   { pos: 6,  team: 'Chennai Super Kings',         short: 'CSK',  played: 8, w: 3, l: 5, pts: 6,  nrr: '-0.121', color: '#eab308' },
   { pos: 7,  team: 'Delhi Capitals',              short: 'DC',   played: 8, w: 3, l: 5, pts: 6,  nrr: '-1.060', color: '#3b82f6' },
