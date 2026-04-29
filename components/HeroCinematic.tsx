@@ -178,10 +178,9 @@ function ElectionHero() {
         <div className="flex items-center justify-between">
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full"
-            style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.28)', backdropFilter: 'blur(8px)' }}>
-            <Brain className="w-3 h-3 text-amber-400" />
-            <span className="text-amber-400 text-[10px] font-black tracking-wider uppercase">AI Prediction</span>
-            <span className={`w-1.5 h-1.5 rounded-full ${isLiveAI ? 'bg-amber-400 animate-pulse' : 'bg-white/20'}`} />
+            style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', backdropFilter: 'blur(8px)' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+            <span className="text-red-400 text-[10px] font-black tracking-wider uppercase">Exit Polls Out</span>
           </motion.div>
           <div className="flex items-center gap-1.5">
             {updatedMin && <span className="text-white/15 text-[9px]">{isLiveAI ? '🔴' : '📡'} {updatedMin}</span>}
@@ -199,7 +198,7 @@ function ElectionHero() {
             style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
             தேர்தல் 2026
           </h2>
-          <p className="text-white/35 text-[10px] mt-0.5">AI-powered seat forecast · Updated daily</p>
+          <p className="text-white/35 text-[10px] mt-0.5">Exit Poll results · Apr 29 · 4 agencies · Results May 4</p>
         </motion.div>
 
         {/* Party bars */}

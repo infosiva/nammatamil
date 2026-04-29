@@ -55,15 +55,17 @@ async function fetchPoliticalHeadlines(): Promise<string[]> {
   return headlines.slice(0, 18) // max 18 headlines to keep prompt small
 }
 
-// ── Static base predictions (grounded in real polling averages) ───────────────
-// These are the "floor" — AI adjusts them up/down based on news sentiment
+// ── Exit Poll averages (April 29, 2026 — voting was April 23) ────────────────
+// Poll of Polls: Matrize + P-MARQ + Axis My India + JVC averaged
+// DMK: 92–145 range → avg ~112 | AIADMK: 22–147 → avg ~83 | TVK: 8–120 → avg ~38
 const BASE_PREDICTIONS = {
-  DMK:    { voteShare: 38.4, seats: '148–172', sentiment: 65, color: '#f87171' },
-  AIADMK: { voteShare: 32.1, seats: '55–82',  sentiment: 58, color: '#4ade80' },
-  TVK:    { voteShare: 18.7, seats: '14–28',  sentiment: 62, color: '#fbbf24' },
-  BJP:    { voteShare: 4.2,  seats: '4–10',   sentiment: 40, color: '#fb923c' },
-  Others: { voteShare: 6.6,  seats: '8–18',   sentiment: 50, color: '#94a3b8' },
+  DMK:    { voteShare: 36.5, seats: '107–141', sentiment: 68, color: '#f87171' },
+  AIADMK: { voteShare: 31.2, seats: '44–71',  sentiment: 55, color: '#4ade80' },
+  TVK:    { voteShare: 23.0, seats: '13–47',  sentiment: 72, color: '#fbbf24' },
+  BJP:    { voteShare: 4.2,  seats: '4–10',   sentiment: 38, color: '#fb923c' },
+  Others: { voteShare: 5.1,  seats: '5–12',   sentiment: 45, color: '#94a3b8' },
 }
+// NOTE: Axis My India outlier predicts TVK 98–120 seats as single largest party
 
 // ── AI Sentiment Analysis ─────────────────────────────────────────────────────
 async function analyseWithAI(headlines: string[]): Promise<{
