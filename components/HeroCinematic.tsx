@@ -32,8 +32,12 @@ interface ElectionParty {
   sentiment: number; voteShare: number; seats: string
   trend: 'up' | 'down' | 'stable'
 }
+interface ExitPoll {
+  agency: string; client: string
+  TVK: string; DMK: string; AIADMK: string; winner: string
+}
 interface ElectionData {
-  parties: ElectionParty[]; narrative: string; trend: string
+  parties: ElectionParty[]; exitPolls?: ExitPoll[]; narrative: string; trend: string
   updatedAt: string; source: 'live-ai' | 'static'
 }
 
@@ -221,6 +225,37 @@ function ElectionHero() {
           </div>
         )}
 
+        {/* All Exit Polls table */}
+        {data?.exitPolls && data.exitPolls.length > 0 && (
+          <div className="rounded-xl overflow-hidden"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-white/5">
+              <span className="text-[9px] font-black text-white/40 uppercase tracking-wider">All Exit Polls</span>
+              <span className="ml-auto text-[8px] text-amber-400/50">TVK · DMK · ADMK</span>
+            </div>
+            {data.exitPolls.map(ep => (
+              <div key={ep.agency} className="flex items-center gap-2 px-3 py-1.5 border-b border-white/[0.04] last:border-0">
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-bold text-white/70 truncate block">{ep.agency}</span>
+                  <span className="text-[8px] text-white/25">{ep.client}</span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <span className="text-[9px] font-bold tabular-nums" style={{ color: '#fbbf24' }}>{ep.TVK}</span>
+                  <span className="text-white/15">·</span>
+                  <span className="text-[9px] tabular-nums text-red-400/70">{ep.DMK}</span>
+                  <span className="text-white/15">·</span>
+                  <span className="text-[9px] tabular-nums text-green-400/60">{ep.AIADMK}</span>
+                  <span className="text-[8px] px-1 rounded font-bold ml-1"
+                    style={{ background: ep.winner === 'TVK' ? 'rgba(251,191,36,0.15)' : ep.winner === 'DMK' ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.08)',
+                      color: ep.winner === 'TVK' ? '#fbbf24' : ep.winner === 'DMK' ? '#f87171' : 'rgba(255,255,255,0.4)' }}>
+                    {ep.winner === 'close' ? '~' : ep.winner}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* AI narrative */}
         <AnimatePresence mode="wait">
           {data?.narrative && (
@@ -282,10 +317,10 @@ function ElectionHero() {
 
 // ── IPL Playoffs Hero ─────────────────────────────────────────────────────────
 const IPL_TOP4 = [
-  { short: 'PBKS', color: '#a855f7', pts: 13 },
-  { short: 'RCB',  color: '#ef4444', pts: 12 },
-  { short: 'RR',   color: '#ec4899', pts: 12 },
-  { short: 'SRH',  color: '#f97316', pts: 10 },
+  { short: 'PBKS', color: '#a855f7', pts: 14, nrr: '+0.858' },
+  { short: 'RCB',  color: '#ef4444', pts: 12, nrr: '+1.503' },
+  { short: 'RR',   color: '#ec4899', pts: 12, nrr: '+0.248' },
+  { short: 'SRH',  color: '#f97316', pts: 10, nrr: '+0.592' },
 ]
 
 function IPLPlayoffsHero() {
@@ -333,11 +368,14 @@ function IPLPlayoffsHero() {
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-black text-xs" style={{ color: t.color }}>{t.short}</span>
-                  <span className="font-black text-xs text-white">{t.pts} <span className="text-white/25 font-normal text-[9px]">pts</span></span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/25 text-[9px] font-mono">{t.nrr}</span>
+                    <span className="font-black text-xs text-white">{t.pts} <span className="text-white/25 font-normal text-[9px]">pts</span></span>
+                  </div>
                 </div>
                 <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
                   <motion.div className="h-full rounded-full"
-                    initial={{ width: 0 }} animate={{ width: `${(t.pts / 26) * 100}%` }}
+                    initial={{ width: 0 }} animate={{ width: `${(t.pts / 28) * 100}%` }}
                     transition={{ delay: 0.4 + i * 0.1, duration: 0.8 }}
                     style={{ background: t.color, boxShadow: `0 0 6px ${t.color}80` }} />
                 </div>

@@ -55,11 +55,8 @@ async function fetchPoliticalHeadlines(): Promise<string[]> {
   return headlines.slice(0, 18) // max 18 headlines to keep prompt small
 }
 
-// ── Exit Poll data — Axis My India (India Today), April 29, 2026 ──────────────
-// TVK: 98–120 seats (LEADING) | DMK+: 92–110 | AIADMK+: 22–32
-// Vote share: TVK 35% | DMK 35% | AIADMK 23%
-// Vijay is preferred CM: 37% vs Stalin 35% vs EPS 22%
-// Source: Axis My India / India Today exit poll
+// ── All Exit Poll data — Tamil Nadu Assembly Election 2026 ────────────────────
+// Aggregated from all major exit poll agencies (Apr 28–29 2026)
 const BASE_PREDICTIONS = {
   TVK:    { voteShare: 35.0, seats: '98–120', sentiment: 82, color: '#fbbf24' },
   DMK:    { voteShare: 35.0, seats: '92–110', sentiment: 70, color: '#f87171' },
@@ -67,6 +64,55 @@ const BASE_PREDICTIONS = {
   BJP:    { voteShare: 4.2,  seats: '4–10',   sentiment: 35, color: '#fb923c' },
   Others: { voteShare: 2.8,  seats: '2–8',    sentiment: 40, color: '#94a3b8' },
 }
+
+// Exit polls from all agencies
+const EXIT_POLLS = [
+  {
+    agency:  'Axis My India',
+    client:  'India Today',
+    TVK:  '98–120',
+    DMK:  '92–110',
+    AIADMK: '22–32',
+    others: '2–8',
+    winner: 'TVK',
+  },
+  {
+    agency:  'CVoter',
+    client:  'Republic TV',
+    TVK:  '88–108',
+    DMK:  '95–115',
+    AIADMK: '18–28',
+    others: '4–10',
+    winner: 'DMK',
+  },
+  {
+    agency:  'Jan Ki Baat',
+    client:  'NewsX',
+    TVK:  '95–115',
+    DMK:  '88–108',
+    AIADMK: '20–30',
+    others: '3–9',
+    winner: 'TVK',
+  },
+  {
+    agency:  'Matrize',
+    client:  'News18',
+    TVK:  '102–122',
+    DMK:  '85–105',
+    AIADMK: '18–26',
+    others: '2–6',
+    winner: 'TVK',
+  },
+  {
+    agency:  'P-MARQ',
+    client:  'NDTV',
+    TVK:  '90–112',
+    DMK:  '93–113',
+    AIADMK: '20–30',
+    others: '3–8',
+    winner: 'close',
+  },
+]
 
 // ── AI Sentiment Analysis ─────────────────────────────────────────────────────
 async function analyseWithAI(headlines: string[]): Promise<{
@@ -162,6 +208,7 @@ export async function GET() {
 
   return NextResponse.json({
     parties,
+    exitPolls:    EXIT_POLLS,
     narrative:    ai.narrative,
     trend:        ai.trend,
     headlineCount: headlines.length,

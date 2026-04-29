@@ -3,8 +3,8 @@
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import {
-  Tv2, Film, Music, Play, Trophy, Search, X,
-  Radio, ChevronRight,
+  Tv2, Film, Music, Play, Search, X,
+  Radio, Trophy, ChevronRight,
 } from 'lucide-react'
 import ContentCard from '@/components/ContentCard'
 import OTTExplorer from '@/components/OTTExplorer'
@@ -435,56 +435,8 @@ function LiveTab() {
 }
 
 // ── Cricket Tab ───────────────────────────────────────────────────────────────
-const IPL_STANDINGS = [
-  { pos: 1, short: 'PBKS', played: 8, w: 6, l: 1, pts: 13, nrr: '+1.043', color: '#a855f7' },
-  { pos: 2, short: 'RCB',  played: 8, w: 6, l: 2, pts: 12, nrr: '+1.919', color: '#ef4444' },
-  { pos: 3, short: 'RR',   played: 9, w: 6, l: 3, pts: 12, nrr: '+0.617', color: '#ec4899' },
-  { pos: 4, short: 'SRH',  played: 8, w: 5, l: 3, pts: 10, nrr: '+0.815', color: '#f97316' },
-  { pos: 5, short: 'GT',   played: 8, w: 4, l: 4, pts: 8,  nrr: '-0.475', color: '#6b7280' },
-  { pos: 6, short: 'CSK',  played: 8, w: 3, l: 5, pts: 6,  nrr: '-0.121', color: '#eab308' },
-  { pos: 7, short: 'DC',   played: 8, w: 3, l: 5, pts: 6,  nrr: '-1.060', color: '#3b82f6' },
-  { pos: 8, short: 'KKR',  played: 8, w: 2, l: 5, pts: 5,  nrr: '-0.751', color: '#7c3aed' },
-  { pos: 9, short: 'MI',   played: 7, w: 2, l: 5, pts: 4,  nrr: '-0.736', color: '#0ea5e9' },
-  { pos: 10,short: 'LSG',  played: 8, w: 2, l: 6, pts: 4,  nrr: '-1.106', color: '#14b8a6' },
-]
-
 function CricketTab() {
-  return (
-    <div className="space-y-5">
-      <CricketWidget />
-      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(34,197,94,0.15)' }}>
-        <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-          <span className="text-sm font-black text-white/70 flex items-center gap-2 uppercase tracking-wider">
-            <Trophy className="w-4 h-4 text-green-400" /> IPL 2026 Points
-          </span>
-          <a href="https://www.iplt20.com/points-table/men/2026" target="_blank" rel="noopener noreferrer"
-            className="text-xs text-white/25 hover:text-white/50 transition-colors">iplt20.com →</a>
-        </div>
-        <div className="divide-y divide-white/[0.04]">
-          {IPL_STANDINGS.map((row, i) => (
-            <div key={row.short} className="flex items-center gap-3 px-4 py-2.5"
-              style={{ background: i < 4 ? `${row.color}08` : 'transparent' }}>
-              <span className="text-white/25 text-xs w-4">{row.pos}</span>
-              <div className="w-7 h-7 rounded-md flex items-center justify-center text-xs font-black text-white flex-shrink-0"
-                style={{ background: row.color }}>
-                {row.short.slice(0, 2)}
-              </div>
-              <span className="flex-1 font-bold text-sm" style={{ color: row.color }}>{row.short}</span>
-              {i < 4 && <span className="text-xs text-green-400/60">●</span>}
-              <span className="text-white/35 text-xs w-5 text-center">{row.played}</span>
-              <span className="text-green-400 text-xs w-4 text-center font-semibold">{row.w}</span>
-              <span className="text-red-400/60 text-xs w-4 text-center">{row.l}</span>
-              <span className={`text-xs w-16 text-right font-mono ${parseFloat(row.nrr) >= 0 ? 'text-green-400/70' : 'text-red-400/60'}`}>{row.nrr}</span>
-              <span className="font-black text-sm w-6 text-right" style={{ color: row.color }}>{row.pts}</span>
-            </div>
-          ))}
-        </div>
-        <div className="px-4 py-2 border-t border-white/5">
-          <p className="text-white/20 text-xs">● Top 4 qualify · Updated Apr 29 2026</p>
-        </div>
-      </div>
-    </div>
-  )
+  return <CricketWidget />
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────

@@ -5,8 +5,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { Menu, X, Search, Tv2, Film, Music, Users, Home, PlayCircle } from 'lucide-react'
 
+// Full nav shown on inner pages; on home page the tab bar handles content switching
 const NAV = [
-  { href: '/',          label: 'Home',      icon: Home       },
   { href: '/serials',   label: 'Serials',   icon: Tv2        },
   { href: '/movies',    label: 'Movies',    icon: Film       },
   { href: '/albums',    label: 'Albums',    icon: Music      },
@@ -94,8 +94,8 @@ export default function Header() {
               </span>
             </Link>
 
-            {/* ── Desktop nav ── */}
-            <nav className="hidden md:flex items-center gap-0.5">
+            {/* ── Desktop nav — only on inner pages, home uses the tab bar ── */}
+            <nav className={`hidden md:flex items-center gap-0.5 transition-all duration-200 ${pathname === '/' ? 'opacity-0 pointer-events-none w-0 overflow-hidden' : 'opacity-100'}`}>
               {NAV.map(({ href, label, icon: Icon }) => {
                 const isActive = pathname === href
                 return (
@@ -168,15 +168,17 @@ export default function Header() {
                 <Search className="w-4.5 h-4.5" />
               </button>
 
-              {/* Mobile hamburger */}
-              <button
-                onClick={() => setOpen(!open)}
-                className="md:hidden p-2 rounded-lg transition-all"
-                style={{ color: 'rgba(255,255,255,0.45)' }}
-                aria-label="Menu"
-              >
-                {open ? <X className="w-4.5 h-4.5" /> : <Menu className="w-4.5 h-4.5" />}
-              </button>
+              {/* Mobile hamburger — hidden on home page (tab bar is the nav there) */}
+              {pathname !== '/' && (
+                <button
+                  onClick={() => setOpen(!open)}
+                  className="md:hidden p-2 rounded-lg transition-all"
+                  style={{ color: 'rgba(255,255,255,0.45)' }}
+                  aria-label="Menu"
+                >
+                  {open ? <X className="w-4.5 h-4.5" /> : <Menu className="w-4.5 h-4.5" />}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -191,6 +193,15 @@ export default function Header() {
             }}
           >
             <div className="px-4 py-2 space-y-0.5">
+              {/* Home link only on non-home pages */}
+              {pathname !== '/' && (
+                <Link href="/" onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium"
+                  style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  <Home className="w-4 h-4" />
+                  Home
+                </Link>
+              )}
               {NAV.map(({ href, label, icon: Icon }) => {
                 const isActive = pathname === href
                 return (

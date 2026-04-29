@@ -20,6 +20,40 @@ export interface Movie {
 }
 
 export const movies: Movie[] = [
+  // ── 2026 — Latest Releases ───────────────────────────────────────────
+  {
+    id: 'm28',
+    slug: 'pettaikaali-2026',
+    title: 'Pettaikaali',
+    year: 2026,
+    director: 'Mari Selvaraj',
+    cast: ['Dhanush', 'Rajisha Vijayan', 'Sai Pallavi'],
+    genre: ['Drama', 'Social', 'Action'],
+    language: 'Tamil',
+    description: 'Mari Selvaraj\'s raw, powerful drama about caste, dignity, and resistance in rural Tamil Nadu. Dhanush delivers a career-defining performance in this bold social commentary.',
+    streamingOn: ['Netflix'],
+    rating: 8.6,
+    gradient: 'from-red-900 via-red-800 to-amber-700',
+    badge: 'New 2026',
+    ottDate: '2026-03-28',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/default.jpg',
+  },
+  {
+    id: 'm29',
+    slug: 'goat-2026',
+    title: 'GOAT 2',
+    year: 2026,
+    director: 'Venkat Prabhu',
+    cast: ['Vijay', 'Prabhu Deva', 'Laila'],
+    genre: ['Action', 'Sci-Fi', 'Thriller'],
+    language: 'Tamil',
+    description: 'The blockbuster sequel to The Greatest of All Time — Vijay returns in dual roles as the time-travel saga continues with bigger action, more twists, and jaw-dropping VFX.',
+    streamingOn: ['Amazon Prime'],
+    rating: 7.9,
+    gradient: 'from-amber-700 via-yellow-600 to-orange-500',
+    badge: 'Most Awaited 2026',
+    ottDate: 'Coming Soon',
+  },
   // ── 2025 — Hot Right Now ──────────────────────────────────────────────
   {
     id: 'm1',

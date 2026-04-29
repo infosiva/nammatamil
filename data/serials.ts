@@ -19,6 +19,71 @@ export interface Serial {
 }
 
 export const serials: Serial[] = [
+  // ── 2025–2026 Trending Serials ───────────────────────────────────────
+  {
+    id: 's16',
+    slug: 'naam-iruvar-oru-kudumbu',
+    title: 'Naam Iruvar Oru Kudumbu',
+    channel: 'Sun TV',
+    genre: ['Family', 'Drama', 'Comedy'],
+    status: 'Ongoing',
+    startYear: 2024,
+    description: 'A lively family drama about a fun-loving joint family navigating modern relationships, generational conflicts, and heartwarming moments. Currently topping Sun TV TRP charts in 2025.',
+    language: 'Tamil',
+    cast: ['Ravi', 'Nisha', 'Bose Venkat', 'Kala'],
+    tags: ['family', 'comedy', 'trending', '2025'],
+    rating: 8.1,
+    gradient: 'from-yellow-600 via-amber-500 to-orange-400',
+    thumbnail: '/api/serial-thumb?title=Naam+Iruvar+Oru+Kudumbu&channel=Sun+TV',
+  },
+  {
+    id: 's17',
+    slug: 'kana-kaanum-kaalangal-2',
+    title: 'Kana Kaanum Kaalangal 2',
+    channel: 'Vijay TV',
+    genre: ['Youth', 'College', 'Drama'],
+    status: 'Ongoing',
+    startYear: 2024,
+    description: 'The sequel to the iconic college drama follows a new batch of students at Sunshine Academy. Fresh faces, modern storylines, and the same nostalgic charm that made the original a cult classic.',
+    language: 'Tamil',
+    cast: ['New Cast', 'Suresh', 'Ananya'],
+    tags: ['youth', 'college', 'sequel', 'trending'],
+    rating: 7.8,
+    gradient: 'from-blue-600 via-sky-500 to-cyan-400',
+    thumbnail: '/api/serial-thumb?title=Kana+Kaanum+Kaalangal+2&channel=Vijay+TV',
+  },
+  {
+    id: 's18',
+    slug: 'kolangal-2',
+    title: 'Kolangal 2',
+    channel: 'Sun TV',
+    genre: ['Family', 'Drama', 'Social'],
+    status: 'Ongoing',
+    startYear: 2025,
+    description: 'The long-awaited sequel to the legendary Sun TV serial Kolangal. A new generation of the same family faces contemporary challenges — a nostalgia-fuelled return that broke viewership records on launch.',
+    language: 'Tamil',
+    cast: ['Devayani', 'Karthik', 'Nithya Ram'],
+    tags: ['sequel', 'classic', 'nostalgia', 'trending', '2025'],
+    rating: 8.3,
+    gradient: 'from-green-600 via-emerald-500 to-teal-400',
+    thumbnail: '/api/serial-thumb?title=Kolangal+2&channel=Sun+TV',
+  },
+  {
+    id: 's19',
+    slug: 'valli-thirumanam',
+    title: 'Valli Thirumanam',
+    channel: 'Vijay TV',
+    genre: ['Romance', 'Drama', 'Family'],
+    status: 'Ongoing',
+    startYear: 2025,
+    description: 'A fresh romantic drama about an arranged marriage between two contrasting personalities in a traditional Tamil household. The chemistry between the lead pair has made it Vijay TV\'s fastest-rising serial of 2025.',
+    language: 'Tamil',
+    cast: ['Priya', 'Harish', 'Meena'],
+    tags: ['romance', 'arranged-marriage', 'trending', '2025', 'vijay-tv'],
+    rating: 7.9,
+    gradient: 'from-pink-600 via-rose-500 to-red-400',
+    thumbnail: '/api/serial-thumb?title=Valli+Thirumanam&channel=Vijay+TV',
+  },
   // ── Tamil Original Serials ──────────────────────────────────────────
   {
     id: 's1',
@@ -34,7 +99,7 @@ export const serials: Serial[] = [
     tags: ['family', 'village', 'comedy', 'emotions', 'popular'],
     rating: 8.4,
     gradient: 'from-orange-600 via-amber-500 to-yellow-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a5/Pandian_Stores.jpg/220px-Pandian_Stores.jpg',
+    thumbnail: '/api/serial-thumb?title=Pandian+Stores&channel=Vijay+TV',
   },
   {
     id: 's2',
@@ -50,7 +115,7 @@ export const serials: Serial[] = [
     tags: ['women-centric', 'bold', 'family', 'drama'],
     rating: 8.1,
     gradient: 'from-pink-600 via-rose-500 to-red-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/Baakiyalakshmi_serial_poster.jpg/220px-Baakiyalakshmi_serial_poster.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w300/Av4CKeeyMaPRpZxW5L4ZtsQQyCS.jpg',
   },
   {
     id: 's3',
@@ -67,7 +132,7 @@ export const serials: Serial[] = [
     tags: ['romance', 'doctor', 'village-girl', 'drama'],
     rating: 7.9,
     gradient: 'from-violet-600 via-purple-500 to-fuchsia-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/06/Bharathi_Kannamma_Title_Card.jpg/220px-Bharathi_Kannamma_Title_Card.jpg',
+    thumbnail: '/api/serial-thumb?title=Bharathi+Kannamma&channel=Vijay+TV',
   },
   {
     id: 's4',
@@ -84,7 +149,7 @@ export const serials: Serial[] = [
     tags: ['romance', 'arranged-marriage', 'emotional'],
     rating: 8.3,
     gradient: 'from-red-600 via-rose-500 to-pink-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Raja_Rani_Season_2_Titlecard.jpg/220px-Raja_Rani_Season_2_Titlecard.jpg',
+    thumbnail: '/api/serial-thumb?title=Raja+Rani&channel=Star+Vijay',
   },
   {
     id: 's5',
@@ -101,7 +166,7 @@ export const serials: Serial[] = [
     tags: ['romance', 'modern', 'classic-remake', 'drama'],
     rating: 7.7,
     gradient: 'from-blue-600 via-indigo-500 to-violet-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Mouna_Ragam_Title_Card.jpg/220px-Mouna_Ragam_Title_Card.jpg',
+    thumbnail: '/api/serial-thumb?title=Mouna+Ragam&channel=Star+Vijay',
   },
   {
     id: 's6',
@@ -118,7 +183,7 @@ export const serials: Serial[] = [
     tags: ['class-divide', 'romance', 'family-drama', 'hit'],
     rating: 8.0,
     gradient: 'from-emerald-600 via-teal-500 to-cyan-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d5/Sembaruthi_title_card.jpg/220px-Sembaruthi_title_card.jpg',
+    thumbnail: '/api/serial-thumb?title=Sembaruthi&channel=Zee+Tamil',
   },
   {
     id: 's7',
@@ -135,7 +200,7 @@ export const serials: Serial[] = [
     tags: ['fantasy', 'ghost', 'romance', 'supernatural'],
     rating: 7.8,
     gradient: 'from-cyan-600 via-sky-500 to-blue-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c7/Yaaradi_Nee_Mohini_title_card.jpg/220px-Yaaradi_Nee_Mohini_title_card.jpg',
+    thumbnail: '/api/serial-thumb?title=Yaaradi+Nee+Mohini&channel=Zee+Tamil',
   },
   {
     id: 's8',
@@ -151,7 +216,7 @@ export const serials: Serial[] = [
     tags: ['drama', 'strong-woman', 'family', 'popular'],
     rating: 7.6,
     gradient: 'from-rose-600 via-red-500 to-orange-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/8/84/Roja_Tamil_serial_title_card.jpg/220px-Roja_Tamil_serial_title_card.jpg',
+    thumbnail: '/api/serial-thumb?title=Roja&channel=Sun+TV',
   },
   {
     id: 's9',
@@ -167,7 +232,7 @@ export const serials: Serial[] = [
     tags: ['action', 'social-drama', 'farmer', 'justice'],
     rating: 8.2,
     gradient: 'from-amber-600 via-orange-500 to-red-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/cf/Annamalai_Sun_TV_title_card.jpg/220px-Annamalai_Sun_TV_title_card.jpg',
+    thumbnail: '/api/serial-thumb?title=Annamalai&channel=Sun+TV',
   },
   {
     id: 's10',
@@ -184,7 +249,7 @@ export const serials: Serial[] = [
     tags: ['comedy', 'family', 'wedding', 'light-hearted'],
     rating: 8.5,
     gradient: 'from-yellow-500 via-amber-400 to-orange-300',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1e/Kalyana_Veedu_serial.jpg/220px-Kalyana_Veedu_serial.jpg',
+    thumbnail: 'https://image.tmdb.org/t/p/w300/id8HScMPmEIDFLS1CE7UY4avOXx.jpg',
   },
   {
     id: 's11',
@@ -201,7 +266,7 @@ export const serials: Serial[] = [
     tags: ['romance', 'emotional', 'drama'],
     rating: 7.5,
     gradient: 'from-fuchsia-600 via-pink-500 to-rose-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Eeramana_Rojave_title_card.jpg/220px-Eeramana_Rojave_title_card.jpg',
+    thumbnail: '/api/serial-thumb?title=Eeramaana+Rojaave&channel=Star+Vijay',
   },
   {
     id: 's12',
@@ -218,7 +283,7 @@ export const serials: Serial[] = [
     tags: ['brothers', 'family-values', 'emotional', 'drama'],
     rating: 7.8,
     gradient: 'from-green-600 via-emerald-500 to-teal-400',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/47/Naam_Iruvar_Namakku_Iruvar.jpg/220px-Naam_Iruvar_Namakku_Iruvar.jpg',
+    thumbnail: '/api/serial-thumb?title=Naam+Iruvar+Namakku+Iruvar&channel=Sun+TV',
   },
 
   // ── Tamil Dubbed Serials ──────────────────────────────────────────
@@ -238,7 +303,7 @@ export const serials: Serial[] = [
     tags: ['supernatural', 'third-eye', 'dubbed', 'telugu-original'],
     rating: 7.9,
     gradient: 'from-blue-700 via-blue-600 to-indigo-500',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/58/Trinayani_Telugu_serial.jpg/220px-Trinayani_Telugu_serial.jpg',
+    thumbnail: '/api/serial-thumb?title=Ganga&channel=Sun+TV',
   },
   {
     id: 's14',
@@ -255,7 +320,7 @@ export const serials: Serial[] = [
     tags: ['dubbed', 'telugu-original', 'strong-woman', 'family'],
     rating: 7.4,
     gradient: 'from-purple-700 via-violet-600 to-purple-500',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Chandralekha_serial_title_card.jpg/220px-Chandralekha_serial_title_card.jpg',
+    thumbnail: '/api/serial-thumb?title=Chandralekha&channel=Sun+TV',
   },
   {
     id: 's15',
@@ -272,6 +337,6 @@ export const serials: Serial[] = [
     tags: ['classic', 'family', 'daughter-in-law', 'values'],
     rating: 8.6,
     gradient: 'from-orange-700 via-amber-600 to-yellow-500',
-    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/8/8c/Deivam_Thandha_Veedu_title_card.jpg/220px-Deivam_Thandha_Veedu_title_card.jpg',
+    thumbnail: '/api/serial-thumb?title=Deivam+Thandha+Veedu&channel=Sun+TV',
   },
 ]
