@@ -8,7 +8,8 @@
 import { NextResponse } from 'next/server'
 import { generateWithAI } from '@/lib/ai'
 
-export const revalidate = 3600 // cache 1 hour on Vercel edge
+export const dynamic = 'force-dynamic'
+export const revalidate = 0 // always fresh — client polls every 5 min
 
 // ── Fetch Tamil political headlines from RSS ──────────────────────────────────
 const POLITICAL_FEEDS = [
@@ -215,6 +216,6 @@ export async function GET() {
     updatedAt:    new Date().toISOString(),
     source:       headlines.length > 0 ? 'live-ai' : 'static',
   }, {
-    headers: { 'Cache-Control': 's-maxage=3600, stale-while-revalidate=300' },
+    headers: { 'Cache-Control': 'no-store' },
   })
 }

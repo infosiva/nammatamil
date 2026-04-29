@@ -5,9 +5,12 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Brain, ChevronRight, TrendingUp, TrendingDown, Minus, Trophy, RefreshCw, Zap } from 'lucide-react'
 
-// ── Switch date ───────────────────────────────────────────────────────────────
-const SWITCH_MS   = new Date('2026-05-04T06:00:00+05:30').getTime()
+// ── Switch date (show IPL after May 4 results day) ───────────────────────────
+const SWITCH_MS   = new Date('2026-05-04T18:00:00+05:30').getTime()
 const ELECTION_MS = new Date('2026-05-04T07:00:00+05:30').getTime()
+
+// ── Refresh interval — 5 minutes ─────────────────────────────────────────────
+const REFRESH_MS = 5 * 60 * 1000
 
 // ── Rolling background images — crowd/campaign/political rally scenes ─────────
 // Free Unsplash images: large crowds, rally scenes, political gatherings
@@ -39,6 +42,15 @@ interface ExitPoll {
 interface ElectionData {
   parties: ElectionParty[]; exitPolls?: ExitPoll[]; narrative: string; trend: string
   updatedAt: string; source: 'live-ai' | 'static'
+}
+interface CricketStanding {
+  pos: number; short: string; played: number
+  w: number; l: number; pts: number; nrr: string; color: string
+}
+interface CricketData {
+  standings: CricketStanding[]
+  standingsSource: 'live' | 'static'
+  updatedAt: string
 }
 
 // ── Countdown ─────────────────────────────────────────────────────────────────
@@ -147,7 +159,11 @@ function ElectionHero() {
     finally { setLoading(false); setRefreshing(false) }
   }, [])
 
-  useEffect(() => { fetch_() }, [fetch_])
+  useEffect(() => {
+    fetch_()
+    const id = setInterval(() => fetch_(), REFRESH_MS)
+    return () => clearInterval(id)
+  }, [fetch_])
 
   const parties  = data?.parties ?? []
   const maxShare = Math.max(...parties.map(p => p.voteShare), 40)
@@ -315,15 +331,30 @@ function ElectionHero() {
   )
 }
 
-// ── IPL Playoffs Hero ─────────────────────────────────────────────────────────
-const IPL_TOP4 = [
-  { short: 'PBKS', color: '#a855f7', pts: 14, nrr: '+0.858' },
-  { short: 'RCB',  color: '#ef4444', pts: 12, nrr: '+1.503' },
-  { short: 'RR',   color: '#ec4899', pts: 12, nrr: '+0.248' },
-  { short: 'SRH',  color: '#f97316', pts: 10, nrr: '+0.592' },
-]
-
+// ── IPL Playoffs Hero — live from /api/cricket ────────────────────────────────
 function IPLPlayoffsHero() {
+  const [cricket, setCricket] = useState<CricketData | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const fetchCricket = useCallback(async (manual = false) => {
+    if (manual) setRefreshing(true)
+    try {
+      const d = await fetch('/api/cricket').then(r => r.json()) as CricketData
+      setCricket(d)
+    } catch { /* keep previous */ }
+    finally { setRefreshing(false) }
+  }, [])
+
+  useEffect(() => {
+    fetchCricket()
+    const id = setInterval(() => fetchCricket(), REFRESH_MS)
+    return () => clearInterval(id)
+  }, [fetchCricket])
+
+  const top4    = (cricket?.standings ?? []).slice(0, 4)
+  const isLive  = cricket?.standingsSource === 'live'
+  const maxPts  = Math.max(...top4.map(t => t.pts), 16)
+
   return (
     <div className="relative w-full overflow-hidden rounded-2xl" style={{ minHeight: 520 }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -338,13 +369,23 @@ function IPLPlayoffsHero() {
         style={{ background: 'radial-gradient(ellipse 70% 50% at 20% 50%,rgba(34,197,94,0.18) 0%,transparent 60%)' }} />
 
       <div className="relative flex flex-col p-5 gap-4" style={{ minHeight: 520 }}>
-        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full w-fit"
-          style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.28)' }}>
-          <Trophy className="w-3 h-3 text-green-400" />
-          <span className="text-green-400 text-[10px] font-black uppercase tracking-wider">IPL 2026 · Playoffs Race</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-        </motion.div>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full"
+            style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.28)' }}>
+            <Trophy className="w-3 h-3 text-green-400" />
+            <span className="text-green-400 text-[10px] font-black uppercase tracking-wider">IPL 2026 · Live Table</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+          </motion.div>
+          <div className="flex items-center gap-1.5">
+            {isLive && <span className="text-green-400/50 text-[9px]">● live</span>}
+            <button onClick={() => fetchCricket(true)} disabled={refreshing}
+              className="p-1 rounded-lg hover:bg-white/5 transition-colors">
+              <RefreshCw className={`w-3 h-3 text-white/20 ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+        </div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <p className="text-white/30 text-[10px] mb-0.5">Points Table · Top Contenders</p>
@@ -355,7 +396,21 @@ function IPLPlayoffsHero() {
         </motion.div>
 
         <div className="space-y-3 flex-1">
-          {IPL_TOP4.map((t, i) => (
+          {top4.length === 0 ? (
+            // skeleton
+            <div className="space-y-3">
+              {[0,1,2,3].map(i => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-4 h-3 rounded shimmer" />
+                  <div className="w-7 h-7 rounded-lg shimmer flex-shrink-0" />
+                  <div className="flex-1 space-y-1">
+                    <div className="h-3 w-24 rounded shimmer" />
+                    <div className="h-1.5 rounded-full shimmer" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : top4.map((t, i) => (
             <motion.div key={t.short}
               initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
@@ -375,7 +430,7 @@ function IPLPlayoffsHero() {
                 </div>
                 <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
                   <motion.div className="h-full rounded-full"
-                    initial={{ width: 0 }} animate={{ width: `${(t.pts / 28) * 100}%` }}
+                    initial={{ width: 0 }} animate={{ width: `${(t.pts / maxPts) * 100}%` }}
                     transition={{ delay: 0.4 + i * 0.1, duration: 0.8 }}
                     style={{ background: t.color, boxShadow: `0 0 6px ${t.color}80` }} />
                 </div>
