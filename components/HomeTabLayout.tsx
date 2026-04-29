@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import {
-  Tv2, Film, Music, Play, Youtube, Trophy, Search, X,
-  Clock, Zap, Radio, Users, TrendingUp, ChevronRight,
+  Tv2, Film, Music, Play, Trophy, Search, X,
+  Radio, ChevronRight,
 } from 'lucide-react'
 import ContentCard from '@/components/ContentCard'
 import OTTExplorer from '@/components/OTTExplorer'
@@ -275,156 +275,197 @@ function AlbumsTab({ albums }: { albums: Album[] }) {
   )
 }
 
-// ── Live Tab ──────────────────────────────────────────────────────────────────
-interface ElectionParty { name: string; tamil: string; color: string; sentiment: number; voteShare: number; seats: string }
-interface Episode { id: string; title: string; videoId: string; channelName: string; channelColor: string; thumbnail: string }
+// ── News Tab (replaces Live) ───────────────────────────────────────────────────
+interface NewsItem {
+  id: string
+  title: string
+  summary: string
+  category: string
+  categoryColor: string
+  thumbnail: string
+  timeAgo: string
+  source: string
+}
+
+const STATIC_NEWS: NewsItem[] = [
+  {
+    id: 'n1',
+    title: 'Coolie: Rajinikanth & Lokesh Kanagaraj wrap final schedule in Hyderabad',
+    summary: 'The most awaited film of 2025 has completed its final shooting schedule. LCU fans can expect Coolie to hit theatres by mid-2025.',
+    category: 'Movies',
+    categoryColor: '#60a5fa',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/kr36awqmziEI5mfUElsHB0pj9zP.jpg',
+    timeAgo: '2h ago',
+    source: 'Filmibeat',
+  },
+  {
+    id: 'n2',
+    title: 'Thug Life: Kamal Haasan\'s crime saga set for June 2025 worldwide release',
+    summary: 'Mani Ratnam\'s Thug Life starring Kamal Haasan and STR is confirmed for a summer 2025 release. Trailer already broke YouTube records.',
+    category: 'Movies',
+    categoryColor: '#60a5fa',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/DmBbUtbA3T9sdVXDgIJ8bsIDw0.jpg',
+    timeAgo: '4h ago',
+    source: 'Cinema Express',
+  },
+  {
+    id: 'n3',
+    title: 'Suriya\'s Retro crosses ₹200 Cr at box office in first week',
+    summary: 'Karthik Subbaraj\'s period action romance starring Suriya and Pooja Hegde has become the biggest Tamil hit of April 2025.',
+    category: 'Box Office',
+    categoryColor: '#4ade80',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/pJPK57REXsaLydpOPgHwWAQMdqz.jpg',
+    timeAgo: '6h ago',
+    source: 'TrackTollywood',
+  },
+  {
+    id: 'n4',
+    title: 'Thalapathy 70: Vijay\'s political film officially launched — details inside',
+    summary: 'Thalapathy Vijay\'s comeback film (Thalapathy 70) has been officially launched with a puja ceremony. The film is directed by H. Vinoth.',
+    category: 'Movies',
+    categoryColor: '#60a5fa',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/t1oAdt8JjUs4sHEBvE8fKtjV7er.jpg',
+    timeAgo: '8h ago',
+    source: 'Times of India',
+  },
+  {
+    id: 'n5',
+    title: 'L2: Empuraan OTT release — Amazon Prime breaks viewership records',
+    summary: 'Mohanlal\'s L2: Empuraan shattered Amazon Prime India viewing records in its first weekend. Tamil dubbed version equally massive.',
+    category: 'OTT',
+    categoryColor: '#a78bfa',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/dfaZipN3Aw5BK85nEvfr2FNg4EW.jpg',
+    timeAgo: '10h ago',
+    source: 'OTTPlay',
+  },
+  {
+    id: 'n6',
+    title: 'AR Rahman announces new album with GV Prakash — Tamil music fraternity excited',
+    summary: 'Musical legends AR Rahman and GV Prakash Kumar are collaborating on a fresh Tamil album. First single drops in May 2025.',
+    category: 'Music',
+    categoryColor: '#f472b6',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/yx7AYFLoupzBfdfEAlDFuOiei2A.jpg',
+    timeAgo: '12h ago',
+    source: 'Music Plus',
+  },
+  {
+    id: 'n7',
+    title: 'Ajith\'s Good Bad Ugly becomes biggest comedy blockbuster of 2025',
+    summary: 'Ajith Kumar\'s mass entertainer Good Bad Ugly has crossed ₹300 Cr worldwide — the biggest Tamil comedy blockbuster ever made.',
+    category: 'Box Office',
+    categoryColor: '#4ade80',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/yx7AYFLoupzBfdfEAlDFuOiei2A.jpg',
+    timeAgo: '1d ago',
+    source: 'Box Office India',
+  },
+  {
+    id: 'n8',
+    title: 'Sun TV unveils 5 new Tamil serials for Summer 2025 season',
+    summary: 'Sun TV has announced 5 brand new serials starting May 2025. Popular time slots to see major reshuffling with fresh storylines.',
+    category: 'Serials',
+    categoryColor: '#f97316',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/hIoZgUixXD13M3cecGyYcQ7y7Ot.jpg',
+    timeAgo: '1d ago',
+    source: 'Sun TV',
+  },
+  {
+    id: 'n9',
+    title: 'Marco Tamil dubbed version gets massive opening on Disney+ Hotstar',
+    summary: 'The Malayalam action blockbuster Marco has debuted on Disney+ Hotstar with Tamil dubbing — trending #1 in India in its first 48 hours.',
+    category: 'OTT',
+    categoryColor: '#a78bfa',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/kdzZb1VEK47lKh7GtjE4NALfDI6.jpg',
+    timeAgo: '2d ago',
+    source: 'OTTPlay',
+  },
+]
 
 function LiveTab() {
-  const [parties, setParties] = useState<ElectionParty[]>([])
-  const [narrative, setNarrative] = useState('')
-  const [eps, setEps] = useState<Episode[]>([])
+  const [news, setNews] = useState<NewsItem[]>(STATIC_NEWS)
+  const [loading, setLoading] = useState(true)
 
-  const load = useCallback(async () => {
-    const [elRes, epRes] = await Promise.allSettled([
-      fetch('/api/election-prediction'),
-      fetch('/api/recent-episodes'),
-    ])
-    if (elRes.status === 'fulfilled' && elRes.value.ok) {
-      const d = await elRes.value.json()
-      setParties(d.parties ?? [])
-      setNarrative(d.narrative ?? '')
-    }
-    if (epRes.status === 'fulfilled' && epRes.value.ok) {
-      const { episodes } = await epRes.value.json()
-      if (episodes?.length) setEps(episodes)
-    }
+  useEffect(() => {
+    fetch('/api/tamil-news')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.news?.length) setNews(d.news) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
-  useEffect(() => { load() }, [load])
-
   return (
-    <div className="space-y-5">
-
-      {/* TVK Banner */}
-      <div className="rounded-2xl overflow-hidden p-4 space-y-3"
-        style={{ background: 'linear-gradient(135deg,rgba(251,191,36,0.08),rgba(248,113,113,0.05))', border: '1px solid rgba(251,191,36,0.2)' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-            style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}>⭐</div>
-          <div>
-            <span className="text-xs font-black text-amber-400 tracking-wider uppercase">TVK · First Election 2026</span>
-            <h3 className="font-black text-white text-lg leading-tight">தவகவின் முதல் தேர்தல்</h3>
-          </div>
-        </div>
-
-        {/* Stat pills */}
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { label: 'Members',    value: '1.2Cr+', color: '#fbbf24', icon: Users },
-            { label: 'Vote Share', value: '18.7%',  color: '#34d399', icon: TrendingUp },
-            { label: 'AI Signal',  value: `${parties.find(p => p.name === 'TVK')?.sentiment ?? 62}/100`, color: '#f87171', icon: Zap },
-          ].map(({ label, value, color, icon: Icon }) => (
-            <div key={label} className="flex flex-col items-center py-3 rounded-xl"
-              style={{ background: color + '0d', border: `1px solid ${color}20` }}>
-              <Icon className="w-4 h-4 mb-1" style={{ color }} />
-              <span className="font-black text-lg leading-none" style={{ color }}>{value}</span>
-              <span className="text-white/30 text-xs mt-1">{label}</span>
-            </div>
-          ))}
-        </div>
-
-        {narrative && (
-          <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl"
-            style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' }}>
-            <Zap className="w-3.5 h-3.5 text-amber-400/60 flex-shrink-0 mt-0.5" />
-            <p className="text-white/50 text-sm leading-relaxed">{narrative}</p>
-          </div>
-        )}
-
-        <div className="flex gap-2">
-          <Link href="/tn-election-2026"
-            className="flex-1 py-2.5 rounded-xl text-sm font-black text-center"
-            style={{ background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#000' }}>
-            Full Predictions →
-          </Link>
-          <Link href="/tn-election-2026#tvk"
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white/50 hover:text-white transition-colors"
-            style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-            TVK Profile
-          </Link>
-        </div>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+        <span className="text-base font-black text-white">Tamil Entertainment News</span>
+        <span className="ml-auto text-xs text-white/25">Latest updates</span>
       </div>
 
-      {/* Party sentiment */}
-      {parties.length > 0 && (
-        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div className="px-4 py-3 border-b border-white/5 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-sm font-black text-white/70 uppercase tracking-wider">Live AI Sentiment</span>
-          </div>
-          <div className="p-4 space-y-3">
-            {parties.map(p => (
-              <div key={p.name}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
-                    <span className="text-white text-sm font-bold">{p.name}</span>
-                    <span className="text-white/30 text-xs">{p.tamil}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white/40 text-xs">{p.seats} seats</span>
-                    <span className="text-sm font-black" style={{ color: p.color }}>{p.sentiment}%</span>
-                  </div>
-                </div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                  <div className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${p.sentiment}%`, background: `linear-gradient(90deg,${p.color}60,${p.color})` }} />
-                </div>
-              </div>
-            ))}
+      {/* Featured news card (large) */}
+      {news[0] && (
+        <div className="rounded-2xl overflow-hidden group cursor-pointer"
+          style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="relative h-44 overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={news[0].thumbnail} alt={news[0].title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy" />
+            <div className="absolute inset-0"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)' }} />
+            <div className="absolute top-3 left-3">
+              <span className="px-2 py-1 rounded-full text-xs font-black"
+                style={{ background: news[0].categoryColor + '25', color: news[0].categoryColor, border: `1px solid ${news[0].categoryColor}40` }}>
+                {news[0].category}
+              </span>
+            </div>
+            <div className="absolute bottom-0 inset-x-0 p-4">
+              <p className="text-white font-black text-base leading-snug line-clamp-2 mb-1">{news[0].title}</p>
+              <p className="text-white/50 text-xs">{news[0].source} · {news[0].timeAgo}</p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Recent episodes */}
-      {eps.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Clock className="w-4 h-4 text-red-400" />
-            <span className="text-base font-black text-white/80">Latest Episodes</span>
-            <span className="text-white/25 text-xs ml-auto flex items-center gap-1">
-              <Youtube className="w-3 h-3" /> YouTube
-            </span>
+      {/* News grid (2-col cards) */}
+      <div className="grid grid-cols-1 gap-3">
+        {news.slice(1, 5).map(item => (
+          <div key={item.id} className="flex gap-3 rounded-xl overflow-hidden group cursor-pointer p-3 transition-all"
+            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)' }}>
+            <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.thumbnail} alt={item.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: item.categoryColor }}>{item.category}</span>
+              <p className="text-white text-sm font-bold leading-snug line-clamp-2 mt-0.5">{item.title}</p>
+              <p className="text-white/35 text-xs mt-1">{item.source} · {item.timeAgo}</p>
+            </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {eps.slice(0, 6).map(ep => (
-              <a key={ep.id} href={`https://www.youtube.com/watch?v=${ep.videoId}`}
-                target="_blank" rel="noopener noreferrer"
-                className="group block rounded-xl overflow-hidden"
-                style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-                <div className="relative aspect-video bg-black overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={ep.thumbnail} alt={ep.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
-                    loading="lazy" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-9 h-9 rounded-full bg-red-600/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                      <Play className="w-4 h-4 text-white fill-white ml-0.5" />
-                    </div>
-                  </div>
-                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold text-white"
-                    style={{ background: ep.channelColor + 'dd' }}>
-                    {ep.channelName}
-                  </div>
-                </div>
-                <div className="px-2.5 py-2">
-                  <p className="text-white text-xs font-bold line-clamp-2 leading-tight">{ep.title}</p>
-                </div>
-              </a>
-            ))}
+        ))}
+      </div>
+
+      {/* Remaining news as compact list */}
+      <div className="space-y-2">
+        {news.slice(5).map(item => (
+          <div key={item.id} className="flex gap-2.5 items-start py-2.5 cursor-pointer group"
+            style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.thumbnail} alt={item.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white/85 text-xs font-bold leading-snug line-clamp-2 group-hover:text-white transition-colors">{item.title}</p>
+              <p className="text-white/30 text-[10px] mt-1">{item.source} · {item.timeAgo}</p>
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   )
 }
