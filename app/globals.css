@@ -116,12 +116,13 @@
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
-/* ── Site background ── */
+/* ── Site background — TVK election theme ── */
 body {
   background:
-    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(245,158,11,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 85% 15%, rgba(99,102,241,0.05) 0%, transparent 50%),
-    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(217,70,239,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse 120% 60% at 50% -5%, rgba(251,191,36,0.13) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 50% at 90% 30%, rgba(245,158,11,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 0% 70%,  rgba(251,191,36,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 50% 100%, rgba(234,179,8,0.05) 0%, transparent 50%),
     #060612;
 }
 

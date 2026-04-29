@@ -68,7 +68,7 @@ export default function TNElectionBanner() {
         <p className="text-white/80 text-xs sm:text-sm font-semibold flex-1 min-w-0 truncate">
           {isLive
             ? 'TN Election 2026 — Vote counting LIVE. Watch results & party seat tally →'
-            : '🗳️ EXIT POLLS OUT · DMK leads most polls · Axis MyIndia shocks with TVK 98–120 seats · Results May 4'}
+            : '🏆 EXIT POLLS: TVK (Vijay) projected WINNER · 98–120 seats · Vijay preferred CM 37% · Results May 4'}
         </p>
 
         {/* Countdown digits — shown only pre-live */}

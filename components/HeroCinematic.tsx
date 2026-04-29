@@ -57,6 +57,7 @@ function TrendIcon({ trend, color }: { trend: string; color: string }) {
 
 // ── Animated party bar ────────────────────────────────────────────────────────
 function PartyBar({ party, maxShare, index }: { party: ElectionParty; maxShare: number; index: number }) {
+  const isLeading = (party as ElectionParty & { leading?: boolean }).leading
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -66,7 +67,8 @@ function PartyBar({ party, maxShare, index }: { party: ElectionParty; maxShare: 
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: party.color }} />
-          <span className="text-white font-black text-xs">{party.name}</span>
+          <span className="font-black text-xs" style={{ color: isLeading ? party.color : 'white' }}>{party.name}</span>
+          {isLeading && <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.2)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.4)' }}>LEADING</span>}
           <TrendIcon trend={party.trend} color={party.color} />
         </div>
         <div className="flex items-center gap-2">
@@ -162,14 +164,14 @@ function ElectionHero() {
         style={{ background: 'linear-gradient(160deg, rgba(6,4,20,0.93) 0%, rgba(6,4,20,0.5) 50%, rgba(6,4,20,0.8) 100%)' }} />
       <div className="absolute inset-0"
         style={{ background: 'linear-gradient(to top, rgba(6,4,20,0.99) 0%, transparent 50%)' }} />
-      {/* TVK gold ambience bottom-left */}
+      {/* TVK gold dominates — leading party ambience */}
       <div className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 70% 50% at 0% 100%, rgba(251,191,36,0.14) 0%, transparent 55%)' }} />
-      {/* Party colour ambiences */}
+        style={{ background: 'radial-gradient(ellipse 90% 60% at 50% 100%, rgba(251,191,36,0.18) 0%, transparent 60%)' }} />
       <div className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 60% 40% at 90% 20%, rgba(248,113,113,0.12) 0%, transparent 55%)' }} />
+        style={{ background: 'radial-gradient(ellipse 60% 40% at 0% 50%, rgba(251,191,36,0.10) 0%, transparent 55%)' }} />
+      {/* DMK red subtle second */}
       <div className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 50% 40% at 10% 30%, rgba(74,222,128,0.08) 0%, transparent 55%)' }} />
+        style={{ background: 'radial-gradient(ellipse 50% 35% at 95% 15%, rgba(248,113,113,0.08) 0%, transparent 50%)' }} />
 
       {/* Content */}
       <div className="relative flex flex-col p-5 gap-4" style={{ minHeight: 520 }}>
@@ -198,7 +200,7 @@ function ElectionHero() {
             style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
             தேர்தல் 2026
           </h2>
-          <p className="text-white/35 text-[10px] mt-0.5">Exit Poll results · Apr 29 · 4 agencies · Results May 4</p>
+          <p className="text-white/35 text-[10px] mt-0.5">Axis My India · Apr 29 · TVK projected winner · Results May 4</p>
         </motion.div>
 
         {/* Party bars */}

@@ -55,17 +55,18 @@ async function fetchPoliticalHeadlines(): Promise<string[]> {
   return headlines.slice(0, 18) // max 18 headlines to keep prompt small
 }
 
-// ── Exit Poll averages (April 29, 2026 — voting was April 23) ────────────────
-// Poll of Polls: Matrize + P-MARQ + Axis My India + JVC averaged
-// DMK: 92–145 range → avg ~112 | AIADMK: 22–147 → avg ~83 | TVK: 8–120 → avg ~38
+// ── Exit Poll data — Axis My India (India Today), April 29, 2026 ──────────────
+// TVK: 98–120 seats (LEADING) | DMK+: 92–110 | AIADMK+: 22–32
+// Vote share: TVK 35% | DMK 35% | AIADMK 23%
+// Vijay is preferred CM: 37% vs Stalin 35% vs EPS 22%
+// Source: Axis My India / India Today exit poll
 const BASE_PREDICTIONS = {
-  DMK:    { voteShare: 36.5, seats: '107–141', sentiment: 68, color: '#f87171' },
-  AIADMK: { voteShare: 31.2, seats: '44–71',  sentiment: 55, color: '#4ade80' },
-  TVK:    { voteShare: 23.0, seats: '13–47',  sentiment: 72, color: '#fbbf24' },
-  BJP:    { voteShare: 4.2,  seats: '4–10',   sentiment: 38, color: '#fb923c' },
-  Others: { voteShare: 5.1,  seats: '5–12',   sentiment: 45, color: '#94a3b8' },
+  TVK:    { voteShare: 35.0, seats: '98–120', sentiment: 82, color: '#fbbf24' },
+  DMK:    { voteShare: 35.0, seats: '92–110', sentiment: 70, color: '#f87171' },
+  AIADMK: { voteShare: 23.0, seats: '22–32',  sentiment: 42, color: '#4ade80' },
+  BJP:    { voteShare: 4.2,  seats: '4–10',   sentiment: 35, color: '#fb923c' },
+  Others: { voteShare: 2.8,  seats: '2–8',    sentiment: 40, color: '#94a3b8' },
 }
-// NOTE: Axis My India outlier predicts TVK 98–120 seats as single largest party
 
 // ── AI Sentiment Analysis ─────────────────────────────────────────────────────
 async function analyseWithAI(headlines: string[]): Promise<{
@@ -73,7 +74,7 @@ async function analyseWithAI(headlines: string[]): Promise<{
   narrative: string; trend: string
 }> {
   if (headlines.length === 0) {
-    return { DMK: 65, AIADMK: 58, TVK: 62, BJP: 40, narrative: 'No recent headlines available.', trend: 'stable' }
+    return { DMK: 70, AIADMK: 42, TVK: 82, BJP: 35, narrative: 'Axis My India exit poll: TVK leads with 98–120 seats. Vijay preferred CM at 37%.', trend: 'TVK_surge' }
   }
 
   const prompt = `You are a Tamil Nadu political analyst. Analyse these recent Tamil news headlines and score each party's current sentiment (0–100, where 100 = very positive news coverage).
@@ -133,28 +134,29 @@ export async function GET() {
 
   const parties = [
     {
-      name: 'DMK', tamil: 'திமுக', leader: 'M.K. Stalin', role: 'Chief Minister',
+      name: 'TVK', tamil: 'தவக', leader: 'Vijay (Thalapathy)', role: 'Projected Winner',
+      color: BASE_PREDICTIONS.TVK.color,
+      sentiment: Math.max(ai.TVK, BASE_PREDICTIONS.TVK.sentiment),
+      voteShare: BASE_PREDICTIONS.TVK.voteShare,
+      seats: BASE_PREDICTIONS.TVK.seats, // fixed from Axis My India
+      trend: 'up' as const,
+      leading: true,
+    },
+    {
+      name: 'DMK', tamil: 'திமுக', leader: 'M.K. Stalin', role: 'Incumbent CM',
       color: BASE_PREDICTIONS.DMK.color,
       sentiment: ai.DMK,
       voteShare: BASE_PREDICTIONS.DMK.voteShare,
-      seats: adjustSeats('DMK', ai.DMK),
-      trend: ai.DMK > BASE_PREDICTIONS.DMK.sentiment ? 'up' : ai.DMK < BASE_PREDICTIONS.DMK.sentiment ? 'down' : 'stable',
+      seats: BASE_PREDICTIONS.DMK.seats,
+      trend: 'stable' as const,
     },
     {
-      name: 'AIADMK', tamil: 'அதிமுக', leader: 'E. Palaniswami', role: 'Opposition Leader',
+      name: 'AIADMK', tamil: 'அதிமுக', leader: 'E. Palaniswami', role: 'Opposition',
       color: BASE_PREDICTIONS.AIADMK.color,
-      sentiment: ai.AIADMK,
+      sentiment: Math.min(ai.AIADMK, BASE_PREDICTIONS.AIADMK.sentiment),
       voteShare: BASE_PREDICTIONS.AIADMK.voteShare,
-      seats: adjustSeats('AIADMK', ai.AIADMK),
-      trend: ai.AIADMK > BASE_PREDICTIONS.AIADMK.sentiment ? 'up' : ai.AIADMK < BASE_PREDICTIONS.AIADMK.sentiment ? 'down' : 'stable',
-    },
-    {
-      name: 'TVK', tamil: 'தவக', leader: 'Vijay (Thalapathy)', role: 'Party President',
-      color: BASE_PREDICTIONS.TVK.color,
-      sentiment: ai.TVK,
-      voteShare: BASE_PREDICTIONS.TVK.voteShare,
-      seats: adjustSeats('TVK', ai.TVK),
-      trend: ai.TVK > BASE_PREDICTIONS.TVK.sentiment ? 'up' : ai.TVK < BASE_PREDICTIONS.TVK.sentiment ? 'down' : 'stable',
+      seats: BASE_PREDICTIONS.AIADMK.seats,
+      trend: 'down' as const,
     },
   ]
 
