@@ -44,10 +44,10 @@ function SectionHeader({ label, count, href, color }: { label: string; count?: n
   )
 }
 
-// ── Card grid — 3 on mobile, 4 on xl ─────────────────────────────────────────
+// ── Card grid — TMDB style: 3→4→5 cols ───────────────────────────────────────
 function CardGrid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
+    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
       {children}
     </div>
   )
@@ -115,8 +115,8 @@ function MoviesTab() {
   const visible = show ? filtered : filtered.slice(0, 9)
 
   if (loading) return (
-    <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
-      {Array.from({ length: 9 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-xl shimmer" />)}
+    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
+      {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl shimmer" style={{ aspectRatio: '2/3' }} />)}
     </div>
   )
 
@@ -197,8 +197,8 @@ function SerialsTab() {
   const visible = show ? filtered : filtered.slice(0, 9)
 
   if (loading) return (
-    <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
-      {Array.from({ length: 9 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-xl shimmer" />)}
+    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
+      {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl shimmer" style={{ aspectRatio: '2/3' }} />)}
     </div>
   )
 
@@ -270,8 +270,8 @@ function AlbumsTab() {
   const visible = show ? filtered : filtered.slice(0, 9)
 
   if (loading) return (
-    <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
-      {Array.from({ length: 9 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-xl shimmer" />)}
+    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
+      {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl shimmer" style={{ aspectRatio: '2/3' }} />)}
     </div>
   )
 
