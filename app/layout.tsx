@@ -52,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="afterInteractive"
         />
         <Script
-          src="http://31.97.56.148:3098/t.js"
+          src="/t.js"
           data-site="nammatamil.live"
           strategy="lazyOnload"
         />
