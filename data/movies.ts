@@ -69,6 +69,7 @@ export const movies: Movie[] = [
     rating: 8.0,
     gradient: 'from-yellow-700 via-amber-600 to-orange-500',
     badge: 'Epic',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/6WxhEvFsauuACfv8HyoVX6mZKFj.jpg',
   },
   {
     id: 'm4',
@@ -84,6 +85,7 @@ export const movies: Movie[] = [
     rating: 7.9,
     gradient: 'from-orange-700 via-red-600 to-rose-600',
     badge: 'Epic',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/7cCFkROlqIBFbELX2mJNxNLqbr4.jpg',
   },
   {
     id: 'm5',
@@ -100,6 +102,7 @@ export const movies: Movie[] = [
     gradient: 'from-slate-800 via-gray-700 to-indigo-700',
     badge: 'Blockbuster',
     ottDate: '2022-07-08',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/y3RPKlEMdxLFMeXHCQEqSS1LpHf.jpg',
   },
   {
     id: 'm6',
@@ -116,6 +119,7 @@ export const movies: Movie[] = [
     gradient: 'from-blue-800 via-indigo-700 to-purple-600',
     badge: 'Hit',
     ottDate: '2021-01-29',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/6LGIDQqhb0nfxFDQpGNhtAb1XCZ.jpg',
   },
   {
     id: 'm7',
@@ -131,6 +135,7 @@ export const movies: Movie[] = [
     rating: 8.7,
     gradient: 'from-sky-600 via-blue-500 to-indigo-400',
     badge: 'Award Winner',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/b9a6TIDRbhfnljNomBzPRTuBXnW.jpg',
   },
   {
     id: 'm8',
@@ -146,6 +151,7 @@ export const movies: Movie[] = [
     rating: 8.8,
     gradient: 'from-red-800 via-red-700 to-orange-600',
     badge: 'Must Watch',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/cMjnFG3V5m6d12zYzWLOmCXfJtH.jpg',
   },
   {
     id: 'm9',
@@ -161,6 +167,7 @@ export const movies: Movie[] = [
     rating: 8.9,
     gradient: 'from-amber-600 via-yellow-500 to-lime-400',
     badge: 'Classic',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/b5Y28bTkVXBPJtgGn6HoTnnBuig.jpg',
   },
   {
     id: 'm10',
@@ -176,6 +183,7 @@ export const movies: Movie[] = [
     rating: 8.3,
     gradient: 'from-stone-700 via-amber-700 to-red-600',
     badge: 'Acclaimed',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/2mXFjLR5M4dE7JFi2Vy1QiuBYEQ.jpg',
   },
 
   // ── Tamil Dubbed Malayalam Movies ──────────────────────────────────
@@ -194,6 +202,7 @@ export const movies: Movie[] = [
     rating: 8.9,
     gradient: 'from-gray-700 via-slate-600 to-zinc-500',
     badge: 'Masterpiece',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/j1p2M3HqNgvHFbcMFMEaAKhbdoP.jpg',
   },
   {
     id: 'm12',
@@ -210,6 +219,7 @@ export const movies: Movie[] = [
     rating: 8.7,
     gradient: 'from-zinc-700 via-gray-600 to-slate-500',
     badge: 'Sequel Hit',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/3ZLlKHzGqLgH2uBSBGUWrYPasLO.jpg',
   },
   {
     id: 'm13',
@@ -226,6 +236,7 @@ export const movies: Movie[] = [
     rating: 7.8,
     gradient: 'from-indigo-800 via-purple-700 to-violet-600',
     badge: 'Mass Film',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/3h1JZGDhZ8nzxkhmTHxfGmD9yGz.jpg',
   },
   {
     id: 'm14',
@@ -243,6 +254,7 @@ export const movies: Movie[] = [
     gradient: 'from-blue-700 via-cyan-600 to-teal-500',
     badge: 'True Story',
     ottDate: '2023-06-15',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/6GtEMCPIUm6GqkHs7WKfHqGTLCG.jpg',
   },
   {
     id: 'm15',
@@ -260,6 +272,7 @@ export const movies: Movie[] = [
     gradient: 'from-emerald-700 via-green-600 to-teal-500',
     badge: 'Viral Hit',
     ottDate: '2024-04-05',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/sqaoPJRplrr7SmrbnD1GKLOqiFj.jpg',
   },
   {
     id: 'm16',
@@ -277,6 +290,7 @@ export const movies: Movie[] = [
     gradient: 'from-yellow-700 via-amber-600 to-orange-500',
     badge: 'Critically Acclaimed',
     ottDate: '2024-05-17',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/kf9VxTWIkNe93SGZjRbSmPfxBqX.jpg',
   },
 
   // ── Tamil Dubbed Telugu Movies ──────────────────────────────────────
@@ -295,6 +309,7 @@ export const movies: Movie[] = [
     rating: 8.1,
     gradient: 'from-amber-700 via-yellow-600 to-lime-500',
     badge: 'Landmark',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/hDySHBrC7mLkETgCZSbTsBMgIve.jpg',
   },
   {
     id: 'm18',
@@ -311,6 +326,7 @@ export const movies: Movie[] = [
     rating: 8.3,
     gradient: 'from-red-700 via-orange-600 to-amber-500',
     badge: 'Record Breaker',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/hJuDvwzS33SISc1lkdHXhbVvFli.jpg',
   },
   {
     id: 'm19',
@@ -327,6 +343,7 @@ export const movies: Movie[] = [
     rating: 7.9,
     gradient: 'from-orange-700 via-red-600 to-rose-600',
     badge: 'Oscar Winner',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/nEufeZlyAOLqO2brrs0yeF1lgXO.jpg',
   },
   {
     id: 'm20',
@@ -344,6 +361,7 @@ export const movies: Movie[] = [
     gradient: 'from-red-800 via-red-700 to-orange-600',
     badge: 'All-Time Record',
     ottDate: '2025-03-06',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/lFHlxM7AXQBSV2x6OecA8P5jBID.jpg',
   },
   // ── Latest / Coming Soon ────────────────────────────────────────────
   {
@@ -361,6 +379,7 @@ export const movies: Movie[] = [
     gradient: 'from-green-800 via-olive-700 to-amber-700',
     badge: 'Blockbuster',
     ottDate: '2024-12-05',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/kW5j7lKbv8YCPX6MaZnCvO5Rj0V.jpg',
   },
   {
     id: 'm22',
@@ -377,6 +396,7 @@ export const movies: Movie[] = [
     gradient: 'from-slate-700 via-gray-600 to-zinc-500',
     badge: 'Superstar',
     ottDate: '2024-11-22',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/rwM4gAJ1NRFzEVdgY4D9qFxGZZ0.jpg',
   },
   {
     id: 'm23',
@@ -393,6 +413,7 @@ export const movies: Movie[] = [
     gradient: 'from-orange-700 via-amber-600 to-yellow-500',
     badge: 'Hidden Gem',
     ottDate: '2024-09-12',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/dHv2iGdWKSKHOqGz0gJ1C0C3VdN.jpg',
   },
   {
     id: 'm24',
@@ -409,6 +430,7 @@ export const movies: Movie[] = [
     gradient: 'from-purple-800 via-violet-700 to-indigo-600',
     badge: 'Mind-Bender',
     ottDate: '2024-07-12',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/rLb2cwF3Pazuxaj0sRXQ037tGb1.jpg',
   },
   {
     id: 'm25',
@@ -426,6 +448,7 @@ export const movies: Movie[] = [
     gradient: 'from-gray-800 via-slate-700 to-zinc-600',
     badge: 'Edge-of-Seat',
     ottDate: '2024-11-08',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/mVBEbxTxAbzM1kJVvKZbkMqVEKu.jpg',
   },
   {
     id: 'm26',
@@ -443,6 +466,7 @@ export const movies: Movie[] = [
     gradient: 'from-teal-700 via-cyan-600 to-blue-500',
     badge: 'Sleeper Hit',
     ottDate: '2024-11-29',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/hSQnKjqvSBKFkzF3wG4GBYbhS8N.jpg',
   },
   {
     id: 'm27',
