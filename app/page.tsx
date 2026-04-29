@@ -3,9 +3,6 @@ import HomeTabLayout from '@/components/HomeTabLayout'
 import AdUnit from '@/components/AdUnit'
 import TamilCalendar from '@/components/TamilCalendar'
 import OTTThisWeek from '@/components/OTTThisWeek'
-import { serials } from '@/data/serials'
-import { movies } from '@/data/movies'
-import { albums } from '@/data/albums'
 
 export default function HomePage() {
   return (
@@ -22,9 +19,9 @@ export default function HomePage() {
             <OTTThisWeek />
           </div>
 
-          {/* Right — tabbed content browser, fills rest */}
+          {/* Right — tabbed content browser, fetches live from /api/movies, /api/serials, /api/albums */}
           <div className="flex-1 min-w-0">
-            <HomeTabLayout movies={movies} serials={serials} albums={albums} />
+            <HomeTabLayout />
           </div>
 
         </div>

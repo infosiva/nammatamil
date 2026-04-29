@@ -23,8 +23,6 @@ const TABS = [
   { id: 'ott',     label: 'OTT',     icon: Play,   color: '#a78bfa' },
 ]
 
-interface Props { movies: Movie[]; serials: Serial[]; albums: Album[] }
-
 
 // ── Section header ────────────────────────────────────────────────────────────
 function SectionHeader({ label, count, href, color }: { label: string; count?: number; href?: string; color?: string }) {
@@ -83,10 +81,20 @@ function SearchToggle({ placeholder, value, onChange }: { placeholder: string; v
 }
 
 // ── Movies Tab ────────────────────────────────────────────────────────────────
-function MoviesTab({ movies }: { movies: Movie[] }) {
-  const [q, setQ]     = useState('')
-  const [lang, setLang] = useState<'All' | 'Tamil' | 'Dubbed'>('All')
-  const [show, setShow] = useState(false)
+function MoviesTab() {
+  const [movies, setMovies]   = useState<Movie[]>([])
+  const [loading, setLoading] = useState(true)
+  const [q, setQ]             = useState('')
+  const [lang, setLang]       = useState<'All' | 'Tamil' | 'Dubbed'>('All')
+  const [show, setShow]       = useState(false)
+
+  useEffect(() => {
+    fetch('/api/movies')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => { if (d?.movies?.length) setMovies(d.movies) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = useMemo(() => {
     let out = movies
@@ -105,6 +113,12 @@ function MoviesTab({ movies }: { movies: Movie[] }) {
   }, [movies, q, lang])
 
   const visible = show ? filtered : filtered.slice(0, 9)
+
+  if (loading) return (
+    <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
+      {Array.from({ length: 9 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-xl shimmer" />)}
+    </div>
+  )
 
   return (
     <div className="space-y-3">
@@ -155,10 +169,20 @@ function MoviesTab({ movies }: { movies: Movie[] }) {
 }
 
 // ── Serials Tab ───────────────────────────────────────────────────────────────
-function SerialsTab({ serials }: { serials: Serial[] }) {
-  const [q, setQ]       = useState('')
-  const [status, setStatus] = useState<'All' | 'Ongoing' | 'Completed'>('All')
-  const [show, setShow]     = useState(false)
+function SerialsTab() {
+  const [serials, setSerials] = useState<Serial[]>([])
+  const [loading, setLoading] = useState(true)
+  const [q, setQ]             = useState('')
+  const [status, setStatus]   = useState<'All' | 'Ongoing' | 'Completed'>('All')
+  const [show, setShow]       = useState(false)
+
+  useEffect(() => {
+    fetch('/api/serials')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => { if (d?.serials?.length) setSerials(d.serials) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = useMemo(() => {
     let out = serials
@@ -171,6 +195,12 @@ function SerialsTab({ serials }: { serials: Serial[] }) {
   }, [serials, q, status])
 
   const visible = show ? filtered : filtered.slice(0, 9)
+
+  if (loading) return (
+    <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
+      {Array.from({ length: 9 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-xl shimmer" />)}
+    </div>
+  )
 
   return (
     <div className="space-y-3">
@@ -214,9 +244,19 @@ function SerialsTab({ serials }: { serials: Serial[] }) {
 }
 
 // ── Albums Tab ────────────────────────────────────────────────────────────────
-function AlbumsTab({ albums }: { albums: Album[] }) {
-  const [q, setQ]   = useState('')
-  const [show, setShow] = useState(false)
+function AlbumsTab() {
+  const [albums, setAlbums]   = useState<Album[]>([])
+  const [loading, setLoading] = useState(true)
+  const [q, setQ]             = useState('')
+  const [show, setShow]       = useState(false)
+
+  useEffect(() => {
+    fetch('/api/albums')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => { if (d?.albums?.length) setAlbums(d.albums) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = useMemo(() => {
     if (!q) return albums
@@ -228,6 +268,12 @@ function AlbumsTab({ albums }: { albums: Album[] }) {
   }, [albums, q])
 
   const visible = show ? filtered : filtered.slice(0, 9)
+
+  if (loading) return (
+    <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
+      {Array.from({ length: 9 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-xl shimmer" />)}
+    </div>
+  )
 
   return (
     <div className="space-y-4">
@@ -440,7 +486,7 @@ function CricketTab() {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function HomeTabLayout({ movies, serials, albums }: Props) {
+export default function HomeTabLayout() {
   const [activeTab, setActiveTab] = useState('movies')
 
   return (
@@ -474,11 +520,11 @@ export default function HomeTabLayout({ movies, serials, albums }: Props) {
 
       {/* Tab content */}
       <div>
-        {activeTab === 'movies'  && <MoviesTab movies={movies} />}
-        {activeTab === 'serials' && <SerialsTab serials={serials} />}
+        {activeTab === 'movies'  && <MoviesTab />}
+        {activeTab === 'serials' && <SerialsTab />}
         {activeTab === 'live'    && <LiveTab />}
         {activeTab === 'cricket' && <CricketTab />}
-        {activeTab === 'albums'  && <AlbumsTab albums={albums} />}
+        {activeTab === 'albums'  && <AlbumsTab />}
         {activeTab === 'ott'     && <OTTExplorer />}
       </div>
     </div>
