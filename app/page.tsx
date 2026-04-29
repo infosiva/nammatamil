@@ -1,7 +1,6 @@
 import HeroCinematic from '@/components/HeroCinematic'
 import HomeTabLayout from '@/components/HomeTabLayout'
-import dynamic from 'next/dynamic'
-const TrailersSection = dynamic(() => import('@/components/TrailersSection'), { ssr: false })
+import TrailersSection from '@/components/TrailersSection'
 import AdUnit from '@/components/AdUnit'
 import TamilCalendar from '@/components/TamilCalendar'
 import OTTThisWeek from '@/components/OTTThisWeek'
