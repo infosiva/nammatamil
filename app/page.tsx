@@ -1,6 +1,8 @@
 import HeroCinematic from '@/components/HeroCinematic'
 import HomeTabLayout from '@/components/HomeTabLayout'
 import AdUnit from '@/components/AdUnit'
+import TamilCalendar from '@/components/TamilCalendar'
+import OTTThisWeek from '@/components/OTTThisWeek'
 import { serials } from '@/data/serials'
 import { movies } from '@/data/movies'
 import { albums } from '@/data/albums'
@@ -13,9 +15,11 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-col xl:flex-row gap-4 items-start">
 
-          {/* Left — live hero (election / IPL), fixed width */}
-          <div className="w-full xl:w-[360px] flex-shrink-0 xl:sticky xl:top-[70px]">
+          {/* Left — live hero + sidebar widgets */}
+          <div className="w-full xl:w-[360px] flex-shrink-0 xl:sticky xl:top-[70px] space-y-4">
             <HeroCinematic />
+            <TamilCalendar />
+            <OTTThisWeek />
           </div>
 
           {/* Right — tabbed content browser, fills rest */}
