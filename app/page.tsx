@@ -1,5 +1,7 @@
 import HeroCinematic from '@/components/HeroCinematic'
 import HomeTabLayout from '@/components/HomeTabLayout'
+import dynamic from 'next/dynamic'
+const TrailersSection = dynamic(() => import('@/components/TrailersSection'), { ssr: false })
 import AdUnit from '@/components/AdUnit'
 import TamilCalendar from '@/components/TamilCalendar'
 import OTTThisWeek from '@/components/OTTThisWeek'
@@ -19,8 +21,9 @@ export default function HomePage() {
             <OTTThisWeek />
           </div>
 
-          {/* Right — tabbed content browser, fetches live from /api/movies, /api/serials, /api/albums */}
-          <div className="flex-1 min-w-0">
+          {/* Right — trailers strip + tabbed content browser */}
+          <div className="flex-1 min-w-0 space-y-2">
+            <TrailersSection />
             <HomeTabLayout />
           </div>
 
