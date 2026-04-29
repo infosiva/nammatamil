@@ -93,7 +93,7 @@ function Shelf({
 
 /* ── Card wrapper for shelf items ───────────────────────────────────────────── */
 function ShelfCard({ children }: { children: React.ReactNode }) {
-  return <div className="flex-shrink-0 w-28 sm:w-32">{children}</div>
+  return <div className="flex-shrink-0 w-36 sm:w-40">{children}</div>
 }
 
 interface RecentEp {
@@ -195,8 +195,7 @@ function RecentEpisodeCard({ ep }: { ep: RecentEp }) {
 }
 
 /* ── Featured / Home Tab ─────────────────────────────────────────────────────── */
-function FeaturedTab({ movies, serials, albums }: Props) {
-  const ongoingSerials  = serials.filter(s => s.status === 'Ongoing').slice(0, 10)
+function FeaturedTab({ movies, serials: _serials, albums }: Props) {
   const featuredMovies  = movies.filter(m => m.language === 'Tamil').sort((a,b) => b.rating - a.rating).slice(0, 10)
   const dubbedMovies    = movies.filter(m => m.language === 'Tamil Dubbed').slice(0, 8)
   const featuredAlbums  = albums.slice(0, 8)
@@ -234,17 +233,6 @@ function FeaturedTab({ movies, serials, albums }: Props) {
           </div>
         )}
       </section>
-
-      {/* On Air — Ongoing Serials as a horizontal shelf */}
-      <Shelf title="On Air Now" icon={Tv2} iconClass="text-orange-400" href="/serials">
-        {ongoingSerials.map(s => (
-          <ShelfCard key={s.id}>
-            <ContentCard href={`/serials/${s.slug}`} title={s.title} subtitle={s.channel}
-              gradient={s.gradient} type="serial" rating={s.rating} language={s.language}
-              channel={s.channel} status={s.status} tags={s.tags} compact />
-          </ShelfCard>
-        ))}
-      </Shelf>
 
       {/* Ad slot 1 */}
       <AdUnit format="horizontal" className="min-h-[90px]" />

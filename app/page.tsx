@@ -98,22 +98,44 @@ export default function HomePage() {
               <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
                 {topMovies.map(m => (
                   <Link key={m.id} href={`/movies/${m.slug}`}
-                    className="group flex-shrink-0 w-[120px] sm:w-[132px]">
+                    className="group flex-shrink-0 w-[130px] sm:w-[144px]">
                     <div className="rounded-xl overflow-hidden card-hover"
-                      style={{ background: '#0e0e1e', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <div className={`h-[160px] bg-gradient-to-br ${m.gradient} relative overflow-hidden`}>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                        {m.badge && (
-                          <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md text-[9px] font-black"
-                            style={{ background: '#f59e0b', color: '#000' }}>{m.badge}</div>
+                      style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div className={`h-[180px] bg-gradient-to-br ${m.gradient} relative overflow-hidden`}>
+                        {/* Grid texture */}
+                        <div className="absolute inset-0 opacity-10"
+                          style={{
+                            backgroundImage: 'linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)',
+                            backgroundSize: '18px 18px',
+                          }} />
+                        {/* Floating blobs */}
+                        <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/10" />
+                        {/* Large emoji watermark */}
+                        <span className="absolute -bottom-1 -right-1 text-[52px] opacity-15 leading-none select-none">🎬</span>
+                        {/* Top row */}
+                        <div className="absolute top-2 left-2 right-2 flex justify-between items-start">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded text-white/60"
+                            style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}>{m.year}</span>
+                          {m.badge && (
+                            <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black bg-amber-400 text-black">{m.badge}</span>
+                          )}
+                        </div>
+                        {/* Genre */}
+                        {m.genre?.[0] && (
+                          <div className="absolute bottom-10 left-2 px-1.5 py-0.5 rounded text-[9px] font-semibold text-white/60"
+                            style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}>
+                            {m.genre[0]}
+                          </div>
                         )}
-                        <div className="absolute bottom-0 inset-x-0 p-2">
-                          <p className="text-white font-bold text-[11px] leading-tight line-clamp-2">{m.title}</p>
+                        {/* Title overlay */}
+                        <div className="absolute inset-x-0 bottom-0 pt-8 pb-2 px-2"
+                          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 60%, transparent 100%)' }}>
+                          <p className="text-white font-black text-[11px] leading-tight line-clamp-2 group-hover:text-amber-200 transition-colors">{m.title}</p>
                         </div>
                       </div>
-                      <div className="px-2 py-1.5 flex items-center justify-between">
-                        <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{m.year}</span>
-                        <div className="flex items-center gap-0.5">
+                      <div className="px-2 py-1.5 flex items-center justify-between border-t border-white/[0.05]">
+                        <span className="text-white/30 text-[10px] truncate max-w-[70px]">{m.director.split(' ').pop()}</span>
+                        <div className="flex items-center gap-0.5 flex-shrink-0">
                           <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
                           <span className="text-amber-400 text-[10px] font-black">{m.rating.toFixed(1)}</span>
                         </div>
@@ -138,21 +160,30 @@ export default function HomePage() {
               <div className="flex flex-col gap-2">
                 {liveSerials.map(s => (
                   <Link key={s.id} href={`/serials/${s.slug}`}
-                    className="group flex items-center gap-3 p-2.5 rounded-xl transition-all hover:bg-white/[0.04] news-card-hover"
+                    className="group flex items-center gap-3 p-2 rounded-xl transition-all news-card-hover"
                     style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                    <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${s.gradient} flex-shrink-0`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white font-bold text-xs truncate">{s.title}</p>
-                      <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.channel}</p>
+                    {/* Mini poster with gradient + emoji */}
+                    <div className={`relative w-12 h-14 rounded-lg bg-gradient-to-br ${s.gradient} flex-shrink-0 overflow-hidden`}>
+                      <div className="absolute inset-0 opacity-10"
+                        style={{
+                          backgroundImage: 'linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)',
+                          backgroundSize: '8px 8px',
+                        }} />
+                      <span className="absolute inset-0 flex items-center justify-center text-xl opacity-60">📺</span>
+                      <span className="absolute bottom-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     </div>
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <span className="flex items-center gap-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-emerald-400 text-[9px] font-bold">Live</span>
-                      </span>
-                      <div className="flex items-center gap-0.5">
-                        <Star className="w-2 h-2 fill-amber-400 text-amber-400" />
-                        <span className="text-amber-400 text-[9px] font-bold">{s.rating}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-bold text-xs truncate group-hover:text-amber-200 transition-colors">{s.title}</p>
+                      <p className="text-[10px] truncate mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.channel}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="flex items-center gap-0.5">
+                          <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-emerald-400 text-[9px] font-bold">On Air</span>
+                        </span>
+                        <div className="flex items-center gap-0.5">
+                          <Star className="w-2 h-2 fill-amber-400 text-amber-400" />
+                          <span className="text-amber-400 text-[9px] font-bold">{s.rating}</span>
+                        </div>
                       </div>
                     </div>
                   </Link>
