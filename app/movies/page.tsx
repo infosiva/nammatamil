@@ -35,7 +35,7 @@ export default function MoviesPage() {
         <p className="text-muted text-sm mb-6">Blockbusters, award winners, and hidden gems</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {tamilMovies.map((m) => (
-            <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director} gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge} year={m.year} language={m.language} />
+            <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director} gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge} year={m.year} language={m.language} thumbnail={m.thumbnail} />
           ))}
         </div>
       </section>
@@ -50,7 +50,7 @@ export default function MoviesPage() {
         <p className="text-muted text-sm mb-6">Mohanlal, Mammootty, Prithviraj & more — in Tamil</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {dubbedMalayalam.map((m) => (
-            <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director} gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge} year={m.year} language={m.language} />
+            <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director} gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge} year={m.year} language={m.language} thumbnail={m.thumbnail} />
           ))}
         </div>
       </section>
@@ -63,7 +63,7 @@ export default function MoviesPage() {
         <p className="text-muted text-sm mb-6">Baahubali, RRR, Pushpa & more — in Tamil</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {dubbedTelugu.map((m) => (
-            <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director} gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge} year={m.year} language={m.language} />
+            <ContentCard key={m.id} href={`/movies/${m.slug}`} title={m.title} subtitle={m.director} gradient={m.gradient} type="movie" rating={m.rating} badge={m.badge} year={m.year} language={m.language} thumbnail={m.thumbnail} />
           ))}
         </div>
       </section>
