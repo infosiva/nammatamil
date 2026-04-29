@@ -3,6 +3,7 @@ import { Search, Tv2, Film, Music, Play, TrendingUp, Radio, Star, ArrowRight } f
 import HomeTabLayout from '@/components/HomeTabLayout'
 import AdUnit from '@/components/AdUnit'
 import HeroCinematic from '@/components/HeroCinematic'
+import TVKSpotlight from '@/components/TVKSpotlight'
 import { serials } from '@/data/serials'
 import { movies } from '@/data/movies'
 import { albums } from '@/data/albums'
@@ -152,6 +153,9 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* ── TVK Spotlight ── */}
+      <TVKSpotlight />
 
       {/* ── Tabbed Content ── */}
       <HomeTabLayout movies={movies} serials={serials} albums={albums} />
