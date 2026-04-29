@@ -137,6 +137,7 @@ export default function Home() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null)
   const [loading, setLoading] = useState(false)
   const [showWeather, setShowWeather] = useState(false)
+  const [apiError, setApiError] = useState<string | null>(null)
 
   const toggleInterest = (i: string) => setInterests(p => p.includes(i) ? p.filter(x => x !== i) : [...p, i])
   const withKids = travelWith === 'Family with Kids'
@@ -146,6 +147,7 @@ export default function Home() {
   async function generate() {
     if (!destination) return
     setLoading(true)
+    setApiError(null)
     setShowWeather(true)
     try {
       const res = await fetch('/api/itinerary', {
@@ -154,7 +156,13 @@ export default function Home() {
         body: JSON.stringify({ destination, duration, budget: budget.toLowerCase(), travel_style: style.toLowerCase(), interests, travel_with: travelWith }),
       })
       const data = await res.json()
-      setItinerary(data.itinerary)
+      if (!res.ok || data.error) {
+        setApiError(data.error || 'Something went wrong. Please try again.')
+      } else {
+        setItinerary(data.itinerary)
+      }
+    } catch {
+      setApiError('Network error. Please check your connection and try again.')
     } finally { setLoading(false) }
   }
 
@@ -281,6 +289,25 @@ export default function Home() {
             }
           </button>
         </div>
+
+        {/* Error state */}
+        {apiError && (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center">
+            <div className="text-2xl mb-3">⚠️</div>
+            <p className="text-red-300 font-semibold mb-2">Could not generate itinerary</p>
+            <p className="text-red-300/70 text-sm max-w-lg mx-auto">{apiError}</p>
+            {apiError.includes('ANTHROPIC_API_KEY') && (
+              <div className="mt-4 px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/50 text-left max-w-md mx-auto">
+                <p className="font-semibold text-white/70 mb-1">How to fix:</p>
+                <ol className="space-y-1 list-decimal list-inside">
+                  <li>Go to vercel.com → your project → Settings → Environment Variables</li>
+                  <li>Add <code className="text-cyan-400">ANTHROPIC_API_KEY</code> with your API key</li>
+                  <li>Redeploy the project</li>
+                </ol>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Result */}
         {itinerary && (
