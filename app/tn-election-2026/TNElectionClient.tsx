@@ -1,8 +1,63 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Brain, TrendingUp, Users, Zap, Share2, BarChart2, ChevronDown, CheckCircle2 } from 'lucide-react'
+import { Brain, TrendingUp, Users, Zap, Share2, BarChart2, ChevronDown, CheckCircle2, Newspaper } from 'lucide-react'
 import Link from 'next/link'
+
+// ─── Exit Poll Data (April 29, 2026) ─────────────────────────────────────────
+const EXIT_POLLS = [
+  {
+    agency: 'Axis My India',
+    channel: 'India Today',
+    dmk: '92–110',
+    aiadmk: '22–32',
+    tvk: '98–120',
+    others: '2–10',
+    dmkMid: 101,
+    aiadmkMid: 27,
+    tvkMid: 109,
+    highlight: 'tvk', // TVK predicted winner
+  },
+  {
+    agency: 'Matrize',
+    channel: 'India TV',
+    dmk: '122–132',
+    aiadmk: '87–100',
+    tvk: '10–12',
+    others: '0–6',
+    dmkMid: 127,
+    aiadmkMid: 94,
+    tvkMid: 11,
+    highlight: 'dmk',
+  },
+  {
+    agency: 'P-MARQ',
+    channel: 'NewsX',
+    dmk: '125–145',
+    aiadmk: '65–85',
+    tvk: '16–26',
+    others: '–',
+    dmkMid: 135,
+    aiadmkMid: 75,
+    tvkMid: 21,
+    highlight: 'dmk',
+  },
+  {
+    agency: 'JVC',
+    channel: 'Republic',
+    dmk: '75–96',
+    aiadmk: '128–147',
+    tvk: '8–15',
+    others: '–',
+    dmkMid: 86,
+    aiadmkMid: 138,
+    tvkMid: 12,
+    highlight: 'aiadmk',
+  },
+]
+
+// Poll of polls average
+const POLL_OF_POLLS = { dmk: '~112', aiadmk: '~83', tvk: '~38', others: '~1' }
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 const PARTIES = [
@@ -122,6 +177,166 @@ function useVotes() {
   }, [voted])
 
   return { voted, counts, castVote }
+}
+
+// ─── Exit Poll Section ────────────────────────────────────────────────────────
+function ExitPollSection() {
+  const partyColors = { dmk: '#f87171', aiadmk: '#4ade80', tvk: '#fbbf24' }
+
+  return (
+    <div className="rounded-2xl mb-6 overflow-hidden" style={{ border: '1px solid rgba(239,68,68,0.3)' }}>
+      {/* Header */}
+      <div className="px-5 sm:px-6 py-4 flex items-center justify-between flex-wrap gap-2"
+        style={{ background: 'rgba(239,68,68,0.08)', borderBottom: '1px solid rgba(239,68,68,0.2)' }}>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black flex-shrink-0"
+            style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.5)', color: '#ef4444' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping inline-block" />
+            EXIT POLL
+          </span>
+          <div>
+            <h2 className="text-white font-black text-base sm:text-lg">Exit Poll Results 2026</h2>
+            <p className="text-white/30 text-xs mt-0.5">வெளியேறும் வாக்கெடுப்பு · April 29, 2026 · Voting: April 23</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Newspaper className="w-3.5 h-3.5 text-white/20" />
+          <span className="text-white/20 text-[10px]">4 major pollsters</span>
+        </div>
+      </div>
+
+      <div className="px-5 sm:px-6 py-5 space-y-5">
+
+        {/* Poll of Polls summary bar */}
+        <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <p className="text-white/30 text-[10px] uppercase tracking-widest mb-3 font-semibold">Poll of Polls Average (234 seats · majority: 118)</p>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { party: 'DMK+', seats: POLL_OF_POLLS.dmk, color: partyColors.dmk },
+              { party: 'AIADMK+', seats: POLL_OF_POLLS.aiadmk, color: partyColors.aiadmk },
+              { party: 'TVK', seats: POLL_OF_POLLS.tvk, color: partyColors.tvk },
+            ].map(({ party, seats, color }) => (
+              <div key={party} className="flex flex-col items-center py-3 rounded-xl"
+                style={{ background: `${color}0d`, border: `1px solid ${color}30` }}>
+                <span className="font-black text-2xl sm:text-3xl tabular-nums" style={{ color }}>{seats}</span>
+                <span className="text-white/40 text-[10px] mt-1 font-semibold">{party}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Individual poll table */}
+        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+          <table className="w-full text-xs min-w-[480px]">
+            <thead>
+              <tr style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                <th className="text-left px-4 py-2.5 text-white/40 font-semibold">Agency / Channel</th>
+                <th className="text-center px-3 py-2.5 font-semibold" style={{ color: `${partyColors.dmk}80` }}>DMK+</th>
+                <th className="text-center px-3 py-2.5 font-semibold" style={{ color: `${partyColors.aiadmk}80` }}>AIADMK+</th>
+                <th className="text-center px-3 py-2.5 font-semibold" style={{ color: `${partyColors.tvk}80` }}>TVK</th>
+                <th className="text-center px-3 py-2.5 text-white/40 font-semibold">Others</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.04]">
+              {EXIT_POLLS.map(poll => {
+                const winColor = partyColors[poll.highlight as keyof typeof partyColors]
+                return (
+                  <tr key={poll.agency} style={{ background: 'rgba(255,255,255,0.01)' }}>
+                    <td className="px-4 py-3">
+                      <p className="font-black text-white text-xs">{poll.agency}</p>
+                      <p className="text-white/30 text-[10px]">{poll.channel}</p>
+                    </td>
+                    {(['dmk', 'aiadmk', 'tvk'] as const).map(key => {
+                      const isWinner = poll.highlight === key
+                      const color = partyColors[key]
+                      const val = key === 'dmk' ? poll.dmk : key === 'aiadmk' ? poll.aiadmk : poll.tvk
+                      return (
+                        <td key={key} className="text-center px-3 py-3">
+                          <span className={`font-black tabular-nums text-sm px-2 py-0.5 rounded-full`}
+                            style={{
+                              color: isWinner ? color : 'rgba(255,255,255,0.5)',
+                              background: isWinner ? `${color}15` : 'transparent',
+                              border: isWinner ? `1px solid ${color}35` : '1px solid transparent',
+                            }}>
+                            {val}
+                          </span>
+                        </td>
+                      )
+                    })}
+                    <td className="text-center px-3 py-3 text-white/25 font-semibold">{poll.others}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Visual seat bars */}
+        <div className="space-y-2">
+          <p className="text-white/30 text-[10px] uppercase tracking-widest font-semibold">Seat projection comparison (midpoint)</p>
+          {EXIT_POLLS.map(poll => {
+            const total = poll.dmkMid + poll.aiadmkMid + poll.tvkMid
+            const segments = [
+              { key: 'dmk', val: poll.dmkMid, label: 'DMK', color: partyColors.dmk },
+              { key: 'aiadmk', val: poll.aiadmkMid, label: 'AIADMK', color: partyColors.aiadmk },
+              { key: 'tvk', val: poll.tvkMid, label: 'TVK', color: partyColors.tvk },
+            ]
+            return (
+              <div key={poll.agency}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-white/50 text-[10px] font-bold">{poll.agency}</span>
+                  <span className="text-white/20 text-[9px]">{poll.channel}</span>
+                </div>
+                <div className="flex h-5 rounded-full overflow-hidden gap-px">
+                  {segments.map(s => (
+                    <div key={s.key}
+                      className="flex items-center justify-center text-[9px] font-black transition-all"
+                      style={{
+                        width: `${(s.val / 234) * 100}%`,
+                        background: s.color,
+                        opacity: poll.highlight === s.key ? 1 : 0.4,
+                        minWidth: s.val > 5 ? '28px' : '0',
+                        overflow: 'hidden',
+                        color: '#000',
+                      }}>
+                      {s.val > 12 ? s.val : ''}
+                    </div>
+                  ))}
+                  {/* Remainder */}
+                  <div className="flex-1" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                </div>
+              </div>
+            )
+          })}
+          {/* Majority line indicator */}
+          <div className="relative mt-1">
+            <div className="h-0 border-t border-dashed border-amber-500/40 relative"
+              style={{ marginLeft: `${(118/234)*100}%`, width: '1px', height: '8px', borderLeft: '1px dashed rgba(245,158,11,0.5)', borderTop: 'none', display: 'inline-block' }}>
+            </div>
+            <span className="text-amber-400/60 text-[9px] font-bold" style={{ marginLeft: `${(118/234)*100}%` }}>
+              ← 118 majority mark
+            </span>
+          </div>
+        </div>
+
+        {/* Key observation */}
+        <div className="rounded-xl p-3.5" style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.2)' }}>
+          <p className="text-amber-400/80 text-xs font-bold mb-1">⚡ Key Takeaway</p>
+          <p className="text-white/50 text-[11px] leading-relaxed">
+            Most pollsters predict <span className="text-red-400 font-bold">DMK</span> retains power.
+            Axis My India is the outlier — projecting <span className="text-amber-400 font-bold">TVK as single largest party</span> with 98–120 seats, a potential political earthquake.
+            <span className="text-green-400 font-bold"> AIADMK</span> predicted to struggle except in the JVC poll.
+            Official results: <span className="text-white/70 font-bold">May 4, 2026</span>.
+          </p>
+        </div>
+
+        <p className="text-white/15 text-[9px]">
+          Exit poll data from Matrize/India TV, P-MARQ/NewsX, Axis My India/India Today, JVC/Republic (April 29, 2026).
+          Exit polls are estimates and may not reflect final results. NammaTamil does not endorse any party or agency.
+        </p>
+      </div>
+    </div>
+  )
 }
 
 // ─── Party Symbol SVG ─────────────────────────────────────────────────────────
@@ -422,6 +637,9 @@ export default function TNElectionClient() {
             </div>
           ))}
         </div>
+
+        {/* ── EXIT POLLS ── */}
+        <ExitPollSection />
 
         {/* ── AI SENTIMENT + VOTE SHARE ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">

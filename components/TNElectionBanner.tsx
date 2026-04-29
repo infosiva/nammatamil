@@ -60,7 +60,7 @@ export default function TNElectionBanner() {
         ) : (
           <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black flex-shrink-0"
             style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)', color: '#f59e0b' }}>
-            <Zap className="w-3 h-3" /> MAY 4
+            <Zap className="w-3 h-3" /> EXIT POLL
           </span>
         )}
 
@@ -68,7 +68,7 @@ export default function TNElectionBanner() {
         <p className="text-white/80 text-xs sm:text-sm font-semibold flex-1 min-w-0 truncate">
           {isLive
             ? 'TN Election 2026 — Vote counting LIVE. Watch results & party seat tally →'
-            : 'தமிழ்நாடு தேர்தல் 2026 · Vote counting begins May 4 · Cast your prediction now'}
+            : '🗳️ EXIT POLLS OUT · DMK leads most polls · Axis MyIndia shocks with TVK 98–120 seats · Results May 4'}
         </p>
 
         {/* Countdown digits — shown only pre-live */}
