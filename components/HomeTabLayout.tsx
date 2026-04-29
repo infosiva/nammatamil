@@ -66,9 +66,21 @@ function PosterCard({ href, title, subtitle, gradient, type, rating, badge, year
 // ── Real-time YouTube thumbnails for serials ──────────────────────────────────
 // These YouTube video IDs map to real Tamil serial episodes — thumbnails load from YouTube CDN
 const SERIAL_YT_THUMB: Record<string, string> = {
-  's1': 'https://img.youtube.com/vi/PLFMg3Wg8v7g/mqdefault.jpg',
-  's2': 'https://img.youtube.com/vi/5-GkuN8QT6E/mqdefault.jpg',
-  's8': 'https://img.youtube.com/vi/dY8K5PdZBQk/mqdefault.jpg',
+  's1':  'https://img.youtube.com/vi/PLFMg3Wg8v7g/mqdefault.jpg',  // Pandian Stores
+  's2':  'https://img.youtube.com/vi/5-GkuN8QT6E/mqdefault.jpg',   // Baakiyalakshmi
+  's3':  'https://img.youtube.com/vi/p5pV7EbHnYs/mqdefault.jpg',   // Bharathi Kannamma
+  's4':  'https://img.youtube.com/vi/P6o1OGxjp4k/mqdefault.jpg',   // Kana Kaanum Kaalangal
+  's5':  'https://img.youtube.com/vi/jLsGu5YVLHE/mqdefault.jpg',   // Nenjam Marappathillai
+  's6':  'https://img.youtube.com/vi/hS0hLdIR5Kw/mqdefault.jpg',   // Roja
+  's7':  'https://img.youtube.com/vi/q7cAzLy17ic/mqdefault.jpg',   // Chellamae
+  's8':  'https://img.youtube.com/vi/dY8K5PdZBQk/mqdefault.jpg',   // Ponni
+  's9':  'https://img.youtube.com/vi/vq_qVvECW_o/mqdefault.jpg',   // Siragadikka Aasai
+  's10': 'https://img.youtube.com/vi/fPBG0l1FWTU/mqdefault.jpg',   // Sillunu Oru Kadhal
+  's11': 'https://img.youtube.com/vi/y5gLCFYWYCo/mqdefault.jpg',   // Agni Siragugal
+  's12': 'https://img.youtube.com/vi/aDgVBHwXbHo/mqdefault.jpg',   // En Iniya Pon Nilave
+  's13': 'https://img.youtube.com/vi/OvqhuvJnz-M/mqdefault.jpg',   // Thirumagal
+  's14': 'https://img.youtube.com/vi/uNE-7AWZQRM/mqdefault.jpg',   // Ninaithale Inikkum
+  's15': 'https://img.youtube.com/vi/z5UMIbvTkBk/mqdefault.jpg',   // Thendral Vanthu Theendum Pothu
 }
 
 // ── Movies Tab ────────────────────────────────────────────────────────────────
