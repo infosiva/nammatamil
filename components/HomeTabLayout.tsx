@@ -16,13 +16,13 @@ import type { Album } from '@/data/albums'
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'movies',   label: 'Movies',   icon: Film,         color: '#60a5fa' },
-  { id: 'serials',  label: 'Serials',  icon: Tv2,          color: '#f97316' },
-  { id: 'trailers', label: 'Trailers', icon: Clapperboard, color: '#fb923c' },
-  { id: 'news',     label: 'News',     icon: Radio,        color: '#f87171' },
-  { id: 'cricket',  label: 'Cricket',  icon: Trophy,       color: '#4ade80' },
-  { id: 'albums',   label: 'Albums',   icon: Music,        color: '#f472b6' },
-  { id: 'ott',      label: 'OTT',      icon: Play,         color: '#a78bfa' },
+  { id: 'cricket',  label: 'Cricket',  icon: Trophy,       color: '#4ade80', live: true  },
+  { id: 'news',     label: 'News',     icon: Radio,        color: '#f87171', live: false },
+  { id: 'movies',   label: 'Movies',   icon: Film,         color: '#60a5fa', live: false },
+  { id: 'serials',  label: 'Serials',  icon: Tv2,          color: '#f97316', live: false },
+  { id: 'trailers', label: 'Trailers', icon: Clapperboard, color: '#fb923c', live: false },
+  { id: 'albums',   label: 'Albums',   icon: Music,        color: '#f472b6', live: false },
+  { id: 'ott',      label: 'OTT',      icon: Play,         color: '#a78bfa', live: false },
 ]
 
 
@@ -498,11 +498,11 @@ export default function HomeTabLayout() {
       <div className="sticky top-[56px] z-20 mb-3"
         style={{ background: 'rgba(7,1,15,0.97)', backdropFilter: 'blur(20px)' }}>
         <div className="flex overflow-x-auto scrollbar-hide gap-1 py-2">
-          {TABS.map(({ id, label, icon: Icon, color }) => {
+          {TABS.map(({ id, label, icon: Icon, color, live }) => {
             const isActive = activeTab === id
             return (
               <button key={id} onClick={() => setActiveTab(id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex-shrink-0"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 relative"
                 style={isActive ? {
                   background: color + '20',
                   border: `1px solid ${color}45`,
@@ -513,6 +513,10 @@ export default function HomeTabLayout() {
                 }}>
                 <Icon className="w-3.5 h-3.5" />
                 {label}
+                {live && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0"
+                    title="Live updates" />
+                )}
               </button>
             )
           })}
