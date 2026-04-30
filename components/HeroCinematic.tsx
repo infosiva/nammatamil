@@ -9,8 +9,9 @@ import { Brain, ChevronRight, TrendingUp, TrendingDown, Minus, Trophy, RefreshCw
 const SWITCH_MS   = new Date('2026-05-04T18:00:00+05:30').getTime()
 const ELECTION_MS = new Date('2026-05-04T07:00:00+05:30').getTime()
 
-// ── Refresh interval — 5 minutes ─────────────────────────────────────────────
-const REFRESH_MS = 5 * 60 * 1000
+// ── Refresh intervals ─────────────────────────────────────────────────────────
+const ELECTION_REFRESH_MS = 5 * 60 * 1000  // 5 min — election data
+const CRICKET_REFRESH_MS  = 2 * 60 * 1000  // 2 min — cricket scores
 
 // ── Rolling background images — crowd/campaign/political rally scenes ─────────
 // Free Unsplash images: large crowds, rally scenes, political gatherings
@@ -157,7 +158,7 @@ function ElectionHero() {
   const fetch_ = useCallback(async (manual = false) => {
     if (manual) setRefreshing(true)
     try {
-      const json = await fetch('/api/election-prediction').then(r => r.json()) as ElectionData
+      const json = await fetch('/api/election-prediction', { cache: 'no-store' }).then(r => r.json()) as ElectionData
       setData(json)
     } catch { /* keep previous */ }
     finally { setLoading(false); setRefreshing(false) }
@@ -165,7 +166,7 @@ function ElectionHero() {
 
   useEffect(() => {
     fetch_()
-    const id = setInterval(() => fetch_(), REFRESH_MS)
+    const id = setInterval(() => fetch_(), ELECTION_REFRESH_MS)
     return () => clearInterval(id)
   }, [fetch_])
 
@@ -389,7 +390,7 @@ function IPLPlayoffsHero() {
   const fetchCricket = useCallback(async (manual = false) => {
     if (manual) setRefreshing(true)
     try {
-      const d = await fetch('/api/cricket').then(r => r.json()) as CricketData
+      const d = await fetch('/api/cricket', { cache: 'no-store' }).then(r => r.json()) as CricketData
       setCricket(d)
     } catch { /* keep previous */ }
     finally { setRefreshing(false) }
@@ -397,7 +398,7 @@ function IPLPlayoffsHero() {
 
   useEffect(() => {
     fetchCricket()
-    const id = setInterval(() => fetchCricket(), REFRESH_MS)
+    const id = setInterval(() => fetchCricket(), CRICKET_REFRESH_MS)
     return () => clearInterval(id)
   }, [fetchCricket])
 

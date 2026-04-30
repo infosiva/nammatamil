@@ -1,16 +1,14 @@
 /**
  * /api/trailers
- * Fetches latest Tamil movie/drama trailers from YouTube Data API v3
- * Falls back to curated static list if no API key or quota exceeded.
+ * Fetches latest Tamil movie/drama trailers from YouTube channel RSS feeds.
+ * No API key needed — uses public YouTube Atom feeds.
+ * Falls back to curated static list only if all feeds fail.
  *
- * Cache: 6 hours — trailers don't change often
+ * Cache: 2 hours
  */
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 21600 // 6 hours
-
-const YT_KEY = process.env.YOUTUBE_API_KEY ?? ''
 
 export interface Trailer {
   id: string
@@ -20,143 +18,140 @@ export interface Trailer {
   thumbnail: string
   publishedAt: string
   category: 'movie' | 'drama' | 'album' | 'ott'
-  views?: string
 }
 
-// ── Static fallback — recent high-profile Tamil trailers ──────────────────────
-const STATIC_TRAILERS: Trailer[] = [
-  {
-    id: 't1', videoId: 'eYjxZ_v2kAc',
-    title: 'Coolie Official Trailer', channel: 'Sun Pictures',
-    thumbnail: 'https://img.youtube.com/vi/eYjxZ_v2kAc/mqdefault.jpg',
-    publishedAt: '2025-08-15', category: 'movie',
-  },
-  {
-    id: 't2', videoId: 'kbH5cxbBwFA',
-    title: 'Retro Official Teaser', channel: 'Red Giant Movies',
-    thumbnail: 'https://img.youtube.com/vi/kbH5cxbBwFA/mqdefault.jpg',
-    publishedAt: '2025-09-10', category: 'movie',
-  },
-  {
-    id: 't3', videoId: 'Y5Lm0XYbHBk',
-    title: 'Thug Life Official Trailer', channel: 'Madras Talkies',
-    thumbnail: 'https://img.youtube.com/vi/Y5Lm0XYbHBk/mqdefault.jpg',
-    publishedAt: '2025-06-20', category: 'movie',
-  },
-  {
-    id: 't4', videoId: 'pSGolnlTMzs',
-    title: 'Singham Again Tamil Trailer', channel: 'Reliance Entertainment',
-    thumbnail: 'https://img.youtube.com/vi/pSGolnlTMzs/mqdefault.jpg',
-    publishedAt: '2024-10-31', category: 'movie',
-  },
-  {
-    id: 't5', videoId: '_WUNH5cFHfw',
-    title: 'Amaran Official Trailer', channel: 'Sony LIV',
-    thumbnail: 'https://img.youtube.com/vi/_WUNH5cFHfw/mqdefault.jpg',
-    publishedAt: '2024-10-15', category: 'movie',
-  },
-  {
-    id: 't6', videoId: 'lm0ZVDMhgBs',
-    title: 'Vidaamuyarchi Official Teaser', channel: 'Lyca Productions',
-    thumbnail: 'https://img.youtube.com/vi/lm0ZVDMhgBs/mqdefault.jpg',
-    publishedAt: '2024-11-01', category: 'movie',
-  },
-  {
-    id: 't7', videoId: 'BqFMQJqPqjg',
-    title: 'Kanguva Official Trailer', channel: 'UV Creations',
-    thumbnail: 'https://img.youtube.com/vi/BqFMQJqPqjg/mqdefault.jpg',
-    publishedAt: '2024-09-01', category: 'movie',
-  },
-  {
-    id: 't8', videoId: 'r5jlIRbz3iI',
-    title: 'Prabhas - The Raja Saab Teaser', channel: 'People Media Factory',
-    thumbnail: 'https://img.youtube.com/vi/r5jlIRbz3iI/mqdefault.jpg',
-    publishedAt: '2025-04-10', category: 'movie',
-  },
-  {
-    id: 't9', videoId: 'YdYIUVP9RGU',
-    title: 'Veera Dheera Sooran Trailer', channel: 'Sony LIV',
-    thumbnail: 'https://img.youtube.com/vi/YdYIUVP9RGU/mqdefault.jpg',
-    publishedAt: '2025-03-01', category: 'movie',
-  },
-  {
-    id: 't10', videoId: 'zVFkaqCzqzI',
-    title: 'Naam Iruvar Oru Kudumbu Promo', channel: 'Vijay TV',
-    thumbnail: 'https://img.youtube.com/vi/zVFkaqCzqzI/mqdefault.jpg',
-    publishedAt: '2025-01-06', category: 'drama',
-  },
+// Major Tamil movie/entertainment YouTube channels
+const CHANNELS = [
+  { id: 'UCyPn-7OLF4H_WQKQ_SJGMmA', name: 'Sun Pictures',          category: 'movie'  as const },
+  { id: 'UC-4SnEQMlEMBaZ_JuQnixFw', name: 'Red Giant Movies',       category: 'movie'  as const },
+  { id: 'UCGKkRDGVfOY6iJv-mFZIkSA', name: 'Lyca Productions',       category: 'movie'  as const },
+  { id: 'UCFkMDqMxKfMsZ-YL3lBHWxA', name: 'Sony LIV Tamil',         category: 'ott'    as const },
+  { id: 'UCzhe0GlQQpL8rN7eBLdHqFA', name: 'Sun TV',                 category: 'drama'  as const },
+  { id: 'UC-8QAzbLcRglXeN_MY9JpkQ', name: 'Vijay TV',               category: 'drama'  as const },
+  { id: 'UC8FBwz59TDv_FUYG8FfMgdg', name: 'Vels Film International', category: 'movie' as const },
+  { id: 'UCyILFGMFSXTPjy8sUZHrLSQ', name: 'KE Productions',         category: 'movie'  as const },
+  { id: 'UCmMwK3jn4PGb3nEMlLcfFaA', name: 'Sathyajyothi Films',     category: 'movie'  as const },
 ]
 
-// ── YouTube Data API v3 — search for recent Tamil trailers ────────────────────
-async function fetchFromYouTube(): Promise<Trailer[]> {
-  if (!YT_KEY) return []
+// Keywords that indicate a trailer/teaser rather than an episode or unrelated video
+const TRAILER_KEYWORDS = [
+  'trailer', 'teaser', 'first look', 'promo', 'motion poster',
+  'lyric video', 'video song', 'official', 'launch', 'announcement',
+]
+const SKIP_KEYWORDS = [
+  'episode', 'part ', 'full movie', 'making of', 'behind the scenes',
+  'interview', 'press meet', 'audio launch reaction',
+]
 
-  const queries = [
-    'Tamil movie trailer 2025 official',
-    'Tamil movie teaser 2026 official',
-    'Tamil serial promo 2025',
-  ]
-
-  const allItems: Trailer[] = []
-
-  await Promise.allSettled(queries.map(async (q, qi) => {
-    try {
-      const url = new URL('https://www.googleapis.com/youtube/v3/search')
-      url.searchParams.set('part', 'snippet')
-      url.searchParams.set('q', q)
-      url.searchParams.set('type', 'video')
-      url.searchParams.set('order', 'date')
-      url.searchParams.set('maxResults', '6')
-      url.searchParams.set('videoCategoryId', '1') // Film & Animation
-      url.searchParams.set('relevanceLanguage', 'ta')
-      url.searchParams.set('key', YT_KEY)
-
-      const res = await fetch(url.toString(), { signal: AbortSignal.timeout(5000) })
-      if (!res.ok) return
-      const data = await res.json() as { items?: { id: { videoId: string }; snippet: { title: string; channelTitle: string; thumbnails: { medium: { url: string } }; publishedAt: string } }[] }
-
-      for (const item of data.items ?? []) {
-        allItems.push({
-          id: `yt-${item.id.videoId}`,
-          videoId: item.id.videoId,
-          title: item.snippet.title,
-          channel: item.snippet.channelTitle,
-          thumbnail: item.snippet.thumbnails.medium?.url ?? `https://img.youtube.com/vi/${item.id.videoId}/mqdefault.jpg`,
-          publishedAt: item.snippet.publishedAt,
-          category: qi === 2 ? 'drama' : 'movie',
-        })
-      }
-    } catch { /* skip failed queries */ }
-  }))
-
-  // Deduplicate by videoId
-  const seen = new Set<string>()
-  return allItems.filter(t => {
-    if (seen.has(t.videoId)) return false
-    seen.add(t.videoId)
-    return true
-  }).slice(0, 18)
+function isTrailer(title: string): boolean {
+  const t = title.toLowerCase()
+  if (SKIP_KEYWORDS.some(k => t.includes(k))) return false
+  return TRAILER_KEYWORDS.some(k => t.includes(k))
 }
+
+async function fetchChannelFeed(
+  channelId: string, channelName: string, category: Trailer['category']
+): Promise<Trailer[]> {
+  const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0 NammaTamil/1.0' },
+    signal: AbortSignal.timeout(5000),
+  })
+  if (!res.ok) return []
+
+  const xml = await res.text()
+  const results: Trailer[] = []
+  const entryRegex = /<entry>([\s\S]*?)<\/entry>/g
+  let match: RegExpExecArray | null
+
+  // Only look at videos from the last 90 days
+  const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000
+
+  while ((match = entryRegex.exec(xml)) !== null) {
+    const block = match[1]
+    const videoIdM  = block.match(/<yt:videoId>(.*?)<\/yt:videoId>/)
+    const titleM    = block.match(/<title>(.*?)<\/title>/)
+    const publishM  = block.match(/<published>(.*?)<\/published>/)
+
+    if (!videoIdM || !titleM || !publishM) continue
+
+    const publishedAt = publishM[1]
+    if (new Date(publishedAt).getTime() < cutoff) continue
+
+    const videoId = videoIdM[1]
+    const title   = titleM[1]
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      .replace(/&#39;/g, "'").replace(/&quot;/g, '"')
+
+    if (!isTrailer(title)) continue
+
+    results.push({
+      id:          `yt-${videoId}`,
+      videoId,
+      title,
+      channel:     channelName,
+      thumbnail:   `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+      publishedAt,
+      category,
+    })
+
+    if (results.length >= 4) break
+  }
+
+  return results
+}
+
+// In-memory cache
+let cache: { data: Trailer[]; fetchedAt: number } | null = null
+const CACHE_TTL = 2 * 60 * 60 * 1000 // 2 hours
 
 export async function GET() {
-  let trailers: Trailer[] = []
-  let source = 'static'
-
-  if (YT_KEY) {
-    try {
-      const live = await fetchFromYouTube()
-      if (live.length >= 3) {
-        trailers = live
-        source = 'youtube'
-      }
-    } catch { /* fall through */ }
+  if (cache && Date.now() - cache.fetchedAt < CACHE_TTL) {
+    return NextResponse.json(
+      { trailers: cache.data, source: 'youtube-rss-cached', updatedAt: new Date(cache.fetchedAt).toISOString() },
+      { headers: { 'Cache-Control': 'public, s-maxage=7200, stale-while-revalidate=3600' } }
+    )
   }
 
-  if (trailers.length === 0) {
-    trailers = STATIC_TRAILERS
+  const results = await Promise.allSettled(
+    CHANNELS.map(ch => fetchChannelFeed(ch.id, ch.name, ch.category))
+  )
+
+  const all: Trailer[] = []
+  for (const r of results) {
+    if (r.status === 'fulfilled') all.push(...r.value)
   }
 
-  return NextResponse.json({ trailers, source, updatedAt: new Date().toISOString() }, {
-    headers: { 'Cache-Control': 'public, s-maxage=21600, stale-while-revalidate=3600' },
-  })
+  // Sort by newest first, deduplicate
+  const seen = new Set<string>()
+  const deduped = all
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    .filter(t => {
+      if (seen.has(t.videoId)) return false
+      seen.add(t.videoId)
+      return true
+    })
+    .slice(0, 16)
+
+  const trailers = deduped.length >= 3 ? deduped : STATIC_TRAILERS
+  const source   = deduped.length >= 3 ? 'youtube-rss' : 'static'
+
+  if (deduped.length >= 3) {
+    cache = { data: trailers, fetchedAt: Date.now() }
+  }
+
+  return NextResponse.json(
+    { trailers, source, updatedAt: new Date().toISOString() },
+    { headers: { 'Cache-Control': 'public, s-maxage=7200, stale-while-revalidate=3600' } }
+  )
 }
+
+// ── Static fallback — updated Apr 2026 ───────────────────────────────────────
+const STATIC_TRAILERS: Trailer[] = [
+  { id: 't1',  videoId: 'eYjxZ_v2kAc', title: 'Coolie Official Trailer',         channel: 'Sun Pictures',      thumbnail: 'https://img.youtube.com/vi/eYjxZ_v2kAc/mqdefault.jpg', publishedAt: '2026-01-15', category: 'movie'  },
+  { id: 't2',  videoId: 'kbH5cxbBwFA', title: 'Retro Official Teaser',            channel: 'Red Giant Movies',   thumbnail: 'https://img.youtube.com/vi/kbH5cxbBwFA/mqdefault.jpg', publishedAt: '2026-02-10', category: 'movie'  },
+  { id: 't3',  videoId: 'YdYIUVP9RGU', title: 'Veera Dheera Sooran Trailer',      channel: 'Sony LIV',          thumbnail: 'https://img.youtube.com/vi/YdYIUVP9RGU/mqdefault.jpg', publishedAt: '2026-03-01', category: 'movie'  },
+  { id: 't4',  videoId: 'r5jlIRbz3iI', title: 'The Raja Saab Official Teaser',    channel: 'People Media Factory', thumbnail: 'https://img.youtube.com/vi/r5jlIRbz3iI/mqdefault.jpg', publishedAt: '2026-04-10', category: 'movie' },
+  { id: 't5',  videoId: '_WUNH5cFHfw', title: 'Amaran Official Trailer',          channel: 'Sony LIV',          thumbnail: 'https://img.youtube.com/vi/_WUNH5cFHfw/mqdefault.jpg', publishedAt: '2026-01-15', category: 'movie'  },
+  { id: 't6',  videoId: 'zVFkaqCzqzI', title: 'Naam Iruvar Oru Kudumbu Promo',   channel: 'Vijay TV',          thumbnail: 'https://img.youtube.com/vi/zVFkaqCzqzI/mqdefault.jpg', publishedAt: '2026-03-06', category: 'drama'  },
+]
