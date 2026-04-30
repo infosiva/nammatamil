@@ -489,7 +489,7 @@ function CricketTab() {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function HomeTabLayout() {
-  const [activeTab, setActiveTab] = useState('movies')
+  const [activeTab, setActiveTab] = useState('cricket')
 
   return (
     <div className="flex flex-col gap-0">
