@@ -1,6 +1,5 @@
 import HeroCinematic from '@/components/HeroCinematic'
 import HomeTabLayout from '@/components/HomeTabLayout'
-import TrailersSection from '@/components/TrailersSection'
 import AdUnit from '@/components/AdUnit'
 import TamilCalendar from '@/components/TamilCalendar'
 import OTTThisWeek from '@/components/OTTThisWeek'
@@ -20,9 +19,8 @@ export default function HomePage() {
             <OTTThisWeek />
           </div>
 
-          {/* Right — trailers strip + tabbed content browser */}
-          <div className="flex-1 min-w-0 space-y-2">
-            <TrailersSection />
+          {/* Right — tabbed content browser (Movies, Serials, Trailers, News, Cricket, Albums, OTT) */}
+          <div className="flex-1 min-w-0">
             <HomeTabLayout />
           </div>
 

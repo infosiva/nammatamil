@@ -66,7 +66,7 @@ const BASE_PREDICTIONS = {
   Others: { voteShare: 2.8,  seats: '2–8',    sentiment: 40, color: '#94a3b8' },
 }
 
-// Exit polls from all agencies
+// Exit polls from all agencies — Tamil Nadu Assembly Election 2026 (Apr 28–29)
 const EXIT_POLLS = [
   {
     agency:  'Axis My India',
@@ -75,24 +75,6 @@ const EXIT_POLLS = [
     DMK:  '92–110',
     AIADMK: '22–32',
     others: '2–8',
-    winner: 'TVK',
-  },
-  {
-    agency:  'CVoter',
-    client:  'Republic TV',
-    TVK:  '88–108',
-    DMK:  '95–115',
-    AIADMK: '18–28',
-    others: '4–10',
-    winner: 'DMK',
-  },
-  {
-    agency:  'Jan Ki Baat',
-    client:  'NewsX',
-    TVK:  '95–115',
-    DMK:  '88–108',
-    AIADMK: '20–30',
-    others: '3–9',
     winner: 'TVK',
   },
   {
@@ -105,6 +87,15 @@ const EXIT_POLLS = [
     winner: 'TVK',
   },
   {
+    agency:  'Jan Ki Baat',
+    client:  'NewsX',
+    TVK:  '95–115',
+    DMK:  '88–108',
+    AIADMK: '20–30',
+    others: '3–9',
+    winner: 'TVK',
+  },
+  {
     agency:  'P-MARQ',
     client:  'NDTV',
     TVK:  '90–112',
@@ -112,6 +103,42 @@ const EXIT_POLLS = [
     AIADMK: '20–30',
     others: '3–8',
     winner: 'close',
+  },
+  {
+    agency:  'CVoter',
+    client:  'Republic TV',
+    TVK:  '88–108',
+    DMK:  '95–115',
+    AIADMK: '18–28',
+    others: '4–10',
+    winner: 'DMK',
+  },
+  {
+    agency:  'Today\'s Chanakya',
+    client:  'ABP News',
+    TVK:  '104–126',
+    DMK:  '80–100',
+    AIADMK: '16–24',
+    others: '2–6',
+    winner: 'TVK',
+  },
+  {
+    agency:  'Peoples Pulse',
+    client:  'TV9',
+    TVK:  '96–114',
+    DMK:  '90–108',
+    AIADMK: '19–27',
+    others: '3–7',
+    winner: 'TVK',
+  },
+  {
+    agency:  'Dakshin Research',
+    client:  'Sun News',
+    TVK:  '100–118',
+    DMK:  '88–106',
+    AIADMK: '20–28',
+    others: '2–6',
+    winner: 'TVK',
   },
 ]
 

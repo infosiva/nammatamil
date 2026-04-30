@@ -247,77 +247,80 @@ function ElectionHero() {
           </div>
         )}
 
-        {/* All Exit Polls table — bigger, clearer */}
+        {/* All Exit Polls table */}
         {data?.exitPolls && data.exitPolls.length > 0 && (
           <div className="rounded-2xl overflow-hidden"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}>
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)' }}>
             {/* Section label */}
-            <div className="px-4 pt-3 pb-1">
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">All Exit Polls · Apr 28–29 2026</span>
+            <div className="px-3 pt-2.5 pb-1 flex items-center justify-between">
+              <span className="text-[11px] font-black text-white/50 uppercase tracking-widest">Exit Polls · Apr 28–29 2026</span>
+              <span className="text-[10px] text-amber-400/60 font-bold">234 seats · Maj: 118</span>
             </div>
-            {/* Header row with party symbols */}
-            <div className="grid px-4 py-2 border-b border-white/[0.08]"
-              style={{ gridTemplateColumns: '1fr 64px 64px 64px 50px' }}>
-              <span className="text-[10px] font-bold text-white/30 self-center">Agency / Channel</span>
+            {/* Header row */}
+            <div className="grid px-3 py-1.5 border-b border-white/[0.10]"
+              style={{ gridTemplateColumns: '1fr 58px 58px 58px 44px' }}>
+              <span className="text-[10px] font-bold text-white/30 self-end pb-0.5">Agency</span>
               {[
-                { emoji: '⭐', abbr: 'TVK', name: 'Vijay', color: '#fbbf24' },
-                { emoji: '🌅', abbr: 'DMK', name: 'Stalin', color: '#f87171' },
-                { emoji: '🍃', abbr: 'ADMK', name: 'EPS', color: '#4ade80' },
+                { emoji: '⭐', abbr: 'TVK', color: '#fbbf24' },
+                { emoji: '🌅', abbr: 'DMK', color: '#f87171' },
+                { emoji: '🍃', abbr: 'ADMK', color: '#4ade80' },
               ].map(p => (
                 <div key={p.abbr} className="flex flex-col items-center gap-0.5">
-                  <span className="text-[16px] leading-none">{p.emoji}</span>
-                  <span className="text-[9px] font-black" style={{ color: p.color }}>{p.abbr}</span>
-                  <span className="text-[8px] text-white/30">{p.name}</span>
+                  <span className="text-[15px] leading-none">{p.emoji}</span>
+                  <span className="text-[10px] font-black" style={{ color: p.color }}>{p.abbr}</span>
                 </div>
               ))}
-              <div className="flex flex-col items-center justify-end pb-0.5">
+              <div className="flex flex-col items-center justify-end">
                 <span className="text-[9px] font-bold text-white/25">Win</span>
               </div>
             </div>
 
-            {/* Data rows */}
-            {data.exitPolls.map((ep, idx) => (
-              <div key={ep.agency}
-                className="grid items-center px-4 py-2.5 border-b border-white/[0.05] last:border-0"
-                style={{
-                  gridTemplateColumns: '1fr 64px 64px 64px 50px',
-                  background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
-                }}>
-                {/* Agency */}
-                <div className="min-w-0 pr-1">
-                  <span className="text-[11px] font-bold text-white/75 leading-tight block">{ep.agency}</span>
-                  <span className="text-[9px] text-white/25 block">{ep.client}</span>
+            {/* Scrollable data rows */}
+            <div className="overflow-y-auto" style={{ maxHeight: 220 }}>
+              {data.exitPolls.map((ep, idx) => (
+                <div key={ep.agency}
+                  className="grid items-center px-3 py-2 border-b border-white/[0.05] last:border-0"
+                  style={{
+                    gridTemplateColumns: '1fr 58px 58px 58px 44px',
+                    background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
+                  }}>
+                  {/* Agency */}
+                  <div className="min-w-0 pr-1">
+                    <span className="text-[12px] font-bold text-white/80 leading-tight block truncate">{ep.agency}</span>
+                    <span className="text-[10px] text-white/30 block truncate">{ep.client}</span>
+                  </div>
+                  {/* TVK */}
+                  <div className="text-center">
+                    <span className="text-[11px] font-black tabular-nums" style={{ color: '#fbbf24' }}>{ep.TVK}</span>
+                  </div>
+                  {/* DMK */}
+                  <div className="text-center">
+                    <span className="text-[11px] font-bold tabular-nums" style={{ color: '#f87171' }}>{ep.DMK}</span>
+                  </div>
+                  {/* AIADMK */}
+                  <div className="text-center">
+                    <span className="text-[11px] tabular-nums" style={{ color: '#4ade80' }}>{ep.AIADMK}</span>
+                  </div>
+                  {/* Winner */}
+                  <div className="text-center">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-black inline-block"
+                      style={{
+                        background: ep.winner === 'TVK' ? 'rgba(251,191,36,0.2)' : ep.winner === 'DMK' ? 'rgba(248,113,113,0.2)' : 'rgba(255,255,255,0.06)',
+                        color: ep.winner === 'TVK' ? '#fbbf24' : ep.winner === 'DMK' ? '#f87171' : 'rgba(255,255,255,0.4)',
+                        border: `1px solid ${ep.winner === 'TVK' ? 'rgba(251,191,36,0.45)' : ep.winner === 'DMK' ? 'rgba(248,113,113,0.4)' : 'rgba(255,255,255,0.12)'}`,
+                      }}>
+                      {ep.winner === 'close' ? 'TIED' : ep.winner}
+                    </span>
+                  </div>
                 </div>
-                {/* TVK */}
-                <div className="text-center">
-                  <span className="text-[12px] font-black tabular-nums" style={{ color: '#fbbf24' }}>{ep.TVK}</span>
-                </div>
-                {/* DMK */}
-                <div className="text-center">
-                  <span className="text-[12px] font-bold tabular-nums" style={{ color: '#f87171' }}>{ep.DMK}</span>
-                </div>
-                {/* AIADMK */}
-                <div className="text-center">
-                  <span className="text-[12px] tabular-nums" style={{ color: '#4ade80' }}>{ep.AIADMK}</span>
-                </div>
-                {/* Winner */}
-                <div className="text-center">
-                  <span className="text-[9px] px-2 py-0.5 rounded-full font-black inline-block"
-                    style={{
-                      background: ep.winner === 'TVK' ? 'rgba(251,191,36,0.18)' : ep.winner === 'DMK' ? 'rgba(248,113,113,0.18)' : 'rgba(255,255,255,0.06)',
-                      color: ep.winner === 'TVK' ? '#fbbf24' : ep.winner === 'DMK' ? '#f87171' : 'rgba(255,255,255,0.35)',
-                      border: `1px solid ${ep.winner === 'TVK' ? 'rgba(251,191,36,0.4)' : ep.winner === 'DMK' ? 'rgba(248,113,113,0.35)' : 'rgba(255,255,255,0.12)'}`,
-                    }}>
-                    {ep.winner === 'close' ? '~TIE' : ep.winner}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
             {/* Footer */}
-            <div className="px-4 py-2 flex items-center gap-2"
-              style={{ background: 'rgba(251,191,36,0.05)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-              <span className="text-[9px] text-white/30">⚡ Majority: <strong className="text-white/50">118</strong> seats of 234 · Results May 4 · Not affiliated with any party</span>
+            <div className="px-3 py-1.5 flex items-center justify-between"
+              style={{ background: 'rgba(251,191,36,0.04)', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+              <span className="text-[9px] text-white/25">Not affiliated with any party · Projections only</span>
+              <span className="text-[9px] text-white/25">Results May 4</span>
             </div>
           </div>
         )}

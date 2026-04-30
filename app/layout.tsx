@@ -57,17 +57,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           data-site="nammatamil.live"
           strategy="lazyOnload"
         />
-        {/* Kill Vercel's built-in feedback tab — we have our own */}
+        {/* Kill Vercel's built-in feedback widget — we have our own */}
         <Script id="kill-vercel-feedback" strategy="afterInteractive">{`
           (function(){
             function rm(){
-              var el=document.getElementById('__vercel-feedback');
-              if(el){el.remove();}
-              var tb=document.querySelector('vercel-toolbar');
-              if(tb){tb.remove();}
+              ['__vercel-feedback','vercel-live-feedback','__vercel-toolbar-wrapper'].forEach(function(id){
+                var el=document.getElementById(id);
+                if(el){el.remove();}
+              });
+              ['vercel-toolbar','nextjs-portal'].forEach(function(sel){
+                document.querySelectorAll(sel).forEach(function(el){el.remove();});
+              });
             }
             rm();
-            new MutationObserver(rm).observe(document.body,{childList:true,subtree:true});
+            var obs=new MutationObserver(rm);
+            function startObs(){
+              obs.observe(document.body,{childList:true,subtree:true});
+              rm();
+            }
+            if(document.body){startObs();}
+            else{document.addEventListener('DOMContentLoaded',startObs);}
           })();
         `}</Script>
       </head>

@@ -11,8 +11,8 @@ const CATEGORY_TABS = [
 ]
 
 // YouTube thumbnail quality fallback chain
-function ytThumb(videoId: string, quality: 'hq' | 'mq' | 'sd' = 'hq') {
-  const q = quality === 'hq' ? 'hqdefault' : quality === 'mq' ? 'mqdefault' : 'sddefault'
+function ytThumb(videoId: string, quality: 'hq' | 'mq' | 'sd' | 'default' = 'hq') {
+  const q = quality === 'hq' ? 'hqdefault' : quality === 'mq' ? 'mqdefault' : quality === 'sd' ? 'sddefault' : 'default'
   return `https://i.ytimg.com/vi/${videoId}/${q}.jpg`
 }
 
@@ -23,9 +23,11 @@ function TrailerCard({ trailer, onPlay }: { trailer: Trailer; onPlay: (t: Traile
 
   const handleImgError = () => {
     if (imgSrc.includes('hqdefault')) {
+      setImgSrc(ytThumb(trailer.videoId, 'sd'))
+    } else if (imgSrc.includes('sddefault')) {
       setImgSrc(ytThumb(trailer.videoId, 'mq'))
     } else if (imgSrc.includes('mqdefault')) {
-      setImgSrc(ytThumb(trailer.videoId, 'sd'))
+      setImgSrc(ytThumb(trailer.videoId, 'default'))
     } else {
       setImgFailed(true)
     }
@@ -164,13 +166,11 @@ function VideoModal({ trailer, onClose }: { trailer: Trailer; onClose: () => voi
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function TrailersSection() {
+export default function TrailersSection({ embedded = false }: { embedded?: boolean }) {
   const [trailers, setTrailers] = useState<Trailer[]>([])
   const [loading, setLoading]   = useState(true)
   const [category, setCategory] = useState<'all' | 'movie' | 'drama'>('all')
   const [playing, setPlaying]   = useState<Trailer | null>(null)
-  const [canLeft, setCanLeft]   = useState(false)
-  const [canRight, setCanRight] = useState(true)
   const scrollRef               = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -183,90 +183,76 @@ export default function TrailersSection() {
 
   const visible = trailers.filter(t => category === 'all' ? true : t.category === category)
 
-  const updateArrows = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) return
-    setCanLeft(el.scrollLeft > 8)
-    setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 8)
-  }, [])
-
   const scroll = (dir: 'left' | 'right') => {
     scrollRef.current?.scrollBy({ left: dir === 'left' ? -420 : 420, behavior: 'smooth' })
   }
 
-  return (
-    <section className="pb-2">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+  // ── Embedded (tab) mode — grid layout ─────────────────────────────────────
+  if (embedded) {
+    return (
+      <div className="space-y-4">
+        {/* Filter row */}
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <h2 className="text-white font-black text-base">Trailers & Teasers</h2>
-        </div>
-        <div className="flex items-center gap-1.5">
-          {CATEGORY_TABS.map(tab => (
-            <button key={tab.id}
-              onClick={() => setCategory(tab.id as 'all' | 'movie' | 'drama')}
-              className="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all"
-              style={category === tab.id
-                ? { background: 'rgba(239,68,68,0.2)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.4)' }
-                : { color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              {tab.label}
-            </button>
-          ))}
-          {/* Arrows in header — always visible */}
-          <div className="flex gap-1 ml-1">
-            <button onClick={() => scroll('left')} disabled={!canLeft}
+          <div className="flex gap-1">
+            {CATEGORY_TABS.map(tab => (
+              <button key={tab.id}
+                onClick={() => setCategory(tab.id as 'all' | 'movie' | 'drama')}
+                className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                style={category === tab.id
+                  ? { background: 'rgba(251,146,60,0.2)', color: '#fdba74', border: '1px solid rgba(251,146,60,0.4)' }
+                  : { color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div className="ml-auto flex gap-1">
+            <button onClick={() => scroll('left')}
               className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
-              style={{
-                background: canLeft ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${canLeft ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`,
-              }}>
-              <ChevronLeft className="w-4 h-4" style={{ color: canLeft ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.2)' }} />
+              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
+              <ChevronLeft className="w-4 h-4 text-white/60" />
             </button>
-            <button onClick={() => scroll('right')} disabled={!canRight}
+            <button onClick={() => scroll('right')}
               className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
-              style={{
-                background: canRight ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${canRight ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`,
-              }}>
-              <ChevronRight className="w-4 h-4" style={{ color: canRight ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.2)' }} />
+              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
+              <ChevronRight className="w-4 h-4 text-white/60" />
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Scroll strip */}
-      {loading ? (
-        <div className="flex gap-3 overflow-hidden">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex-shrink-0 w-[168px] sm:w-[200px]">
-              <div className="shimmer rounded-xl" style={{ aspectRatio: '16/9' }} />
-              <div className="mt-2 space-y-1.5">
-                <div className="h-3 shimmer rounded w-full" />
-                <div className="h-2.5 shimmer rounded w-2/3" />
+        {/* Scroll strip — wider cards in embedded mode */}
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i}>
+                <div className="shimmer rounded-xl" style={{ aspectRatio: '16/9' }} />
+                <div className="mt-2 space-y-1.5">
+                  <div className="h-3 shimmer rounded w-full" />
+                  <div className="h-2.5 shimmer rounded w-2/3" />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div
-          ref={scrollRef}
-          onScroll={updateArrows}
-          className="flex gap-3 overflow-x-auto scrollbar-hide pb-1"
-          style={{ scrollSnapType: 'x mandatory' }}
-        >
-          {visible.map(t => (
-            <div key={t.id} style={{ scrollSnapAlign: 'start' }}>
-              <TrailerCard trailer={t} onPlay={setPlaying} />
-            </div>
-          ))}
-          {visible.length === 0 && (
-            <p className="text-white/25 text-sm py-6 px-2">No trailers in this category yet.</p>
-          )}
-        </div>
-      )}
+            ))}
+          </div>
+        ) : visible.length === 0 ? (
+          <p className="text-white/25 text-sm py-12 text-center">No trailers in this category yet.</p>
+        ) : (
+          <div
+            ref={scrollRef}
+            className="flex gap-3 overflow-x-auto scrollbar-hide pb-1"
+            style={{ scrollSnapType: 'x mandatory' }}
+          >
+            {visible.map(t => (
+              <div key={t.id} className="flex-shrink-0 w-[220px] sm:w-[260px]" style={{ scrollSnapAlign: 'start' }}>
+                <TrailerCard trailer={t} onPlay={setPlaying} />
+              </div>
+            ))}
+          </div>
+        )}
 
-      {playing && <VideoModal trailer={playing} onClose={() => setPlaying(null)} />}
-    </section>
-  )
+        {playing && <VideoModal trailer={playing} onClose={() => setPlaying(null)} />}
+      </div>
+    )
+  }
+
+  // ── Standalone (strip) mode — compact horizontal scroll ───────────────────
+  return null
 }

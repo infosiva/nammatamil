@@ -4,23 +4,25 @@ import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Tv2, Film, Music, Play, Search, X,
-  Radio, Trophy, ChevronRight,
+  Radio, Trophy, ChevronRight, Clapperboard,
 } from 'lucide-react'
 import ContentCard from '@/components/ContentCard'
 import OTTExplorer from '@/components/OTTExplorer'
 import CricketWidget from '@/components/CricketWidget'
+import TrailersSection from '@/components/TrailersSection'
 import type { Movie } from '@/data/movies'
 import type { Serial } from '@/data/serials'
 import type { Album } from '@/data/albums'
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'movies',  label: 'Movies',  icon: Film,   color: '#60a5fa' },
-  { id: 'serials', label: 'Serials', icon: Tv2,    color: '#f97316' },
-  { id: 'news',    label: 'News',    icon: Radio,  color: '#f87171' },
-  { id: 'cricket', label: 'Cricket', icon: Trophy, color: '#4ade80' },
-  { id: 'albums',  label: 'Albums',  icon: Music,  color: '#f472b6' },
-  { id: 'ott',     label: 'OTT',     icon: Play,   color: '#a78bfa' },
+  { id: 'movies',   label: 'Movies',   icon: Film,         color: '#60a5fa' },
+  { id: 'serials',  label: 'Serials',  icon: Tv2,          color: '#f97316' },
+  { id: 'trailers', label: 'Trailers', icon: Clapperboard, color: '#fb923c' },
+  { id: 'news',     label: 'News',     icon: Radio,        color: '#f87171' },
+  { id: 'cricket',  label: 'Cricket',  icon: Trophy,       color: '#4ade80' },
+  { id: 'albums',   label: 'Albums',   icon: Music,        color: '#f472b6' },
+  { id: 'ott',      label: 'OTT',      icon: Play,         color: '#a78bfa' },
 ]
 
 
@@ -520,12 +522,13 @@ export default function HomeTabLayout() {
 
       {/* Tab content */}
       <div>
-        {activeTab === 'movies'  && <MoviesTab />}
-        {activeTab === 'serials' && <SerialsTab />}
-        {activeTab === 'news'    && <LiveTab />}
-        {activeTab === 'cricket' && <CricketTab />}
-        {activeTab === 'albums'  && <AlbumsTab />}
-        {activeTab === 'ott'     && <OTTExplorer />}
+        {activeTab === 'movies'   && <MoviesTab />}
+        {activeTab === 'serials'  && <SerialsTab />}
+        {activeTab === 'trailers' && <TrailersSection embedded />}
+        {activeTab === 'news'     && <LiveTab />}
+        {activeTab === 'cricket'  && <CricketTab />}
+        {activeTab === 'albums'   && <AlbumsTab />}
+        {activeTab === 'ott'      && <OTTExplorer />}
       </div>
     </div>
   )
