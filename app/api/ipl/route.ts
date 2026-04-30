@@ -12,18 +12,18 @@ export const revalidate = 0
 const CRIC_API_KEY = process.env.CRIC_API_KEY ?? ''
 const CRIC_BASE    = 'https://api.cricapi.com/v1'
 
-// ── Static fallback standings (after Match 40, Apr 28 2026) ──────────────────
+// ── Static fallback standings — Apr 30 2026 (ESPNCricinfo) ───────────────────
 const STATIC_STANDINGS = [
-  { pos: 1,  team: 'Punjab Kings',                short: 'PBKS', played: 8, w: 6, l: 1, pts: 13, nrr: '+1.043', color: '#a855f7' },
-  { pos: 2,  team: 'Royal Challengers Bengaluru', short: 'RCB',  played: 8, w: 6, l: 2, pts: 12, nrr: '+1.919', color: '#ef4444' },
-  { pos: 3,  team: 'Rajasthan Royals',            short: 'RR',   played: 9, w: 6, l: 3, pts: 12, nrr: '+0.617', color: '#ec4899' },
-  { pos: 4,  team: 'Sunrisers Hyderabad',         short: 'SRH',  played: 8, w: 5, l: 3, pts: 10, nrr: '+0.815', color: '#f97316' },
+  { pos: 1,  team: 'Punjab Kings',                short: 'PBKS', played: 9, w: 8, l: 1, pts: 13, nrr: '+1.043', color: '#a855f7' },
+  { pos: 2,  team: 'Royal Challengers Bengaluru', short: 'RCB',  played: 8, w: 6, l: 2, pts: 13, nrr: '+1.919', color: '#ef4444' },
+  { pos: 3,  team: 'Sunrisers Hyderabad',         short: 'SRH',  played: 8, w: 5, l: 3, pts: 10, nrr: '+0.832', color: '#f97316' },
+  { pos: 4,  team: 'Rajasthan Royals',            short: 'RR',   played: 9, w: 5, l: 3, pts: 11, nrr: '+0.817', color: '#ec4899' },
   { pos: 5,  team: 'Gujarat Titans',              short: 'GT',   played: 8, w: 4, l: 4, pts: 8,  nrr: '-0.475', color: '#6b7280' },
   { pos: 6,  team: 'Chennai Super Kings',         short: 'CSK',  played: 8, w: 3, l: 5, pts: 6,  nrr: '-0.121', color: '#eab308' },
-  { pos: 7,  team: 'Delhi Capitals',              short: 'DC',   played: 8, w: 3, l: 5, pts: 6,  nrr: '-1.060', color: '#3b82f6' },
+  { pos: 7,  team: 'Delhi Capitals',              short: 'DC',   played: 8, w: 2, l: 6, pts: 4,  nrr: '-1.136', color: '#3b82f6' },
   { pos: 8,  team: 'Kolkata Knight Riders',       short: 'KKR',  played: 8, w: 2, l: 5, pts: 5,  nrr: '-0.751', color: '#7c3aed' },
-  { pos: 9,  team: 'Mumbai Indians',              short: 'MI',   played: 7, w: 2, l: 5, pts: 4,  nrr: '-0.736', color: '#0ea5e9' },
-  { pos: 10, team: 'Lucknow Super Giants',        short: 'LSG',  played: 8, w: 2, l: 6, pts: 4,  nrr: '-1.106', color: '#14b8a6' },
+  { pos: 9,  team: 'Mumbai Indians',              short: 'MI',   played: 8, w: 2, l: 5, pts: 5,  nrr: '-0.788', color: '#0ea5e9' },
+  { pos: 10, team: 'Lucknow Super Giants',        short: 'LSG',  played: 8, w: 2, l: 6, pts: 4,  nrr: '-1.506', color: '#14b8a6' },
 ]
 
 // ── Static fallback fixtures (matches 41-51, Apr 29 – May 8) ─────────────────
