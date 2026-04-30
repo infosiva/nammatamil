@@ -219,7 +219,19 @@ export default function TrailersSection({ embedded = false }: { embedded?: boole
             ))}
           </div>
         ) : visible.length === 0 ? (
-          <p className="text-white/25 text-sm py-12 text-center">No trailers in this category yet.</p>
+          <div className="py-12 text-center space-y-2">
+            <p className="text-white/25 text-sm">No trailers found — YouTube feeds may be temporarily unavailable.</p>
+            <button onClick={() => {
+              setLoading(true)
+              fetch('/api/trailers')
+                .then(r => r.ok ? r.json() : Promise.reject())
+                .then(d => { if (d?.trailers?.length) setTrailers(d.trailers) })
+                .catch(() => {})
+                .finally(() => setLoading(false))
+            }} className="text-xs text-amber-400/60 hover:text-amber-400 transition-colors border border-white/10 px-3 py-1 rounded-lg">
+              Retry
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {visible.map(t => (
