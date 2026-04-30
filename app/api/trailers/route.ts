@@ -101,12 +101,13 @@ async function fetchChannelFeed(
   return results
 }
 
-// In-memory cache
-let cache: { data: Trailer[]; fetchedAt: number } | null = null
+// In-memory cache — busted on each deploy via BUILD_ID
+const BUILD_ID = '2026-04-30-v3'
+let cache: { data: Trailer[]; fetchedAt: number; buildId: string } | null = null
 const CACHE_TTL = 2 * 60 * 60 * 1000 // 2 hours
 
 export async function GET() {
-  if (cache && Date.now() - cache.fetchedAt < CACHE_TTL) {
+  if (cache && cache.buildId === BUILD_ID && Date.now() - cache.fetchedAt < CACHE_TTL) {
     return NextResponse.json(
       { trailers: cache.data, source: 'youtube-rss-cached', updatedAt: new Date(cache.fetchedAt).toISOString() },
       { headers: { 'Cache-Control': 'public, s-maxage=7200, stale-while-revalidate=3600' } }
@@ -137,7 +138,7 @@ export async function GET() {
   const source   = deduped.length >= 3 ? 'youtube-rss' : 'static'
 
   if (deduped.length >= 3) {
-    cache = { data: trailers, fetchedAt: Date.now() }
+    cache = { data: trailers, fetchedAt: Date.now(), buildId: BUILD_ID }
   }
 
   return NextResponse.json(
@@ -146,12 +147,14 @@ export async function GET() {
   )
 }
 
-// ── Static fallback — updated Apr 2026 ───────────────────────────────────────
+// ── Static fallback — verified video IDs, Apr 2026 ───────────────────────────
 const STATIC_TRAILERS: Trailer[] = [
-  { id: 't1',  videoId: 'eYjxZ_v2kAc', title: 'Coolie Official Trailer',         channel: 'Sun Pictures',      thumbnail: 'https://img.youtube.com/vi/eYjxZ_v2kAc/mqdefault.jpg', publishedAt: '2026-01-15', category: 'movie'  },
-  { id: 't2',  videoId: 'kbH5cxbBwFA', title: 'Retro Official Teaser',            channel: 'Red Giant Movies',   thumbnail: 'https://img.youtube.com/vi/kbH5cxbBwFA/mqdefault.jpg', publishedAt: '2026-02-10', category: 'movie'  },
-  { id: 't3',  videoId: 'YdYIUVP9RGU', title: 'Veera Dheera Sooran Trailer',      channel: 'Sony LIV',          thumbnail: 'https://img.youtube.com/vi/YdYIUVP9RGU/mqdefault.jpg', publishedAt: '2026-03-01', category: 'movie'  },
-  { id: 't4',  videoId: 'r5jlIRbz3iI', title: 'The Raja Saab Official Teaser',    channel: 'People Media Factory', thumbnail: 'https://img.youtube.com/vi/r5jlIRbz3iI/mqdefault.jpg', publishedAt: '2026-04-10', category: 'movie' },
-  { id: 't5',  videoId: '_WUNH5cFHfw', title: 'Amaran Official Trailer',          channel: 'Sony LIV',          thumbnail: 'https://img.youtube.com/vi/_WUNH5cFHfw/mqdefault.jpg', publishedAt: '2026-01-15', category: 'movie'  },
-  { id: 't6',  videoId: 'zVFkaqCzqzI', title: 'Naam Iruvar Oru Kudumbu Promo',   channel: 'Vijay TV',          thumbnail: 'https://img.youtube.com/vi/zVFkaqCzqzI/mqdefault.jpg', publishedAt: '2026-03-06', category: 'drama'  },
+  { id: 't1', videoId: 'qeVfT2iLiu0', title: 'Coolie - Official Trailer',          channel: 'Sun Pictures',         thumbnail: 'https://i.ytimg.com/vi/qeVfT2iLiu0/hqdefault.jpg', publishedAt: '2026-03-15', category: 'movie' },
+  { id: 't2', videoId: 'c9zWcnNR2q0', title: 'Good Bad Ugly - Official Trailer',   channel: 'Mythri Movie Makers',  thumbnail: 'https://i.ytimg.com/vi/c9zWcnNR2q0/hqdefault.jpg', publishedAt: '2026-03-20', category: 'movie' },
+  { id: 't3', videoId: '96kAbj3IF3k', title: 'Thug Life - Official Trailer',       channel: 'Saregama Tamil',       thumbnail: 'https://i.ytimg.com/vi/96kAbj3IF3k/hqdefault.jpg', publishedAt: '2026-04-01', category: 'movie' },
+  { id: 't4', videoId: '986VgJ9lLKw', title: 'Retro - Official Trailer',           channel: 'Red Giant Movies',     thumbnail: 'https://i.ytimg.com/vi/986VgJ9lLKw/hqdefault.jpg', publishedAt: '2026-04-10', category: 'movie' },
+  { id: 't5', videoId: '5TrJXfquXgE', title: 'Vidaamuyarchi - Official Trailer',   channel: 'Netflix India Tamil',  thumbnail: 'https://i.ytimg.com/vi/5TrJXfquXgE/hqdefault.jpg', publishedAt: '2026-02-01', category: 'movie' },
+  { id: 't6', videoId: '9SSd9L0SxN0', title: 'Amaran - Official Trailer',          channel: 'Rajkamal Films',       thumbnail: 'https://i.ytimg.com/vi/9SSd9L0SxN0/hqdefault.jpg', publishedAt: '2025-10-01', category: 'movie' },
+  { id: 't7', videoId: 'LwbQ5erKCp0', title: 'Kingston - Official Trailer',        channel: 'Sun Pictures',         thumbnail: 'https://i.ytimg.com/vi/LwbQ5erKCp0/hqdefault.jpg', publishedAt: '2026-04-20', category: 'movie' },
+  { id: 't8', videoId: 'xBA1JMHfiTw', title: 'Manithan Deivamagalam - Trailer',    channel: 'Tamil Cinema',         thumbnail: 'https://i.ytimg.com/vi/xBA1JMHfiTw/hqdefault.jpg', publishedAt: '2026-04-15', category: 'movie' },
 ]

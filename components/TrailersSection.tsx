@@ -221,9 +221,9 @@ export default function TrailersSection({ embedded = false }: { embedded?: boole
 
         {/* Scroll strip — wider cards in embedded mode */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i}>
+          <div className="flex gap-3 overflow-hidden">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-[220px]">
                 <div className="shimmer rounded-xl" style={{ aspectRatio: '16/9' }} />
                 <div className="mt-2 space-y-1.5">
                   <div className="h-3 shimmer rounded w-full" />
@@ -235,16 +235,26 @@ export default function TrailersSection({ embedded = false }: { embedded?: boole
         ) : visible.length === 0 ? (
           <p className="text-white/25 text-sm py-12 text-center">No trailers in this category yet.</p>
         ) : (
-          <div
-            ref={scrollRef}
-            className="flex gap-3 overflow-x-auto scrollbar-hide pb-1"
-            style={{ scrollSnapType: 'x mandatory' }}
-          >
-            {visible.map(t => (
-              <div key={t.id} className="flex-shrink-0 w-[220px] sm:w-[260px]" style={{ scrollSnapAlign: 'start' }}>
-                <TrailerCard trailer={t} onPlay={setPlaying} />
-              </div>
-            ))}
+          <div style={{ overflow: 'hidden' }}>
+            <div
+              ref={scrollRef}
+              style={{
+                display: 'flex',
+                gap: '12px',
+                overflowX: 'auto',
+                overflowY: 'visible',
+                scrollSnapType: 'x mandatory',
+                paddingBottom: '4px',
+                msOverflowStyle: 'none',
+                scrollbarWidth: 'none',
+              }}
+            >
+              {visible.map(t => (
+                <div key={t.id} style={{ flexShrink: 0, width: '220px', scrollSnapAlign: 'start' }}>
+                  <TrailerCard trailer={t} onPlay={setPlaying} />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
