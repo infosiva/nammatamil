@@ -53,7 +53,7 @@ export default function FeedbackWidget() {
       {/* ── Floating trigger button ── */}
       <button
         onClick={() => { setOpen(true); reset() }}
-        className="fixed bottom-6 left-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-sm shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-sm shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
         style={{
           background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
           color: '#000',
@@ -77,7 +77,7 @@ export default function FeedbackWidget() {
       {/* ── Drawer / Modal ── */}
       {open && (
         <div
-          className="fixed bottom-0 left-0 z-[100] w-full sm:w-[420px] sm:bottom-20 sm:left-6 rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl"
+          className="fixed bottom-0 right-0 z-[100] w-full sm:w-[420px] sm:bottom-20 sm:right-6 rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl"
           style={{
             background: 'rgba(10,6,28,0.98)',
             border: '1px solid rgba(245,158,11,0.2)',
