@@ -106,10 +106,17 @@ function TrailerCard({ trailer, onPlay, fullWidth = false }: { trailer: Trailer;
           </span>
         </div>
 
-        {/* Trending badge — top right, based on recency */}
+        {/* Trending badge — top right: real views > recency */}
         {(() => {
+          // Real YouTube trending (view-count based)
+          if (trailer.trending) return (
+            <div className="absolute top-1.5 right-1.5">
+              <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.92)', color: '#000' }}>🔥 TRENDING</span>
+            </div>
+          )
+          // Fallback recency badges
           const daysAgo = (Date.now() - new Date(trailer.publishedAt).getTime()) / (1000 * 60 * 60 * 24)
-          if (daysAgo <= 7)  return <div className="absolute top-1.5 right-1.5"><span className="text-[8px] font-black px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.92)', color: '#000' }}>🔥 TRENDING</span></div>
+          if (daysAgo <= 7)  return <div className="absolute top-1.5 right-1.5"><span className="text-[8px] font-black px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.92)', color: '#000' }}>🔥 NEW</span></div>
           if (daysAgo <= 21) return <div className="absolute top-1.5 right-1.5"><span className="text-[8px] font-black px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(139,92,246,0.88)', color: '#fff' }}>⭐ NEW</span></div>
           if (daysAgo <= 45) return <div className="absolute top-1.5 right-1.5"><span className="text-[8px] font-black px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(34,197,94,0.82)', color: '#000' }}>POPULAR</span></div>
           return null
@@ -123,16 +130,21 @@ function TrailerCard({ trailer, onPlay, fullWidth = false }: { trailer: Trailer;
         </p>
         <div className="flex items-center justify-between mt-0.5">
           <p className="text-white/35 text-[10px] truncate">{trailer.channel}</p>
-          <p className="text-white/20 text-[9px] flex-shrink-0 ml-1">
-            {(() => {
-              const daysAgo = Math.floor((Date.now() - new Date(trailer.publishedAt).getTime()) / (1000 * 60 * 60 * 24))
-              if (daysAgo === 0) return 'Today'
-              if (daysAgo === 1) return '1d ago'
-              if (daysAgo < 7)  return `${daysAgo}d ago`
-              if (daysAgo < 30) return `${Math.floor(daysAgo / 7)}w ago`
-              return `${Math.floor(daysAgo / 30)}mo ago`
-            })()}
-          </p>
+          <div className="flex items-center gap-1 flex-shrink-0 ml-1">
+            {trailer.viewLabel && (
+              <span className="text-amber-400/70 text-[9px] font-semibold">{trailer.viewLabel}</span>
+            )}
+            <p className="text-white/20 text-[9px]">
+              {(() => {
+                const daysAgo = Math.floor((Date.now() - new Date(trailer.publishedAt).getTime()) / (1000 * 60 * 60 * 24))
+                if (daysAgo === 0) return 'Today'
+                if (daysAgo === 1) return '1d ago'
+                if (daysAgo < 7)  return `${daysAgo}d ago`
+                if (daysAgo < 30) return `${Math.floor(daysAgo / 7)}w ago`
+                return `${Math.floor(daysAgo / 30)}mo ago`
+              })()}
+            </p>
+          </div>
         </div>
       </div>
     </div>
