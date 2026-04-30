@@ -16,7 +16,7 @@ function ytThumb(videoId: string, quality: 'hq' | 'mq' | 'sd' | 'default' = 'hq'
   return `https://i.ytimg.com/vi/${videoId}/${q}.jpg`
 }
 
-function TrailerCard({ trailer, onPlay }: { trailer: Trailer; onPlay: (t: Trailer) => void }) {
+function TrailerCard({ trailer, onPlay, fullWidth = false }: { trailer: Trailer; onPlay: (t: Trailer) => void; fullWidth?: boolean }) {
   const [imgSrc, setImgSrc] = useState(() => ytThumb(trailer.videoId, 'hq'))
   const [imgFailed, setImgFailed] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -35,7 +35,7 @@ function TrailerCard({ trailer, onPlay }: { trailer: Trailer; onPlay: (t: Traile
 
   return (
     <div
-      className="flex-shrink-0 w-[168px] sm:w-[200px] cursor-pointer group"
+      className={`cursor-pointer group ${fullWidth ? 'w-full' : 'flex-shrink-0 w-[168px] sm:w-[200px]'}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => onPlay(trailer)}
@@ -187,43 +187,29 @@ export default function TrailersSection({ embedded = false }: { embedded?: boole
     scrollRef.current?.scrollBy({ left: dir === 'left' ? -420 : 420, behavior: 'smooth' })
   }
 
-  // ── Embedded (tab) mode — grid layout ─────────────────────────────────────
+  // ── Embedded (tab) mode — responsive grid, no scroll ─────────────────────
   if (embedded) {
     return (
       <div className="space-y-4">
         {/* Filter row */}
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            {CATEGORY_TABS.map(tab => (
-              <button key={tab.id}
-                onClick={() => setCategory(tab.id as 'all' | 'movie' | 'drama')}
-                className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-                style={category === tab.id
-                  ? { background: 'rgba(251,146,60,0.2)', color: '#fdba74', border: '1px solid rgba(251,146,60,0.4)' }
-                  : { color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <div className="ml-auto flex gap-1">
-            <button onClick={() => scroll('left')}
-              className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
-              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-              <ChevronLeft className="w-4 h-4 text-white/60" />
+        <div className="flex items-center gap-2 flex-wrap">
+          {CATEGORY_TABS.map(tab => (
+            <button key={tab.id}
+              onClick={() => setCategory(tab.id as 'all' | 'movie' | 'drama')}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              style={category === tab.id
+                ? { background: 'rgba(251,146,60,0.2)', color: '#fdba74', border: '1px solid rgba(251,146,60,0.4)' }
+                : { color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              {tab.label}
             </button>
-            <button onClick={() => scroll('right')}
-              className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
-              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-              <ChevronRight className="w-4 h-4 text-white/60" />
-            </button>
-          </div>
+          ))}
         </div>
 
-        {/* Scroll strip — wider cards in embedded mode */}
+        {/* Responsive grid — 2 cols mobile, 3 tablet, 4 desktop */}
         {loading ? (
-          <div className="flex gap-3 overflow-hidden">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-[220px]">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i}>
                 <div className="shimmer rounded-xl" style={{ aspectRatio: '16/9' }} />
                 <div className="mt-2 space-y-1.5">
                   <div className="h-3 shimmer rounded w-full" />
@@ -235,26 +221,10 @@ export default function TrailersSection({ embedded = false }: { embedded?: boole
         ) : visible.length === 0 ? (
           <p className="text-white/25 text-sm py-12 text-center">No trailers in this category yet.</p>
         ) : (
-          <div style={{ overflow: 'hidden' }}>
-            <div
-              ref={scrollRef}
-              style={{
-                display: 'flex',
-                gap: '12px',
-                overflowX: 'auto',
-                overflowY: 'visible',
-                scrollSnapType: 'x mandatory',
-                paddingBottom: '4px',
-                msOverflowStyle: 'none',
-                scrollbarWidth: 'none',
-              }}
-            >
-              {visible.map(t => (
-                <div key={t.id} style={{ flexShrink: 0, width: '220px', scrollSnapAlign: 'start' }}>
-                  <TrailerCard trailer={t} onPlay={setPlaying} />
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {visible.map(t => (
+              <TrailerCard key={t.id} trailer={t} onPlay={setPlaying} fullWidth />
+            ))}
           </div>
         )}
 

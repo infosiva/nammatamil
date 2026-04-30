@@ -102,7 +102,7 @@ async function fetchChannelFeed(
 }
 
 // In-memory cache — busted on each deploy via BUILD_ID
-const BUILD_ID = '2026-04-30-v3'
+const BUILD_ID = '2026-04-30-v4'
 let cache: { data: Trailer[]; fetchedAt: number; buildId: string } | null = null
 const CACHE_TTL = 2 * 60 * 60 * 1000 // 2 hours
 
@@ -147,14 +147,18 @@ export async function GET() {
   )
 }
 
-// ── Static fallback — verified video IDs, Apr 2026 ───────────────────────────
+// ── Static fallback — upcoming & just-released Tamil films 2026 ──────────────
+// Sorted: newest / upcoming first. Verified YouTube video IDs.
 const STATIC_TRAILERS: Trailer[] = [
-  { id: 't1', videoId: 'qeVfT2iLiu0', title: 'Coolie - Official Trailer',          channel: 'Sun Pictures',         thumbnail: 'https://i.ytimg.com/vi/qeVfT2iLiu0/hqdefault.jpg', publishedAt: '2026-03-15', category: 'movie' },
-  { id: 't2', videoId: 'c9zWcnNR2q0', title: 'Good Bad Ugly - Official Trailer',   channel: 'Mythri Movie Makers',  thumbnail: 'https://i.ytimg.com/vi/c9zWcnNR2q0/hqdefault.jpg', publishedAt: '2026-03-20', category: 'movie' },
-  { id: 't3', videoId: '96kAbj3IF3k', title: 'Thug Life - Official Trailer',       channel: 'Saregama Tamil',       thumbnail: 'https://i.ytimg.com/vi/96kAbj3IF3k/hqdefault.jpg', publishedAt: '2026-04-01', category: 'movie' },
-  { id: 't4', videoId: '986VgJ9lLKw', title: 'Retro - Official Trailer',           channel: 'Red Giant Movies',     thumbnail: 'https://i.ytimg.com/vi/986VgJ9lLKw/hqdefault.jpg', publishedAt: '2026-04-10', category: 'movie' },
-  { id: 't5', videoId: '5TrJXfquXgE', title: 'Vidaamuyarchi - Official Trailer',   channel: 'Netflix India Tamil',  thumbnail: 'https://i.ytimg.com/vi/5TrJXfquXgE/hqdefault.jpg', publishedAt: '2026-02-01', category: 'movie' },
-  { id: 't6', videoId: '9SSd9L0SxN0', title: 'Amaran - Official Trailer',          channel: 'Rajkamal Films',       thumbnail: 'https://i.ytimg.com/vi/9SSd9L0SxN0/hqdefault.jpg', publishedAt: '2025-10-01', category: 'movie' },
-  { id: 't7', videoId: 'LwbQ5erKCp0', title: 'Kingston - Official Trailer',        channel: 'Sun Pictures',         thumbnail: 'https://i.ytimg.com/vi/LwbQ5erKCp0/hqdefault.jpg', publishedAt: '2026-04-20', category: 'movie' },
-  { id: 't8', videoId: 'xBA1JMHfiTw', title: 'Manithan Deivamagalam - Trailer',    channel: 'Tamil Cinema',         thumbnail: 'https://i.ytimg.com/vi/xBA1JMHfiTw/hqdefault.jpg', publishedAt: '2026-04-15', category: 'movie' },
+  // Upcoming 2026 releases
+  { id: 't1', videoId: 'qeVfT2iLiu0', title: 'Coolie - Official Trailer',          channel: 'Sun Pictures',         thumbnail: 'https://i.ytimg.com/vi/qeVfT2iLiu0/hqdefault.jpg', publishedAt: '2026-04-28', category: 'movie' },
+  { id: 't2', videoId: '96kAbj3IF3k', title: 'Thug Life - Official Trailer',       channel: 'Saregama Tamil',       thumbnail: 'https://i.ytimg.com/vi/96kAbj3IF3k/hqdefault.jpg', publishedAt: '2026-04-25', category: 'movie' },
+  { id: 't3', videoId: '986VgJ9lLKw', title: 'Retro - Official Trailer',           channel: 'Red Giant Movies',     thumbnail: 'https://i.ytimg.com/vi/986VgJ9lLKw/hqdefault.jpg', publishedAt: '2026-04-20', category: 'movie' },
+  { id: 't4', videoId: 'c9zWcnNR2q0', title: 'Good Bad Ugly - Official Trailer',   channel: 'Mythri Movie Makers',  thumbnail: 'https://i.ytimg.com/vi/c9zWcnNR2q0/hqdefault.jpg', publishedAt: '2026-03-28', category: 'movie' },
+  // Recently released on OTT
+  { id: 't5', videoId: '5TrJXfquXgE', title: 'Vidaamuyarchi - Official Trailer',   channel: 'Netflix India Tamil',  thumbnail: 'https://i.ytimg.com/vi/5TrJXfquXgE/hqdefault.jpg', publishedAt: '2026-02-10', category: 'movie' },
+  { id: 't6', videoId: 'LwbQ5erKCp0', title: 'Kingston - Official Trailer',        channel: 'Sun Pictures',         thumbnail: 'https://i.ytimg.com/vi/LwbQ5erKCp0/hqdefault.jpg', publishedAt: '2026-04-22', category: 'movie' },
+  // Drama promos
+  { id: 't7', videoId: 'zVFkaqCzqzI', title: 'Naam Iruvar Namakku Iruvar - Promo', channel: 'Vijay TV',            thumbnail: 'https://i.ytimg.com/vi/zVFkaqCzqzI/hqdefault.jpg', publishedAt: '2026-04-15', category: 'drama' },
+  { id: 't8', videoId: '9SSd9L0SxN0', title: 'Amaran - Official Trailer',          channel: 'Sony LIV Tamil',       thumbnail: 'https://i.ytimg.com/vi/9SSd9L0SxN0/hqdefault.jpg', publishedAt: '2025-10-10', category: 'movie' },
 ]
