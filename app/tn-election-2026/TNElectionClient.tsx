@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Brain, TrendingUp, Users, Zap, Share2, BarChart2, ChevronDown, CheckCircle2, Newspaper } from 'lucide-react'
 import Link from 'next/link'
+import ElectionResultsLive from '@/components/ElectionResultsLive'
 
 // ─── Exit Poll Data (April 29, 2026) ─────────────────────────────────────────
 // Axis My India is FEATURED — TVK projected winner 98–120 seats
@@ -671,6 +672,13 @@ export default function TNElectionClient() {
             </div>
           ))}
         </div>
+
+        {/* ── LIVE RESULTS (counting day + declared) ── */}
+        {(isLive || new Date() >= new Date('2026-05-04T06:00:00+05:30')) && (
+          <div className="mb-6">
+            <ElectionResultsLive />
+          </div>
+        )}
 
         {/* ── EXIT POLLS ── */}
         <ExitPollSection />

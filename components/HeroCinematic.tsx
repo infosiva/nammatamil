@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Brain, ChevronRight, TrendingUp, TrendingDown, Minus, Trophy, RefreshCw, Zap } from 'lucide-react'
+import ElectionResultsLive from '@/components/ElectionResultsLive'
 
 // ── Switch date (show IPL after May 4 results day) ───────────────────────────
 const SWITCH_MS   = new Date('2026-05-04T18:00:00+05:30').getTime()
@@ -335,7 +336,7 @@ function ElectionHero() {
           )}
         </AnimatePresence>
 
-        {/* Countdown */}
+        {/* Countdown — before counting starts */}
         {!done ? (
           <div>
             <p className="text-white/20 text-[9px] uppercase tracking-widest mb-1.5">Counting begins in</p>
@@ -350,11 +351,8 @@ function ElectionHero() {
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
-            style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)' }}>
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-amber-400 font-black text-sm">Election Day — May 4!</span>
-          </div>
+          /* Counting day — show live results inline */
+          <ElectionResultsLive compact />
         )}
 
         {/* Spacer + CTA pinned to bottom */}
