@@ -57,6 +57,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           data-site="nammatamil.live"
           strategy="lazyOnload"
         />
+        {/* Kill Vercel's built-in feedback tab — we have our own */}
+        <Script id="kill-vercel-feedback" strategy="afterInteractive">{`
+          (function(){
+            function rm(){
+              var el=document.getElementById('__vercel-feedback');
+              if(el){el.remove();}
+              var tb=document.querySelector('vercel-toolbar');
+              if(tb){tb.remove();}
+            }
+            rm();
+            new MutationObserver(rm).observe(document.body,{childList:true,subtree:true});
+          })();
+        `}</Script>
       </head>
       <body className="min-h-screen flex flex-col bg-site">
         <TVKWidget />

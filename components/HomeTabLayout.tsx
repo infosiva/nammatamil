@@ -17,7 +17,7 @@ import type { Album } from '@/data/albums'
 const TABS = [
   { id: 'movies',  label: 'Movies',  icon: Film,   color: '#60a5fa' },
   { id: 'serials', label: 'Serials', icon: Tv2,    color: '#f97316' },
-  { id: 'live',    label: 'Live',    icon: Radio,  color: '#f87171' },
+  { id: 'news',    label: 'News',    icon: Radio,  color: '#f87171' },
   { id: 'cricket', label: 'Cricket', icon: Trophy, color: '#4ade80' },
   { id: 'albums',  label: 'Albums',  icon: Music,  color: '#f472b6' },
   { id: 'ott',     label: 'OTT',     icon: Play,   color: '#a78bfa' },
@@ -522,7 +522,7 @@ export default function HomeTabLayout() {
       <div>
         {activeTab === 'movies'  && <MoviesTab />}
         {activeTab === 'serials' && <SerialsTab />}
-        {activeTab === 'live'    && <LiveTab />}
+        {activeTab === 'news'    && <LiveTab />}
         {activeTab === 'cricket' && <CricketTab />}
         {activeTab === 'albums'  && <AlbumsTab />}
         {activeTab === 'ott'     && <OTTExplorer />}

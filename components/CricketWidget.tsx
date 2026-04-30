@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Trophy, RefreshCw, Zap, ExternalLink } from 'lucide-react'
+import { Trophy, RefreshCw, ExternalLink } from 'lucide-react'
 
 interface Standing {
   pos: number; short: string; name: string; played: number
@@ -46,80 +46,6 @@ export default function CricketWidget() {
 
   return (
     <div className="space-y-4">
-
-      {/* Match Results card */}
-      <div className="rounded-2xl overflow-hidden" style={{
-        background: 'linear-gradient(160deg, #001a0a 0%, #002d14 60%, #000f07 100%)',
-        border: '1px solid rgba(34,197,94,0.25)',
-      }}>
-        <div className="flex items-center justify-between px-3 py-2 border-b border-green-500/10">
-          <div className="flex items-center gap-2">
-            <Trophy className="w-3.5 h-3.5 text-green-400" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-white/60">IPL 2026</span>
-            {data?.liveScore && (
-              <span className="flex items-center gap-1 text-[9px] font-bold text-green-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> LIVE
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {data?.updatedAt && (
-              <span className="text-[8px] text-white/20">
-                {isLiveAI ? '🔴 AI' : '📡'} {new Date(data.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
-            )}
-            <button onClick={() => fetch_(true)} disabled={refreshing} className="text-white/30 hover:text-green-400 transition-colors">
-              <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-3 space-y-2">
-          {loading ? (
-            <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-10 rounded-xl shimmer" />)}</div>
-          ) : (
-            <>
-              {/* Live score */}
-              {data?.liveScore && (
-                <div className="rounded-xl p-3" style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)' }}>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-[9px] font-black text-red-400 uppercase">Live Now</span>
-                  </div>
-                  <p className="text-white text-xs font-bold leading-snug">{data.liveScore}</p>
-                </div>
-              )}
-
-              {/* Latest result */}
-              {data?.latestResult && (
-                <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <p className="text-[9px] font-black text-white/30 uppercase tracking-wider mb-1">Latest Result</p>
-                  <p className="text-white/75 text-xs leading-snug">{data.latestResult}</p>
-                </div>
-              )}
-
-              {/* Next match */}
-              {data?.nextMatch && (
-                <div className="rounded-xl p-3" style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.15)' }}>
-                  <p className="text-[9px] font-black text-amber-400/50 uppercase tracking-wider mb-1">Next Match</p>
-                  <p className="text-white/75 text-xs leading-snug">{data.nextMatch}</p>
-                </div>
-              )}
-
-              {!data?.latestResult && !data?.liveScore && !data?.nextMatch && (
-                <p className="text-white/25 text-xs text-center py-4">Fetching latest scores…</p>
-              )}
-            </>
-          )}
-        </div>
-
-        {isLiveAI && data?.headlineCount != null && (
-          <div className="px-3 py-1.5 border-t border-white/5 flex items-center gap-1">
-            <Zap className="w-2.5 h-2.5 text-green-400/40" />
-            <p className="text-white/20 text-[8px]">AI analysed {data.headlineCount} live headlines from ESPNCricinfo</p>
-          </div>
-        )}
-      </div>
 
       {/* Points Table */}
       <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(34,197,94,0.15)' }}>

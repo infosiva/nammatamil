@@ -247,79 +247,77 @@ function ElectionHero() {
           </div>
         )}
 
-        {/* All Exit Polls table */}
+        {/* All Exit Polls table — bigger, clearer */}
         {data?.exitPolls && data.exitPolls.length > 0 && (
-          <div className="rounded-xl overflow-hidden"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="rounded-2xl overflow-hidden"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}>
+            {/* Section label */}
+            <div className="px-4 pt-3 pb-1">
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">All Exit Polls · Apr 28–29 2026</span>
+            </div>
             {/* Header row with party symbols */}
-            <div className="grid px-3 py-2 border-b border-white/[0.07]"
-              style={{ gridTemplateColumns: '1fr 52px 52px 52px 44px' }}>
-              <span className="text-[9px] font-black text-white/35 uppercase tracking-wider self-center">Agency</span>
-              {/* TVK — yellow sun / thalapathy star */}
-              <div className="flex flex-col items-center gap-0.5">
-                <span className="text-[14px] leading-none">⭐</span>
-                <span className="text-[8px] font-black" style={{ color: '#fbbf24' }}>TVK</span>
-                <span className="text-[7px] text-white/25">Vijay</span>
-              </div>
-              {/* DMK — rising sun */}
-              <div className="flex flex-col items-center gap-0.5">
-                <span className="text-[14px] leading-none">🌅</span>
-                <span className="text-[8px] font-black" style={{ color: '#f87171' }}>DMK</span>
-                <span className="text-[7px] text-white/25">Stalin</span>
-              </div>
-              {/* AIADMK — two leaves */}
-              <div className="flex flex-col items-center gap-0.5">
-                <span className="text-[14px] leading-none">🍃</span>
-                <span className="text-[8px] font-black" style={{ color: '#4ade80' }}>ADMK</span>
-                <span className="text-[7px] text-white/25">EPS</span>
-              </div>
-              <div className="flex flex-col items-center gap-0.5">
-                <span className="text-[14px] leading-none opacity-0">·</span>
-                <span className="text-[8px] font-black text-white/25">Win</span>
+            <div className="grid px-4 py-2 border-b border-white/[0.08]"
+              style={{ gridTemplateColumns: '1fr 64px 64px 64px 50px' }}>
+              <span className="text-[10px] font-bold text-white/30 self-center">Agency / Channel</span>
+              {[
+                { emoji: '⭐', abbr: 'TVK', name: 'Vijay', color: '#fbbf24' },
+                { emoji: '🌅', abbr: 'DMK', name: 'Stalin', color: '#f87171' },
+                { emoji: '🍃', abbr: 'ADMK', name: 'EPS', color: '#4ade80' },
+              ].map(p => (
+                <div key={p.abbr} className="flex flex-col items-center gap-0.5">
+                  <span className="text-[16px] leading-none">{p.emoji}</span>
+                  <span className="text-[9px] font-black" style={{ color: p.color }}>{p.abbr}</span>
+                  <span className="text-[8px] text-white/30">{p.name}</span>
+                </div>
+              ))}
+              <div className="flex flex-col items-center justify-end pb-0.5">
+                <span className="text-[9px] font-bold text-white/25">Win</span>
               </div>
             </div>
+
+            {/* Data rows */}
             {data.exitPolls.map((ep, idx) => (
               <div key={ep.agency}
-                className="grid items-center px-3 py-2 border-b border-white/[0.04] last:border-0"
+                className="grid items-center px-4 py-2.5 border-b border-white/[0.05] last:border-0"
                 style={{
-                  gridTemplateColumns: '1fr 52px 52px 52px 44px',
-                  background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)',
+                  gridTemplateColumns: '1fr 64px 64px 64px 50px',
+                  background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
                 }}>
                 {/* Agency */}
-                <div className="min-w-0">
-                  <span className="text-[9px] font-bold text-white/60 truncate block leading-tight">{ep.agency}</span>
-                  <span className="text-[7px] text-white/20 truncate block">{ep.client}</span>
+                <div className="min-w-0 pr-1">
+                  <span className="text-[11px] font-bold text-white/75 leading-tight block">{ep.agency}</span>
+                  <span className="text-[9px] text-white/25 block">{ep.client}</span>
                 </div>
-                {/* TVK seats */}
+                {/* TVK */}
                 <div className="text-center">
-                  <span className="text-[10px] font-black tabular-nums" style={{ color: '#fbbf24' }}>{ep.TVK}</span>
+                  <span className="text-[12px] font-black tabular-nums" style={{ color: '#fbbf24' }}>{ep.TVK}</span>
                 </div>
-                {/* DMK seats */}
+                {/* DMK */}
                 <div className="text-center">
-                  <span className="text-[10px] font-bold tabular-nums" style={{ color: '#f87171' }}>{ep.DMK}</span>
+                  <span className="text-[12px] font-bold tabular-nums" style={{ color: '#f87171' }}>{ep.DMK}</span>
                 </div>
-                {/* AIADMK seats */}
+                {/* AIADMK */}
                 <div className="text-center">
-                  <span className="text-[10px] tabular-nums" style={{ color: '#4ade80' }}>{ep.AIADMK}</span>
+                  <span className="text-[12px] tabular-nums" style={{ color: '#4ade80' }}>{ep.AIADMK}</span>
                 </div>
-                {/* Winner badge */}
+                {/* Winner */}
                 <div className="text-center">
-                  <span className="text-[8px] px-1.5 py-0.5 rounded-full font-black"
+                  <span className="text-[9px] px-2 py-0.5 rounded-full font-black inline-block"
                     style={{
-                      background: ep.winner === 'TVK' ? 'rgba(251,191,36,0.2)' : ep.winner === 'DMK' ? 'rgba(248,113,113,0.2)' : 'rgba(255,255,255,0.07)',
+                      background: ep.winner === 'TVK' ? 'rgba(251,191,36,0.18)' : ep.winner === 'DMK' ? 'rgba(248,113,113,0.18)' : 'rgba(255,255,255,0.06)',
                       color: ep.winner === 'TVK' ? '#fbbf24' : ep.winner === 'DMK' ? '#f87171' : 'rgba(255,255,255,0.35)',
-                      border: `1px solid ${ep.winner === 'TVK' ? 'rgba(251,191,36,0.35)' : ep.winner === 'DMK' ? 'rgba(248,113,113,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                      border: `1px solid ${ep.winner === 'TVK' ? 'rgba(251,191,36,0.4)' : ep.winner === 'DMK' ? 'rgba(248,113,113,0.35)' : 'rgba(255,255,255,0.12)'}`,
                     }}>
-                    {ep.winner === 'close' ? '≈' : ep.winner}
+                    {ep.winner === 'close' ? '~TIE' : ep.winner}
                   </span>
                 </div>
               </div>
             ))}
-            {/* Majority line note */}
-            <div className="px-3 py-1.5 flex items-center gap-1.5"
-              style={{ background: 'rgba(251,191,36,0.04)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-              <span className="text-white/20 text-[8px]">⚡</span>
-              <span className="text-white/25 text-[8px]">Majority: 118 seats of 234 · Tamil Nadu Assembly Election · Results May 4</span>
+
+            {/* Footer */}
+            <div className="px-4 py-2 flex items-center gap-2"
+              style={{ background: 'rgba(251,191,36,0.05)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <span className="text-[9px] text-white/30">⚡ Majority: <strong className="text-white/50">118</strong> seats of 234 · Results May 4 · Not affiliated with any party</span>
             </div>
           </div>
         )}
