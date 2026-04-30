@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>TVK Reels — TN Election 2026</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; overflow:hidden; background:#07010f; }
+
+  .scale-wrap {
+    position:fixed; top:0; left:0;
+    width:1080px; height:1920px;
+    transform-origin:top left;
+    overflow:hidden;
+  }
+
+  /* ── Background ── */
+  .bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 20%, rgba(251,191,36,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 50% at 20% 70%, rgba(251,191,36,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 85% 85%, rgba(248,113,113,0.06) 0%, transparent 50%),
+      linear-gradient(170deg, #110424 0%, #08020f 45%, #04010a 100%);
+  }
+  .bg::after {
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(251,191,36,0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(251,191,36,0.028) 1px, transparent 1px);
+    background-size:72px 72px;
+  }
+
+  /* ── Vijay bg portrait (full bleed, faded) ── */
+  .vijay-bg {
+    position:absolute; inset:0;
+    background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Actor_Vijay_at_Mersal_Audio_Launch.jpg/800px-Actor_Vijay_at_Mersal_Audio_Launch.jpg');
+    background-size:cover;
+    background-position:top center;
+    filter:brightness(0.18) saturate(0.6) blur(1px);
+    z-index:0;
+  }
+  /* Strong gradient over the photo so text pops */
+  .vijay-bg-fade {
+    position:absolute; inset:0;
+    background:
+      linear-gradient(to bottom,
+        rgba(8,2,15,0.55) 0%,
+        rgba(8,2,15,0.2)  20%,
+        rgba(8,2,15,0.1)  40%,
+        rgba(8,2,15,0.5)  65%,
+        rgba(8,2,15,0.95) 82%,
+        #08020f 100%
+      );
+    z-index:1;
+  }
+
+  /* ── Sharp Vijay portrait (top half) ── */
+  .vijay-portrait {
+    position:absolute;
+    top:0; left:0; right:0;
+    height:760px;
+    z-index:2;
+    overflow:hidden;
+  }
+  .vijay-portrait img {
+    width:100%; height:100%;
+    object-fit:cover;
+    object-position:top center;
+    filter:brightness(0.92) saturate(0.95) contrast(1.05);
+  }
+  .vijay-portrait::after {
+    content:'';
+    position:absolute; bottom:0; left:0; right:0; height:380px;
+    background:linear-gradient(to bottom, transparent 0%, rgba(8,2,15,0.7) 50%, rgba(8,2,15,0.98) 85%, #08020f 100%);
+  }
+
+  /* ── Content layer ── */
+  .content {
+    position:absolute; inset:0;
+    z-index:5;
+    display:flex; flex-direction:column;
+    padding:0 52px;
+  }
+
+  /* ── TOP: Channel + badge ── */
+  .top-bar {
+    padding-top:52px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .channel-pill {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 16px; border-radius:100px;
+    background:rgba(0,0,0,0.5);
+    border:1px solid rgba(251,191,36,0.35);
+    backdrop-filter:blur(8px);
+  }
+  .channel-pill span { font-size:13px; font-weight:900; color:#fbbf24; letter-spacing:0.05em; }
+  .live-badge {
+    display:flex; align-items:center; gap:7px;
+    padding:8px 16px; border-radius:100px;
+    background:rgba(239,68,68,0.2);
+    border:1px solid rgba(239,68,68,0.5);
+    animation:badgePulse 2.5s ease-in-out infinite;
+  }
+  .live-badge span { font-size:13px; font-weight:900; color:#ef4444; letter-spacing:0.1em; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#ef4444; animation:dotPulse 1.4s ease-in-out infinite; }
+  @keyframes badgePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.3)} 50%{box-shadow:0 0 0 8px rgba(239,68,68,0)} }
+  @keyframes dotPulse   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.6)} }
+
+  /* ── MIDDLE: Name + role (sits over portrait) ── */
+  .hero-name {
+    margin-top:auto;
+    padding-bottom:28px;
+  }
+  .tvk-label {
+    display:flex; align-items:center; gap:8px;
+    margin-bottom:10px;
+  }
+  .tvk-label-text { font-size:14px; font-weight:900; color:rgba(251,191,36,0.65); letter-spacing:0.14em; }
+  .name-main { font-size:82px; font-weight:900; color:#fff; line-height:0.95; letter-spacing:-0.03em; text-shadow:0 4px 40px rgba(0,0,0,0.9); }
+  .name-sub  { font-size:28px; font-weight:700; color:rgba(255,255,255,0.45); margin-top:8px; }
+  .cm-tag {
+    display:inline-flex; align-items:center; gap:8px;
+    margin-top:14px; padding:8px 20px; border-radius:100px;
+    background:linear-gradient(135deg,rgba(251,191,36,0.22),rgba(245,158,11,0.1));
+    border:1.5px solid rgba(251,191,36,0.5);
+    font-size:15px; font-weight:900; color:#fbbf24; letter-spacing:0.06em;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height:1px; width:100%;
+    background:linear-gradient(90deg,transparent,rgba(251,191,36,0.4),transparent);
+    margin:24px 0;
+    flex-shrink:0;
+  }
+
+  /* ── HEADLINE STAT ── */
+  .headline-stat {
+    text-align:center; padding:0 8px; flex-shrink:0;
+  }
+  .hs-label { font-size:13px; font-weight:900; color:rgba(255,255,255,0.28); letter-spacing:0.14em; margin-bottom:8px; }
+  .hs-number {
+    font-size:112px; font-weight:900; line-height:1;
+    letter-spacing:-0.04em; color:#fbbf24;
+    filter:drop-shadow(0 0 30px rgba(251,191,36,0.5));
+    animation:numberGlow 3s ease-in-out infinite alternate;
+  }
+  @keyframes numberGlow {
+    from { filter:drop-shadow(0 0 20px rgba(251,191,36,0.4)); }
+    to   { filter:drop-shadow(0 0 50px rgba(251,191,36,0.8)); }
+  }
+  .hs-unit { font-size:32px; font-weight:900; color:rgba(251,191,36,0.7); }
+  .hs-sub  { font-size:16px; color:rgba(255,255,255,0.35); margin-top:6px; }
+
+  /* ── BARS ── */
+  .bars-section { flex-shrink:0; }
+  .bars-title { font-size:12px; font-weight:900; color:rgba(251,191,36,0.5); letter-spacing:0.14em; margin-bottom:16px; }
+
+  .bar-row { margin-bottom:14px; }
+  .bar-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+  .bar-party { display:flex; align-items:center; gap:8px; }
+  .bar-name  { font-size:18px; font-weight:900; }
+  .bar-note  { font-size:11px; color:rgba(255,255,255,0.25); }
+  .bar-seats { font-size:22px; font-weight:900; letter-spacing:-0.02em; }
+
+  .bar-track {
+    height:18px; border-radius:100px;
+    background:rgba(255,255,255,0.06);
+    position:relative; overflow:visible;
+  }
+  .bar-fill {
+    height:100%; border-radius:100px;
+    position:absolute; top:0; left:0;
+    animation:growBar 1.5s cubic-bezier(.2,.68,0,1.15) forwards;
+  }
+  @keyframes growBar { from{width:0 !important} }
+  .bar-b1{animation-delay:0.5s}
+  .bar-b2{animation-delay:0.75s}
+  .bar-b3{animation-delay:1.0s}
+
+  /* majority line */
+  .maj {
+    position:absolute; top:-5px; bottom:-5px; width:2px;
+    left:calc(118/234*100%);
+    background:rgba(251,191,36,0.6);
+    border-radius:2px;
+  }
+  .maj::before {
+    content:'118';
+    position:absolute; bottom:calc(100%+3px); left:50%;
+    transform:translateX(-50%);
+    font-size:10px; font-weight:900; color:rgba(251,191,36,0.6);
+    white-space:nowrap;
+  }
+
+  /* ── HISTORY TABLE ── */
+  .history-section { flex-shrink:0; }
+  .hist-title { font-size:12px; font-weight:900; color:rgba(255,255,255,0.3); letter-spacing:0.14em; margin-bottom:12px; }
+  .hist-grid  { display:flex; flex-direction:column; gap:8px; }
+  .hist-row {
+    display:grid; grid-template-columns:1fr auto auto;
+    align-items:center; gap:12px;
+    padding:12px 16px; border-radius:14px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.07);
+  }
+  .hist-row.tvk-row {
+    background:linear-gradient(135deg,rgba(251,191,36,0.14),rgba(245,158,11,0.06));
+    border:1.5px solid rgba(251,191,36,0.4);
+  }
+  .hist-party { font-size:14px; font-weight:900; }
+  .hist-year  { font-size:11px; color:rgba(255,255,255,0.25); margin-top:2px; }
+  .hist-seats { font-size:22px; font-weight:900; letter-spacing:-0.02em; text-align:right; }
+  .hist-pct   { font-size:12px; color:rgba(255,255,255,0.3); text-align:right; }
+  .first-time {
+    font-size:10px; font-weight:900; padding:3px 8px; border-radius:100px;
+    background:rgba(251,191,36,0.2); color:#fbbf24;
+    border:1px solid rgba(251,191,36,0.4); letter-spacing:0.06em;
+    white-space:nowrap;
+  }
+  .hist-bar-mini {
+    height:4px; border-radius:100px; margin-top:4px;
+    background:rgba(255,255,255,0.08);
+    overflow:hidden;
+  }
+  .hist-bar-fill {
+    height:100%; border-radius:100px;
+    animation:growBar 1.2s ease forwards;
+  }
+
+  /* ── BOTTOM TICKER ── */
+  .ticker-bar {
+    position:absolute; bottom:0; left:0; right:0; height:58px;
+    background:linear-gradient(90deg,rgba(251,191,36,0.2),rgba(251,191,36,0.08) 50%,rgba(251,191,36,0.2));
+    border-top:1px solid rgba(251,191,36,0.35);
+    display:flex; align-items:center; overflow:hidden; z-index:10;
+  }
+  .ticker-label {
+    flex-shrink:0; height:100%;
+    display:flex; align-items:center; gap:8px;
+    padding:0 20px; border-right:1px solid rgba(251,191,36,0.25);
+  }
+  .ticker-label span { font-size:12px; font-weight:900; color:#fbbf24; letter-spacing:0.1em; white-space:nowrap; }
+  .ticker-scroll { flex:1; overflow:hidden; padding:0 16px; }
+  .ticker-text {
+    display:inline-block; white-space:nowrap;
+    font-size:14px; font-weight:700; color:rgba(255,255,255,0.6);
+    animation:tickerAnim 20s linear infinite;
+  }
+  @keyframes tickerAnim { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .sub-pill {
+    flex-shrink:0; margin-right:16px;
+    padding:8px 18px; border-radius:100px;
+    background:rgba(251,191,36,0.9);
+    font-size:12px; font-weight:900; color:#000; letter-spacing:0.06em;
+    white-space:nowrap;
+  }
+
+  /* whistle icon */
+  .wi { display:inline-block; color:#fbbf24; filter:drop-shadow(0 0 5px rgba(251,191,36,0.6)); }
+
+  /* Animations */
+  .fade-in  { animation:fadeIn  0.5s ease forwards; }
+  .slide-up { animation:slideUp 0.65s ease forwards; }
+  @keyframes fadeIn  { from{opacity:0}     to{opacity:1} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .a1{animation-delay:0.1s;opacity:0;animation-fill-mode:forwards}
+  .a2{animation-delay:0.25s;opacity:0;animation-fill-mode:forwards}
+  .a3{animation-delay:0.4s;opacity:0;animation-fill-mode:forwards}
+  .a4{animation-delay:0.55s;opacity:0;animation-fill-mode:forwards}
+  .a5{animation-delay:0.7s;opacity:0;animation-fill-mode:forwards}
+  .a6{animation-delay:0.85s;opacity:0;animation-fill-mode:forwards}
+  .a7{animation-delay:1.0s;opacity:0;animation-fill-mode:forwards}
+  .a8{animation-delay:1.15s;opacity:0;animation-fill-mode:forwards}
+</style>
+</head>
+<body>
+<div class="scale-wrap" id="scaleWrap">
+
+<!-- SVG whistle — proper sports/referee whistle shape -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden">
+  <defs>
+    <symbol id="w" viewBox="0 0 100 70">
+      <!-- Lanyard ring (top-left) -->
+      <circle cx="14" cy="20" r="7" fill="none" stroke="currentColor" stroke-width="4"/>
+      <!-- Ring connector to body -->
+      <rect x="17" y="19" width="10" height="5" rx="2.5" fill="currentColor"/>
+      <!-- Main rounded body -->
+      <rect x="22" y="22" width="42" height="30" rx="15" fill="currentColor"/>
+      <!-- Mouthpiece taper — trapezoid shape -->
+      <path d="M62 27 L88 31 L88 43 L62 47 Z" fill="currentColor" opacity="0.95"/>
+      <!-- Mouthpiece end cap -->
+      <rect x="85" y="30" width="7" height="14" rx="3.5" fill="currentColor" opacity="0.85"/>
+      <!-- Air slot on top of body -->
+      <rect x="32" y="20" width="16" height="8" rx="4" fill="currentColor"/>
+      <!-- Air hole (dark cutout) -->
+      <ellipse cx="40" cy="24" rx="5" ry="3" fill="#07010f" opacity="0.7"/>
+      <!-- Pea hole on body face (side vent) -->
+      <circle cx="36" cy="37" r="4" fill="#07010f" opacity="0.35"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Faded Vijay bg -->
+<div class="vijay-bg"></div>
+<div class="vijay-bg-fade"></div>
+
+<!-- Sharp Vijay portrait top half -->
+<div class="vijay-portrait">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Actor_Vijay_at_Mersal_Audio_Launch.jpg/800px-Actor_Vijay_at_Mersal_Audio_Launch.jpg"
+    alt="Vijay" id="vijayImg"
+    onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Vijay_at_Bigil_audio_launch_%28cropped%29.jpg/800px-Vijay_at_Bigil_audio_launch_%28cropped%29.jpg'"/>
+</div>
+
+<!-- All content -->
+<div class="content">
+
+  <!-- Top bar -->
+  <div class="top-bar fade-in a1">
+    <div class="channel-pill">
+      <svg class="wi" width="26" height="18"><use href="#w"/></svg>
+      <span>@NammaTVK-2026</span>
+    </div>
+    <div class="live-badge" id="phaseBadge">
+      <div class="dot"></div>
+      <span id="phaseText">EXIT POLL</span>
+    </div>
+  </div>
+
+  <!-- Vijay name over portrait -->
+  <div class="hero-name">
+    <div class="tvk-label fade-in a2">
+      <svg class="wi" width="32" height="22"><use href="#w"/></svg>
+      <span class="tvk-label-text">TAMILAGA VETTRI KAZHAGAM</span>
+    </div>
+    <div class="name-main slide-up a2">Vijay<br/>Thalapathy</div>
+    <div class="name-sub fade-in a3">Party President · தளபதி விஜய்</div>
+    <div class="cm-tag fade-in a3">
+      👑 Projected Chief Minister 2026
+    </div>
+  </div>
+
+  <div class="divider fade-in a3"></div>
+
+  <!-- BIG NUMBER -->
+  <div class="headline-stat slide-up a4" id="bigNumBox">
+    <div class="hs-label" id="bigNumLabel">AXIS MY INDIA EXIT POLL PROJECTION</div>
+    <div id="bigNumDisplay">
+      <span class="hs-number">98</span>
+      <span class="hs-unit" style="font-size:56px;vertical-align:middle;color:rgba(251,191,36,0.6)"> – </span>
+      <span class="hs-number">120</span>
+    </div>
+    <div class="hs-sub" id="bigNumSub">seats projected · Majority mark: <strong style="color:#fbbf24">118</strong></div>
+  </div>
+
+  <div class="divider fade-in a4"></div>
+
+  <!-- Bar chart -->
+  <div class="bars-section fade-in a5">
+    <div class="bars-title">SEAT PROJECTIONS — AXIS MY INDIA</div>
+
+    <!-- TVK -->
+    <div class="bar-row">
+      <div class="bar-meta">
+        <div class="bar-party">
+          <svg class="wi" width="32" height="22"><use href="#w"/></svg>
+          <div>
+            <div class="bar-name" style="color:#fbbf24">TVK</div>
+            <div class="bar-note">Vijay · 1st election ever ✨</div>
+          </div>
+        </div>
+        <div class="bar-seats" style="color:#fbbf24">~109</div>
+      </div>
+      <div class="bar-track">
+        <div class="maj"></div>
+        <div class="bar-fill bar-b1" style="width:calc(109/234*100%);background:linear-gradient(90deg,#b45309,#fbbf24);box-shadow:0 0 18px rgba(251,191,36,0.55)"></div>
+      </div>
+    </div>
+
+    <!-- DMK -->
+    <div class="bar-row">
+      <div class="bar-meta">
+        <div class="bar-party">
+          <span style="font-size:20px">🌅</span>
+          <div>
+            <div class="bar-name" style="color:rgba(248,113,113,0.6)">DMK</div>
+            <div class="bar-note">Stalin · 17 short of majority</div>
+          </div>
+        </div>
+        <div class="bar-seats" style="color:rgba(248,113,113,0.55)">~101</div>
+      </div>
+      <div class="bar-track">
+        <div class="maj"></div>
+        <div class="bar-fill bar-b2" style="width:calc(101/234*100%);background:linear-gradient(90deg,#6b0f0f,#b05050);opacity:0.55"></div>
+      </div>
+    </div>
+
+    <!-- AIADMK -->
+    <div class="bar-row">
+      <div class="bar-meta">
+        <div class="bar-party">
+          <span style="font-size:20px">🍃</span>
+          <div>
+            <div class="bar-name" style="color:rgba(74,222,128,0.55)">AIADMK</div>
+            <div class="bar-note">EPS · Collapsed from 2021</div>
+          </div>
+        </div>
+        <div class="bar-seats" style="color:rgba(74,222,128,0.5)">~27</div>
+      </div>
+      <div class="bar-track">
+        <div class="maj"></div>
+        <div class="bar-fill bar-b3" style="width:calc(27/234*100%);background:linear-gradient(90deg,#14532d,#4ade80);opacity:0.45"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider fade-in a6"></div>
+
+  <!-- History table -->
+  <div class="history-section fade-in a6">
+    <div class="hist-title">TN ELECTION HISTORY — FIRST ELECTION FOR TVK</div>
+    <div class="hist-grid">
+
+      <!-- TVK 2026 — highlighted -->
+      <div class="hist-row tvk-row">
+        <div>
+          <div class="hist-party" style="color:#fbbf24">
+            <svg class="wi" width="23" height="16" style="vertical-align:middle;margin-right:5px"><use href="#w"/></svg>
+            TVK — Vijay
+          </div>
+          <div class="hist-year">2026 · DEBUT ELECTION</div>
+          <div class="hist-bar-mini" style="margin-top:6px;width:calc(109/234*100%)">
+            <div class="hist-bar-fill" style="width:100%;background:#fbbf24"></div>
+          </div>
+        </div>
+        <div class="first-time">1st EVER</div>
+        <div>
+          <div class="hist-seats" style="color:#fbbf24">98–120</div>
+          <div class="hist-pct" style="color:rgba(251,191,36,0.6)">35% votes</div>
+        </div>
+      </div>
+
+      <!-- DMK 2021 -->
+      <div class="hist-row">
+        <div>
+          <div class="hist-party" style="color:rgba(248,113,113,0.75)">🌅 DMK — Stalin</div>
+          <div class="hist-year">2021 · Won majority</div>
+          <div class="hist-bar-mini">
+            <div class="hist-bar-fill" style="width:calc(133/234*100%);background:rgba(248,113,113,0.5)"></div>
+          </div>
+        </div>
+        <div></div>
+        <div>
+          <div class="hist-seats" style="color:rgba(248,113,113,0.7)">133</div>
+          <div class="hist-pct">33.6%</div>
+        </div>
+      </div>
+
+      <!-- AIADMK 2021 -->
+      <div class="hist-row">
+        <div>
+          <div class="hist-party" style="color:rgba(74,222,128,0.6)">🍃 AIADMK — EPS</div>
+          <div class="hist-year">2021 · Lost power</div>
+          <div class="hist-bar-mini">
+            <div class="hist-bar-fill" style="width:calc(66/234*100%);background:rgba(74,222,128,0.4)"></div>
+          </div>
+        </div>
+        <div></div>
+        <div>
+          <div class="hist-seats" style="color:rgba(74,222,128,0.6)">66</div>
+          <div class="hist-pct">33.3%</div>
+        </div>
+      </div>
+
+      <!-- AIADMK 2016 — peak -->
+      <div class="hist-row">
+        <div>
+          <div class="hist-party" style="color:rgba(74,222,128,0.5)">🍃 AIADMK — Jayalalithaa</div>
+          <div class="hist-year">2016 · Last AIADMK peak</div>
+          <div class="hist-bar-mini">
+            <div class="hist-bar-fill" style="width:calc(134/234*100%);background:rgba(74,222,128,0.35)"></div>
+          </div>
+        </div>
+        <div></div>
+        <div>
+          <div class="hist-seats" style="color:rgba(74,222,128,0.5)">134</div>
+          <div class="hist-pct">40.8%</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Key insight -->
+    <div style="margin-top:14px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(245,158,11,0.05));border:1.5px solid rgba(251,191,36,0.35)">
+      <p style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.55">
+        🏆 <strong style="color:#fbbf24">Historic:</strong> TVK is contesting their
+        <strong style="color:#fbbf24">very first election</strong> and exit polls project
+        <strong style="color:#fbbf24">98–120 seats</strong> — more than DMK won in 2021
+        when they swept to power.
+      </p>
+    </div>
+  </div>
+
+  <!-- Live news feed (shown during/after counting) -->
+  <div id="newsBox" style="display:none" class="fade-in a7">
+    <div style="font-size:13px;font-weight:900;color:rgba(255,255,255,0.28);letter-spacing:0.1em;margin-bottom:12px">
+      🔴 LIVE UPDATES
+    </div>
+    <div id="newsList" style="display:flex;flex-direction:column;gap:10px">
+      <!-- filled dynamically -->
+    </div>
+  </div>
+
+  <!-- spacer above ticker -->
+  <div style="flex:1;min-height:20px"></div>
+
+</div><!-- content -->
+
+<!-- Ticker bar -->
+<div class="ticker-bar">
+  <div class="ticker-label">
+    <svg class="wi" width="26" height="18"><use href="#w"/></svg>
+    <span>WATCH THIS SPACE</span>
+  </div>
+  <div class="ticker-scroll">
+    <div class="ticker-text">
+      🏆 TVK 1st election · projected 98–120 seats · Vijay set to be CM &nbsp;·&nbsp;
+      📅 Counting Day: May 4, 2026 · LIVE on @NammaTVK-2026 &nbsp;·&nbsp;
+      🔔 Subscribe for counting day updates &nbsp;·&nbsp;
+      🎯 TVK crosses 118 majority mark per Axis My India &nbsp;·&nbsp;
+      🏆 TVK 1st election · projected 98–120 seats · Vijay set to be CM &nbsp;·&nbsp;
+      📅 Counting Day: May 4, 2026 · LIVE on @NammaTVK-2026 &nbsp;·&nbsp;
+    </div>
+  </div>
+  <div class="sub-pill">▶ SUBSCRIBE</div>
+</div>
+
+</div><!-- scale-wrap -->
+
+<script>
+// ── Scale to fit ──
+function scaleToFit() {
+  const el = document.getElementById('scaleWrap')
+  const s  = Math.min(window.innerWidth/1080, window.innerHeight/1920)
+  const ox = (window.innerWidth  - 1080*s) / 2
+  const oy = (window.innerHeight - 1920*s) / 2
+  el.style.transform = `translate(${ox}px,${oy}px) scale(${s})`
+}
+scaleToFit()
+window.addEventListener('resize', scaleToFit)
+
+const COUNTING_START = new Date('2026-05-04T08:00:00+05:30').getTime()
+const COUNTING_END   = new Date('2026-05-04T20:00:00+05:30').getTime()
+
+// ── Apply API data ──
+function applyData(data) {
+  const phase = data.phase
+  const tvk   = data.parties.find(p => p.name === 'TVK')
+
+  // Phase badge
+  const badge     = document.getElementById('phaseBadge')
+  const phaseText = document.getElementById('phaseText')
+  badge.style.background = phase === 'counting'
+    ? 'rgba(239,68,68,0.25)' : phase === 'declared'
+    ? 'rgba(74,222,128,0.2)' : 'rgba(251,191,36,0.15)'
+  badge.style.borderColor = phase === 'counting' ? '#ef4444' : phase === 'declared' ? '#4ade80' : '#fbbf24'
+  phaseText.textContent   = phase === 'counting' ? '🔴 LIVE' : phase === 'declared' ? '✅ DECLARED' : 'EXIT POLL'
+
+  // Big number
+  const bigLabel = document.getElementById('bigNumLabel')
+  const bigDisp  = document.getElementById('bigNumDisplay')
+  const bigSub   = document.getElementById('bigNumSub')
+
+  if (phase === 'pre-counting') {
+    bigLabel.textContent = 'AXIS MY INDIA EXIT POLL PROJECTION'
+    bigDisp.innerHTML = `<span class="hs-number">98</span>
+      <span class="hs-unit" style="font-size:56px;vertical-align:middle;color:rgba(251,191,36,0.6)"> – </span>
+      <span class="hs-number">120</span>`
+    bigSub.innerHTML = `seats projected · Majority mark: <strong style="color:#fbbf24">118</strong>`
+  } else {
+    const total = tvk ? tvk.totalTally : 0
+    bigLabel.textContent = phase === 'declared' ? 'FINAL RESULT — TVK' : 'LIVE TALLY — TVK'
+    bigDisp.innerHTML = `<span class="hs-number">${total}</span>`
+    bigSub.innerHTML = tvk
+      ? `${tvk.seatsWon} Won · ${tvk.seatsLeading} Leading · ${data.seatsReported}/234 reported`
+      : `${data.seatsReported}/234 seats reported`
+  }
+
+  // Bars — update seat numbers
+  const barRows = document.querySelectorAll('.bar-row')
+  const partyMap = { TVK: data.parties[0], DMK: data.parties[1], AIADMK: data.parties[2] }
+  if (phase !== 'pre-counting') {
+    // Update bar widths and seat numbers from live data
+    const parties = [data.parties.find(p=>p.name==='TVK'), data.parties.find(p=>p.name==='DMK'), data.parties.find(p=>p.name==='AIADMK')]
+    const seatsEls = document.querySelectorAll('.bar-seats')
+    const barFills = document.querySelectorAll('.bar-fill')
+    parties.forEach((p, i) => {
+      if (!p) return
+      const seats = p.totalTally || 0
+      if (seatsEls[i]) seatsEls[i].textContent = seats
+      if (barFills[i]) barFills[i].style.width = `calc(${seats}/234*100%)`
+    })
+  }
+
+  // Ticker
+  const ticker = document.querySelector('.ticker-text')
+  if (ticker && phase !== 'pre-counting') {
+    const headlines = (data.headlines||[]).slice(0,3).join(' &nbsp;·&nbsp; ')
+    ticker.innerHTML = `🔴 ${data.narrative} &nbsp;·&nbsp; ${headlines ? headlines + ' &nbsp;·&nbsp; ' : ''}📅 @NammaTVK-2026 &nbsp;·&nbsp; 🔴 ${data.narrative} &nbsp;·&nbsp; ${headlines ? headlines + ' &nbsp;·&nbsp; ' : ''}`
+  }
+
+  // Live news box
+  if (phase !== 'pre-counting' && data.headlines && data.headlines.length > 0) {
+    document.getElementById('newsBox').style.display = ''
+    const list = document.getElementById('newsList')
+    list.innerHTML = data.headlines.slice(0,4).map(h =>
+      `<div style="padding:12px 14px;border-radius:12px;background:rgba(251,191,36,0.07);border-left:3px solid rgba(251,191,36,0.5);font-size:14px;color:rgba(255,255,255,0.75);line-height:1.45">
+        <span style="color:rgba(251,191,36,0.6);font-weight:900;font-size:11px;letter-spacing:0.08em">LIVE ·</span> ${h}
+      </div>`
+    ).join('')
+  }
+}
+
+// ── Fetch data ──
+async function fetchData() {
+  try {
+    const res = await fetch('/api/election-results?t=' + Date.now())
+    if (!res.ok) return
+    const data = await res.json()
+    applyData(data)
+  } catch(e) { console.warn('fetch failed', e) }
+}
+
+// Static default shown immediately
+applyData({
+  phase: 'pre-counting',
+  seatsReported: 0,
+  parties: [
+    { name:'TVK', totalTally:109, seatsWon:0, seatsLeading:109 },
+    { name:'DMK', totalTally:101, seatsWon:0, seatsLeading:101 },
+    { name:'AIADMK', totalTally:27, seatsWon:0, seatsLeading:27 },
+  ],
+  narrative: '',
+  updatedAt: new Date().toISOString(),
+  headlines: [],
+})
+
+// Fetch live + auto-refresh
+fetchData()
+const now = Date.now()
+const refreshMs = (now >= COUNTING_START && now <= COUNTING_END) ? 3*60*1000 : 10*60*1000
+setInterval(fetchData, refreshMs)
+
+// ── TVK live news ──
+async function fetchTVKNews() {
+  try {
+    const res = await fetch('/api/tvk-news?t=' + Date.now())
+    if (!res.ok) return
+    const data = await res.json()
+    if (!data.news || data.news.length === 0) return
+    const box  = document.getElementById('newsBox')
+    const list = document.getElementById('newsList')
+    box.style.display = ''
+    list.innerHTML = data.news.slice(0,5).map(n => `
+      <div style="padding:12px 14px;border-radius:12px;
+        background:${n.isHot ? 'rgba(251,191,36,0.09)' : 'rgba(255,255,255,0.03)'};
+        border-left:3px solid ${n.isHot ? 'rgba(251,191,36,0.55)' : 'rgba(255,255,255,0.1)'};
+        font-size:14px;color:rgba(255,255,255,0.75);line-height:1.5">
+        <span style="font-size:11px;font-weight:900;color:rgba(251,191,36,0.55);letter-spacing:0.07em">${n.source} · ${n.timeAgo}</span><br/>
+        ${n.isHot ? '🔥 ' : ''}${n.title}
+      </div>`).join('')
+  } catch(e) {}
+}
+fetchTVKNews()
+setInterval(fetchTVKNews, 5 * 60 * 1000)
+</script>
+</body>
+</html>
