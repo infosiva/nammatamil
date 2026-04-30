@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Star, Tv2, Globe, Calendar, Users, Play, ExternalLink, ShoppingBag } from 'lucide-react'
 import AdUnit from '@/components/AdUnit'
+import RecentEpisodes from '@/components/RecentEpisodes'
 
 const AMAZON_TAG = 'nammatamil-21'
 import ContentCard from '@/components/ContentCard'
@@ -119,6 +120,11 @@ export default async function SerialDetailPage({ params }: Props) {
       </div>
 
       <AdUnit format="horizontal" className="mb-10 min-h-[90px]" />
+
+      {/* Recent Episodes — only for ongoing serials */}
+      {serial.status === 'Ongoing' && (
+        <RecentEpisodes serialTitle={serial.title} channelName={serial.channel} />
+      )}
 
       {/* Amazon affiliate — serial soundtrack / merch */}
       <div className="glass rounded-2xl p-4 mb-10 border border-white/5 flex flex-col sm:flex-row gap-3 items-center justify-between">
