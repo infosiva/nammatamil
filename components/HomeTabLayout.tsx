@@ -491,6 +491,16 @@ function CricketTab() {
 export default function HomeTabLayout() {
   const [activeTab, setActiveTab] = useState('cricket')
 
+  // Listen for tab-jump events from TrendingTicker
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const tab = (e as CustomEvent<{ tab: string }>).detail?.tab
+      if (tab) setActiveTab(tab)
+    }
+    window.addEventListener('nammatamil:tab', handler)
+    return () => window.removeEventListener('nammatamil:tab', handler)
+  }, [])
+
   return (
     <div className="flex flex-col gap-0">
 

@@ -5,6 +5,8 @@ const TRACKER = 'http://31.97.56.148:3098'
 const nextConfig: NextConfig = {
   // Skip ESLint during builds — TypeScript strict mode handles code quality
   eslint: { ignoreDuringBuilds: true },
+  // Disable Vercel toolbar/feedback widget
+  devIndicators: false,
   async rewrites() {
     return [
       { source: '/t.js', destination: `${TRACKER}/t.js` },
