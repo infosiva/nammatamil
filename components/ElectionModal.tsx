@@ -16,7 +16,7 @@ function getCountdown() {
 }
 
 const PARTIES = [
-  { name: 'TVK', seats: '98–120', color: '#fbbf24', leader: 'Vijay', emoji: '🔦' },
+  { name: 'TVK', seats: '98–120', color: '#fbbf24', leader: 'Vijay', emoji: '⭐' },
   { name: 'DMK', seats: '92–110', color: '#f87171', leader: 'Stalin', emoji: '🌅' },
   { name: 'AIADMK', seats: '22–32', color: '#4ade80', leader: 'EPS', emoji: '🍃' },
 ]
