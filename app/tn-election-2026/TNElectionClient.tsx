@@ -188,193 +188,6 @@ function useVotes() {
   return { voted, counts, castVote }
 }
 
-// ─── Exit Poll Section ────────────────────────────────────────────────────────
-function ExitPollSection() {
-  const partyColors = { dmk: '#f87171', aiadmk: '#4ade80', tvk: '#fbbf24' }
-
-  return (
-    <div className="rounded-2xl mb-6 overflow-hidden" style={{ border: '1px solid rgba(239,68,68,0.3)' }}>
-      {/* Header */}
-      <div className="px-5 sm:px-6 py-4 flex items-center justify-between flex-wrap gap-2"
-        style={{ background: 'rgba(239,68,68,0.08)', borderBottom: '1px solid rgba(239,68,68,0.2)' }}>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black flex-shrink-0"
-            style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.5)', color: '#ef4444' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping inline-block" />
-            EXIT POLL
-          </span>
-          <div>
-            <h2 className="text-white font-black text-base sm:text-lg">Exit Poll Results 2026</h2>
-            <p className="text-white/30 text-xs mt-0.5">வெளியேறும் வாக்கெடுப்பு · April 29, 2026 · Voting: April 23</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Newspaper className="w-3.5 h-3.5 text-white/20" />
-          <span className="text-white/20 text-[10px]">4 major pollsters</span>
-        </div>
-      </div>
-
-      <div className="px-5 sm:px-6 py-5 space-y-5">
-
-        {/* Axis My India featured callout — TVK winner */}
-        <div className="rounded-xl p-4" style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.06))', border: '2px solid rgba(251,191,36,0.4)' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg">🏆</span>
-            <div>
-              <p className="text-amber-400 font-black text-sm">Axis My India / India Today — FEATURED POLL</p>
-              <p className="text-white/40 text-[10px]">Most-tracked exit poll · Vijay predicted as Chief Minister</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { party: 'TVK', seats: FEATURED_POLL.tvk, color: partyColors.tvk, winner: true },
-              { party: 'DMK+', seats: FEATURED_POLL.dmk, color: partyColors.dmk, winner: false },
-              { party: 'AIADMK+', seats: FEATURED_POLL.aiadmk, color: partyColors.aiadmk, winner: false },
-            ].map(({ party, seats, color, winner }) => (
-              <div key={party} className="flex flex-col items-center py-3 rounded-xl relative"
-                style={{ background: winner ? `${color}18` : `${color}08`, border: `${winner ? '2px' : '1px'} solid ${color}${winner ? '55' : '25'}` }}>
-                {winner && <span className="absolute -top-2 text-xs">👑</span>}
-                <span className="font-black text-2xl sm:text-3xl tabular-nums" style={{ color }}>{seats}</span>
-                <span className="text-white/50 text-[10px] mt-1 font-bold">{party}</span>
-                {winner && <span className="text-[9px] font-black mt-0.5" style={{ color }}>LEADING</span>}
-              </div>
-            ))}
-          </div>
-          <p className="text-white/30 text-[10px] mt-3">Vote share: TVK 35% · DMK 35% · AIADMK 23% · Majority mark: 118 seats</p>
-        </div>
-
-        {/* Poll of Polls summary bar */}
-        <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <p className="text-white/30 text-[10px] uppercase tracking-widest mb-3 font-semibold">Poll of Polls — All 4 Agencies Average</p>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { party: 'TVK', seats: POLL_OF_POLLS.tvk, color: partyColors.tvk },
-              { party: 'DMK+', seats: POLL_OF_POLLS.dmk, color: partyColors.dmk },
-              { party: 'AIADMK+', seats: POLL_OF_POLLS.aiadmk, color: partyColors.aiadmk },
-            ].map(({ party, seats, color }) => (
-              <div key={party} className="flex flex-col items-center py-3 rounded-xl"
-                style={{ background: `${color}0d`, border: `1px solid ${color}25` }}>
-                <span className="font-black text-2xl sm:text-3xl tabular-nums" style={{ color }}>{seats}</span>
-                <span className="text-white/40 text-[10px] mt-1 font-semibold">{party}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Individual poll table */}
-        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-          <table className="w-full text-xs min-w-[480px]">
-            <thead>
-              <tr style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                <th className="text-left px-4 py-2.5 text-white/40 font-semibold">Agency / Channel</th>
-                <th className="text-center px-3 py-2.5 font-semibold" style={{ color: `${partyColors.dmk}80` }}>DMK+</th>
-                <th className="text-center px-3 py-2.5 font-semibold" style={{ color: `${partyColors.aiadmk}80` }}>AIADMK+</th>
-                <th className="text-center px-3 py-2.5 font-semibold" style={{ color: `${partyColors.tvk}80` }}>TVK</th>
-                <th className="text-center px-3 py-2.5 text-white/40 font-semibold">Others</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {EXIT_POLLS.map(poll => {
-                const winColor = partyColors[poll.highlight as keyof typeof partyColors]
-                return (
-                  <tr key={poll.agency} style={{ background: 'rgba(255,255,255,0.01)' }}>
-                    <td className="px-4 py-3">
-                      <p className="font-black text-white text-xs">{poll.agency}</p>
-                      <p className="text-white/30 text-[10px]">{poll.channel}</p>
-                    </td>
-                    {(['dmk', 'aiadmk', 'tvk'] as const).map(key => {
-                      const isWinner = poll.highlight === key
-                      const color = partyColors[key]
-                      const val = key === 'dmk' ? poll.dmk : key === 'aiadmk' ? poll.aiadmk : poll.tvk
-                      return (
-                        <td key={key} className="text-center px-3 py-3">
-                          <span className={`font-black tabular-nums text-sm px-2 py-0.5 rounded-full`}
-                            style={{
-                              color: isWinner ? color : 'rgba(255,255,255,0.5)',
-                              background: isWinner ? `${color}15` : 'transparent',
-                              border: isWinner ? `1px solid ${color}35` : '1px solid transparent',
-                            }}>
-                            {val}
-                          </span>
-                        </td>
-                      )
-                    })}
-                    <td className="text-center px-3 py-3 text-white/25 font-semibold">{poll.others}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Visual seat bars */}
-        <div className="space-y-2">
-          <p className="text-white/30 text-[10px] uppercase tracking-widest font-semibold">Seat projection comparison (midpoint)</p>
-          {EXIT_POLLS.map(poll => {
-            const total = poll.dmkMid + poll.aiadmkMid + poll.tvkMid
-            const segments = [
-              { key: 'dmk', val: poll.dmkMid, label: 'DMK', color: partyColors.dmk },
-              { key: 'aiadmk', val: poll.aiadmkMid, label: 'AIADMK', color: partyColors.aiadmk },
-              { key: 'tvk', val: poll.tvkMid, label: 'TVK', color: partyColors.tvk },
-            ]
-            return (
-              <div key={poll.agency}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-white/50 text-[10px] font-bold">{poll.agency}</span>
-                  <span className="text-white/20 text-[9px]">{poll.channel}</span>
-                </div>
-                <div className="flex h-5 rounded-full overflow-hidden gap-px">
-                  {segments.map(s => (
-                    <div key={s.key}
-                      className="flex items-center justify-center text-[9px] font-black transition-all"
-                      style={{
-                        width: `${(s.val / 234) * 100}%`,
-                        background: s.color,
-                        opacity: poll.highlight === s.key ? 1 : 0.4,
-                        minWidth: s.val > 5 ? '28px' : '0',
-                        overflow: 'hidden',
-                        color: '#000',
-                      }}>
-                      {s.val > 12 ? s.val : ''}
-                    </div>
-                  ))}
-                  {/* Remainder */}
-                  <div className="flex-1" style={{ background: 'rgba(255,255,255,0.06)' }} />
-                </div>
-              </div>
-            )
-          })}
-          {/* Majority line indicator */}
-          <div className="relative mt-1">
-            <div className="h-0 border-t border-dashed border-amber-500/40 relative"
-              style={{ marginLeft: `${(118/234)*100}%`, width: '1px', height: '8px', borderLeft: '1px dashed rgba(245,158,11,0.5)', borderTop: 'none', display: 'inline-block' }}>
-            </div>
-            <span className="text-amber-400/60 text-[9px] font-bold" style={{ marginLeft: `${(118/234)*100}%` }}>
-              ← 118 majority mark
-            </span>
-          </div>
-        </div>
-
-        {/* Key observation */}
-        <div className="rounded-xl p-3.5" style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.35)' }}>
-          <p className="text-amber-400 text-xs font-black mb-1">🏆 Axis My India: TVK WINS — Political Earthquake!</p>
-          <p className="text-white/60 text-[11px] leading-relaxed">
-            <span className="text-amber-400 font-bold">TVK (Vijay) projected at 98–120 seats</span> — single largest party, crossing majority mark.
-            DMK close second at 92–110. <span className="text-green-400/70 font-bold">AIADMK collapses to 22–32</span>.
-            Vijay preferred CM at <span className="text-amber-400 font-bold">37%</span> vs Stalin 35%.
-            3 other polls favour DMK — <span className="text-white/40">official count May 4, 2026</span>.
-          </p>
-        </div>
-
-        <p className="text-white/15 text-[9px]">
-          Exit poll data from Matrize/India TV, P-MARQ/NewsX, Axis My India/India Today, JVC/Republic (April 29, 2026).
-          Exit polls are estimates and may not reflect final results. NammaTamil does not endorse any party or agency.
-        </p>
-      </div>
-    </div>
-  )
-}
-
 // ─── Party Symbol SVG ─────────────────────────────────────────────────────────
 function PartySymbol({ party, size = 44 }: { party: typeof PARTIES[0]; size?: number }) {
   if (party.id === 'dmk') {
@@ -575,6 +388,393 @@ function SentimentBar({ score, color }: { score: number; color: string }) {
   )
 }
 
+// ─── Party Snapshot Card ───────────────────────────────────────────────────────
+function PartyCard({ party, exitSeats, isWinner }: { party: typeof PARTIES[0]; exitSeats: string; isWinner: boolean }) {
+  return (
+    <div style={{
+      flex: '0 0 auto',
+      width: 200,
+      borderRadius: 20,
+      padding: '20px 18px',
+      background: isWinner
+        ? `linear-gradient(145deg, ${party.color}22 0%, ${party.color}08 100%)`
+        : `linear-gradient(145deg, ${party.color}10 0%, ${party.color}04 100%)`,
+      border: `${isWinner ? '2px' : '1px'} solid ${party.color}${isWinner ? '55' : '28'}`,
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Glow blob */}
+      <div style={{
+        position: 'absolute', top: -30, right: -30, width: 100, height: 100,
+        borderRadius: '50%', background: party.color, opacity: 0.06, filter: 'blur(30px)',
+        pointerEvents: 'none',
+      }} />
+
+      {isWinner && (
+        <div style={{
+          position: 'absolute', top: 10, right: 12,
+          fontSize: 10, fontWeight: 900, letterSpacing: '0.08em',
+          color: party.color,
+          background: `${party.color}20`,
+          border: `1px solid ${party.color}45`,
+          borderRadius: 99, padding: '2px 8px',
+        }}>
+          👑 LIKELY WINNER
+        </div>
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, marginTop: isWinner ? 22 : 0 }}>
+        <PartySymbol party={party} size={36} />
+        <div>
+          <div style={{ fontWeight: 900, fontSize: 16, color: party.color }}>{party.name}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>{party.tamil}</div>
+        </div>
+      </div>
+
+      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 2 }}>{party.leader}</div>
+      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.22)', marginBottom: 14 }}>{party.role}</div>
+
+      {/* Big seat number */}
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: 42, fontWeight: 900, lineHeight: 1, color: party.color, fontVariantNumeric: 'tabular-nums' }}>
+          {exitSeats}
+        </div>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          Exit Poll Seats
+        </div>
+      </div>
+
+      {/* Sentiment */}
+      <div style={{ marginBottom: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>AI Sentiment</span>
+          <span style={{ fontSize: 12, fontWeight: 900, color: party.color, fontVariantNumeric: 'tabular-nums' }}>{party.aiSentiment}</span>
+        </div>
+        <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+          <div style={{
+            height: '100%', borderRadius: 99,
+            width: `${party.aiSentiment}%`,
+            background: `linear-gradient(90deg, ${party.color}55, ${party.color})`,
+          }} />
+        </div>
+      </div>
+
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        fontSize: 10, fontWeight: 700,
+        color: party.aiTrend.startsWith('+') ? '#4ade80' : '#f87171',
+        marginTop: 4,
+      }}>
+        <span>{party.aiTrend.startsWith('+') ? '▲' : '▼'}</span>
+        <span>{party.aiTrend}</span>
+      </div>
+    </div>
+  )
+}
+
+// ─── Key Facts Strip ───────────────────────────────────────────────────────────
+function KeyFactsStrip() {
+  const facts = [
+    { icon: '🏛️', label: 'Assembly Seats', value: '234' },
+    { icon: '🗳️', label: 'Registered Voters', value: '6.4 Cr' },
+    { icon: '📅', label: 'Counting Day', value: 'May 4, 8 AM' },
+    { icon: '⚖️', label: 'Majority Mark', value: '118 seats' },
+  ]
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
+      gap: 10, marginBottom: 28,
+    }} className="sm:grid-cols-4">
+      {facts.map(f => (
+        <div key={f.label} style={{
+          borderRadius: 16, padding: '16px 14px',
+          background: 'rgba(255,255,255,0.025)',
+          border: '1px solid rgba(255,255,255,0.07)',
+          backdropFilter: 'blur(8px)',
+        }}>
+          <div style={{ fontSize: 20, marginBottom: 6 }}>{f.icon}</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{f.value}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}>{f.label}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Exit Poll Cards ───────────────────────────────────────────────────────────
+function ExitPollSection() {
+  const partyColors: Record<string, string> = { dmk: '#f87171', aiadmk: '#4ade80', tvk: '#fbbf24' }
+
+  return (
+    <div style={{ marginBottom: 28 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <Newspaper style={{ width: 16, height: 16, color: '#ef4444' }} />
+        <h2 style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>Exit Poll Results 2026</h2>
+        <span style={{
+          fontSize: 9, fontWeight: 900, letterSpacing: '0.08em', color: '#ef4444',
+          background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)',
+          borderRadius: 99, padding: '2px 8px', marginLeft: 4,
+        }}>வெளியேறும் வாக்கெடுப்பு</span>
+      </div>
+
+      {/* Scrollable poll cards */}
+      <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none' }}>
+        {EXIT_POLLS.map(poll => {
+          const isFeatured = poll.featured
+          const winColor = partyColors[poll.highlight as keyof typeof partyColors]
+          return (
+            <div key={poll.agency} style={{
+              flex: '0 0 auto',
+              width: isFeatured ? 260 : 210,
+              borderRadius: 18,
+              padding: '18px 16px',
+              background: isFeatured
+                ? `linear-gradient(145deg, rgba(251,191,36,0.14) 0%, rgba(245,158,11,0.05) 100%)`
+                : 'rgba(255,255,255,0.025)',
+              border: isFeatured ? '2px solid rgba(251,191,36,0.45)' : '1px solid rgba(255,255,255,0.08)',
+            }}>
+              {isFeatured && (
+                <div style={{ fontSize: 9, fontWeight: 900, color: '#fbbf24', letterSpacing: '0.1em', marginBottom: 8 }}>
+                  ⭐ FEATURED POLL
+                </div>
+              )}
+              <div style={{ fontWeight: 900, fontSize: 13, color: '#fff', marginBottom: 2 }}>{poll.agency}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 14 }}>{poll.channel}</div>
+
+              {/* Seat numbers */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                {(['tvk', 'dmk', 'aiadmk'] as const).map(key => {
+                  const val = key === 'dmk' ? poll.dmk : key === 'aiadmk' ? poll.aiadmk : poll.tvk
+                  const isWin = poll.highlight === key
+                  const col = partyColors[key]
+                  return (
+                    <div key={key} style={{
+                      flex: 1, textAlign: 'center', padding: '8px 4px',
+                      borderRadius: 10,
+                      background: isWin ? `${col}18` : `${col}07`,
+                      border: `${isWin ? '2px' : '1px'} solid ${col}${isWin ? '45' : '18'}`,
+                    }}>
+                      <div style={{ fontWeight: 900, fontSize: 15, color: col, fontVariantNumeric: 'tabular-nums' }}>{val}</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', marginTop: 2, textTransform: 'uppercase' }}>
+                        {key === 'dmk' ? 'DMK+' : key === 'aiadmk' ? 'ADMK+' : 'TVK'}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Visual bar */}
+              <div style={{ display: 'flex', height: 6, borderRadius: 99, overflow: 'hidden', gap: 1 }}>
+                {(['tvk', 'dmk', 'aiadmk'] as const).map(key => {
+                  const mid = key === 'tvk' ? poll.tvkMid : key === 'dmk' ? poll.dmkMid : poll.aiadmkMid
+                  const isWin = poll.highlight === key
+                  return (
+                    <div key={key} style={{
+                      width: `${(mid / 234) * 100}%`,
+                      background: partyColors[key],
+                      opacity: isWin ? 1 : 0.4,
+                      borderRadius: 99,
+                    }} />
+                  )
+                })}
+                <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)' }} />
+              </div>
+
+              {isFeatured && (
+                <div style={{
+                  marginTop: 12, padding: '8px 10px', borderRadius: 10,
+                  background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
+                }}>
+                  <div style={{ fontSize: 10, color: '#fbbf24', fontWeight: 700 }}>TVK projected winner</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Vijay preferred CM at 37%</div>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Poll of Polls */}
+      <div style={{
+        marginTop: 14, borderRadius: 16, padding: '16px',
+        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+      }}>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 700 }}>
+          Poll of Polls — All 4 Agencies Average
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          {([
+            { party: 'TVK', seats: POLL_OF_POLLS.tvk, color: '#fbbf24' },
+            { party: 'DMK+', seats: POLL_OF_POLLS.dmk, color: '#f87171' },
+            { party: 'AIADMK+', seats: POLL_OF_POLLS.aiadmk, color: '#4ade80' },
+            { party: 'Others', seats: POLL_OF_POLLS.others, color: '#94a3b8' },
+          ]).map(item => (
+            <div key={item.party} style={{
+              flex: 1, textAlign: 'center', padding: '10px 6px', borderRadius: 12,
+              background: `${item.color}0d`, border: `1px solid ${item.color}22`,
+            }}>
+              <div style={{ fontWeight: 900, fontSize: 20, color: item.color, fontVariantNumeric: 'tabular-nums' }}>{item.seats}</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{item.party}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', marginTop: 10 }}>
+        Exit poll data from Matrize/India TV, P-MARQ/NewsX, Axis My India/India Today, JVC/Republic (April 29, 2026).
+        Exit polls are estimates. NammaTamil does not endorse any party or agency.
+      </p>
+    </div>
+  )
+}
+
+// ─── Community Poll ────────────────────────────────────────────────────────────
+function CommunityPollSection({ voted, counts, castVote, total }: {
+  voted: string | null
+  counts: { dmk: number; aiadmk: number; tvk: number }
+  castVote: (id: string) => void
+  total: number
+}) {
+  return (
+    <div style={{
+      borderRadius: 20, marginBottom: 28, overflow: 'hidden',
+      border: '1px solid rgba(255,255,255,0.09)',
+      background: 'rgba(255,255,255,0.015)',
+    }}>
+      <div style={{
+        padding: '18px 20px 14px',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        background: 'rgba(255,255,255,0.02)',
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+      }}>
+        <div>
+          <h2 style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>Community Pulse Poll</h2>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>உங்கள் கருத்து · Cast your prediction</p>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Votes</div>
+          <div style={{ fontWeight: 900, fontSize: 24, color: '#fbbf24', fontVariantNumeric: 'tabular-nums' }}>{total.toLocaleString()}</div>
+        </div>
+      </div>
+
+      <div style={{ padding: '18px 20px' }}>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 600, marginBottom: 16 }}>
+          Who will win the most seats in Tamil Nadu 2026?
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {PARTIES.map(party => {
+            const v = counts[party.id as keyof typeof counts] ?? 0
+            const pct = total > 0 ? (v / total * 100) : 0
+            const isWinning = v === Math.max(...Object.values(counts))
+            const isMine = voted === party.id
+            const hasVoted = !!voted
+
+            return (
+              <button key={party.id} onClick={() => castVote(party.id)} disabled={hasVoted}
+                style={{
+                  width: '100%', textAlign: 'left',
+                  borderRadius: 16, overflow: 'hidden', position: 'relative',
+                  border: `${isMine ? '2px' : '1px'} solid ${isMine ? party.color : hasVoted ? 'rgba(255,255,255,0.07)' : party.border}`,
+                  background: isMine ? party.dim : 'rgba(255,255,255,0.025)',
+                  cursor: hasVoted ? 'default' : 'pointer',
+                  transition: 'all 0.2s',
+                  padding: 0,
+                }}>
+                {/* Animated fill bar */}
+                {hasVoted && (
+                  <div style={{
+                    position: 'absolute', inset: 0, left: 0,
+                    width: `${pct}%`, background: `${party.color}14`,
+                    borderRadius: 14, transition: 'width 0.7s ease',
+                    pointerEvents: 'none',
+                  }} />
+                )}
+
+                <div style={{
+                  position: 'relative', zIndex: 1,
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  padding: '14px 16px',
+                }}>
+                  <PartySymbol party={party} size={38} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 900, fontSize: 15, color: party.color }}>{party.name}</span>
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{party.leader}</span>
+                      {isWinning && hasVoted && (
+                        <span style={{
+                          fontSize: 9, fontWeight: 900, padding: '2px 7px', borderRadius: 99,
+                          background: `${party.color}22`, color: party.color, border: `1px solid ${party.color}40`,
+                        }}>
+                          LEADING
+                        </span>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
+                      {party.leaderTamil} · {party.role}
+                    </p>
+                    {/* Big fill bar on vote */}
+                    {hasVoted && (
+                      <div style={{ marginTop: 8, height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden', width: '100%' }}>
+                        <div style={{
+                          height: '100%', borderRadius: 99,
+                          width: `${pct}%`,
+                          background: `linear-gradient(90deg, ${party.color}60, ${party.color})`,
+                          transition: 'width 0.7s ease',
+                        }} />
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                    {hasVoted ? (
+                      <div>
+                        <div style={{
+                          fontWeight: 900, fontSize: 22, fontVariantNumeric: 'tabular-nums',
+                          color: isMine ? party.color : 'rgba(255,255,255,0.35)',
+                        }}>
+                          {pct.toFixed(1)}%
+                        </div>
+                        {isMine && (
+                          <div style={{ fontSize: 9, fontWeight: 700, color: party.color, display: 'flex', alignItems: 'center', gap: 3, justifyContent: 'flex-end', marginTop: 2 }}>
+                            <CheckCircle2 style={{ width: 10, height: 10 }} /> Your pick
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{
+                        width: 20, height: 20, borderRadius: '50%',
+                        border: `2px solid ${party.border}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%' }} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        {!voted && (
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 11, marginTop: 14 }}>
+            Select a party to reveal community results
+          </p>
+        )}
+        {voted && (
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 11, marginTop: 14 }}>
+            You picked{' '}
+            <span style={{ fontWeight: 700, color: PARTIES.find(p => p.id === voted)?.color }}>
+              {PARTIES.find(p => p.id === voted)?.name}
+            </span>
+            {' '}· Share with friends
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function TNElectionClient() {
   const [countdown, setCountdown] = useState(getCountdown)
@@ -595,221 +795,242 @@ export default function TNElectionClient() {
   const total = counts.dmk + counts.aiadmk + counts.tvk
 
   return (
-    <div style={{ background: '#09090b', minHeight: '100vh', color: '#f4f4f5' }}>
+    <div style={{ background: '#07010f', minHeight: '100vh', color: '#f4f4f5' }}>
 
       {/* ── STICKY NAV ── */}
       <div className="sticky top-0 z-50" style={{
-        background: 'rgba(9,9,11,0.92)', backdropFilter: 'blur(16px)',
+        background: 'rgba(7,1,15,0.92)', backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(255,255,255,0.07)',
       }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <Link href="/" className="text-white/35 hover:text-white/70 text-xs transition-colors flex-shrink-0">
+        <div className="max-w-5xl mx-auto" style={{ padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+            <Link href="/" style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12, textDecoration: 'none', flexShrink: 0, transition: 'color 0.2s' }}>
               ← NammaTamil
             </Link>
-            <span className="text-white/15">|</span>
-            {isLive
-              ? <span className="flex items-center gap-1.5 text-xs font-black text-red-400">
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-                  COUNTING LIVE
-                </span>
-              : <span className="text-white/45 text-xs">
-                  TN Election 2026 ·{' '}
-                  {countdown
-                    ? <span className="font-black tabular-nums" style={{ color: '#fbbf24' }}>
-                        {countdown.d}d {String(countdown.h).padStart(2,'0')}:{String(countdown.m).padStart(2,'0')}:{String(countdown.s).padStart(2,'0')}
-                      </span>
-                    : 'Counting started'}
-                  {' '}to counting
-                </span>
-            }
+            <span style={{ color: 'rgba(255,255,255,0.12)' }}>|</span>
+            {isLive ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 900, color: '#ef4444' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'ping 1s infinite' }} />
+                COUNTING LIVE
+              </span>
+            ) : (
+              <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12 }}>
+                TN Election 2026 ·{' '}
+                {countdown ? (
+                  <span style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', color: '#fbbf24' }}>
+                    {countdown.d > 0 ? `${countdown.d}d ` : ''}
+                    {String(countdown.h).padStart(2, '0')}:{String(countdown.m).padStart(2, '0')}:{String(countdown.s).padStart(2, '0')}
+                  </span>
+                ) : 'Counting started'}
+                {' '}to counting
+              </span>
+            )}
           </div>
           <button
             onClick={() => navigator.share?.({ title: 'TN Election AI Pulse 2026', url: window.location.href })}
-            className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/60 transition-colors flex-shrink-0">
-            <Share2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Share</span>
+            style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer' }}>
+            <Share2 style={{ width: 14, height: 14 }} />
           </button>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
+      <div className="max-w-5xl mx-auto" style={{ padding: '0 20px 80px' }}>
 
-        {/* ── HERO ── */}
-        <div className="pt-10 pb-6 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 text-xs font-bold"
-            style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa' }}>
-            <Brain className="w-3.5 h-3.5" />
-            AI ELECTION PULSE · தமிழ்நாடு 2026
-          </div>
-          <h1 className="font-black leading-none tracking-tighter text-white mb-3"
-            style={{ fontSize: 'clamp(2.2rem,7vw,4.5rem)' }}>
-            Tamil Nadu<br />
-            <span style={{
-              background: 'linear-gradient(135deg,#f87171 0%,#fbbf24 50%,#4ade80 100%)',
+        {/* ── CINEMATIC HERO ── */}
+        <div style={{
+          position: 'relative', overflow: 'hidden',
+          borderRadius: '0 0 32px 32px',
+          marginBottom: 32,
+          padding: '48px 24px 40px',
+          textAlign: 'center',
+        }}>
+          {/* Animated gradient background */}
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 0,
+            background: 'linear-gradient(160deg, rgba(255,153,51,0.18) 0%, rgba(255,255,255,0.04) 40%, rgba(19,136,8,0.14) 100%)',
+          }} />
+          {/* Radial glow centre */}
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+            width: 500, height: 300,
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse, rgba(251,191,36,0.12) 0%, transparent 70%)',
+            pointerEvents: 'none', zIndex: 0,
+          }} />
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '6px 16px', borderRadius: 99, marginBottom: 20,
+              background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.35)',
+              color: '#a78bfa', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
+            }}>
+              <Brain style={{ width: 14, height: 14 }} />
+              AI ELECTION PULSE · தமிழ்நாடு 2026
+            </div>
+
+            {/* Big Tamil headline */}
+            <div style={{
+              fontSize: 'clamp(2.4rem,8vw,4.8rem)', fontWeight: 900, lineHeight: 1.05,
+              color: '#fff', marginBottom: 8, letterSpacing: '-0.02em',
+            }}>
+              தேர்தல் 2026
+            </div>
+            <div style={{
+              fontSize: 'clamp(1.2rem,4vw,2.2rem)', fontWeight: 900, lineHeight: 1.1,
+              marginBottom: 16, letterSpacing: '-0.02em',
+              background: 'linear-gradient(135deg, #ff9933 0%, #ffffff 40%, #138808 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             }}>
-              Elections 2026
-            </span>
-          </h1>
-          <p className="text-white/35 text-sm sm:text-base mb-6">
-            234 Assembly Seats · 6.4 Crore Voters · Counting: May 4, 2026 at 8:00 AM IST
-          </p>
-        </div>
-
-        {/* ── BIG COUNTDOWN / LIVE BLOCK (always shown) ── */}
-        <div className="mb-6">
-          {isLive ? (
-            /* LIVE — full results */
-            <div className="rounded-2xl overflow-hidden" style={{
-              background: 'linear-gradient(135deg,rgba(239,68,68,0.12),rgba(220,38,38,0.06))',
-              border: '2px solid rgba(239,68,68,0.4)',
-            }}>
-              <div className="px-5 py-3 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(239,68,68,0.2)' }}>
-                <span className="flex items-center gap-2 font-black text-red-400 text-sm">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-                  LIVE COUNTING — MAY 4, 2026
-                </span>
-                <span className="text-white/30 text-xs ml-auto">Auto-refreshes every 3 min</span>
-              </div>
-              <div className="p-4">
-                <ElectionResultsLive />
-              </div>
+              Tamil Nadu Election Results
             </div>
-          ) : (
-            /* PRE-COUNTING — big countdown */
-            <div className="rounded-2xl overflow-hidden text-center" style={{
-              background: 'linear-gradient(135deg,rgba(251,191,36,0.10) 0%,rgba(245,158,11,0.05) 50%,rgba(251,191,36,0.10) 100%)',
-              border: '1.5px solid rgba(251,191,36,0.3)',
-            }}>
-              <div className="px-4 py-3 flex items-center justify-center gap-2" style={{ borderBottom: '1px solid rgba(251,191,36,0.15)' }}>
-                <span className="text-amber-400 font-black text-sm tracking-wide">🗳️ COUNTING BEGINS IN</span>
+
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 28 }}>
+              234 Assembly Seats · 6.4 Crore Voters · Counting: May 4, 2026 at 8:00 AM IST
+            </p>
+
+            {/* Hero Countdown / LIVE badge */}
+            {isLive ? (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+                padding: '12px 28px', borderRadius: 99,
+                background: 'rgba(239,68,68,0.15)', border: '2px solid rgba(239,68,68,0.5)',
+                color: '#ef4444', fontWeight: 900, fontSize: 18, letterSpacing: '0.06em',
+              }}>
+                <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'ping 1s infinite' }} />
+                🔴 LIVE COUNTING
               </div>
-              <div className="py-6 px-4">
-                {countdown ? (
-                  <div className="flex items-center justify-center gap-3 sm:gap-5">
-                    {countdown.d > 0 && countdown.h > 0 && (
-                      <>
-                        <div className="text-center">
-                          <div className="font-black tabular-nums text-white leading-none" style={{ fontSize: 'clamp(2.5rem,10vw,5rem)' }}>
-                            {String(countdown.d).padStart(2,'0')}
-                          </div>
-                          <div className="text-amber-400/60 text-[10px] font-bold uppercase tracking-widest mt-1">Days</div>
+            ) : countdown ? (
+              <div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
+                  COUNTING BEGINS IN
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 6 }}>
+                  {countdown.d > 0 && (
+                    <>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', fontSize: 'clamp(2.8rem,10vw,5.5rem)', color: '#fff', lineHeight: 1 }}>
+                          {String(countdown.d).padStart(2, '0')}
                         </div>
-                        <div className="text-amber-400/30 font-black text-4xl -mt-3">:</div>
-                      </>
-                    )}
-                    <div className="text-center">
-                      <div className="font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2.5rem,10vw,5rem)', color: '#fbbf24' }}>
-                        {String(countdown.h).padStart(2,'0')}
+                        <div style={{ fontSize: 9, color: 'rgba(255,153,51,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 4 }}>Days</div>
                       </div>
-                      <div className="text-amber-400/60 text-[10px] font-bold uppercase tracking-widest mt-1">Hrs</div>
+                      <div style={{ color: 'rgba(251,191,36,0.4)', fontWeight: 900, fontSize: '3rem', marginBottom: 14 }}>:</div>
+                    </>
+                  )}
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', fontSize: 'clamp(2.8rem,10vw,5.5rem)', color: '#fbbf24', lineHeight: 1 }}>
+                      {String(countdown.h).padStart(2, '0')}
                     </div>
-                    <div className="text-amber-400/30 font-black text-4xl -mt-3">:</div>
-                    <div className="text-center">
-                      <div className="font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2.5rem,10vw,5rem)', color: '#fbbf24' }}>
-                        {String(countdown.m).padStart(2,'0')}
-                      </div>
-                      <div className="text-amber-400/60 text-[10px] font-bold uppercase tracking-widest mt-1">Min</div>
-                    </div>
-                    <div className="text-amber-400/30 font-black text-4xl -mt-3">:</div>
-                    <div className="text-center">
-                      <div className="font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2.5rem,10vw,5rem)', color: 'rgba(255,255,255,0.4)' }}>
-                        {String(countdown.s).padStart(2,'0')}
-                      </div>
-                      <div className="text-white/20 text-[10px] font-bold uppercase tracking-widest mt-1">Sec</div>
-                    </div>
+                    <div style={{ fontSize: 9, color: 'rgba(251,191,36,0.6)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 4 }}>Hrs</div>
                   </div>
-                ) : (
-                  <p className="text-amber-400 font-black text-2xl">Counting has begun!</p>
-                )}
-                <p className="text-white/30 text-xs mt-4">May 4, 2026 · 8:00 AM IST · 234 seats · 118 for majority</p>
-                <div className="mt-4 flex items-center justify-center gap-3 flex-wrap">
-                  {[
-                    { party: 'TVK (Vijay)', seats: '98–120', color: '#fbbf24' },
-                    { party: 'DMK (Stalin)', seats: '92–110', color: '#f87171' },
-                    { party: 'AIADMK (EPS)', seats: '22–32', color: '#4ade80' },
-                  ].map(p => (
-                    <span key={p.party} className="text-[11px] font-bold px-3 py-1 rounded-full"
-                      style={{ background: `${p.color}15`, border: `1px solid ${p.color}35`, color: p.color }}>
-                      {p.party}: {p.seats}
-                    </span>
-                  ))}
+                  <div style={{ color: 'rgba(251,191,36,0.4)', fontWeight: 900, fontSize: '3rem', marginBottom: 14 }}>:</div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', fontSize: 'clamp(2.8rem,10vw,5.5rem)', color: '#fbbf24', lineHeight: 1 }}>
+                      {String(countdown.m).padStart(2, '0')}
+                    </div>
+                    <div style={{ fontSize: 9, color: 'rgba(251,191,36,0.6)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 4 }}>Min</div>
+                  </div>
+                  <div style={{ color: 'rgba(251,191,36,0.4)', fontWeight: 900, fontSize: '3rem', marginBottom: 14 }}>:</div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', fontSize: 'clamp(2.8rem,10vw,5.5rem)', color: 'rgba(255,255,255,0.35)', lineHeight: 1 }}>
+                      {String(countdown.s).padStart(2, '0')}
+                    </div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 4 }}>Sec</div>
+                  </div>
                 </div>
               </div>
-              <div className="px-4 pb-4">
-                <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p className="text-white/40 text-xs">📡 Live results will appear here automatically at 8 AM IST · Bookmark this page</p>
-                </div>
-              </div>
-            </div>
-          )}
+            ) : (
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#fbbf24' }}>Counting has begun!</div>
+            )}
+          </div>
         </div>
 
-        {/* ── KEY STATS ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {[
-            { label: 'Assembly Seats',    value: '234',    icon: Users,      color: '#a78bfa' },
-            { label: 'Registered Voters', value: '6.4 Cr', icon: TrendingUp, color: '#34d399' },
-            { label: 'Counting Day',      value: 'May 4',  icon: Zap,        color: '#fbbf24' },
-            { label: 'Majority Mark',     value: '118',    icon: BarChart2,  color: '#f87171' },
-          ].map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="rounded-2xl p-4 flex flex-col gap-2"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <Icon className="w-4 h-4" style={{ color }} />
-              <p className="font-black text-2xl text-white tabular-nums">{value}</p>
-              <p className="text-white/35 text-[10px] leading-tight">{label}</p>
-            </div>
-          ))}
+        {/* ── ELECTION RESULTS LIVE (always shown) ── */}
+        <div style={{ marginBottom: 28 }}>
+          <ElectionResultsLive />
+        </div>
+
+        {/* ── KEY FACTS STRIP ── */}
+        <KeyFactsStrip />
+
+        {/* ── PARTY SNAPSHOT CARDS ── */}
+        <div style={{ marginBottom: 28 }}>
+          <h2 style={{ fontWeight: 900, fontSize: 18, color: '#fff', marginBottom: 14 }}>Party Snapshot</h2>
+          {/* Mobile: horizontal scroll; Desktop: 3 col */}
+          <div className="hidden sm:grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+            {PARTIES.map(p => (
+              <div key={p.id} style={{ display: 'flex' }}>
+                <PartyCard
+                  party={p}
+                  exitSeats={p.id === 'tvk' ? FEATURED_POLL.tvk : p.id === 'dmk' ? FEATURED_POLL.dmk : FEATURED_POLL.aiadmk}
+                  isWinner={p.id === 'tvk'}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="sm:hidden" style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none' }}>
+            {PARTIES.map(p => (
+              <PartyCard
+                key={p.id}
+                party={p}
+                exitSeats={p.id === 'tvk' ? FEATURED_POLL.tvk : p.id === 'dmk' ? FEATURED_POLL.dmk : FEATURED_POLL.aiadmk}
+                isWinner={p.id === 'tvk'}
+              />
+            ))}
+          </div>
         </div>
 
         {/* ── EXIT POLLS ── */}
         <ExitPollSection />
 
         {/* ── AI SENTIMENT + VOTE SHARE ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div style={{ display: 'grid', gap: 14, marginBottom: 28 }} className="grid-cols-1 lg:grid-cols-2">
 
           {/* AI Sentiment */}
-          <div className="rounded-2xl p-5" style={{ background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.2)' }}>
-            <div className="flex items-center gap-2 mb-5">
-              <Brain className="w-4 h-4 text-purple-400" />
-              <h2 className="text-white font-black text-base">AI Sentiment Score</h2>
-              <span className="ml-auto text-[9px] text-white/20">Updated every 6h</span>
+          <div style={{ borderRadius: 20, padding: '20px', background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.2)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+              <Brain style={{ width: 16, height: 16, color: '#a78bfa' }} />
+              <h2 style={{ fontWeight: 900, fontSize: 17, color: '#fff' }}>AI Sentiment Score</h2>
+              <span style={{ marginLeft: 'auto', fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>Updated every 6h</span>
             </div>
-            <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
               {PARTIES.map(party => (
                 <div key={party.id}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <PartySymbol party={party} size={20} />
-                      <span className="font-black text-sm" style={{ color: party.color }}>{party.name}</span>
-                      <span className="text-white/30 text-[10px] hidden sm:inline">{party.leader}</span>
+                      <span style={{ fontWeight: 900, fontSize: 14, color: party.color }}>{party.name}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10 }}>{party.leader}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-emerald-400">{party.aiTrend}</span>
-                      <span className="font-black text-sm tabular-nums" style={{ color: party.color }}>{party.aiSentiment}/100</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: party.aiTrend.startsWith('+') ? '#4ade80' : '#f87171' }}>
+                        {party.aiTrend}
+                      </span>
+                      <span style={{ fontWeight: 900, fontSize: 14, color: party.color, fontVariantNumeric: 'tabular-nums' }}>
+                        {party.aiSentiment}/100
+                      </span>
                     </div>
                   </div>
                   <SentimentBar score={party.aiSentiment} color={party.color} />
-                  <p className="text-white/30 text-[10px] mt-1">{party.aiLabel}</p>
+                  <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{party.aiLabel}</p>
                 </div>
               ))}
             </div>
-            <p className="text-white/15 text-[9px] mt-4 pt-3 border-t border-white/5">
+            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
               AI analysis from Tamil social media, news portals & search trends. Not affiliated with any party.
             </p>
           </div>
 
           {/* Vote Share Donut */}
-          <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="flex items-center gap-2 mb-5">
-              <BarChart2 className="w-4 h-4 text-amber-400" />
-              <h2 className="text-white font-black text-base">Predicted Vote Share</h2>
-              <span className="ml-auto text-[9px] text-white/20">AI estimate</span>
+          <div style={{ borderRadius: 20, padding: '20px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+              <BarChart2 style={{ width: 16, height: 16, color: '#fbbf24' }} />
+              <h2 style={{ fontWeight: 900, fontSize: 17, color: '#fff' }}>Predicted Vote Share</h2>
+              <span style={{ marginLeft: 'auto', fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>AI estimate</span>
             </div>
             <VoteShareDonut parties={PARTIES} others={OTHERS} />
-            <div className="mt-4 pt-3 border-t border-white/5">
-              <p className="text-white/20 text-[9px]">
+            <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>
                 Estimated vote share based on AI trend analysis. Majority mark: 118 seats.
               </p>
             </div>
@@ -817,155 +1038,76 @@ export default function TNElectionClient() {
         </div>
 
         {/* ── COMMUNITY POLL ── */}
-        <div className="rounded-2xl mb-6 overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div className="px-5 sm:px-6 py-4 flex items-center justify-between"
-            style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-            <div>
-              <h2 className="text-white font-black text-lg">Community Pulse Poll</h2>
-              <p className="text-white/30 text-xs mt-0.5">உங்கள் கருத்து · Cast your prediction</p>
-            </div>
-            <div className="text-right">
-              <p className="text-white/20 text-[9px] uppercase tracking-widest mb-0.5">Responses</p>
-              <p className="font-black text-2xl tabular-nums" style={{ color: '#fbbf24' }}>{total.toLocaleString()}</p>
-            </div>
-          </div>
-
-          <div className="px-5 sm:px-6 py-5">
-            <p className="text-white/50 text-sm font-semibold mb-4">
-              Who will win the most seats in Tamil Nadu 2026?
-            </p>
-            <div className="space-y-2.5">
-              {PARTIES.map(party => {
-                const v = counts[party.id as keyof typeof counts] ?? 0
-                const pct = total > 0 ? (v / total * 100) : 0
-                const isWinning = v === Math.max(...Object.values(counts))
-                const isMine = voted === party.id
-                const hasVoted = !!voted
-
-                return (
-                  <button key={party.id} onClick={() => castVote(party.id)} disabled={hasVoted}
-                    className="w-full text-left transition-all duration-200 rounded-xl overflow-hidden relative"
-                    style={{
-                      border: `1.5px solid ${isMine ? party.color : hasVoted ? 'rgba(255,255,255,0.07)' : party.border}`,
-                      background: isMine ? party.dim : 'rgba(255,255,255,0.02)',
-                      cursor: hasVoted ? 'default' : 'pointer',
-                    }}>
-                    {hasVoted && (
-                      <div className="absolute inset-y-0 left-0 transition-all duration-700 rounded-xl"
-                        style={{ width: `${pct}%`, background: `${party.color}12` }} />
-                    )}
-                    <div className="relative flex items-center gap-4 px-4 py-4">
-                      <PartySymbol party={party} size={34} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-black text-sm sm:text-base" style={{ color: party.color }}>{party.name}</span>
-                          <span className="text-white/70 text-xs font-semibold">{party.leader}</span>
-                          {isWinning && hasVoted && (
-                            <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full"
-                              style={{ background: `${party.color}20`, color: party.color, border: `1px solid ${party.color}40` }}>
-                              LEADING
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-white/30 text-[10px] mt-0.5">{party.leaderTamil} · {party.role}</p>
-                      </div>
-                      <div className="flex-shrink-0 text-right">
-                        {hasVoted ? (
-                          <div>
-                            <span className="font-black text-xl sm:text-2xl tabular-nums"
-                              style={{ color: isMine ? party.color : 'rgba(255,255,255,0.4)' }}>
-                              {pct.toFixed(1)}%
-                            </span>
-                            {isMine && (
-                              <p className="text-[9px] font-bold flex items-center justify-end gap-0.5" style={{ color: party.color }}>
-                                <CheckCircle2 className="w-3 h-3" /> Your pick
-                              </p>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
-                            style={{ borderColor: party.border }}>
-                            <div className="w-2 h-2 rounded-full" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-            {!voted && <p className="text-center text-white/20 text-xs mt-4">Select a party to reveal community results</p>}
-            {voted && (
-              <p className="text-center text-white/30 text-xs mt-4">
-                You picked <span className="font-bold" style={{ color: PARTIES.find(p=>p.id===voted)?.color }}>
-                  {PARTIES.find(p=>p.id===voted)?.name}
-                </span> · Share with friends
-              </p>
-            )}
-          </div>
-        </div>
+        <CommunityPollSection voted={voted} counts={counts} castVote={castVote} total={total} />
 
         {/* ── AI SEAT FORECAST — TABLE + HISTOGRAM ── */}
-        <div className="rounded-2xl mb-6 overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ borderRadius: 20, marginBottom: 28, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
           <button
-            className="w-full px-5 sm:px-6 py-4 flex items-center justify-between text-left hover:bg-white/[0.02] transition-colors"
-            style={{ background: 'rgba(255,255,255,0.03)', borderBottom: showForecast ? '1px solid rgba(255,255,255,0.07)' : 'none' }}
+            style={{
+              width: '100%', padding: '18px 20px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'rgba(255,255,255,0.025)',
+              borderBottom: showForecast ? '1px solid rgba(255,255,255,0.07)' : 'none',
+              border: 'none', cursor: 'pointer',
+            }}
             onClick={() => setShowForecast(p => !p)}>
-            <div className="flex items-center gap-3">
-              <BarChart2 className="w-4 h-4 text-amber-400" />
-              <div>
-                <h2 className="text-white font-black text-base sm:text-lg">AI Seat Forecast</h2>
-                <p className="text-white/30 text-xs mt-0.5">Crowdsourced seat range predictions · 1,143 entries</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <BarChart2 style={{ width: 16, height: 16, color: '#fbbf24' }} />
+              <div style={{ textAlign: 'left' }}>
+                <h2 style={{ fontWeight: 900, fontSize: 17, color: '#fff' }}>AI Seat Forecast</h2>
+                <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Crowdsourced seat range predictions · 1,143 entries</p>
               </div>
             </div>
-            <ChevronDown className={`w-4 h-4 text-white/30 transition-transform ${showForecast ? 'rotate-180' : ''}`} />
+            <ChevronDown style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.3)', transform: showForecast ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </button>
 
           {showForecast && (
-            <div className="px-5 sm:px-6 py-5 space-y-5">
-              {/* Toggle: table vs chart */}
-              <div className="flex items-center gap-1.5">
-                {[{ id: true, label: 'Table View' }, { id: false, label: 'Chart View' }].map(({ id, label }) => (
+            <div style={{ padding: '20px' }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+                {([{ id: true, label: 'Table View' }, { id: false, label: 'Chart View' }] as const).map(({ id, label }) => (
                   <button key={label} onClick={() => setShowTable(id)}
-                    className="px-3 py-1 rounded-full text-xs font-bold transition-all"
                     style={{
+                      padding: '4px 14px', borderRadius: 99, fontSize: 11, fontWeight: 700, cursor: 'pointer',
                       background: showTable === id ? 'rgba(245,158,11,0.14)' : 'rgba(255,255,255,0.04)',
                       border: `1px solid ${showTable === id ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.08)'}`,
                       color: showTable === id ? '#f59e0b' : 'rgba(255,255,255,0.4)',
                     }}>{label}</button>
                 ))}
-                <span className="text-white/20 text-[10px] ml-auto">% probability for each seat range</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>% probability per seat range</span>
               </div>
 
               {showTable ? (
                 <SeatTable parties={PARTIES} />
               ) : (
-                <div className="space-y-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {PARTIES.map(party => <SeatHistogram key={party.id} party={party} />)}
                 </div>
               )}
 
               {/* Other parties */}
-              <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <p className="text-white/30 text-[10px] uppercase tracking-widest mb-3 font-semibold">Other Parties</p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div style={{ borderRadius: 16, padding: 16, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', marginTop: 16 }}>
+                <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 700 }}>Other Parties</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }} className="sm:grid-cols-4">
                   {OTHERS.map(p => (
-                    <div key={p.name} className="flex items-center justify-between px-3 py-2.5 rounded-xl"
-                      style={{ background: `${p.color}10`, border: `1px solid ${p.color}22` }}>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-                        <span className="font-black text-xs" style={{ color: p.color }}>{p.name}</span>
+                    <div key={p.name} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '10px 12px', borderRadius: 12,
+                      background: `${p.color}10`, border: `1px solid ${p.color}22`,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, display: 'inline-block' }} />
+                        <span style={{ fontWeight: 900, fontSize: 12, color: p.color }}>{p.name}</span>
                       </div>
-                      <div className="text-right">
-                        <p className="text-white/40 text-[10px]">{p.seats} seats</p>
-                        <p className="font-bold text-[10px]" style={{ color: p.color }}>{p.share}%</p>
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{p.seats} seats</p>
+                        <p style={{ fontWeight: 700, fontSize: 10, color: p.color }}>{p.share}%</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <p className="text-white/15 text-[9px]">
+              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', marginTop: 14 }}>
                 Community crowd-submitted predictions. AI weights by recency and source credibility.
                 Not official polling data. NammaTamil does not endorse any party.
               </p>
@@ -974,8 +1116,8 @@ export default function TNElectionClient() {
         </div>
 
         {/* ── DISCLAIMER ── */}
-        <div className="rounded-xl p-4 text-center" style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <p className="text-white/20 text-[10px] leading-relaxed">
+        <div style={{ borderRadius: 16, padding: '16px', textAlign: 'center', background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', lineHeight: 1.7 }}>
             NammaTamil AI Election Pulse is an independent community platform. Poll results and seat forecasts
             are crowd-submitted data only and do not represent official exit polls or survey results.
             Live counting results will activate on May 4, 2026 at 8 AM IST.
