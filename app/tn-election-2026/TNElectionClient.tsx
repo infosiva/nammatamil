@@ -1148,7 +1148,7 @@ export default function TNElectionClient() {
         </div>
 
         {/* ── AD UNIT — after live results ── */}
-        <AdUnit format="horizontal" className="mb-7 min-h-[90px]" />
+        <AdUnit network="affiliate" className="mb-7" />
 
         {/* ── KEY FACTS STRIP ── */}
         <KeyFactsStrip />
@@ -1244,7 +1244,7 @@ export default function TNElectionClient() {
         <EmailCapture />
 
         {/* ── AD UNIT — between poll and forecast ── */}
-        <AdUnit format="horizontal" className="mb-7 min-h-[90px]" />
+        <AdUnit network="affiliate" className="mb-7" />
 
         {/* ── AI SEAT FORECAST — TABLE + HISTOGRAM ── */}
         <div style={{ borderRadius: 20, marginBottom: 28, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>

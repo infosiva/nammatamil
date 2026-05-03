@@ -25,6 +25,8 @@ export default function HomePage() {
           <div className="w-full xl:w-[380px] flex-shrink-0 xl:sticky xl:top-[70px] space-y-4">
             {/* Election results widget — top priority */}
             <ElectionResultsLive compact />
+            {/* OTT affiliate banner — earns commission immediately */}
+            <AdUnit network="affiliate" />
             <HeroCinematic />
             <TamilCalendar />
             <OTTThisWeek />
