@@ -3,10 +3,14 @@ import HomeTabLayout from '@/components/HomeTabLayout'
 import AdUnit from '@/components/AdUnit'
 import TamilCalendar from '@/components/TamilCalendar'
 import OTTThisWeek from '@/components/OTTThisWeek'
+import ElectionHomeBanner from '@/components/ElectionHomeBanner'
 
 export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
+
+      {/* ══ ELECTION BANNER — full width above everything ════════════════════ */}
+      <ElectionHomeBanner />
 
       {/* ══ MAIN: two-column split — no extra headers ════════════════════════ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

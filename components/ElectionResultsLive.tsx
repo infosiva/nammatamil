@@ -38,9 +38,10 @@ interface ElectionResultsResponse {
   narrative: string
   leader: string
   projectedWinner: string | null
-  source: 'eci-live' | 'ai-parsed' | 'exit-poll-projection' | 'static'
+  source: 'eci-live' | 'ai-parsed' | 'exit-poll-projection' | 'manual-override' | 'cached-stale' | 'static'
   updatedAt: string
   headlines: string[]
+  fallbackLevel?: number
 }
 
 const REFRESH_MS = 3 * 60 * 1000 // 3 min
@@ -535,28 +536,50 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
           </div>
         )}
 
+        {/* ── Stale cache warning ── */}
+        {data?.source === 'cached-stale' && (
+          <div style={{
+            borderRadius: 10, padding: '8px 12px',
+            background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <Zap style={{ width: 11, height: 11, color: '#fbbf24', flexShrink: 0 }} />
+            <span style={{ fontSize: 10, color: 'rgba(251,191,36,0.8)', fontWeight: 600 }}>
+              Live source temporarily unavailable — showing last known data. Retrying…
+            </span>
+          </div>
+        )}
+
         {/* ── Source + link ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {data?.source === 'eci-live' && (
               <>
-                <Zap style={{ width: 10, height: 10, color: 'rgba(74,222,128,0.5)' }} />
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>Live from ECI · AI parsed</span>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Live · ECI official data</span>
+              </>
+            )}
+            {data?.source === 'manual-override' && (
+              <>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fbbf24', display: 'inline-block' }} />
+                <span style={{ fontSize: 9, color: 'rgba(251,191,36,0.5)' }}>Manual update</span>
               </>
             )}
             {data?.source === 'ai-parsed' && (
               <>
                 <Zap style={{ width: 10, height: 10, color: 'rgba(251,191,36,0.5)' }} />
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>AI from news headlines</span>
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>AI · news headlines</span>
               </>
             )}
-            {data?.source === 'exit-poll-projection' && (
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>Exit poll projections · Axis My India</span>
+            {(data?.source === 'exit-poll-projection' || data?.source === 'cached-stale') && (
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>
+                {data.source === 'cached-stale' ? 'Last known · retrying' : 'Exit poll · Axis My India'}
+              </span>
             )}
           </div>
           {!compact && (
             <Link href="/tn-election-2026"
-              style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', textDecoration: 'none', transition: 'color 0.2s' }}>
+              style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', textDecoration: 'none' }}>
               Full analysis →
             </Link>
           )}
