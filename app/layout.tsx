@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import TVKWidget from '@/components/TVKWidget'
 import FeedbackWidget from '@/components/FeedbackWidget'
 import TrendingTicker from '@/components/TrendingTicker'
+import TNElectionBanner from '@/components/TNElectionBanner'
 
 export const metadata: Metadata = {
   title: {
@@ -83,6 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col bg-site">
         <TVKWidget />
+        <TNElectionBanner />
         <Header />
         <TrendingTicker />
         <main className="flex-1">{children}</main>
