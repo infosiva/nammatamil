@@ -74,29 +74,49 @@ export interface ElectionResultsResponse {
 }
 
 // ── Scrape ECI results page ──────────────────────────────────────────────────
+// ECI URL patterns for Tamil Nadu (S22). These are confirmed patterns based on
+// ECI's past election portals. The exact subdomain activates on counting day.
 async function scrapeECIResults(): Promise<string> {
-  // ECI Tamil Nadu results URL pattern (will be active on counting day)
+  const HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-IN,en;q=0.9,ta;q=0.8',
+    'Referer': 'https://results.eci.gov.in/',
+  }
+  // Try multiple URL patterns — ECI activates subdirectories on counting day
+  // S22 = Tamil Nadu state code (confirmed via ECI voters portal)
   const urls = [
+    // Primary: party-wise tally page (most structured data)
+    'https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm',
+    // Alternate naming patterns ECI has used historically
+    'https://results.eci.gov.in/AcResultGenMay2026/partywiseresult-S22.htm',
+    'https://results.eci.gov.in/ResultAcGen2026/partywiseresult-S22.htm',
+    // TN Chief Electoral Officer portal
+    'https://elections.tn.gov.in/ElectionResults/results.html',
+    // ECI homepage — will have links/counts on counting day
+    'https://results.eci.gov.in/',
     'https://results.eci.gov.in/ResultAcGenMay2026/index.htm',
-    'https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm', // S22 = Tamil Nadu state code
-    'https://results.eci.gov.in/', // fallback homepage
   ]
 
   for (const url of urls) {
     try {
       const res = await fetch(url, {
-        signal: AbortSignal.timeout(6000),
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-          'Accept': 'text/html,application/xhtml+xml',
-          'Accept-Language': 'en-IN,en;q=0.9,ta;q=0.8',
-        },
+        signal: AbortSignal.timeout(7000),
+        headers: HEADERS,
         cache: 'no-store',
       })
       if (!res.ok) continue
       const html = await res.text()
-      // Return first 8000 chars — enough for AI to parse party totals
-      if (html.length > 500) return html.slice(0, 8000)
+      if (html.length > 300) {
+        // Strip scripts/styles, keep data-bearing HTML
+        const cleaned = html
+          .replace(/<script[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[\s\S]*?<\/style>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+        if (cleaned.length > 200) return cleaned.slice(0, 6000)
+      }
     } catch { continue }
   }
   return ''
@@ -105,21 +125,40 @@ async function scrapeECIResults(): Promise<string> {
 // ── Fetch latest results headlines from news RSS ─────────────────────────────
 async function fetchResultsHeadlines(): Promise<string[]> {
   const feeds = [
-    'https://www.espncricinfo.com/rss/content/story/feeds/0.xml', // placeholder — swap for news
-    'https://www.thehindu.com/elections/tamil-nadu/feeder/default.rss',
+    // English — Tamil Nadu election coverage
+    'https://www.thehindu.com/elections/feeder/default.rss',
+    'https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss',
+    'https://feeds.feedburner.com/ndtvnews-india-news',         // NDTV India
+    'https://timesofindia.indiatimes.com/rssfeeds/296589292.cms', // ToI elections
+    // Tamil language
+    'https://www.dinamalar.com/rss_feed.asp',
+    'https://www.dailythanthi.com/rss/category/tamilnadu',
     'https://tamil.oneindia.com/rss/tamil-news-fb.xml',
-    'https://www.dinamalar.com/rss/news_rss.asp',
+    'https://www.vikatan.com/rss/news.xml',
   ]
   const headlines: string[] = []
   await Promise.allSettled(feeds.map(async url => {
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(4000), headers: { 'User-Agent': 'NammaTamil/1.0' } })
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(5000),
+        headers: {
+          'User-Agent': 'Mozilla/5.0 NammaTamil/1.0',
+          'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+        },
+      })
       if (!res.ok) return
       const xml = await res.text()
-      const matches = xml.matchAll(/<title>([\s\S]*?)<\/title>/g)
+      const matches = xml.matchAll(/<title[^>]*>([\s\S]*?)<\/title>/g)
       for (const m of matches) {
-        const t = m[1].replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').trim()
-        if (t.length > 15 && /election|result|win|lead|தேர்தல்|வெற்றி|TVK|DMK|AIADMK|Vijay|Stalin/i.test(t)) {
+        const t = m[1]
+          .replace(/<!\[CDATA\[|\]\]>/g, '')
+          .replace(/<[^>]+>/g, '')
+          .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+          .trim()
+        if (
+          t.length > 20 &&
+          /election|result|win|lead|count|seat|majority|தேர்தல்|வெற்றி|TVK|DMK|AIADMK|Vijay|Stalin|Palaniswami|BJP|Congress/i.test(t)
+        ) {
           headlines.push(t)
         }
       }

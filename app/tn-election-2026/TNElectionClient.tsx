@@ -68,6 +68,7 @@ const POLL_OF_POLLS = { dmk: '~101', aiadmk: '~82', tvk: '~39', others: '~12' }
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 // ─── Axis My India exit poll numbers (Apr 29 2026) — TVK projected winner ─────
+// Leader photos: Wikipedia Commons (CC licensed)
 const PARTIES = [
   {
     id: 'tvk',
@@ -79,6 +80,7 @@ const PARTIES = [
     color: '#fbbf24',
     dim: 'rgba(251,191,36,0.10)',
     border: 'rgba(251,191,36,0.35)',
+    leaderImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Vijay_at_Protest_of_the_Nadigar_Sangam.jpg/330px-Vijay_at_Protest_of_the_Nadigar_Sangam.jpg',
     aiSentiment: 82,
     aiTrend: '+18.4%',
     aiLabel: 'Axis My India: Single largest party · CM preferred 37%',
@@ -102,6 +104,7 @@ const PARTIES = [
     color: '#f87171',
     dim: 'rgba(248,113,113,0.08)',
     border: 'rgba(248,113,113,0.22)',
+    leaderImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/The_Chief_Minister_of_Tamil_Nadu%2C_Thiru_MK_Stalin.jpg/330px-The_Chief_Minister_of_Tamil_Nadu%2C_Thiru_MK_Stalin.jpg',
     aiSentiment: 70,
     aiTrend: '-6.8%',
     aiLabel: 'Axis My India: Close second · CM preferred 35%',
@@ -125,6 +128,7 @@ const PARTIES = [
     color: '#4ade80',
     dim: 'rgba(74,222,128,0.06)',
     border: 'rgba(74,222,128,0.18)',
+    leaderImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Palanisamy.jpg/330px-Palanisamy.jpg',
     aiSentiment: 42,
     aiTrend: '-22.1%',
     aiLabel: 'Axis My India: Sharp decline · CM preferred 22%',
@@ -425,85 +429,116 @@ function SentimentBar({ score, color }: { score: number; color: string }) {
   )
 }
 
-// ─── Party Snapshot Card ───────────────────────────────────────────────────────
+// ─── Party Snapshot Card (with leader photo) ──────────────────────────────────
 function PartyCard({ party, exitSeats, isWinner }: { party: typeof PARTIES[0]; exitSeats: string; isWinner: boolean }) {
   return (
     <div style={{
       flex: '0 0 auto',
-      width: 200,
-      borderRadius: 20,
-      padding: '20px 18px',
-      background: isWinner
-        ? `linear-gradient(145deg, ${party.color}22 0%, ${party.color}08 100%)`
-        : `linear-gradient(145deg, ${party.color}10 0%, ${party.color}04 100%)`,
-      border: `${isWinner ? '2px' : '1px'} solid ${party.color}${isWinner ? '55' : '28'}`,
-      position: 'relative',
+      width: 210,
+      borderRadius: 22,
       overflow: 'hidden',
+      background: isWinner
+        ? `linear-gradient(160deg, ${party.color}20 0%, ${party.color}06 100%)`
+        : `linear-gradient(160deg, ${party.color}0c 0%, ${party.color}03 100%)`,
+      border: `${isWinner ? '2px' : '1px'} solid ${party.color}${isWinner ? '55' : '25'}`,
+      position: 'relative',
+      boxShadow: isWinner ? `0 8px 40px ${party.color}18` : 'none',
     }}>
       {/* Glow blob */}
       <div style={{
-        position: 'absolute', top: -30, right: -30, width: 100, height: 100,
-        borderRadius: '50%', background: party.color, opacity: 0.06, filter: 'blur(30px)',
+        position: 'absolute', top: -40, right: -40, width: 130, height: 130,
+        borderRadius: '50%', background: party.color, opacity: isWinner ? 0.1 : 0.05, filter: 'blur(35px)',
         pointerEvents: 'none',
       }} />
 
-      {isWinner && (
-        <div style={{
-          position: 'absolute', top: 10, right: 12,
-          fontSize: 10, fontWeight: 900, letterSpacing: '0.08em',
-          color: party.color,
-          background: `${party.color}20`,
-          border: `1px solid ${party.color}45`,
-          borderRadius: 99, padding: '2px 8px',
-        }}>
-          👑 LIKELY WINNER
-        </div>
-      )}
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, marginTop: isWinner ? 22 : 0 }}>
-        <PartySymbol party={party} size={36} />
-        <div>
-          <div style={{ fontWeight: 900, fontSize: 16, color: party.color }}>{party.name}</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>{party.tamil}</div>
-        </div>
-      </div>
-
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 2 }}>{party.leader}</div>
-      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.22)', marginBottom: 14 }}>{party.role}</div>
-
-      {/* Big seat number */}
-      <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 42, fontWeight: 900, lineHeight: 1, color: party.color, fontVariantNumeric: 'tabular-nums' }}>
-          {exitSeats}
-        </div>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          Exit Poll Seats
-        </div>
-      </div>
-
-      {/* Sentiment */}
-      <div style={{ marginBottom: 6 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>AI Sentiment</span>
-          <span style={{ fontSize: 12, fontWeight: 900, color: party.color, fontVariantNumeric: 'tabular-nums' }}>{party.aiSentiment}</span>
-        </div>
-        <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-          <div style={{
-            height: '100%', borderRadius: 99,
-            width: `${party.aiSentiment}%`,
-            background: `linear-gradient(90deg, ${party.color}55, ${party.color})`,
-          }} />
-        </div>
-      </div>
-
+      {/* Leader photo strip */}
       <div style={{
-        display: 'inline-flex', alignItems: 'center', gap: 4,
-        fontSize: 10, fontWeight: 700,
-        color: party.aiTrend.startsWith('+') ? '#4ade80' : '#f87171',
-        marginTop: 4,
+        position: 'relative', height: 130, overflow: 'hidden',
+        background: `linear-gradient(180deg, ${party.color}15 0%, rgba(0,0,0,0.5) 100%)`,
       }}>
-        <span>{party.aiTrend.startsWith('+') ? '▲' : '▼'}</span>
-        <span>{party.aiTrend}</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={party.leaderImg}
+          alt={party.leader}
+          style={{
+            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top',
+            filter: 'grayscale(15%) contrast(1.05)',
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)',
+          }}
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+        />
+        {/* Color overlay at bottom */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
+          background: `linear-gradient(to top, ${party.color}20, transparent)`,
+        }} />
+        {/* Party symbol + name overlay */}
+        <div style={{
+          position: 'absolute', bottom: 8, left: 12,
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <PartySymbol party={party} size={28} />
+          <div>
+            <div style={{ fontWeight: 900, fontSize: 15, color: party.color, lineHeight: 1 }}>{party.name}</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>{party.tamil}</div>
+          </div>
+        </div>
+        {isWinner && (
+          <div style={{
+            position: 'absolute', top: 8, right: 8,
+            fontSize: 9, fontWeight: 900, letterSpacing: '0.07em',
+            color: party.color,
+            background: 'rgba(7,1,15,0.75)',
+            border: `1px solid ${party.color}50`,
+            borderRadius: 99, padding: '3px 8px',
+            backdropFilter: 'blur(8px)',
+          }}>
+            👑 PROJECTED
+          </div>
+        )}
+      </div>
+
+      {/* Card body */}
+      <div style={{ padding: '14px 16px 16px' }}>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 1, fontWeight: 600 }}>{party.leader}</div>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', marginBottom: 12 }}>{party.role}</div>
+
+        {/* Big seat number */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, marginBottom: 12 }}>
+          <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 1, color: party.color, fontVariantNumeric: 'tabular-nums' }}>
+            {exitSeats}
+          </div>
+          <div style={{ paddingBottom: 4 }}>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>seats</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>exit poll</div>
+          </div>
+        </div>
+
+        {/* Sentiment bar */}
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>AI Sentiment</span>
+            <span style={{ fontSize: 11, fontWeight: 900, color: party.color }}>{party.aiSentiment}/100</span>
+          </div>
+          <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', borderRadius: 99,
+              width: `${party.aiSentiment}%`,
+              background: `linear-gradient(90deg, ${party.color}50, ${party.color})`,
+            }} />
+          </div>
+        </div>
+
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+          fontSize: 10, fontWeight: 700,
+          color: party.aiTrend.startsWith('+') ? '#4ade80' : '#f87171',
+        }}>
+          <span>{party.aiTrend.startsWith('+') ? '▲' : '▼'}</span>
+          <span>{party.aiTrend}</span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', fontWeight: 400, marginLeft: 2 }}>vs baseline</span>
+        </div>
       </div>
     </div>
   )
@@ -733,7 +768,26 @@ function CommunityPollSection({ voted, counts, castVote, total }: {
                   display: 'flex', alignItems: 'center', gap: 14,
                   padding: '14px 16px',
                 }}>
-                  <PartySymbol party={party} size={38} />
+                  {/* Leader thumbnail */}
+                  <div style={{
+                    width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+                    overflow: 'hidden', border: `2px solid ${isMine ? party.color : party.border}`,
+                    background: party.dim,
+                    boxShadow: isMine ? `0 0 12px ${party.color}55` : 'none',
+                  }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={party.leaderImg}
+                      alt={party.leader}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
+                      onError={(e) => {
+                        const el = e.target as HTMLImageElement
+                        el.style.display = 'none'
+                        const parent = el.parentElement
+                        if (parent) { const sym = document.createElement('div'); sym.style.display = 'flex'; sym.style.alignItems = 'center'; sym.style.justifyContent = 'center'; sym.style.height = '100%'; parent.appendChild(sym) }
+                      }}
+                    />
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                       <span style={{ fontWeight: 900, fontSize: 15, color: party.color }}>{party.name}</span>
