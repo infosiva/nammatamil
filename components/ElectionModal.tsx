@@ -80,18 +80,20 @@ export default function ElectionModal() {
         }}
       />
 
-      {/* Modal */}
+      {/* Modal — outer wrapper clips border-radius, inner scrolls */}
       <div style={{
         position: 'fixed', zIndex: 9999,
         top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
         width: '94vw', maxWidth: 440,
-        maxHeight: '92vh', overflowY: 'auto',
         borderRadius: 24, overflow: 'hidden',
-        background: 'linear-gradient(160deg, rgba(12,4,28,0.99) 0%, rgba(7,1,15,0.99) 100%)',
         border: `1px solid ${accentBorder}`,
         boxShadow: `0 0 60px ${accentColor}20, 0 24px 60px rgba(0,0,0,0.7)`,
         animation: 'modalSlideUp 0.3s cubic-bezier(0.34,1.56,0.64,1)',
+      }}>
+      <div style={{
+        maxHeight: '92vh', overflowY: 'auto',
+        background: 'linear-gradient(160deg, rgba(12,4,28,0.99) 0%, rgba(7,1,15,0.99) 100%)',
       }}>
 
         {/* Indian flag stripe at top */}
@@ -245,7 +247,8 @@ export default function ElectionModal() {
             Maybe later
           </button>
         </div>
-      </div>
+      </div>{/* inner scroll wrapper */}
+      </div>{/* outer radius wrapper */}
 
       <style>{`
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
