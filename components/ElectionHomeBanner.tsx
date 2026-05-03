@@ -56,78 +56,72 @@ export default function ElectionHomeBanner() {
           pointerEvents: 'none',
         }} />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{
+        <div style={{
           position: 'relative', zIndex: 1,
-          padding: '14px 20px',
-          display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
+          padding: '10px 14px',
+          display: 'flex', alignItems: 'center', gap: 10,
         }}>
 
-          {/* LEFT: badge + headline */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 220 }}>
-            {isLive ? (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '5px 12px', borderRadius: 99, flexShrink: 0,
-                background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.5)',
-                color: '#ef4444', fontSize: 10, fontWeight: 900, letterSpacing: '0.1em',
-              }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'ping 1s infinite' }} />
-                LIVE
-              </span>
-            ) : (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                padding: '5px 12px', borderRadius: 99, flexShrink: 0,
-                background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.4)',
-                color: '#fbbf24', fontSize: 10, fontWeight: 900, letterSpacing: '0.08em',
-                animation: 'pulse 2s infinite',
-              }}>
-                🗳️ RESULTS TODAY
-              </span>
-            )}
-
-            <div>
-              <div style={{ fontWeight: 900, fontSize: 14, color: '#fff', lineHeight: 1.2 }}>
-                {isLive ? '🔴 TN Election 2026 — LIVE counting now' : 'தமிழ்நாடு தேர்தல் 2026 — Results May 4'}
-              </div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
-                {isLive ? 'Track live seat count · Who is winning?' : '234 seats · Majority: 118 · Counting 8 AM IST'}
-              </div>
-            </div>
-          </div>
-
-          {/* CENTRE: party seat chips */}
-          <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-            {PARTIES.map(p => (
-              <div key={p.id} style={{
-                padding: '4px 10px', borderRadius: 99,
-                background: `${p.color}14`, border: `1px solid ${p.color}30`,
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-              }}>
-                <span style={{ fontWeight: 900, fontSize: 12, color: p.color, fontVariantNumeric: 'tabular-nums' }}>{p.seats}</span>
-                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.06em' }}>{p.name}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* RIGHT: countdown or CTA */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-            {!isLive && countdown && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontWeight: 900, fontSize: 13, fontVariantNumeric: 'tabular-nums' }}>
-                <span style={{ color: '#fbbf24' }}>
-                  {String(countdown.h).padStart(2, '0')}:{String(countdown.m).padStart(2, '0')}:{String(countdown.s).padStart(2, '0')}
-                </span>
-              </div>
-            )}
-            <div style={{
-              padding: '7px 16px', borderRadius: 10, fontWeight: 900, fontSize: 12,
-              background: isLive ? 'rgba(239,68,68,0.2)' : 'rgba(251,191,36,0.18)',
-              border: isLive ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(251,191,36,0.45)',
-              color: isLive ? '#ef4444' : '#fbbf24',
-              whiteSpace: 'nowrap',
+          {/* Badge */}
+          {isLive ? (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              padding: '4px 10px', borderRadius: 99, flexShrink: 0,
+              background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.5)',
+              color: '#ef4444', fontSize: 9, fontWeight: 900, letterSpacing: '0.1em',
             }}>
-              {isLive ? '🔴 Live Results →' : 'Track Results →'}
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'ping 1s infinite' }} />
+              LIVE
+            </span>
+          ) : (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              padding: '4px 10px', borderRadius: 99, flexShrink: 0,
+              background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.4)',
+              color: '#fbbf24', fontSize: 9, fontWeight: 900, letterSpacing: '0.06em',
+              animation: 'pulse 2s infinite',
+            }}>
+              🗳️ TODAY
+            </span>
+          )}
+
+          {/* Headline — flex-1 to take remaining space */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 900, fontSize: 13, color: '#fff', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {isLive ? '🔴 TN Election 2026 — LIVE counting' : 'தமிழ்நாடு தேர்தல் 2026 — Results Today'}
             </div>
+            {/* Party chips row — always visible */}
+            <div style={{ display: 'flex', gap: 5, marginTop: 4, flexWrap: 'nowrap' }}>
+              {PARTIES.map(p => (
+                <span key={p.id} style={{
+                  fontWeight: 900, fontSize: 10, color: p.color,
+                  fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap',
+                }}>
+                  {p.name} <span style={{ opacity: 0.7 }}>{p.seats}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Countdown (pre-live) */}
+          {!isLive && countdown && (
+            <span style={{
+              fontWeight: 900, fontSize: 12, fontVariantNumeric: 'tabular-nums',
+              color: '#fbbf24', flexShrink: 0, whiteSpace: 'nowrap',
+            }}>
+              {String(countdown.h).padStart(2, '0')}:{String(countdown.m).padStart(2, '0')}:{String(countdown.s).padStart(2, '0')}
+            </span>
+          )}
+
+          {/* CTA */}
+          <div style={{
+            padding: '6px 12px', borderRadius: 8, fontWeight: 900, fontSize: 11,
+            background: isLive ? 'rgba(239,68,68,0.2)' : 'rgba(251,191,36,0.18)',
+            border: isLive ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(251,191,36,0.45)',
+            color: isLive ? '#ef4444' : '#fbbf24',
+            whiteSpace: 'nowrap', flexShrink: 0,
+          }}>
+            {isLive ? '🔴 Live →' : 'Track →'}
           </div>
         </div>
       </div>

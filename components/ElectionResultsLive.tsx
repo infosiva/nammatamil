@@ -191,18 +191,47 @@ function PartySymbolSVG({ name, color, size = 36 }: { name: string; color: strin
     )
   }
 
-  // TVK — Torch (official EC-registered symbol)
+  // TVK — Whistle (official ECI-registered symbol for Tamilaga Vettri Kazhagam)
   if (name === 'TVK') {
     return (
       <svg width={size} height={size} viewBox="0 0 44 44" style={{ flexShrink: 0 }}>
-        <ellipse cx="22" cy="13" rx="9" ry="11" fill={color} opacity="0.12" />
-        <path d="M22 3 C27 8 32 11 30 18 C29 22 26 25 22 25 C18 25 15 22 14 18 C12 11 17 8 22 3Z" fill={color} opacity="0.9" />
-        <path d="M22 9 C25 13 26 16 24.5 19 C24 21 22 22.5 22 22.5 C22 22.5 20 21 19.5 19 C18 16 19 13 22 9Z" fill="white" opacity="0.4" />
-        <circle cx="22" cy="8" r="2" fill="white" opacity="0.3" />
-        <path d="M17 25 Q22 28 27 25 L26 29 Q22 31 18 29Z" fill={color} opacity="0.7" />
-        <rect x="19.5" y="29" width="5" height="11" rx="2.5" fill={color} opacity="0.85" />
-        <line x1="19.5" y1="33" x2="24.5" y2="33" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
-        <line x1="19.5" y1="36" x2="24.5" y2="36" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
+        {/* Whistle body — rounded rectangular chamber */}
+        <rect x="6" y="17" width="22" height="12" rx="6" fill={color} opacity="0.9" />
+        {/* Whistle mouthpiece — narrow tube extending right */}
+        <rect x="26" y="20" width="12" height="6" rx="3" fill={color} opacity="0.75" />
+        {/* Air hole on top of whistle body */}
+        <rect x="13" y="14" width="7" height="4" rx="2" fill={color} opacity="0.85" />
+        {/* Small pea/ball inside (visible through hole) */}
+        <circle cx="16.5" cy="16" r="1.5" fill="white" opacity="0.3" />
+        {/* Highlight on body */}
+        <rect x="8" y="18.5" width="18" height="3" rx="1.5" fill="white" opacity="0.12" />
+        {/* Loop/ring at left end for cord */}
+        <circle cx="8" cy="23" r="3.5" fill="none" stroke={color} strokeWidth="2.2" opacity="0.7" />
+        <circle cx="8" cy="23" r="1.5" fill={color} opacity="0.3" />
+      </svg>
+    )
+  }
+
+  // BJP — Lotus (official ECI symbol)
+  if (name === 'BJP') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 44 44" style={{ flexShrink: 0 }}>
+        {/* Water line */}
+        <line x1="4" y1="36" x2="40" y2="36" stroke={color} strokeWidth="1.2" opacity="0.35" />
+        {/* Stem */}
+        <line x1="22" y1="36" x2="22" y2="28" stroke={color} strokeWidth="2" strokeLinecap="round" opacity="0.7" />
+        {/* Outer petals (5) */}
+        <path d="M22 28 C19 22 13 20 12 14 C16 15 20 19 22 28Z" fill={color} opacity="0.55" />
+        <path d="M22 28 C25 22 31 20 32 14 C28 15 24 19 22 28Z" fill={color} opacity="0.55" />
+        <path d="M22 28 C16 24 11 17 8 10 C14 13 19 20 22 28Z" fill={color} opacity="0.4" />
+        <path d="M22 28 C28 24 33 17 36 10 C30 13 25 20 22 28Z" fill={color} opacity="0.4" />
+        {/* Centre petal — tallest */}
+        <path d="M22 28 C20 20 20 12 22 6 C24 12 24 20 22 28Z" fill={color} opacity="0.9" />
+        {/* Inner petals overlay for depth */}
+        <path d="M22 28 C20 23 17 19 16 14 C19 16 21 21 22 28Z" fill={color} opacity="0.6" />
+        <path d="M22 28 C24 23 27 19 28 14 C25 16 23 21 22 28Z" fill={color} opacity="0.6" />
+        {/* Glow at centre */}
+        <ellipse cx="22" cy="24" rx="3" ry="5" fill="white" opacity="0.08" />
       </svg>
     )
   }
@@ -288,9 +317,9 @@ function PartyRowLive({ party }: { party: PartyResult }) {
         </div>
 
         {/* Tally numbers */}
-        <div style={{ flexShrink: 0, textAlign: 'right', minWidth: 60 }}>
+        <div style={{ flexShrink: 0, textAlign: 'right', minWidth: 48 }}>
           <div style={{
-            fontWeight: 900, fontSize: 28, fontVariantNumeric: 'tabular-nums', lineHeight: 1,
+            fontWeight: 900, fontSize: 24, fontVariantNumeric: 'tabular-nums', lineHeight: 1,
             color: party.isLeading ? party.color : 'rgba(255,255,255,0.65)',
           }}>
             {party.totalTally}
@@ -355,7 +384,7 @@ function PartyRowPreCount({ party }: { party: PartyResult }) {
 
         <div style={{ flexShrink: 0, textAlign: 'right' }}>
           <div style={{
-            fontWeight: 900, fontSize: 26, fontVariantNumeric: 'tabular-nums', lineHeight: 1,
+            fontWeight: 900, fontSize: 22, fontVariantNumeric: 'tabular-nums', lineHeight: 1,
             color: party.color, opacity: 0.9,
           }}>
             {party.totalTally}
