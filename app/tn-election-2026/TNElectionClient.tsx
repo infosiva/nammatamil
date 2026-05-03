@@ -688,7 +688,7 @@ export default function TNElectionClient() {
               <div className="py-6 px-4">
                 {countdown ? (
                   <div className="flex items-center justify-center gap-3 sm:gap-5">
-                    {countdown.d > 0 && (
+                    {countdown.d > 0 && countdown.h > 0 && (
                       <>
                         <div className="text-center">
                           <div className="font-black tabular-nums text-white leading-none" style={{ fontSize: 'clamp(2.5rem,10vw,5rem)' }}>
