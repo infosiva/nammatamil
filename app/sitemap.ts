@@ -8,11 +8,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://nammatamil.live'
   const now = new Date()
 
-  const staticRoutes = ['', '/serials', '/movies', '/albums', '/actors'].map(route => ({
+  const staticRoutes = ['', '/serials', '/movies', '/albums', '/actors', '/tn-election-2026'].map(route => ({
     url: `${base}${route}`,
     lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: route === '' ? 1 : 0.8,
+    changeFrequency: route === '/tn-election-2026' ? 'hourly' as const : 'weekly' as const,
+    priority: route === '' ? 1 : route === '/tn-election-2026' ? 0.95 : 0.8,
   }))
 
   const serialRoutes = serials.map(s => ({

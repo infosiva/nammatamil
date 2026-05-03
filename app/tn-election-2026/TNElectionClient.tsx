@@ -189,44 +189,81 @@ function useVotes() {
 }
 
 // ─── Party Symbol SVG ─────────────────────────────────────────────────────────
+// DMK  → Rising Sun (official symbol: sun rising over sea)
+// AIADMK → Two Leaves (official symbol)
+// TVK → Torch / Flame (Thalapathy Vijay's party symbol)
 function PartySymbol({ party, size = 44 }: { party: typeof PARTIES[0]; size?: number }) {
   if (party.id === 'dmk') {
-    const rays = Array.from({ length: 12 }, (_, i) => {
-      const a = (i * 30 - 90) * Math.PI / 180
+    // Rising Sun — circle sun above horizon line with radiating rays
+    const rays = Array.from({ length: 16 }, (_, i) => {
+      const a = (i * (360 / 16) - 90) * Math.PI / 180
+      const inner = i % 2 === 0 ? 13 : 11
+      const outer = i % 2 === 0 ? 20 : 17
       return (
         <line key={i}
-          x1={22 + 12 * Math.cos(a)} y1={28 + 12 * Math.sin(a)}
-          x2={22 + 17 * Math.cos(a)} y2={28 + 17 * Math.sin(a)}
-          stroke={party.color} strokeWidth="2" strokeLinecap="round"
+          x1={22 + inner * Math.cos(a)} y1={20 + inner * Math.sin(a)}
+          x2={22 + outer * Math.cos(a)} y2={20 + outer * Math.sin(a)}
+          stroke={party.color} strokeWidth={i % 2 === 0 ? '2.5' : '1.5'} strokeLinecap="round"
         />
       )
     })
     return (
       <svg width={size} height={size} viewBox="0 0 44 44">
-        <circle cx="22" cy="28" r="10" fill={party.color} opacity="0.9" />
+        {/* Horizon / sea */}
+        <rect x="2" y="29" width="40" height="12" rx="4" fill={party.color} opacity="0.18" />
+        <line x1="2" y1="29" x2="42" y2="29" stroke={party.color} strokeWidth="1.5" opacity="0.6" />
+        {/* Sun disc */}
+        <circle cx="22" cy="20" r="9" fill={party.color} opacity="0.95" />
+        <circle cx="22" cy="20" r="6" fill="#fff" opacity="0.15" />
+        {/* Rays */}
         {rays}
-        <path d="M3 28 Q22 8 41 28" fill={party.color} opacity="0.2" />
+        {/* Bottom half of sun below horizon */}
+        <path d="M13 29 Q22 36 31 29" fill={party.color} opacity="0.35" />
       </svg>
     )
   }
   if (party.id === 'aiadmk') {
+    // Two Leaves — official AIADMK symbol
     return (
       <svg width={size} height={size} viewBox="0 0 44 44">
-        <path d="M22 40 C22 40 7 28 7 16 C7 9 13 6 22 12 C31 6 37 9 37 16 C37 28 22 40 22 40Z"
-          fill="none" stroke={party.color} strokeWidth="2.5" />
-        <path d="M22 40 C18 30 8 24 8 16 C8 10 13 8 22 12" fill={party.color} opacity="0.3" />
-        <path d="M22 40 C26 30 36 24 36 16 C36 10 31 8 22 12" fill={party.color} opacity="0.75" />
-        <line x1="22" y1="40" x2="22" y2="13" stroke={party.color} strokeWidth="2" />
+        {/* Left leaf */}
+        <path d="M22 38 C22 38 6 26 7 12 C7 6 14 4 19 10 C21 13 22 18 22 38Z"
+          fill={party.color} opacity="0.9"
+          style={{ filter: `drop-shadow(0 0 3px ${party.color}55)` }} />
+        {/* Left leaf vein */}
+        <path d="M22 38 C20 28 12 18 10 11" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
+        {/* Right leaf */}
+        <path d="M22 38 C22 38 38 26 37 12 C37 6 30 4 25 10 C23 13 22 18 22 38Z"
+          fill={party.color} opacity="0.75"
+          style={{ filter: `drop-shadow(0 0 3px ${party.color}55)` }} />
+        {/* Right leaf vein */}
+        <path d="M22 38 C24 28 32 18 34 11" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
+        {/* Stem */}
+        <line x1="22" y1="38" x2="22" y2="42" stroke={party.color} strokeWidth="2.5" strokeLinecap="round" />
+        {/* Highlight */}
+        <ellipse cx="17" cy="20" rx="3" ry="6" fill="white" opacity="0.12" transform="rotate(-15,17,20)" />
       </svg>
     )
   }
+  // TVK — Torch / Flame (Vijay's party official symbol is a torch)
   return (
     <svg width={size} height={size} viewBox="0 0 44 44">
-      <rect x="5" y="16" width="22" height="14" rx="7" fill={party.color} opacity="0.9" />
-      <rect x="25" y="20" width="13" height="6" rx="3" fill={party.color} opacity="0.6" />
-      <rect x="9" y="11" width="9" height="6" rx="3" fill={party.color} opacity="0.6" />
-      <circle cx="16" cy="23" r="3.5" fill="none" stroke="#000" strokeWidth="1.5" opacity="0.4" />
-      <circle cx="16" cy="23" r="1.5" fill="#000" opacity="0.3" />
+      {/* Flame outer glow */}
+      <ellipse cx="22" cy="16" rx="10" ry="13" fill={party.color} opacity="0.15" />
+      {/* Flame body */}
+      <path d="M22 5 C26 10 30 13 28 20 C27 24 24 26 22 26 C20 26 17 24 16 20 C14 13 18 10 22 5Z"
+        fill={party.color} opacity="0.95"
+        style={{ filter: `drop-shadow(0 0 6px ${party.color}88)` }} />
+      {/* Inner flame (white/bright core) */}
+      <path d="M22 12 C24 15 25 17 24 20 C23.5 22 22 23 22 23 C22 23 20.5 22 20 20 C19 17 20 15 22 12Z"
+        fill="white" opacity="0.35" />
+      {/* Torch handle */}
+      <rect x="19" y="26" width="6" height="12" rx="3" fill={party.color} opacity="0.8" />
+      {/* Handle grip lines */}
+      <line x1="19.5" y1="30" x2="24.5" y2="30" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
+      <line x1="19.5" y1="33" x2="24.5" y2="33" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
+      {/* Handle base */}
+      <rect x="18" y="37" width="8" height="3" rx="1.5" fill={party.color} opacity="0.6" />
     </svg>
   )
 }
