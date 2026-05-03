@@ -147,7 +147,8 @@ const OTHERS = [
   { name: 'Others',   color: '#94a3b8', share: 0.7, seats: '5–20'  },
 ]
 
-const COUNTING_DATE = new Date('2026-05-04T06:00:00+05:30')
+// Counting starts 8:00 AM IST May 4 2026
+const COUNTING_DATE = new Date('2026-05-04T08:00:00+05:30')
 
 function getCountdown() {
   const diff = COUNTING_DATE.getTime() - Date.now()
@@ -635,14 +636,14 @@ export default function TNElectionClient() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
 
         {/* ── HERO ── */}
-        <div className="pt-12 pb-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-7 text-xs font-bold"
+        <div className="pt-10 pb-6 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 text-xs font-bold"
             style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa' }}>
             <Brain className="w-3.5 h-3.5" />
             AI ELECTION PULSE · தமிழ்நாடு 2026
           </div>
           <h1 className="font-black leading-none tracking-tighter text-white mb-3"
-            style={{ fontSize: 'clamp(2.5rem,8vw,5.5rem)' }}>
+            style={{ fontSize: 'clamp(2.2rem,7vw,4.5rem)' }}>
             Tamil Nadu<br />
             <span style={{
               background: 'linear-gradient(135deg,#f87171 0%,#fbbf24 50%,#4ade80 100%)',
@@ -651,9 +652,98 @@ export default function TNElectionClient() {
               Elections 2026
             </span>
           </h1>
-          <p className="text-white/30 text-sm sm:text-base">
-            234 Assembly Seats · Counting: May 4, 2026
+          <p className="text-white/35 text-sm sm:text-base mb-6">
+            234 Assembly Seats · 6.4 Crore Voters · Counting: May 4, 2026 at 8:00 AM IST
           </p>
+        </div>
+
+        {/* ── BIG COUNTDOWN / LIVE BLOCK (always shown) ── */}
+        <div className="mb-6">
+          {isLive ? (
+            /* LIVE — full results */
+            <div className="rounded-2xl overflow-hidden" style={{
+              background: 'linear-gradient(135deg,rgba(239,68,68,0.12),rgba(220,38,38,0.06))',
+              border: '2px solid rgba(239,68,68,0.4)',
+            }}>
+              <div className="px-5 py-3 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(239,68,68,0.2)' }}>
+                <span className="flex items-center gap-2 font-black text-red-400 text-sm">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+                  LIVE COUNTING — MAY 4, 2026
+                </span>
+                <span className="text-white/30 text-xs ml-auto">Auto-refreshes every 3 min</span>
+              </div>
+              <div className="p-4">
+                <ElectionResultsLive />
+              </div>
+            </div>
+          ) : (
+            /* PRE-COUNTING — big countdown */
+            <div className="rounded-2xl overflow-hidden text-center" style={{
+              background: 'linear-gradient(135deg,rgba(251,191,36,0.10) 0%,rgba(245,158,11,0.05) 50%,rgba(251,191,36,0.10) 100%)',
+              border: '1.5px solid rgba(251,191,36,0.3)',
+            }}>
+              <div className="px-4 py-3 flex items-center justify-center gap-2" style={{ borderBottom: '1px solid rgba(251,191,36,0.15)' }}>
+                <span className="text-amber-400 font-black text-sm tracking-wide">🗳️ COUNTING BEGINS IN</span>
+              </div>
+              <div className="py-6 px-4">
+                {countdown ? (
+                  <div className="flex items-center justify-center gap-3 sm:gap-5">
+                    {countdown.d > 0 && (
+                      <>
+                        <div className="text-center">
+                          <div className="font-black tabular-nums text-white leading-none" style={{ fontSize: 'clamp(2.5rem,10vw,5rem)' }}>
+                            {String(countdown.d).padStart(2,'0')}
+                          </div>
+                          <div className="text-amber-400/60 text-[10px] font-bold uppercase tracking-widest mt-1">Days</div>
+                        </div>
+                        <div className="text-amber-400/30 font-black text-4xl -mt-3">:</div>
+                      </>
+                    )}
+                    <div className="text-center">
+                      <div className="font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2.5rem,10vw,5rem)', color: '#fbbf24' }}>
+                        {String(countdown.h).padStart(2,'0')}
+                      </div>
+                      <div className="text-amber-400/60 text-[10px] font-bold uppercase tracking-widest mt-1">Hrs</div>
+                    </div>
+                    <div className="text-amber-400/30 font-black text-4xl -mt-3">:</div>
+                    <div className="text-center">
+                      <div className="font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2.5rem,10vw,5rem)', color: '#fbbf24' }}>
+                        {String(countdown.m).padStart(2,'0')}
+                      </div>
+                      <div className="text-amber-400/60 text-[10px] font-bold uppercase tracking-widest mt-1">Min</div>
+                    </div>
+                    <div className="text-amber-400/30 font-black text-4xl -mt-3">:</div>
+                    <div className="text-center">
+                      <div className="font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2.5rem,10vw,5rem)', color: 'rgba(255,255,255,0.4)' }}>
+                        {String(countdown.s).padStart(2,'0')}
+                      </div>
+                      <div className="text-white/20 text-[10px] font-bold uppercase tracking-widest mt-1">Sec</div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-amber-400 font-black text-2xl">Counting has begun!</p>
+                )}
+                <p className="text-white/30 text-xs mt-4">May 4, 2026 · 8:00 AM IST · 234 seats · 118 for majority</p>
+                <div className="mt-4 flex items-center justify-center gap-3 flex-wrap">
+                  {[
+                    { party: 'TVK (Vijay)', seats: '98–120', color: '#fbbf24' },
+                    { party: 'DMK (Stalin)', seats: '92–110', color: '#f87171' },
+                    { party: 'AIADMK (EPS)', seats: '22–32', color: '#4ade80' },
+                  ].map(p => (
+                    <span key={p.party} className="text-[11px] font-bold px-3 py-1 rounded-full"
+                      style={{ background: `${p.color}15`, border: `1px solid ${p.color}35`, color: p.color }}>
+                      {p.party}: {p.seats}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="px-4 pb-4">
+                <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <p className="text-white/40 text-xs">📡 Live results will appear here automatically at 8 AM IST · Bookmark this page</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── KEY STATS ── */}
@@ -672,13 +762,6 @@ export default function TNElectionClient() {
             </div>
           ))}
         </div>
-
-        {/* ── LIVE RESULTS (counting day + declared) ── */}
-        {(isLive || new Date() >= new Date('2026-05-04T06:00:00+05:30')) && (
-          <div className="mb-6">
-            <ElectionResultsLive />
-          </div>
-        )}
 
         {/* ── EXIT POLLS ── */}
         <ExitPollSection />
