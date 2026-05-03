@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Brain, TrendingUp, Users, Zap, Share2, BarChart2, ChevronDown, CheckCircle2, Newspaper } from 'lucide-react'
 import Link from 'next/link'
 import ElectionResultsLive from '@/components/ElectionResultsLive'
+import AdUnit from '@/components/AdUnit'
 
 // ─── Exit Poll Data (April 29, 2026) ─────────────────────────────────────────
 // Axis My India is FEATURED — TVK projected winner 98–120 seats
@@ -889,6 +890,88 @@ function CommunityPollSection({ voted, counts, castVote, total }: {
   )
 }
 
+// ─── Email Capture ────────────────────────────────────────────────────────────
+function EmailCapture() {
+  const [email, setEmail]     = useState('')
+  const [status, setStatus]   = useState<'idle' | 'ok' | 'err'>('idle')
+  const [loading, setLoading] = useState(false)
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email.includes('@')) { setStatus('err'); return }
+    setLoading(true)
+    try {
+      // Store in localStorage for now — swap for Mailchimp/Resend API later
+      const existing = JSON.parse(localStorage.getItem('nt_election_emails') ?? '[]')
+      if (!existing.includes(email)) {
+        localStorage.setItem('nt_election_emails', JSON.stringify([...existing, email]))
+      }
+      setStatus('ok')
+    } catch {
+      setStatus('err')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div style={{
+      borderRadius: 20, marginBottom: 28,
+      padding: '20px 20px',
+      background: 'rgba(251,191,36,0.05)',
+      border: '1px solid rgba(251,191,36,0.18)',
+    }}>
+      {status === 'ok' ? (
+        <div style={{ textAlign: 'center', padding: '8px 0' }}>
+          <div style={{ fontSize: 22, marginBottom: 6 }}>✅</div>
+          <div style={{ fontWeight: 800, fontSize: 14, color: '#fbbf24' }}>You&apos;re on the list!</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>We&apos;ll notify you when final results are declared.</div>
+        </div>
+      ) : (
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <span style={{ fontSize: 18 }}>📬</span>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 14, color: '#fff' }}>Get the final result alert</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>One email when TN 2026 winner is declared — no spam.</div>
+            </div>
+          </div>
+          <form onSubmit={submit} style={{ display: 'flex', gap: 8 }}>
+            <input
+              type="email"
+              value={email}
+              onChange={e => { setEmail(e.target.value); setStatus('idle') }}
+              placeholder="your@email.com"
+              required
+              style={{
+                flex: 1, background: 'rgba(255,255,255,0.06)',
+                border: `1px solid ${status === 'err' ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.12)'}`,
+                borderRadius: 10, padding: '9px 12px',
+                color: '#fff', fontSize: 13, outline: 'none',
+              }}
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                padding: '9px 16px', borderRadius: 10, fontWeight: 800, fontSize: 12,
+                background: 'linear-gradient(135deg, rgba(251,191,36,0.9), rgba(245,158,11,0.8))',
+                color: '#07010f', border: 'none', cursor: loading ? 'default' : 'pointer',
+                opacity: loading ? 0.6 : 1, whiteSpace: 'nowrap',
+              }}
+            >
+              {loading ? '…' : 'Notify me'}
+            </button>
+          </form>
+          {status === 'err' && (
+            <p style={{ fontSize: 10, color: '#ef4444', marginTop: 6 }}>Please enter a valid email address.</p>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function TNElectionClient() {
   const [countdown, setCountdown] = useState(getCountdown)
@@ -1064,6 +1147,9 @@ export default function TNElectionClient() {
           <ElectionResultsLive />
         </div>
 
+        {/* ── AD UNIT — after live results ── */}
+        <AdUnit format="horizontal" className="mb-7 min-h-[90px]" />
+
         {/* ── KEY FACTS STRIP ── */}
         <KeyFactsStrip />
 
@@ -1153,6 +1239,12 @@ export default function TNElectionClient() {
 
         {/* ── COMMUNITY POLL ── */}
         <CommunityPollSection voted={voted} counts={counts} castVote={castVote} total={total} />
+
+        {/* ── EMAIL CAPTURE ── */}
+        <EmailCapture />
+
+        {/* ── AD UNIT — between poll and forecast ── */}
+        <AdUnit format="horizontal" className="mb-7 min-h-[90px]" />
 
         {/* ── AI SEAT FORECAST — TABLE + HISTOGRAM ── */}
         <div style={{ borderRadius: 20, marginBottom: 28, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
