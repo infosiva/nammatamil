@@ -4,26 +4,33 @@ import AdUnit from '@/components/AdUnit'
 import TamilCalendar from '@/components/TamilCalendar'
 import OTTThisWeek from '@/components/OTTThisWeek'
 import ElectionHomeBanner from '@/components/ElectionHomeBanner'
+import ElectionResultsLive from '@/components/ElectionResultsLive'
+import ElectionModal from '@/components/ElectionModal'
 
 export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
 
+      {/* ══ ELECTION MODAL — popup on landing ══════════════════════════════════ */}
+      <ElectionModal />
+
       {/* ══ ELECTION BANNER — full width above everything ════════════════════ */}
       <ElectionHomeBanner />
 
-      {/* ══ MAIN: two-column split — no extra headers ════════════════════════ */}
+      {/* ══ MAIN: two-column split ═════════════════════════════════════════════ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-col xl:flex-row gap-4 items-start">
 
-          {/* Left — live hero + sidebar widgets */}
-          <div className="w-full xl:w-[360px] flex-shrink-0 xl:sticky xl:top-[70px] space-y-4">
+          {/* Left — election results (sticky) + calendar + OTT */}
+          <div className="w-full xl:w-[380px] flex-shrink-0 xl:sticky xl:top-[70px] space-y-4">
+            {/* Election results widget — top priority */}
+            <ElectionResultsLive compact />
             <HeroCinematic />
             <TamilCalendar />
             <OTTThisWeek />
           </div>
 
-          {/* Right — tabbed content browser (Movies, Serials, Trailers, News, Cricket, Albums, OTT) */}
+          {/* Right — tabbed content browser */}
           <div className="flex-1 min-w-0">
             <HomeTabLayout />
           </div>

@@ -61,7 +61,7 @@ export default function TNElectionBanner() {
         ) : isTomorrow ? (
           <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black flex-shrink-0 animate-pulse"
             style={{ background: 'rgba(251,191,36,0.2)', border: '1px solid rgba(251,191,36,0.5)', color: '#fbbf24' }}>
-            🗳️ TOMORROW
+            🗳️ TODAY 8AM
           </span>
         ) : (
           <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black flex-shrink-0"
@@ -75,7 +75,7 @@ export default function TNElectionBanner() {
           {isLive
             ? '🗳️ TN Election 2026 — LIVE counting. Track seat-by-seat results now →'
             : isTomorrow
-            ? '🏆 TN Election Results TOMORROW 8 AM IST · TVK leads exit polls · Watch live on NammaTamil'
+            ? '🏆 TN Election Results TODAY 8 AM IST · TVK leads exit polls · Watch live on NammaTamil'
             : '🏆 EXIT POLLS: TVK (Vijay) projected WINNER · 98–120 seats · Results May 4 at 8 AM IST'}
         </p>
 

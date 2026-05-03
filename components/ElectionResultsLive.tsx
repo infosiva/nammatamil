@@ -147,6 +147,75 @@ function SeatArc({ parties, total, majority }: { parties: PartyResult[]; total: 
   )
 }
 
+// ── Inline SVG party symbols (faithful to ECI official symbols) ───────────────
+function PartySymbolSVG({ name, color, size = 36 }: { name: string; color: string; size?: number }) {
+  const cx = 22
+
+  if (name === 'DMK') {
+    // Rising Sun — DMK official symbol
+    const sunY = 22, r = 10
+    const rays = Array.from({ length: 12 }, (_, i) => {
+      const angle = (i * 30 - 90) * Math.PI / 180
+      const isLong = i % 2 === 0
+      const r1 = r + 2, r2 = r + (isLong ? 9 : 5)
+      return (
+        <line key={i}
+          x1={cx + r1 * Math.cos(angle)} y1={sunY + r1 * Math.sin(angle)}
+          x2={cx + r2 * Math.cos(angle)} y2={sunY + r2 * Math.sin(angle)}
+          stroke={color} strokeWidth={isLong ? '2.2' : '1.5'} strokeLinecap="round"
+        />
+      )
+    })
+    return (
+      <svg width={size} height={size} viewBox="0 0 44 44" style={{ flexShrink: 0 }}>
+        <path d="M2 30 Q11 27 22 30 Q33 33 42 30 L42 40 Q33 37 22 40 Q11 43 2 40Z" fill={color} opacity="0.2" />
+        <line x1="2" y1="30" x2="42" y2="30" stroke={color} strokeWidth="1.8" opacity="0.7" />
+        <defs><clipPath id="dmk-clip-r"><rect x="0" y="0" width="44" height="30" /></clipPath></defs>
+        <circle cx={cx} cy={sunY} r={r} fill={color} clipPath="url(#dmk-clip-r)" />
+        <g clipPath="url(#dmk-clip-r)">{rays}</g>
+      </svg>
+    )
+  }
+
+  if (name === 'AIADMK') {
+    // Two Leaves — AIADMK official symbol
+    return (
+      <svg width={size} height={size} viewBox="0 0 44 44" style={{ flexShrink: 0 }}>
+        <path d="M21 38 C21 38 8 30 8 16 C8 8 13 5 18 9 C20 11 21 15 21 38Z" fill={color} opacity="0.92" />
+        <path d="M21 38 C19 28 12 18 10 10" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+        <path d="M23 38 C23 38 36 30 36 16 C36 8 31 5 26 9 C24 11 23 15 23 38Z" fill={color} opacity="0.78" />
+        <path d="M23 38 C25 28 32 18 34 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+        <path d="M21 38 Q22 41 22 43" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M23 38 Q22 41 22 43" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  // TVK — Torch (official EC-registered symbol)
+  if (name === 'TVK') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 44 44" style={{ flexShrink: 0 }}>
+        <ellipse cx="22" cy="13" rx="9" ry="11" fill={color} opacity="0.12" />
+        <path d="M22 3 C27 8 32 11 30 18 C29 22 26 25 22 25 C18 25 15 22 14 18 C12 11 17 8 22 3Z" fill={color} opacity="0.9" />
+        <path d="M22 9 C25 13 26 16 24.5 19 C24 21 22 22.5 22 22.5 C22 22.5 20 21 19.5 19 C18 16 19 13 22 9Z" fill="white" opacity="0.4" />
+        <circle cx="22" cy="8" r="2" fill="white" opacity="0.3" />
+        <path d="M17 25 Q22 28 27 25 L26 29 Q22 31 18 29Z" fill={color} opacity="0.7" />
+        <rect x="19.5" y="29" width="5" height="11" rx="2.5" fill={color} opacity="0.85" />
+        <line x1="19.5" y1="33" x2="24.5" y2="33" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
+        <line x1="19.5" y1="36" x2="24.5" y2="36" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
+      </svg>
+    )
+  }
+
+  // Generic fallback — coloured circle
+  return (
+    <svg width={size} height={size} viewBox="0 0 44 44" style={{ flexShrink: 0 }}>
+      <circle cx="22" cy="22" r="16" fill={color} opacity="0.3" />
+      <circle cx="22" cy="22" r="10" fill={color} opacity="0.7" />
+    </svg>
+  )
+}
+
 // ── Party result row (counting/declared phase) ─────────────────────────────────
 function PartyRowLive({ party }: { party: PartyResult }) {
   const barPct = Math.min((party.totalTally / MAJORITY) * 100, 100)
@@ -173,8 +242,8 @@ function PartyRowLive({ party }: { party: PartyResult }) {
       }} />
 
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 12 }}>
-        {/* Emoji */}
-        <span style={{ fontSize: 22, flexShrink: 0 }}>{party.emoji}</span>
+        {/* Party Symbol SVG */}
+        <PartySymbolSVG name={party.name} color={party.color} size={38} />
 
         {/* Party info + bar */}
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -260,7 +329,7 @@ function PartyRowPreCount({ party }: { party: PartyResult }) {
       border: `1px solid ${isTop ? party.color + '35' : 'rgba(255,255,255,0.07)'}`,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span style={{ fontSize: 20, flexShrink: 0 }}>{party.emoji}</span>
+        <PartySymbolSVG name={party.name} color={party.color} size={36} />
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
