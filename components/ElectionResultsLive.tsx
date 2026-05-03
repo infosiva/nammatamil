@@ -398,16 +398,33 @@ function PartyRowPreCount({ party }: { party: PartyResult }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function ElectionResultsLive({ compact = false }: { compact?: boolean }) {
-  const [data, setData]          = useState<ElectionResultsResponse | null>(null)
-  const [loading, setLoading]    = useState(true)
-  const [refreshing, setRefresh] = useState(false)
-  const [tick, setTick]          = useState(0)
+  const [data, setData]              = useState<ElectionResultsResponse | null>(null)
+  const [loading, setLoading]        = useState(true)
+  const [refreshing, setRefresh]     = useState(false)
+  const [tick, setTick]              = useState(0)
+  // Track the previous phase so we can animate the exit-poll → live transition
+  const [prevPhase, setPrevPhase]    = useState<string>('pre-counting')
+  const [phaseVisible, setPhaseVisible] = useState(true)  // false = fading out
 
   const fetchData = useCallback(async (manual = false) => {
     if (manual) setRefresh(true)
     try {
       const res = await fetch('/api/election-results', { cache: 'no-store', signal: AbortSignal.timeout(10000) })
-      if (res.ok) setData(await res.json())
+      if (!res.ok) return
+      const next: ElectionResultsResponse = await res.json()
+      setData(prev => {
+        const prevP = prev?.phase ?? 'pre-counting'
+        const nextP = next.phase
+        // Phase changed — fade out, then swap in
+        if (prevP !== nextP) {
+          setPhaseVisible(false)
+          setTimeout(() => {
+            setPhaseVisible(true)
+            setPrevPhase(nextP)
+          }, 500)  // 500ms fade-out, then content swaps + fades in
+        }
+        return next
+      })
     } catch { /* keep previous */ }
     finally { setLoading(false); setRefresh(false) }
   }, [])
@@ -441,8 +458,12 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
     : isLive ? '#ef4444'
     : '#fbbf24'
 
-  // void tick to prevent unused warning — it drives re-render for secAgo
+  // void these to prevent unused warnings — they drive re-renders
   void tick
+  void prevPhase
+
+  // True only in the brief moment when exit poll just flipped to live counting
+  const justWentLive = isLive && !phaseVisible
 
   return (
     <div style={{
@@ -494,9 +515,28 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
 
       <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
+        {/* ── "Counting has begun" flash — shown during the fade transition ── */}
+        {justWentLive && (
+          <div style={{
+            borderRadius: 14, padding: '12px 16px',
+            background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)',
+            display: 'flex', alignItems: 'center', gap: 10,
+            animation: 'pulse 1s ease',
+          }}>
+            <span style={{ fontSize: 18 }}>🔴</span>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 13, color: '#ef4444' }}>Counting has begun!</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Exit poll data fading out — live tallies loading…</div>
+            </div>
+          </div>
+        )}
+
         {/* ── Pre-counting: Exit poll preview ── */}
         {isPreCount && (
-          <div>
+          <div style={{
+            opacity: phaseVisible ? 1 : 0,
+            transition: 'opacity 0.5s ease',
+          }}>
             <div style={{
               borderRadius: 14, padding: '10px 14px', marginBottom: 14,
               background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.22)',
@@ -551,11 +591,16 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
           </div>
         )}
 
-        {/* ── Party rows ── */}
+        {/* ── Party rows — fades when phase transitions ── */}
         {!loading && parties.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{
+            display: 'flex', flexDirection: 'column', gap: 10,
+            opacity: phaseVisible ? 1 : 0,
+            transition: 'opacity 0.5s ease',
+          }}>
+            {/* When fading out, show previous phase style; after fade-in, show new */}
             {parties.map(p =>
-              isPreCount
+              (phaseVisible ? isPreCount : prevPhase === 'pre-counting')
                 ? <PartyRowPreCount key={p.name} party={p} />
                 : <PartyRowLive key={p.name} party={p} />
             )}
