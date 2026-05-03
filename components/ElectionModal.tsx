@@ -22,7 +22,7 @@ const PARTIES = [
 ]
 
 // Show modal once per session — dismissed = stays gone until page reload
-const SESSION_KEY = 'tn2026_modal_dismissed'
+const SESSION_KEY = 'tn2026_modal_v2'
 
 export default function ElectionModal() {
   const [open, setOpen] = useState(false)
@@ -30,9 +30,10 @@ export default function ElectionModal() {
   const [isLive, setIsLive] = useState(() => Date.now() >= COUNTING_DATE.getTime())
 
   useEffect(() => {
-    // Show after 1.5s, only once per session
-    if (typeof window !== 'undefined' && !sessionStorage.getItem(SESSION_KEY)) {
-      const t = setTimeout(() => setOpen(true), 1500)
+    // Show after 800ms, once per session
+    const alreadySeen = sessionStorage.getItem(SESSION_KEY)
+    if (!alreadySeen) {
+      const t = setTimeout(() => setOpen(true), 800)
       return () => clearTimeout(t)
     }
   }, [])
