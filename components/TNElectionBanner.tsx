@@ -34,6 +34,16 @@ export default function TNElectionBanner() {
   if (dismissed) return null
 
   const isTomorrow = !isLive && countdown && countdown.h < 24
+  // True only when counting day is today's calendar date
+  const countingDay = new Date(COUNTING_DATE)
+  const now = new Date()
+  const isCountingToday = now.getDate() === countingDay.getDate()
+    && now.getMonth() === countingDay.getMonth()
+    && now.getFullYear() === countingDay.getFullYear()
+  const dayBadge = isCountingToday ? '🗳️ TODAY 8AM' : '🗳️ TOMORROW 8AM'
+  const dayText  = isCountingToday
+    ? '🏆 TN Election Results TODAY 8 AM IST · TVK leads exit polls · Watch live on NammaTamil'
+    : '🏆 TN Election Results TOMORROW 8 AM IST · TVK leads exit polls · Watch live on NammaTamil'
 
   return (
     <div className="w-full relative" style={{
@@ -61,7 +71,7 @@ export default function TNElectionBanner() {
         ) : isTomorrow ? (
           <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black flex-shrink-0 animate-pulse"
             style={{ background: 'rgba(251,191,36,0.2)', border: '1px solid rgba(251,191,36,0.5)', color: '#fbbf24' }}>
-            🗳️ TODAY 8AM
+            {dayBadge}
           </span>
         ) : (
           <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black flex-shrink-0"
@@ -75,7 +85,7 @@ export default function TNElectionBanner() {
           {isLive
             ? '🗳️ TN Election 2026 — LIVE counting. Track seat-by-seat results now →'
             : isTomorrow
-            ? '🏆 TN Election Results TODAY 8 AM IST · TVK leads exit polls · Watch live on NammaTamil'
+            ? dayText
             : '🏆 EXIT POLLS: TVK (Vijay) projected WINNER · 98–120 seats · Results May 4 at 8 AM IST'}
         </p>
 

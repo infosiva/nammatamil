@@ -25,6 +25,16 @@ export default function ElectionHomeBanner() {
   const [countdown, setCountdown] = useState(getCountdown)
   const [isLive, setIsLive] = useState(() => Date.now() >= COUNTING_DATE.getTime())
 
+  const countingDay = new Date(COUNTING_DATE)
+  const now = new Date()
+  const isCountingToday = now.getDate() === countingDay.getDate()
+    && now.getMonth() === countingDay.getMonth()
+    && now.getFullYear() === countingDay.getFullYear()
+  const preLabel = isCountingToday ? '🗳️ TODAY' : '🗳️ TOMORROW'
+  const preHeadline = isCountingToday
+    ? 'தமிழ்நாடு தேர்தல் 2026 — Results Today'
+    : 'தமிழ்நாடு தேர்தல் 2026 — Results Tomorrow'
+
   useEffect(() => {
     const id = setInterval(() => {
       const c = getCountdown()
@@ -81,14 +91,14 @@ export default function ElectionHomeBanner() {
               color: '#fbbf24', fontSize: 9, fontWeight: 900, letterSpacing: '0.06em',
               animation: 'pulse 2s infinite',
             }}>
-              🗳️ TODAY
+              {preLabel}
             </span>
           )}
 
           {/* Headline — flex-1 to take remaining space */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 900, fontSize: 13, color: '#fff', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {isLive ? '🔴 TN Election 2026 — LIVE counting' : 'தமிழ்நாடு தேர்தல் 2026 — Results Today'}
+              {isLive ? '🔴 TN Election 2026 — LIVE counting' : preHeadline}
             </div>
             {/* Party chips row — always visible */}
             <div style={{ display: 'flex', gap: 5, marginTop: 4, flexWrap: 'nowrap' }}>

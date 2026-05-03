@@ -58,6 +58,14 @@ export default function ElectionModal() {
   const accentBg    = isLive ? 'rgba(239,68,68,0.15)' : 'rgba(251,191,36,0.12)'
   const accentBorder = isLive ? 'rgba(239,68,68,0.4)' : 'rgba(251,191,36,0.35)'
 
+  // Is counting today (same calendar day) or tomorrow?
+  const now = new Date()
+  const countingDay = new Date(COUNTING_DATE)
+  const isToday = now.getDate() === countingDay.getDate()
+    && now.getMonth() === countingDay.getMonth()
+    && now.getFullYear() === countingDay.getFullYear()
+  const dayLabel = isLive ? 'LIVE NOW' : isToday ? '🗳️ TODAY 8AM IST' : '🗳️ TOMORROW 8AM IST'
+
   return (
     <>
       {/* Backdrop */}
@@ -122,7 +130,7 @@ export default function ElectionModal() {
                 color: '#fbbf24', fontSize: 10, fontWeight: 900, letterSpacing: '0.08em',
                 animation: 'pulse 2s infinite',
               }}>
-                🗳️ TODAY 8AM IST
+                {dayLabel}
               </span>
             )}
           </div>
