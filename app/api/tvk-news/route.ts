@@ -19,10 +19,13 @@ const FEEDS = [
   { name: 'NDTV',           url: 'https://feeds.feedburner.com/ndtvnews-top-stories' },
 ]
 
-// TVK/Vijay relevance keywords — tiered scoring
-const HIGH_SCORE  = ['TVK', 'Tamilaga Vettri Kazhagam', 'Vijay wins', 'Thalapathy wins', 'TVK wins', 'TVK leads']
-const MED_SCORE   = ['Vijay', 'Thalapathy', 'election 2026', 'TN election', 'Tamil Nadu election', 'exit poll', 'counting', 'results']
-const LOW_SCORE   = ['DMK', 'AIADMK', 'Stalin', 'Tamil Nadu politics', 'assembly', 'constituency', 'voting']
+// TVK/Vijay relevance keywords — tiered scoring (expanded for hung-parliament phase)
+const HIGH_SCORE  = ['TVK', 'Tamilaga Vettri Kazhagam', 'Vijay wins', 'Thalapathy wins', 'TVK wins', 'TVK leads',
+  'hung assembly', 'coalition', 'government formation', 'Chief Minister Vijay', 'CM Vijay', 'Vijay CM',
+  'TVK coalition', 'hung parliament', 'no majority']
+const MED_SCORE   = ['Vijay', 'Thalapathy', 'election 2026', 'TN election', 'Tamil Nadu election', 'exit poll', 'counting', 'results',
+  'alliance', 'support', 'post-poll', 'governor', 'majority', 'president rule']
+const LOW_SCORE   = ['DMK', 'AIADMK', 'Stalin', 'Tamil Nadu politics', 'assembly', 'constituency', 'voting', 'PMK', 'BJP', 'Congress']
 
 function scoreItem(title: string, desc: string): number {
   const text = (title + ' ' + desc).toLowerCase()

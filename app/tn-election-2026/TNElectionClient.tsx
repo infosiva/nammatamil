@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Brain, TrendingUp, Users, Zap, Share2, BarChart2, ChevronDown, CheckCircle2, Newspaper } from 'lucide-react'
 import Link from 'next/link'
 import ElectionResultsLive from '@/components/ElectionResultsLive'
+import HungParliamentLive from '@/components/HungParliamentLive'
 import AdUnit from '@/components/AdUnit'
 
 // ─── Exit Poll Data (April 29, 2026) ─────────────────────────────────────────
@@ -1146,6 +1147,11 @@ export default function TNElectionClient() {
         {/* ── ELECTION RESULTS LIVE (always shown) ── */}
         <div style={{ marginBottom: 28 }}>
           <ElectionResultsLive />
+        </div>
+
+        {/* ── HUNG PARLIAMENT — coalition news + AI analysis ── */}
+        <div style={{ marginBottom: 28 }}>
+          <HungParliamentLive />
         </div>
 
         {/* ── AD UNIT — after live results ── */}

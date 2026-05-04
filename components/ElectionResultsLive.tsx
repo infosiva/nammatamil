@@ -628,8 +628,28 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
         )}
 
 
+        {/* ── Hung assembly banner (no majority) ── */}
+        {!loading && parties.length > 0 && !parties.some(p => p.hasMajority) && parties.some(p => p.totalTally > 0) && (
+          <div style={{
+            borderRadius: 16, padding: '14px 18px',
+            display: 'flex', alignItems: 'center', gap: 12,
+            background: 'linear-gradient(135deg, rgba(239,68,68,0.14), rgba(239,68,68,0.05))',
+            border: '2px solid rgba(239,68,68,0.45)',
+          }}>
+            <span style={{ fontSize: 22, flexShrink: 0 }}>⚖️</span>
+            <div>
+              <p style={{ fontWeight: 900, fontSize: 15, color: '#ef4444', margin: 0 }}>
+                HUNG ASSEMBLY · No party has 118 seats
+              </p>
+              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>
+                TVK 107 · DMK 60 · AIADMK 47 · Coalition talks expected · See analysis below
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* ── Winner / projected winner banner ── */}
-        {winner && (
+        {winner && parties.some(p => p.hasMajority) && (
           <div style={{
             borderRadius: 16, padding: '14px 18px',
             display: 'flex', alignItems: 'center', gap: 12,
