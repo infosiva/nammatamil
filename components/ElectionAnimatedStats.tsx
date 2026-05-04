@@ -22,6 +22,63 @@ const REFRESH_MS = 60_000
 const MAJORITY   = 118
 const TOTAL      = 234
 
+// ── ECI direct fetch (browser-side) ─────────────────────────────────────────
+const ECI_JSON = 'https://results.eci.gov.in/ResultAcGenMay2026/election-json-S22-live.json'
+const PARTY_ALIASES: Record<string, string> = {
+  TVK:'TVK', DMK:'DMK', ADMK:'AIADMK', AIADMK:'AIADMK', BJP:'BJP',
+  PMK:'Others', INC:'Others', CPI:'Others', VCK:'Others', DMDK:'Others',
+  IUML:'Others', AMMKMNKZ:'Others', PT:'Others',
+}
+const PARTY_META: Record<string, { fullName: string; leader: string; color: string; emoji: string; voteShare: number }> = {
+  TVK:    { fullName:'Tamilaga Vettri Kazhagam', leader:'Vijay (Thalapathy)', color:'#fbbf24', emoji:'⭐', voteShare:35.0 },
+  DMK:    { fullName:'Dravida Munnetra Kazhagam', leader:'M.K. Stalin',       color:'#f87171', emoji:'🌅', voteShare:35.0 },
+  AIADMK: { fullName:'All India AIADMK',          leader:'E. Palaniswami',    color:'#4ade80', emoji:'🍃', voteShare:23.0 },
+  BJP:    { fullName:'Bharatiya Janata Party',     leader:'K. Annamalai',     color:'#fb923c', emoji:'🪷', voteShare:4.2  },
+  Others: { fullName:'Others / Independents',      leader:'',                  color:'#94a3b8', emoji:'🏛️', voteShare:2.8  },
+}
+
+async function fetchECIStats(): Promise<ElectionData | null> {
+  try {
+    const res = await fetch(ECI_JSON, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
+    if (!res.ok) return null
+    const json = await res.json() as Record<string, { chartData: [string, string, number, string, string][] }>
+    const s22 = json['S22']
+    if (!s22?.chartData || s22.chartData.length < 10) return null
+
+    const tally: Record<string, number> = {}
+    for (const [rawParty] of s22.chartData) {
+      const key = PARTY_ALIASES[rawParty] ?? 'Others'
+      tally[key] = (tally[key] ?? 0) + 1
+    }
+
+    const parties: PartyResult[] = Object.entries(PARTY_META).map(([name, meta]) => {
+      const leading = tally[name] ?? 0
+      return {
+        name, ...meta,
+        seatsWon: 0, seatsLeading: leading, totalTally: leading,
+        trend: 'stable' as const, isLeading: false, hasMajority: leading >= MAJORITY,
+      }
+    }).sort((a, b) => b.totalTally - a.totalTally)
+    if (parties.length > 0) parties[0].isLeading = true
+
+    const leader = parties[0]
+    return {
+      phase: 'counting',
+      seatsReported: s22.chartData.length,
+      totalSeats: TOTAL,
+      majorityMark: MAJORITY,
+      parties,
+      narrative: `${leader.name} leading with ${leader.totalTally} seats · ${s22.chartData.length} of 234 reporting`,
+      updatedAt: new Date().toISOString(),
+      source: 'eci-live',
+      leader: leader.name,
+      projectedWinner: leader.totalTally >= MAJORITY ? leader.name : null,
+    }
+  } catch {
+    return null
+  }
+}
+
 // ─── Animated counter ───────────────────────────────────────────────────────
 function AnimNum({ n, dur = 700 }: { n: number; dur?: number }) {
   const [v, setV] = useState(n)
@@ -245,6 +302,14 @@ export default function ElectionAnimatedStats() {
   const load = useCallback(async (manual = false) => {
     if (manual) setBusy(true)
     try {
+      // Try ECI directly from browser first (ECI blocks server IPs but allows browser CORS)
+      const eciData = await fetchECIStats()
+      if (eciData) {
+        setData(eciData)
+        setSec(0)
+        return
+      }
+      // Fallback to our API
       const r = await fetch('/api/election-results', { cache: 'no-store', signal: AbortSignal.timeout(12000) })
       if (!r.ok) return
       setData(await r.json())

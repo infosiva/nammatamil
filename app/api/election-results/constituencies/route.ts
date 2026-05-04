@@ -12,6 +12,7 @@ import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+export const runtime = 'edge'
 
 const COUNTING_START = new Date('2026-05-04T08:00:00+05:30').getTime()
 const COUNTING_END   = new Date('2026-05-04T20:00:00+05:30').getTime()
