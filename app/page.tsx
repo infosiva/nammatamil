@@ -14,6 +14,7 @@ import FamousCandidates from '@/components/FamousCandidates'
 import LiveStatsPanel from '@/components/LiveStatsPanel'
 import TVKVictoryBanner from '@/components/TVKVictoryBanner'
 import TVKHeroBg from '@/components/TVKHeroBg'
+import TVKDistrictSweep from '@/components/TVKDistrictSweep'
 
 export default function HomePage() {
   return (
@@ -68,6 +69,11 @@ export default function HomePage() {
 
           {/* ── Main stats dashboard ── */}
           <ElectionAnimatedStats />
+
+          {/* ── TVK district sweep ── */}
+          <div style={{ marginTop: 14 }}>
+            <TVKDistrictSweep />
+          </div>
 
           {/* ── District heatmap ── */}
           <div style={{ marginTop: 14 }}>

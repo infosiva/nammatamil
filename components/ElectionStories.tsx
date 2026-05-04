@@ -23,22 +23,21 @@ const PARTY_EMOJI: Record<string, string> = {
   TVK:'⭐', DMK:'🌅', AIADMK:'🍃', BJP:'🪷', Others:'🏛️',
 }
 
-// Known notable candidates with context
+// Known notable candidates with context — AC numbers verified from live ECI data
 const NOTABLE: Record<number, { role: string; emoji: string; story: string }> = {
-  4:   { role: 'Deputy CM', emoji: '🌅', story: 'Udhayanidhi Stalin wins Kolathur for DMK — Stalin family dynasty continues' },
-  18:  { role: 'Cabinet Minister', emoji: '🌅', story: 'Sekarbabu retains Sholinganallur — DMK veterans hold their ground in Chennai' },
-  53:  { role: 'Opposition Leader', emoji: '🍃', story: 'Edappadi Palaniswami wins Edappadi — ADMK chief survives the TVK wave in his home turf' },
-  47:  { role: "PMK Leader's Daughter", emoji: '🌿', story: "Sowmiya Anbumani wins Pennagaram — Dr Anbumani's daughter makes her mark" },
-  152: { role: "Captain's Wife", emoji: '🎬', story: 'Premallatha Vijayakant wins Alangulam for DMDK — Captain Vijayakant\'s legacy lives on' },
-  108: { role: 'BJP Win', emoji: '🪷', story: 'BJP wins Krishnarayapuram — one of the very few BJP seats in Tamil Nadu 2026' },
-  159: { role: 'VCK Win', emoji: '✊', story: 'L.E. Jothimani wins Tiruchendur for VCK — Dalit party makes its mark' },
+  19:  { role: 'Deputy CM', emoji: '🌅', story: 'Udhayanidhi Stalin wins Chepauk-Thiruvallikeni for DMK — Stalin family dynasty continues in the heart of Chennai' },
+  18:  { role: 'Cabinet Minister', emoji: '🌅', story: 'P.K. Sekarbabu wins Harbour for DMK — a veteran minister retains his Chennai constituency' },
+  86:  { role: 'Opposition Leader', emoji: '🍃', story: 'Edappadi Palaniswami wins Edappadi (Salem) — ADMK chief survives the TVK wave in his home turf' },
+  59:  { role: "PMK Leader's Daughter", emoji: '🌿', story: "Sowmiya Anbumani wins Pennagaram (Dharmapuri) — Dr Anbumani's daughter makes her mark in her debut election" },
+  152: { role: "Captain's Wife", emoji: '🎬', story: 'Premallatha Vijayakant wins Alangulam for DMDK — Captain Vijayakant\'s legacy lives on through his family' },
+  108: { role: 'BJP Win', emoji: '🪷', story: 'BJP wins Krishnarayapuram (Karur) — one of the very few BJP seats in Tamil Nadu 2026' },
+  159: { role: 'VCK Win', emoji: '✊', story: 'L.E. Jothimani wins Tiruchendur for VCK — Dalit party makes its mark in coastal Thoothukudi' },
 }
 
-// District order for the map
+// District reference for notable AC numbers
 const AC_DISTRICT: Record<number, string> = {
-  1:'Chennai',2:'Chennai',3:'Chennai',4:'Chennai',5:'Chennai',6:'Chennai',7:'Chennai',8:'Chennai',9:'Chennai',10:'Chennai',
-  11:'Chennai',12:'Chennai',13:'Chennai',14:'Chennai',15:'Chennai',16:'Chennai',17:'Chennai',18:'Chennai',
-  47:'Dharmapuri', 53:'Salem', 108:'Karur', 152:'Tenkasi', 159:'Thoothukudi',
+  18:'Chennai', 19:'Chennai',
+  59:'Dharmapuri', 86:'Salem', 108:'Karur', 152:'Tenkasi', 159:'Thoothukudi',
 }
 
 interface StoryCard {
