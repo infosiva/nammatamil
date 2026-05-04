@@ -25,13 +25,12 @@ const PARTY_EMOJI: Record<string, string> = {
 
 // Known notable candidates with context
 const NOTABLE: Record<number, { role: string; emoji: string; story: string }> = {
-  19:  { role: 'Deputy CM Son', emoji: '🌅', story: 'Udhayanidhi Stalin holds Kolathur for DMK — Stalin family dynasty continues' },
-  18:  { role: 'Cabinet Minister', emoji: '🌅', story: 'Sekarbabu retains seat — DMK veterans hold their ground in Chennai suburbs' },
-  86:  { role: 'ADMK Chief', emoji: '🍃', story: 'Edappadi Palaniswami wins Edappadi — opposition leader survives the TVK wave' },
-  59:  { role: "PMK Leader's Daughter", emoji: '🌿', story: "Sowmiya Anbumani wins Pennagaram — Dr Anbumani's daughter makes her mark" },
+  4:   { role: 'Deputy CM', emoji: '🌅', story: 'Udhayanidhi Stalin wins Kolathur for DMK — Stalin family dynasty continues' },
+  18:  { role: 'Cabinet Minister', emoji: '🌅', story: 'Sekarbabu retains Sholinganallur — DMK veterans hold their ground in Chennai' },
+  53:  { role: 'Opposition Leader', emoji: '🍃', story: 'Edappadi Palaniswami wins Edappadi — ADMK chief survives the TVK wave in his home turf' },
+  47:  { role: "PMK Leader's Daughter", emoji: '🌿', story: "Sowmiya Anbumani wins Pennagaram — Dr Anbumani's daughter makes her mark" },
   152: { role: "Captain's Wife", emoji: '🎬', story: 'Premallatha Vijayakant wins Alangulam for DMDK — Captain Vijayakant\'s legacy lives on' },
-  204: { role: 'BJP Leader', emoji: '🪷', story: 'Nainar Nagenthran wins Thiruvallur — BJP\'s rare win in Tamil Nadu 2026' },
-  108: { role: 'BJP Win', emoji: '🪷', story: 'BJP wins Krishnarayapuram — one of only 2 BJP seats in Tamil Nadu' },
+  108: { role: 'BJP Win', emoji: '🪷', story: 'BJP wins Krishnarayapuram — one of the very few BJP seats in Tamil Nadu 2026' },
   159: { role: 'VCK Win', emoji: '✊', story: 'L.E. Jothimani wins Tiruchendur for VCK — Dalit party makes its mark' },
 }
 
@@ -39,8 +38,7 @@ const NOTABLE: Record<number, { role: string; emoji: string; story: string }> = 
 const AC_DISTRICT: Record<number, string> = {
   1:'Chennai',2:'Chennai',3:'Chennai',4:'Chennai',5:'Chennai',6:'Chennai',7:'Chennai',8:'Chennai',9:'Chennai',10:'Chennai',
   11:'Chennai',12:'Chennai',13:'Chennai',14:'Chennai',15:'Chennai',16:'Chennai',17:'Chennai',18:'Chennai',
-  19:'Kancheepuram',20:'Kancheepuram',21:'Kancheepuram',
-  86:'Salem', 59:'Dharmapuri', 152:'Tenkasi', 204:'Tiruvallur', 108:'Karur', 159:'Thoothukudi',
+  47:'Dharmapuri', 53:'Salem', 108:'Karur', 152:'Tenkasi', 159:'Thoothukudi',
 }
 
 interface StoryCard {
