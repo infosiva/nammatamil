@@ -183,7 +183,7 @@ export default function SeatProjection() {
                 <span style={{ fontSize: 11, fontWeight: 900, color: p.color }}>
                   {p.emoji} {p.label}
                 </span>
-                <div style={{ display: 'flex', align: 'center', gap: 8, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <span style={{ fontSize: 13, fontWeight: 900, color: p.color }}>{p.seats}</span>
                   {!allDone && (
                     <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>→ max {p.max}</span>
