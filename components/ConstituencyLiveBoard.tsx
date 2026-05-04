@@ -49,6 +49,12 @@ function formatMargin(n: number | null): string {
   return `+${n}`
 }
 
+function formatVotes(n: number | null): string {
+  if (n === null) return ''
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`
+  return `${n}`
+}
+
 // ── Single constituency card ──────────────────────────────────────────────────
 function ConstCard({ c, flash }: { c: ConstituencyResult; flash: boolean }) {
   const color  = c.leadingParty ? PARTY_COLORS[c.leadingParty] ?? '#94a3b8' : 'rgba(255,255,255,0.10)'
@@ -58,12 +64,14 @@ function ConstCard({ c, flash }: { c: ConstituencyResult; flash: boolean }) {
   return (
     <div style={{
       borderRadius: 12,
-      padding: '11px 13px',
+      padding: '10px 11px',
       background: isPend
-        ? 'rgba(255,255,255,0.02)'
-        : `${color}0e`,
-      border: `1px solid ${isPend ? 'rgba(255,255,255,0.05)' : color + '38'}`,
-      boxShadow: flash ? `0 0 16px ${color}30` : 'none',
+        ? 'rgba(255,255,255,0.018)'
+        : isWon
+          ? `${color}18`
+          : `${color}0b`,
+      border: `1px solid ${isPend ? 'rgba(255,255,255,0.045)' : isWon ? color + '50' : color + '2a'}`,
+      boxShadow: flash ? `0 0 18px ${color}38` : isWon ? `0 2px 12px ${color}28` : 'none',
       transition: 'box-shadow 0.4s ease',
       position: 'relative',
       overflow: 'hidden',
@@ -72,49 +80,87 @@ function ConstCard({ c, flash }: { c: ConstituencyResult; flash: boolean }) {
       {flash && (
         <div style={{
           position: 'absolute', inset: 0,
-          background: `${color}12`,
+          background: `${color}14`,
           animation: 'cFadeOut 1.4s ease forwards',
           pointerEvents: 'none',
         }} />
       )}
 
-      {/* Won badge */}
+      {/* Won stripe at top */}
       {isWon && (
         <div style={{
-          position: 'absolute', top: 7, right: 7,
-          fontSize: 7, fontWeight: 900, padding: '2px 5px', borderRadius: 99,
-          background: `${color}22`, color, border: `1px solid ${color}45`,
-        }}>WON</div>
+          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+          background: color,
+        }} />
       )}
 
-      <div style={{ fontSize: 11, fontWeight: 800, color: isPend ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.88)', marginBottom: 1, paddingRight: isWon ? 34 : 0, lineHeight: 1.3 }}>
-        {c.name}
+      {/* Header row: name + status badge */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 4, marginBottom: 3 }}>
+        <div style={{
+          fontSize: 11, fontWeight: 800,
+          color: isPend ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.9)',
+          lineHeight: 1.25, flex: 1, minWidth: 0,
+        }}>
+          {c.name}
+        </div>
+        {!isPend && (
+          <span style={{
+            flexShrink: 0, fontSize: 7, fontWeight: 900, padding: '2px 5px', borderRadius: 4,
+            background: isWon ? color : `${color}20`,
+            color: isWon ? '#000' : color,
+            letterSpacing: '0.06em',
+          }}>
+            {isWon ? '✓ WON' : 'LEADING'}
+          </span>
+        )}
       </div>
+
+      {/* District */}
       <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', marginBottom: 7 }}>
         {c.district}
       </div>
 
       {isPend ? (
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>Pending…</div>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.13)', fontStyle: 'italic' }}>Awaiting…</div>
       ) : (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <span style={{
-            fontSize: 9, fontWeight: 900, padding: '2px 8px', borderRadius: 99,
-            background: `${color}1e`, color, border: `1px solid ${color}38`,
-          }}>
-            {c.leadingParty}
-          </span>
-          {c.margin !== null && (
-            <span style={{ fontSize: 9, fontWeight: 700, color, opacity: 0.85 }}>
-              {formatMargin(c.margin)}
+        <>
+          {/* Party pill + candidate */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 5, flexWrap: 'wrap' }}>
+            <span style={{
+              fontSize: 9, fontWeight: 900, padding: '2px 7px', borderRadius: 5,
+              background: `${color}20`, color, border: `1px solid ${color}35`,
+            }}>
+              {c.leadingParty}
             </span>
+            {c.leadingCandidate && (
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                {c.leadingCandidate.split(' ').slice(0, 2).join(' ')}
+              </span>
+            )}
+          </div>
+
+          {/* Margin + votes row */}
+          {(c.margin !== null || c.votesLeading !== null) && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+              {c.margin !== null && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.22)', fontWeight: 600 }}>MARGIN</span>
+                  <span style={{ fontSize: 10, fontWeight: 900, color, fontVariantNumeric: 'tabular-nums' }}>
+                    {formatMargin(c.margin)}
+                  </span>
+                </div>
+              )}
+              {c.votesLeading !== null && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.18)', fontWeight: 600 }}>VOTES</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.45)', fontVariantNumeric: 'tabular-nums' }}>
+                    {formatVotes(c.votesLeading)}
+                  </span>
+                </div>
+              )}
+            </div>
           )}
-          {c.leadingCandidate && (
-            <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.28)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
-              {c.leadingCandidate.split(' ').slice(0, 2).join(' ')}
-            </span>
-          )}
-        </div>
+        </>
       )}
     </div>
   )
@@ -133,20 +179,41 @@ function PartyPills({ constituencies }: { constituencies: ConstituencyResult[] }
   if (sorted.length === 0) return null
 
   return (
-    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'stretch' }}>
       {sorted.map(([party, { leading, won }]) => {
         const color = PARTY_COLORS[party] ?? '#94a3b8'
+        const total = won + leading
         return (
           <div key={party} style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '5px 12px', borderRadius: 99,
-            background: `${color}10`, border: `1px solid ${color}30`,
+            display: 'flex', flexDirection: 'column',
+            padding: '8px 12px', borderRadius: 10,
+            background: `${color}0d`, border: `1px solid ${color}28`,
+            minWidth: 72,
           }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0 }} />
-            <span style={{ fontWeight: 900, fontSize: 12, color }}>{party}</span>
-            <span style={{ fontWeight: 900, fontSize: 14, color, fontVariantNumeric: 'tabular-nums' }}>{won + leading}</span>
-            {won > 0 && <span style={{ fontSize: 8, color: '#4ade80', fontWeight: 700 }}>{won}W</span>}
-            {leading > 0 && <span style={{ fontSize: 8, color: '#fbbf24', fontWeight: 700 }}>{leading}L</span>}
+            {/* Party name + total */}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 5 }}>
+              <span style={{ fontWeight: 900, fontSize: 11, color }}>{party}</span>
+              <span style={{ fontWeight: 900, fontSize: 18, color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{total}</span>
+            </div>
+            {/* Won / Leading breakdown */}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <div style={{
+                flex: 1, textAlign: 'center', padding: '3px 4px', borderRadius: 5,
+                background: won > 0 ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.03)',
+                border: `1px solid ${won > 0 ? 'rgba(74,222,128,0.25)' : 'rgba(255,255,255,0.06)'}`,
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 900, color: won > 0 ? '#4ade80' : 'rgba(255,255,255,0.18)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{won}</div>
+                <div style={{ fontSize: 7, color: won > 0 ? 'rgba(74,222,128,0.6)' : 'rgba(255,255,255,0.14)', fontWeight: 700, marginTop: 2 }}>WON</div>
+              </div>
+              <div style={{
+                flex: 1, textAlign: 'center', padding: '3px 4px', borderRadius: 5,
+                background: leading > 0 ? `${color}14` : 'rgba(255,255,255,0.03)',
+                border: `1px solid ${leading > 0 ? color + '28' : 'rgba(255,255,255,0.06)'}`,
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 900, color: leading > 0 ? color : 'rgba(255,255,255,0.18)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{leading}</div>
+                <div style={{ fontSize: 7, color: leading > 0 ? `${color}99` : 'rgba(255,255,255,0.14)', fontWeight: 700, marginTop: 2 }}>LEAD</div>
+              </div>
+            </div>
           </div>
         )
       })}
@@ -245,7 +312,7 @@ export default function ConstituencyLiveBoard() {
             }} />
           </div>
           <div style={{ marginTop: 4, fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>
-            {source === 'eci-live' ? '🟢 ECI official data' : source === 'ai-parsed' ? '⚡ AI news parse' : '⏳ Awaiting count'} · auto-updates every 90s
+            {source === 'eci-live' ? '🟢 ECI official data' : source === 'ai-parsed' ? '⚡ AI news parse' : source === 'cached-stale' ? '🟠 Snapshot · refreshing' : '⏳ Awaiting count'} · auto-updates every 60s
           </div>
         </div>
       )}
@@ -305,19 +372,47 @@ export default function ConstituencyLiveBoard() {
         </div>
       </div>
 
-      {/* ── Count + flash indicator ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>
-          {hasActive ? `${filtered.length} of 234` : '234 constituencies'}
-          {search && ` matching "${search}"`}
-        </span>
-        {flashIds.size > 0 && (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: '#fbbf24', fontWeight: 700 }}>
-            <Zap style={{ width: 10, height: 10 }} />
-            {flashIds.size} updated
-          </span>
-        )}
-      </div>
+      {/* ── Count + totals row ── */}
+      {(() => {
+        const totalWon  = constituencies.filter(c => c.status === 'won').length
+        const totalLead = constituencies.filter(c => c.status === 'leading').length
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>
+              {hasActive ? `${filtered.length} of 234` : '234 constituencies'}
+              {search && ` matching "${search}"`}
+            </span>
+            {(totalWon > 0 || totalLead > 0) && (
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                {totalWon > 0 && (
+                  <span style={{
+                    fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 5,
+                    background: 'rgba(74,222,128,0.1)', color: '#4ade80',
+                    border: '1px solid rgba(74,222,128,0.2)',
+                  }}>
+                    {totalWon} WON
+                  </span>
+                )}
+                {totalLead > 0 && (
+                  <span style={{
+                    fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 5,
+                    background: 'rgba(251,191,36,0.1)', color: '#fbbf24',
+                    border: '1px solid rgba(251,191,36,0.2)',
+                  }}>
+                    {totalLead} LEADING
+                  </span>
+                )}
+              </div>
+            )}
+            {flashIds.size > 0 && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: '#fbbf24', fontWeight: 700, marginLeft: 'auto' }}>
+                <Zap style={{ width: 10, height: 10 }} />
+                {flashIds.size} updated
+              </span>
+            )}
+          </div>
+        )
+      })()}
 
       {/* ── Card grid ── */}
       {loading ? (

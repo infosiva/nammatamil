@@ -413,38 +413,7 @@ function buildCountingResponse(
   }
 }
 
-// ── FALLBACK 5: Last-known seed data (updated each deploy) ───────────────────
-// This ensures users never see 0/0/0 on election day even if all fetches fail.
-// Update these numbers manually if scraping fails: check results.eci.gov.in
-// Last manually verified: 2026-05-04 13:00 IST from ECI results.eci.gov.in
-// TVK wins landslide with 111 seats; AIADMK 64; DMK 40; all 234 reporting
-const SEED_DATA = {
-  updatedAt: '2026-05-04T13:00:00+05:30',
-  seatsReported: 234,
-  parties: [
-    { name: 'TVK',    seatsWon: 89, seatsLeading: 22, voteShare: 35.2 },
-    { name: 'AIADMK', seatsWon: 32, seatsLeading: 32, voteShare: 22.8 },
-    { name: 'DMK',    seatsWon: 22, seatsLeading: 18, voteShare: 22.1 },
-    { name: 'BJP',    seatsWon: 1,  seatsLeading: 2,  voteShare: 4.2  },
-    { name: 'Others', seatsWon: 8,  seatsLeading: 8,  voteShare: 15.7 },
-  ],
-  leader: 'TVK',
-  narrative: 'TVK wins landslide majority with 111 seats. AIADMK 64, DMK 40. All 234 seats reporting.',
-  projectedWinner: 'TVK',
-}
-
 function buildEmptyCountingResponse(phase: 'pre-counting' | 'counting'): ElectionResultsResponse {
-  // During counting, use seed data so users see real numbers
-  const now = Date.now()
-  if (phase === 'counting' && now >= COUNTING_START) {
-    return buildCountingResponse(
-      SEED_DATA as Partial<ElectionResultsResponse>,
-      'cached-stale',
-      4,
-      now,
-    )
-  }
-
   const parties: PartyResult[] = Object.entries(PARTIES).map(([, party]) => ({
     ...party,
     seatsWon:     0,
@@ -456,6 +425,10 @@ function buildEmptyCountingResponse(phase: 'pre-counting' | 'counting'): Electio
     hasMajority:  false,
   }))
 
+  const narrative = phase === 'counting'
+    ? 'Counting in progress — fetching live results from ECI…'
+    : 'Tamil Nadu Assembly Election 2026 · Counting begins May 4, 2026'
+
   return {
     phase,
     countingStartsAt: new Date(COUNTING_START).toISOString(),
@@ -463,7 +436,7 @@ function buildEmptyCountingResponse(phase: 'pre-counting' | 'counting'): Electio
     totalSeats:       TOTAL_SEATS,
     majorityMark:     MAJORITY_SEATS,
     parties,
-    narrative:        'Tamil Nadu Assembly Election 2026 — Fetching live results…',
+    narrative,
     leader:           '',
     projectedWinner:  null,
     source:           'static',
