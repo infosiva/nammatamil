@@ -446,12 +446,68 @@ function buildEmptyCountingResponse(phase: 'pre-counting' | 'counting'): Electio
   }
 }
 
+// ── PRIMARY: ECI official live JSON — same source as constituency board ───────
+// Confirmed URL: election-json-S22-live.json (S22 = Tamil Nadu)
+// Structure: { S22: { chartData: [party, stateCode, acNo, candidate, color][] } }
+async function fetchECILivePartyTotals(): Promise<Partial<ElectionResultsResponse> | null> {
+  const ECI_JSON = 'https://results.eci.gov.in/ResultAcGenMay2026/election-json-S22-live.json'
+  const PROXY    = `https://api.allorigins.win/raw?url=${encodeURIComponent(ECI_JSON)}`
+  const partyAliases: Record<string, string> = {
+    TVK: 'TVK', DMK: 'DMK', ADMK: 'AIADMK', AIADMK: 'AIADMK', BJP: 'BJP',
+    PMK: 'Others', INC: 'Others', CPI: 'Others', 'CPI(M)': 'Others',
+    VCK: 'Others', DMDK: 'Others', IUML: 'Others', AMMKMNKZ: 'Others', PT: 'Others',
+  }
+
+  for (const url of [ECI_JSON, PROXY]) {
+    try {
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(8000), cache: 'no-store',
+        headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://results.eci.gov.in/' },
+      })
+      if (!res.ok) continue
+      const json = await res.json() as Record<string, { chartData: [string, string, number, string, string][] }>
+      const s22 = json['S22']
+      if (!s22?.chartData || s22.chartData.length < 10) continue
+
+      // Tally seats per party from chartData
+      const tally: Record<string, number> = {}
+      for (const [rawParty] of s22.chartData) {
+        const key = partyAliases[rawParty] ?? 'Others'
+        tally[key] = (tally[key] ?? 0) + 1
+      }
+
+      const parties = ['TVK', 'DMK', 'AIADMK', 'BJP', 'Others'].map(name => ({
+        name,
+        seatsWon:     0,           // ECI live JSON doesn't separate won vs leading
+        seatsLeading: tally[name] ?? 0,
+        voteShare:    EXIT_PROJECTIONS[name as keyof typeof EXIT_PROJECTIONS]?.voteShare ?? 0,
+      }))
+
+      const seatsReported = s22.chartData.length  // all 234 have a leading candidate
+      const sorted = [...parties].sort((a, b) => b.seatsLeading - a.seatsLeading)
+      const leaderName = sorted[0]?.name ?? ''
+      const tvkTotal = tally['TVK'] ?? 0
+      const narrative = `${leaderName} leading in ${sorted[0]?.seatsLeading} seats · ${seatsReported} of 234 reporting`
+
+      return { parties: parties as Partial<ElectionResultsResponse>['parties'], seatsReported, leader: leaderName, narrative, projectedWinner: tvkTotal >= 118 ? 'TVK' : null }
+    } catch { continue }
+  }
+  return null
+}
+
 // ── Background refresh (runs all fallbacks, updates store.cache) ─────────────
 async function fetchFresh(): Promise<void> {
   if (store.refreshing) return
   store.refreshing = true
   try {
     const now = Date.now()
+
+    // Primary: ECI official live JSON (same source as constituency board)
+    const eciData = await fetchECILivePartyTotals()
+    if (eciData && (eciData.parties ?? []).some((p: {seatsLeading:number}) => p.seatsLeading > 0)) {
+      store.cache = { data: buildCountingResponse(eciData, 'eci-live', 1, now), fetchedAt: now }
+      return
+    }
 
     // Fallback 2a: GitHub parsed JSON (fastest, no AI needed)
     const ghData = await fetchGitHubECIData()
