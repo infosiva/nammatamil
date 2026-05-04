@@ -37,10 +37,15 @@ interface NewsItem {
   isHot: boolean
 }
 
+interface PartySplit { won: number; leading: number; total: number }
+
 interface ElectionNewsResponse {
   news: NewsItem[]
   analysis: CoalitionAnalysis
-  seats: { TVK: number; DMK: number; AIADMK: number; BJP: number; Others: number; total: number; majority: number }
+  seats: {
+    TVK: PartySplit; DMK: PartySplit; AIADMK: PartySplit; BJP: PartySplit; Others: PartySplit
+    total: number; majority: number; reported: number
+  }
   phase: string
   updatedAt: string
 }
@@ -51,10 +56,17 @@ const PARTY_COLORS: Record<string, string> = {
   TVK: '#fbbf24', DMK: '#f87171', AIADMK: '#4ade80', BJP: '#fb923c', Others: '#94a3b8',
 }
 
-// ── Gap bar: seats won vs seats needed ───────────────────────────────────────
-function GapBar({ name, seats, majority, color }: { name: string; seats: number; majority: number; color: string }) {
-  const pct = Math.min((seats / majority) * 100, 100)
-  const gap = majority - seats
+// ── Gap bar: won + leading vs majority needed ─────────────────────────────────
+function GapBar({ name, split, majority, color }: {
+  name: string
+  split: { won: number; leading: number; total: number }
+  majority: number
+  color: string
+}) {
+  const total = split.total
+  const pct   = Math.min((total / majority) * 100, 100)
+  const wonPct = total > 0 ? Math.min((split.won / majority) * 100, pct) : 0
+  const gap   = majority - total
   const hasGap = gap > 0
 
   return (
@@ -65,16 +77,21 @@ function GapBar({ name, seats, majority, color }: { name: string; seats: number;
           <span style={{ fontWeight: 900, fontSize: 13, color }}>{name}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontWeight: 900, fontSize: 20, color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{seats}</span>
-          {hasGap && (
+          <span style={{ fontWeight: 900, fontSize: 20, color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{total}</span>
+          {split.won > 0 && (
+            <span style={{ fontSize: 9, fontWeight: 700, color: '#4ade80' }}>{split.won}W</span>
+          )}
+          {split.leading > 0 && (
+            <span style={{ fontSize: 9, fontWeight: 700, color: '#fbbf24' }}>{split.leading}L</span>
+          )}
+          {hasGap ? (
             <span style={{
               fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 99,
               background: 'rgba(239,68,68,0.12)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)',
             }}>
               needs {gap} more
             </span>
-          )}
-          {!hasGap && (
+          ) : (
             <span style={{
               fontSize: 9, fontWeight: 900, padding: '2px 6px', borderRadius: 99,
               background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.35)',
@@ -84,19 +101,31 @@ function GapBar({ name, seats, majority, color }: { name: string; seats: number;
           )}
         </div>
       </div>
+      {/* Stacked bar: won (solid) + leading (lighter) */}
       <div style={{ height: 8, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden', position: 'relative' }}>
+        {/* Leading portion (behind won) */}
         <div style={{
-          height: '100%', borderRadius: 99,
+          position: 'absolute', top: 0, left: 0, bottom: 0,
           width: `${pct}%`,
-          background: `linear-gradient(90deg, ${color}60, ${color})`,
+          background: `${color}50`,
+          borderRadius: 99,
           transition: 'width 0.8s ease',
-          boxShadow: `0 0 8px ${color}44`,
+        }} />
+        {/* Won portion (solid, on top) */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, bottom: 0,
+          width: `${wonPct}%`,
+          background: color,
+          borderRadius: 99,
+          transition: 'width 0.8s ease',
+          boxShadow: `0 0 8px ${color}55`,
         }} />
         {/* 118 mark */}
-        <div style={{
-          position: 'absolute', top: 0, bottom: 0,
-          right: 0, width: 1.5, background: 'rgba(251,191,36,0.5)',
-        }} />
+        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 1.5, background: 'rgba(251,191,36,0.5)' }} />
+      </div>
+      <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+        {split.won > 0 && <span style={{ fontSize: 8, color: `${color}99` }}>▬ Won: {split.won}</span>}
+        {split.leading > 0 && <span style={{ fontSize: 8, color: `${color}55` }}>░ Leading: {split.leading}</span>}
       </div>
     </div>
   )
@@ -243,7 +272,14 @@ export default function HungParliamentLive() {
 
   const analysis  = data?.analysis
   const news      = data?.news ?? []
-  const seats     = data?.seats ?? { TVK: 107, DMK: 60, AIADMK: 47, BJP: 1, Others: 19, total: 234, majority: 118 }
+  const seats     = data?.seats ?? {
+    TVK:    { won: 107, leading: 0, total: 107 },
+    DMK:    { won: 60,  leading: 0, total: 60  },
+    AIADMK: { won: 47,  leading: 0, total: 47  },
+    BJP:    { won: 1,   leading: 0, total: 1   },
+    Others: { won: 19,  leading: 0, total: 19  },
+    total: 234, majority: 118, reported: 234,
+  }
   const visibleNews = showAllNews ? news : news.slice(0, 5)
   const uc = urgencyColor(analysis?.urgency ?? 'high')
 
@@ -309,15 +345,17 @@ export default function HungParliamentLive() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <TrendingUp style={{ width: 14, height: 14, color: '#fbbf24' }} />
             <span style={{ fontWeight: 900, fontSize: 14, color: '#fff' }}>Race to 118 — Majority Gap</span>
-            <span style={{ marginLeft: 'auto', fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>ECI official · 234/234 seats</span>
+            <span style={{ marginLeft: 'auto', fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>
+              ECI · {seats.reported ?? seats.total}/234 seats
+            </span>
           </div>
-          <GapBar name="TVK" seats={seats.TVK} majority={seats.majority} color={PARTY_COLORS.TVK} />
-          <GapBar name="DMK" seats={seats.DMK} majority={seats.majority} color={PARTY_COLORS.DMK} />
-          <GapBar name="AIADMK" seats={seats.AIADMK} majority={seats.majority} color={PARTY_COLORS.AIADMK} />
+          <GapBar name="TVK" split={seats.TVK} majority={seats.majority} color={PARTY_COLORS.TVK} />
+          <GapBar name="DMK" split={seats.DMK} majority={seats.majority} color={PARTY_COLORS.DMK} />
+          <GapBar name="AIADMK" split={seats.AIADMK} majority={seats.majority} color={PARTY_COLORS.AIADMK} />
           <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
             {[
-              { name: 'BJP', seats: seats.BJP },
-              { name: 'Others', seats: seats.Others },
+              { name: 'BJP',    split: seats.BJP    },
+              { name: 'Others', split: seats.Others },
             ].map(p => (
               <div key={p.name} style={{
                 flex: 1, borderRadius: 10, padding: '8px 12px',
@@ -325,7 +363,11 @@ export default function HungParliamentLive() {
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               }}>
                 <span style={{ fontSize: 10, fontWeight: 700, color: PARTY_COLORS[p.name] }}>{p.name}</span>
-                <span style={{ fontWeight: 900, fontSize: 16, color: PARTY_COLORS[p.name] }}>{p.seats}</span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                  <span style={{ fontWeight: 900, fontSize: 16, color: PARTY_COLORS[p.name] }}>{p.split.total}</span>
+                  {p.split.won > 0 && <span style={{ fontSize: 8, color: '#4ade80' }}>{p.split.won}W</span>}
+                  {p.split.leading > 0 && <span style={{ fontSize: 8, color: '#fbbf24' }}>{p.split.leading}L</span>}
+                </div>
               </div>
             ))}
           </div>

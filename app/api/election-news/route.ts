@@ -127,8 +127,88 @@ const FALLBACK_ANALYSIS: CoalitionAnalysis = {
 
 let aiCache: { analysis: CoalitionAnalysis; fetchedAt: number } | null = null
 let newsCache: { items: ReturnType<typeof parseRSS>; fetchedAt: number } | null = null
-const NEWS_TTL = 5 * 60 * 1000   // 5 min
-const AI_TTL   = 10 * 60 * 1000  // 10 min
+let seatsCache: { splits: SeatsLive; fetchedAt: number } | null = null
+const NEWS_TTL  = 5  * 60 * 1000   // 5 min
+const AI_TTL    = 10 * 60 * 1000  // 10 min
+const SEATS_TTL = 2  * 60 * 1000   // 2 min — refresh split often
+
+// Live seat splits from ECI partywise HTML
+interface SeatsLive {
+  TVK:    { won: number; leading: number; total: number }
+  DMK:    { won: number; leading: number; total: number }
+  AIADMK: { won: number; leading: number; total: number }
+  BJP:    { won: number; leading: number; total: number }
+  Others: { won: number; leading: number; total: number }
+  total: number; majority: number; reported: number
+}
+
+const SEATS_FALLBACK: SeatsLive = {
+  TVK:    { won: 107, leading: 0, total: 107 },
+  DMK:    { won: 60,  leading: 0, total: 60  },
+  AIADMK: { won: 47,  leading: 0, total: 47  },
+  BJP:    { won: 1,   leading: 0, total: 1   },
+  Others: { won: 19,  leading: 0, total: 19  },
+  total: 234, majority: 118, reported: 234,
+}
+
+async function fetchLiveSeatSplits(): Promise<SeatsLive> {
+  const now = Date.now()
+  if (seatsCache && now - seatsCache.fetchedAt < SEATS_TTL) return seatsCache.splits
+
+  const ECI_HTML = 'https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm'
+  const partyAliases: Record<string, string> = {
+    TVK: 'TVK', ADMK: 'AIADMK', AIADMK: 'AIADMK', DMK: 'DMK',
+    BJP: 'BJP', PMK: 'Others', INC: 'Others', CPI: 'Others', 'CPI(M)': 'Others',
+    VCK: 'Others', DMDK: 'Others', IUML: 'Others', AMMKMNKZ: 'Others', PT: 'Others',
+  }
+  const urlsToTry = [
+    ECI_HTML,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(ECI_HTML)}`,
+    `https://corsproxy.io/?${encodeURIComponent(ECI_HTML)}`,
+  ]
+
+  for (const url of urlsToTry) {
+    try {
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(8000), cache: 'no-store',
+        headers: { 'User-Agent': 'Mozilla/5.0 NammaTamil/1.0', ...(url === ECI_HTML ? { Referer: 'https://results.eci.gov.in/' } : {}) },
+      })
+      if (!res.ok) continue
+      const html = await res.text()
+      if (html.length < 1000) continue
+
+      const clean = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')
+      const totals: Record<string, { won: number; leading: number }> = {}
+      const pattern = /\b(TVK|ADMK|AIADMK|DMK|BJP|PMK|INC|CPI(?:\(M\))?|VCK|DMDK|PT|IUML|AMMKMNKZ)\b[^0-9]{0,30}?(\d+)\s+(\d+)\s+(\d+)/g
+      let m: RegExpExecArray | null
+      while ((m = pattern.exec(clean)) !== null) {
+        const abbr = m[1], won = parseInt(m[2], 10), lead = parseInt(m[3], 10), tot = parseInt(m[4], 10)
+        if (Math.abs(won + lead - tot) > 2) continue
+        const key = partyAliases[abbr] ?? 'Others'
+        if (!totals[key]) totals[key] = { won: 0, leading: 0 }
+        totals[key].won += won; totals[key].leading += lead
+      }
+
+      const hasData = Object.values(totals).some(v => v.won + v.leading > 0)
+      if (!hasData) continue
+
+      const make = (k: string) => ({
+        won:     totals[k]?.won     ?? 0,
+        leading: totals[k]?.leading ?? 0,
+        total:  (totals[k]?.won ?? 0) + (totals[k]?.leading ?? 0),
+      })
+      const splits: SeatsLive = {
+        TVK: make('TVK'), DMK: make('DMK'), AIADMK: make('AIADMK'), BJP: make('BJP'), Others: make('Others'),
+        total: 234, majority: 118,
+        reported: Object.values(totals).reduce((s, v) => s + v.won + v.leading, 0),
+      }
+      seatsCache = { splits, fetchedAt: now }
+      return splits
+    } catch { continue }
+  }
+
+  return seatsCache?.splits ?? SEATS_FALLBACK
+}
 
 async function getCoalitionAnalysis(headlines: string[]): Promise<CoalitionAnalysis> {
   const now = Date.now()
@@ -213,7 +293,10 @@ export async function GET() {
   }
 
   const headlines = allItems.slice(0, 20).map(it => it.title)
-  const analysis  = await getCoalitionAnalysis(headlines)
+  const [analysis, seats] = await Promise.all([
+    getCoalitionAnalysis(headlines),
+    fetchLiveSeatSplits(),
+  ])
 
   const news = allItems.slice(0, 15).map(it => ({
     title:   it.title,
@@ -229,7 +312,7 @@ export async function GET() {
   return NextResponse.json({
     news,
     analysis,
-    seats: { TVK: 107, DMK: 60, AIADMK: 47, BJP: 1, Others: 19, total: 234, majority: 118 },
+    seats,
     phase: 'hung',
     updatedAt: new Date().toISOString(),
   }, { headers: { 'Cache-Control': 'no-store' } })

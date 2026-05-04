@@ -66,9 +66,101 @@ const PARTY_META: Record<string, { fullName: string; leader: string; color: stri
   Others: { fullName: 'Others / Independents',      leader: '',                  color: '#94a3b8', emoji: '🏛️', voteShare: 2.8  },
 }
 
+// ECI partywise HTML — contains Won / Leading / Total table
+const ECI_PARTYWISE_URL = 'https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm'
+
+const PARTYWISE_ALIASES: Record<string, string> = {
+  TVK: 'TVK', 'TAMILAGA VETTRI KAZHAGAM': 'TVK',
+  DMK: 'DMK', 'DRAVIDA MUNNETRA KAZHAGAM': 'DMK',
+  ADMK: 'AIADMK', AIADMK: 'AIADMK', 'ALL INDIA ANNA DRAVIDA MUNNETRA KAZHAGAM': 'AIADMK',
+  BJP: 'BJP', 'BHARATIYA JANATA PARTY': 'BJP',
+  PMK: 'Others', INC: 'Others', CPI: 'Others', VCK: 'Others', DMDK: 'Others', IUML: 'Others', PT: 'Others',
+}
+
+// Parse ECI partywise HTML to extract Won / Leading per party
+function parsePartyWiseHTML(html: string): Record<string, { won: number; leading: number }> | null {
+  // ECI HTML table has rows like: PartyName | Won | Leading | Total | %
+  // Abbreviation appears in a span or as part of text
+  const result: Record<string, { won: number; leading: number }> = {}
+
+  // Match table rows: look for pattern "abbr \d+ \d+ \d+" in cleaned text
+  // First strip tags to get clean text
+  const clean = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')
+
+  // Match party abbreviations followed by 3 numbers (won, leading, total)
+  const pattern = /\b(TVK|ADMK|AIADMK|DMK|BJP|PMK|INC|CPI(?:\(M\))?|VCK|DMDK|PT|IUML|AMMKMNKZ)\b[^0-9]{0,30}?(\d+)\s+(\d+)\s+(\d+)/g
+  let m: RegExpExecArray | null
+  while ((m = pattern.exec(clean)) !== null) {
+    const abbr = m[1]
+    const won  = parseInt(m[2], 10)
+    const lead = parseInt(m[3], 10)
+    const tot  = parseInt(m[4], 10)
+    // Sanity: won+lead should equal total (±1 for rounding)
+    if (Math.abs(won + lead - tot) > 2) continue
+    const key = PARTYWISE_ALIASES[abbr] ?? 'Others'
+    if (!result[key]) result[key] = { won: 0, leading: 0 }
+    result[key].won     += won
+    result[key].leading += lead
+  }
+
+  const hasData = Object.values(result).some(v => v.won + v.leading > 0)
+  return hasData ? result : null
+}
+
 // Client-side ECI fetch — browser has no IP restrictions, direct CORS is allowed
+// Strategy: fetch partywise HTML for won/leading split, fall back to live JSON for totals-only
 async function fetchECIDirectFromBrowser(): Promise<ElectionResultsResponse | null> {
   if (Date.now() < COUNTING_START_MS) return null
+
+  const now = Date.now()
+  const isDeclared = now >= new Date('2026-05-04T20:00:00+05:30').getTime()
+
+  // ── Attempt 1: ECI partywise HTML → real Won / Leading split ──────────────
+  try {
+    const res = await fetch(ECI_PARTYWISE_URL, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(8000),
+    })
+    if (res.ok) {
+      const html = await res.text()
+      if (html.length > 1000) {
+        const parsed = parsePartyWiseHTML(html)
+        if (parsed) {
+          const parties: PartyResult[] = ['TVK', 'DMK', 'AIADMK', 'BJP', 'Others'].map(name => {
+            const meta = PARTY_META[name]
+            const won     = parsed[name]?.won     ?? 0
+            const leading = parsed[name]?.leading ?? 0
+            const total   = won + leading
+            return {
+              name, fullName: meta.fullName, leader: meta.leader,
+              color: meta.color, emoji: meta.emoji,
+              seatsWon: won, seatsLeading: leading, totalTally: total,
+              voteShare: meta.voteShare, trend: 'stable' as const,
+              isLeading: false, hasMajority: total >= MAJORITY,
+            }
+          }).sort((a, b) => b.totalTally - a.totalTally)
+          if (parties.length > 0) parties[0].isLeading = true
+
+          const totalSeats = parties.reduce((s, p) => s + p.totalTally, 0)
+          const leader = parties[0]
+          const tvkTotal = (parsed['TVK']?.won ?? 0) + (parsed['TVK']?.leading ?? 0)
+
+          return {
+            phase: isDeclared ? 'declared' : 'counting',
+            countingStartsAt: new Date(COUNTING_START_MS).toISOString(),
+            seatsReported: totalSeats,
+            totalSeats: TOTAL, majorityMark: MAJORITY, parties,
+            narrative: `${leader.name} leads: ${leader.seatsWon}W + ${leader.seatsLeading}L = ${leader.totalTally} seats · ${totalSeats} of 234 reporting`,
+            leader: leader.name,
+            projectedWinner: tvkTotal >= MAJORITY ? 'TVK' : null,
+            source: 'eci-live', updatedAt: new Date().toISOString(), headlines: [],
+          }
+        }
+      }
+    }
+  } catch { /* fall through to live JSON */ }
+
+  // ── Attempt 2: ECI live JSON (totals only, no won/leading split) ─────────
   try {
     const res = await fetch(ECI_LIVE_URL, {
       cache: 'no-store',
@@ -89,18 +181,11 @@ async function fetchECIDirectFromBrowser(): Promise<ElectionResultsResponse | nu
       const meta = PARTY_META[name]
       const seats = tally[name] ?? 0
       return {
-        name,
-        fullName:     meta.fullName,
-        leader:       meta.leader,
-        color:        meta.color,
-        emoji:        meta.emoji,
-        seatsWon:     0,
-        seatsLeading: seats,
-        totalTally:   seats,
-        voteShare:    meta.voteShare,
-        trend:        'stable' as const,
-        isLeading:    false,
-        hasMajority:  seats >= MAJORITY,
+        name, fullName: meta.fullName, leader: meta.leader,
+        color: meta.color, emoji: meta.emoji,
+        seatsWon: 0, seatsLeading: seats, totalTally: seats,
+        voteShare: meta.voteShare, trend: 'stable' as const,
+        isLeading: false, hasMajority: seats >= MAJORITY,
       }
     }).sort((a, b) => b.totalTally - a.totalTally)
 
@@ -109,22 +194,16 @@ async function fetchECIDirectFromBrowser(): Promise<ElectionResultsResponse | nu
     const tvkTotal = tally['TVK'] ?? 0
     const leaderName = parties[0]?.name ?? ''
     const leaderSeats = parties[0]?.totalTally ?? 0
-    const now = Date.now()
-    const isDeclared = now >= new Date('2026-05-04T20:00:00+05:30').getTime()
 
     return {
       phase: isDeclared ? 'declared' : 'counting',
       countingStartsAt: new Date(COUNTING_START_MS).toISOString(),
       seatsReported: s22.chartData.length,
-      totalSeats: TOTAL,
-      majorityMark: MAJORITY,
-      parties,
+      totalSeats: TOTAL, majorityMark: MAJORITY, parties,
       narrative: `${leaderName} leading with ${leaderSeats} seats · ${s22.chartData.length} of 234 reporting`,
       leader: leaderName,
       projectedWinner: tvkTotal >= MAJORITY ? 'TVK' : null,
-      source: 'eci-live',
-      updatedAt: new Date().toISOString(),
-      headlines: [],
+      source: 'eci-live', updatedAt: new Date().toISOString(), headlines: [],
     }
   } catch {
     return null

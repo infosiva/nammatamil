@@ -447,9 +447,84 @@ function buildEmptyCountingResponse(phase: 'pre-counting' | 'counting'): Electio
   }
 }
 
-// ── PRIMARY: ECI official live JSON — same source as constituency board ───────
-// Confirmed URL: election-json-S22-live.json (S22 = Tamil Nadu)
-// Structure: { S22: { chartData: [party, stateCode, acNo, candidate, color][] } }
+// ── PRIMARY: ECI partywise HTML — has real Won / Leading / Total split ────────
+// URL: partywiseresult-S22.htm (S22 = Tamil Nadu)
+// Contains table: Party | Won | Leading | Total | Vote%
+async function fetchECIPartyWiseSplit(): Promise<Partial<ElectionResultsResponse> | null> {
+  const ECI_HTML = 'https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm'
+  const partyAliases: Record<string, string> = {
+    TVK: 'TVK', ADMK: 'AIADMK', AIADMK: 'AIADMK', DMK: 'DMK',
+    BJP: 'BJP', PMK: 'Others', INC: 'Others', CPI: 'Others', 'CPI(M)': 'Others',
+    VCK: 'Others', DMDK: 'Others', IUML: 'Others', AMMKMNKZ: 'Others', PT: 'Others',
+  }
+
+  const urlsToTry = [
+    ECI_HTML,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(ECI_HTML)}`,
+    `https://corsproxy.io/?${encodeURIComponent(ECI_HTML)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(ECI_HTML)}`,
+  ]
+
+  for (const url of urlsToTry) {
+    try {
+      const headers: Record<string, string> = { 'User-Agent': 'Mozilla/5.0', 'Cache-Control': 'no-cache' }
+      if (url === ECI_HTML) headers['Referer'] = 'https://results.eci.gov.in/'
+      const res = await fetch(url, { signal: AbortSignal.timeout(10000), cache: 'no-store', headers })
+      if (!res.ok) continue
+      const html = await res.text()
+      if (html.length < 1000) continue
+
+      // Strip tags → clean text → parse
+      const clean = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')
+      const totals: Record<string, { won: number; leading: number }> = {}
+
+      // Match: ABBR <whitespace/chars> won leading total
+      const pattern = /\b(TVK|ADMK|AIADMK|DMK|BJP|PMK|INC|CPI(?:\(M\))?|VCK|DMDK|PT|IUML|AMMKMNKZ)\b[^0-9]{0,30}?(\d+)\s+(\d+)\s+(\d+)/g
+      let m: RegExpExecArray | null
+      while ((m = pattern.exec(clean)) !== null) {
+        const abbr = m[1]
+        const won  = parseInt(m[2], 10)
+        const lead = parseInt(m[3], 10)
+        const tot  = parseInt(m[4], 10)
+        // Sanity: won + leading ≈ total
+        if (Math.abs(won + lead - tot) > 2) continue
+        const key = partyAliases[abbr] ?? 'Others'
+        if (!totals[key]) totals[key] = { won: 0, leading: 0 }
+        totals[key].won     += won
+        totals[key].leading += lead
+      }
+
+      const hasData = Object.values(totals).some(v => v.won + v.leading > 0)
+      if (!hasData) continue
+
+      const parties = ['TVK', 'DMK', 'AIADMK', 'BJP', 'Others'].map(name => ({
+        name,
+        seatsWon:     totals[name]?.won     ?? 0,
+        seatsLeading: totals[name]?.leading ?? 0,
+        voteShare:    EXIT_PROJECTIONS[name as keyof typeof EXIT_PROJECTIONS]?.voteShare ?? 0,
+      }))
+
+      const totalTally = parties.reduce((s, p) => s + p.seatsWon + p.seatsLeading, 0)
+      const sorted     = [...parties].sort((a, b) => (b.seatsWon + b.seatsLeading) - (a.seatsWon + a.seatsLeading))
+      const leader     = sorted[0]
+      const leaderTotal = (leader?.seatsWon ?? 0) + (leader?.seatsLeading ?? 0)
+      const tvkTotal   = (totals['TVK']?.won ?? 0) + (totals['TVK']?.leading ?? 0)
+      const narrative  = `${leader.name} leads: ${leader.seatsWon}W + ${leader.seatsLeading}L = ${leaderTotal} seats · ${totalTally} of 234 reporting`
+
+      return {
+        parties: parties as Partial<ElectionResultsResponse>['parties'],
+        seatsReported: totalTally,
+        leader: leader.name,
+        narrative,
+        projectedWinner: tvkTotal >= 118 ? 'TVK' : null,
+      }
+    } catch { continue }
+  }
+  return null
+}
+
+// ── SECONDARY: ECI live JSON — totals only, no won/leading split ─────────────
+// Used as fallback when partywise HTML is unavailable
 async function fetchECILivePartyTotals(): Promise<Partial<ElectionResultsResponse> | null> {
   const ECI_JSON = 'https://results.eci.gov.in/ResultAcGenMay2026/election-json-S22-live.json'
   const partyAliases: Record<string, string> = {
@@ -458,7 +533,6 @@ async function fetchECILivePartyTotals(): Promise<Partial<ElectionResultsRespons
     VCK: 'Others', DMDK: 'Others', IUML: 'Others', AMMKMNKZ: 'Others', PT: 'Others',
   }
 
-  // Try multiple proxies + direct — edge runtime may not reach ECI directly
   const urlsToTry = [
     ECI_JSON,
     `https://api.allorigins.win/raw?url=${encodeURIComponent(ECI_JSON)}`,
@@ -469,12 +543,9 @@ async function fetchECILivePartyTotals(): Promise<Partial<ElectionResultsRespons
   for (const url of urlsToTry) {
     try {
       const headers: Record<string, string> = { 'User-Agent': 'Mozilla/5.0', 'Cache-Control': 'no-cache' }
-      // Only send Referer to direct ECI URL to avoid confusing proxies
       if (url === ECI_JSON) headers['Referer'] = 'https://results.eci.gov.in/'
 
-      const res = await fetch(url, {
-        signal: AbortSignal.timeout(8000), cache: 'no-store', headers,
-      })
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000), cache: 'no-store', headers })
       if (!res.ok) continue
 
       let json: Record<string, { chartData: [string, string, number, string, string][] }>
@@ -483,7 +554,6 @@ async function fetchECILivePartyTotals(): Promise<Partial<ElectionResultsRespons
       const s22 = json['S22']
       if (!s22?.chartData || s22.chartData.length < 10) continue
 
-      // Tally seats per party from chartData
       const tally: Record<string, number> = {}
       for (const [rawParty] of s22.chartData) {
         const key = partyAliases[rawParty] ?? 'Others'
@@ -492,16 +562,16 @@ async function fetchECILivePartyTotals(): Promise<Partial<ElectionResultsRespons
 
       const parties = ['TVK', 'DMK', 'AIADMK', 'BJP', 'Others'].map(name => ({
         name,
-        seatsWon:     0,           // ECI live JSON doesn't separate won vs leading
+        seatsWon:     0,
         seatsLeading: tally[name] ?? 0,
         voteShare:    EXIT_PROJECTIONS[name as keyof typeof EXIT_PROJECTIONS]?.voteShare ?? 0,
       }))
 
-      const seatsReported = s22.chartData.length  // all 234 have a leading candidate
-      const sorted = [...parties].sort((a, b) => b.seatsLeading - a.seatsLeading)
-      const leaderName = sorted[0]?.name ?? ''
-      const tvkTotal = tally['TVK'] ?? 0
-      const narrative = `${leaderName} leading in ${sorted[0]?.seatsLeading} seats · ${seatsReported} of 234 reporting`
+      const seatsReported = s22.chartData.length
+      const sorted        = [...parties].sort((a, b) => b.seatsLeading - a.seatsLeading)
+      const leaderName    = sorted[0]?.name ?? ''
+      const tvkTotal      = tally['TVK'] ?? 0
+      const narrative     = `${leaderName} leading in ${sorted[0]?.seatsLeading} seats · ${seatsReported} of 234 reporting`
 
       return { parties: parties as Partial<ElectionResultsResponse>['parties'], seatsReported, leader: leaderName, narrative, projectedWinner: tvkTotal >= 118 ? 'TVK' : null }
     } catch { continue }
@@ -516,10 +586,17 @@ async function fetchFresh(): Promise<void> {
   try {
     const now = Date.now()
 
-    // Primary: ECI official live JSON (same source as constituency board)
+    // Primary: ECI partywise HTML (real Won + Leading split)
+    const splitData = await fetchECIPartyWiseSplit()
+    if (splitData && (splitData.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)) {
+      store.cache = { data: buildCountingResponse(splitData, 'eci-live', 1, now), fetchedAt: now }
+      return
+    }
+
+    // Secondary: ECI live JSON (totals only)
     const eciData = await fetchECILivePartyTotals()
     if (eciData && (eciData.parties ?? []).some((p: {seatsLeading:number}) => p.seatsLeading > 0)) {
-      store.cache = { data: buildCountingResponse(eciData, 'eci-live', 1, now), fetchedAt: now }
+      store.cache = { data: buildCountingResponse(eciData, 'eci-live', 2, now), fetchedAt: now }
       return
     }
 
@@ -602,12 +679,20 @@ export async function GET() {
     return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // ── LIVE: fetch directly from ECI JSON (Vercel is stateless — no in-memory cache) ──
-  // We fetch on every request with a 5s timeout. ECI JSON is fast (~100ms).
+  // ── LIVE: fetch directly from ECI (Vercel is stateless — no in-memory cache) ──
+  // Try partywise HTML first (has Won/Leading split), then live JSON (totals only)
   if (now >= COUNTING_START) {
+    // Primary: partywise HTML → real Won + Leading per party
+    const splitData = await fetchECIPartyWiseSplit()
+    if (splitData && (splitData.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)) {
+      const data = buildCountingResponse(splitData, 'eci-live', 1, now)
+      return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+    }
+
+    // Secondary: live JSON (totals only — seatsWon will be 0, seatsLeading = total)
     const eciData = await fetchECILivePartyTotals()
     if (eciData && (eciData.parties ?? []).some((p: {seatsLeading:number}) => p.seatsLeading > 0)) {
-      const data = buildCountingResponse(eciData, 'eci-live', 1, now)
+      const data = buildCountingResponse(eciData, 'eci-live', 2, now)
       return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
     }
   }
