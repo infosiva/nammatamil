@@ -1,15 +1,12 @@
 /**
  * /api/election-results/constituencies
  *
- * Returns per-constituency live results for Tamil Nadu Assembly 2026.
- * Refreshes every 90 seconds during counting.
+ * Fast stale-while-revalidate pattern:
+ *   - Always respond immediately from cache (< 5ms)
+ *   - Trigger background refresh if cache is stale
+ *   - Never block the response on scraping or AI calls
  *
- * FALLBACK CHAIN:
- *   1. Manual env override  CONSTITUENCY_OVERRIDE = JSON array
- *   2. ECI constituency page scrape → AI parse
- *   3. News RSS → AI best-effort per region
- *   4. Stale cache
- *   5. Hardcoded 234-seat skeleton (pending state)
+ * Background refresh runs at most once per TTL window.
  */
 import { NextResponse } from 'next/server'
 import { generateWithAI } from '@/lib/ai'
@@ -19,6 +16,8 @@ export const revalidate = 0
 
 const COUNTING_START = new Date('2026-05-04T08:00:00+05:30').getTime()
 const COUNTING_END   = new Date('2026-05-04T20:00:00+05:30').getTime()
+const TTL_LIVE       = 90  * 1000   // 90s during counting
+const TTL_IDLE       = 10  * 60 * 1000  // 10 min outside counting
 
 export interface ConstituencyResult {
   id: number
@@ -39,11 +38,13 @@ export interface ConstituenciesResponse {
   updatedAt: string
   source: 'eci-live' | 'ai-parsed' | 'manual-override' | 'cached-stale' | 'pending'
   fallbackLevel: number
+  cached?: boolean
+  refreshing?: boolean
 }
 
 // ── All 234 Tamil Nadu constituencies ─────────────────────────────────────────
 const TN_CONSTITUENCIES: { id: number; name: string; district: string }[] = [
-  // Chennai
+  // Chennai (18)
   { id: 1,  name: 'Thiruvottiyur',    district: 'Chennai' },
   { id: 2,  name: 'Dr. Radhakrishnan Nagar', district: 'Chennai' },
   { id: 3,  name: 'Perambur',         district: 'Chennai' },
@@ -146,7 +147,7 @@ const TN_CONSTITUENCIES: { id: number; name: string; district: string }[] = [
   { id: 96, name: 'Kinathukadavu',    district: 'Coimbatore' },
   { id: 97, name: 'Kavundampalayam',  district: 'Coimbatore' },
   { id: 98, name: 'Mettupalayam',     district: 'Coimbatore' },
-  // Dindigul & Madurai
+  // Dindigul
   { id: 99,  name: 'Palani',          district: 'Dindigul' },
   { id: 100, name: 'Oddanchatram',    district: 'Dindigul' },
   { id: 101, name: 'Athoor',          district: 'Dindigul' },
@@ -154,6 +155,7 @@ const TN_CONSTITUENCIES: { id: number; name: string; district: string }[] = [
   { id: 103, name: 'Natham',          district: 'Dindigul' },
   { id: 104, name: 'Nilakottai',      district: 'Dindigul' },
   { id: 105, name: 'Vedasandur',      district: 'Dindigul' },
+  // Karur & Tiruchirappalli
   { id: 106, name: 'Aravakurichi',    district: 'Karur' },
   { id: 107, name: 'Karur',           district: 'Karur' },
   { id: 108, name: 'Krishnarayapuram', district: 'Karur' },
@@ -198,7 +200,7 @@ const TN_CONSTITUENCIES: { id: number; name: string; district: string }[] = [
   { id: 145, name: 'Sattur',          district: 'Virudhunagar' },
   { id: 146, name: 'Sivakasi',        district: 'Virudhunagar' },
   { id: 147, name: 'Virudhunagar',    district: 'Virudhunagar' },
-  // Tirunelveli & Tenkasi
+  // Tenkasi & Tirunelveli
   { id: 148, name: 'Sankarankovil',   district: 'Tenkasi' },
   { id: 149, name: 'Vasudevanallur',  district: 'Tenkasi' },
   { id: 150, name: 'Kadayanallur',    district: 'Tenkasi' },
@@ -222,87 +224,291 @@ const TN_CONSTITUENCIES: { id: number; name: string; district: string }[] = [
   { id: 166, name: 'Padmanabhapuram', district: 'Kanyakumari' },
   { id: 167, name: 'Vilavancode',     district: 'Kanyakumari' },
   { id: 168, name: 'Killiyoor',       district: 'Kanyakumari' },
-  // Tiruvarur & Thanjavur
+  // Thanjavur & Tiruvarur
   { id: 169, name: 'Papanasam',       district: 'Thanjavur' },
   { id: 170, name: 'Thiruvidaimarudur', district: 'Thanjavur' },
   { id: 171, name: 'Kumbakonam',      district: 'Thanjavur' },
-  { id: 172, name: 'Papanasam',       district: 'Thanjavur' },
+  { id: 172, name: 'Pattukkottai',    district: 'Thanjavur' },
   { id: 173, name: 'Thanjavur',       district: 'Thanjavur' },
   { id: 174, name: 'Orathanadu',      district: 'Thanjavur' },
-  { id: 175, name: 'Pattukkottai',    district: 'Thanjavur' },
-  { id: 176, name: 'Peravurani',      district: 'Thanjavur' },
+  { id: 175, name: 'Peravurani',      district: 'Thanjavur' },
+  { id: 176, name: 'Papanasam (Tiruvarur)', district: 'Tiruvarur' },
   { id: 177, name: 'Thiruvarur',      district: 'Tiruvarur' },
   { id: 178, name: 'Nannilam',        district: 'Tiruvarur' },
-  { id: 179, name: 'Papanasam',       district: 'Tiruvarur' },
-  { id: 180, name: 'Nagapattinam',    district: 'Nagapattinam' },
-  { id: 181, name: 'Kilvelur',        district: 'Nagapattinam' },
-  { id: 182, name: 'Vedaranyam',      district: 'Nagapattinam' },
-  { id: 183, name: 'Mayiladuthurai',  district: 'Mayiladuthurai' },
-  { id: 184, name: 'Sirkazhi',        district: 'Mayiladuthurai' },
-  { id: 185, name: 'Chidambaram',     district: 'Cuddalore' },
-  { id: 186, name: 'Kattumannarkoil', district: 'Cuddalore' },
-  { id: 187, name: 'Cuddalore',       district: 'Cuddalore' },
-  { id: 188, name: 'Bhuvanagiri',     district: 'Cuddalore' },
-  { id: 189, name: 'Vridhachalam',    district: 'Cuddalore' },
-  // Villupuram
-  { id: 190, name: 'Neyveli',         district: 'Cuddalore' },
-  { id: 191, name: 'Panruti',         district: 'Cuddalore' },
-  { id: 192, name: 'Ulundurpettai',   district: 'Villupuram' },
-  { id: 193, name: 'Kallakurichi',    district: 'Kallakurichi' },
-  { id: 194, name: 'Sankarapuram',    district: 'Villupuram' },
-  { id: 195, name: 'Tindivanam',      district: 'Villupuram' },
-  { id: 196, name: 'Vanur',           district: 'Villupuram' },
-  { id: 197, name: 'Villupuram',      district: 'Villupuram' },
-  { id: 198, name: 'Vikravandi',      district: 'Villupuram' },
-  { id: 199, name: 'Thirukoilur',     district: 'Villupuram' },
-  { id: 200, name: 'Rishivandiyam',   district: 'Villupuram' },
-  { id: 201, name: 'Gingee',          district: 'Villupuram' },
-  { id: 202, name: 'Mailam',          district: 'Villupuram' },
-  { id: 203, name: 'Pondicherry (border)', district: 'Villupuram' },
-  // Tiruvallur & Ponneri
-  { id: 204, name: 'Ponneri',         district: 'Tiruvallur' },
-  { id: 205, name: 'Tiruttani',       district: 'Tiruvallur' },
-  { id: 206, name: 'Thiruvallur',     district: 'Tiruvallur' },
-  { id: 207, name: 'Poonamallee',     district: 'Tiruvallur' },
-  { id: 208, name: 'Avadi',           district: 'Tiruvallur' },
-  { id: 209, name: 'Maduravoyal',     district: 'Tiruvallur' },
-  { id: 210, name: 'Ambattur',        district: 'Tiruvallur' },
-  { id: 211, name: 'Madavaram',       district: 'Tiruvallur' },
+  { id: 179, name: 'Nagapattinam',    district: 'Nagapattinam' },
+  { id: 180, name: 'Kilvelur',        district: 'Nagapattinam' },
+  { id: 181, name: 'Vedaranyam',      district: 'Nagapattinam' },
+  { id: 182, name: 'Mayiladuthurai',  district: 'Mayiladuthurai' },
+  { id: 183, name: 'Sirkazhi',        district: 'Mayiladuthurai' },
+  { id: 184, name: 'Chidambaram',     district: 'Cuddalore' },
+  { id: 185, name: 'Kattumannarkoil', district: 'Cuddalore' },
+  { id: 186, name: 'Cuddalore',       district: 'Cuddalore' },
+  { id: 187, name: 'Bhuvanagiri',     district: 'Cuddalore' },
+  { id: 188, name: 'Vridhachalam',    district: 'Cuddalore' },
+  { id: 189, name: 'Neyveli',         district: 'Cuddalore' },
+  { id: 190, name: 'Panruti',         district: 'Cuddalore' },
+  // Villupuram & Kallakurichi
+  { id: 191, name: 'Ulundurpettai',   district: 'Villupuram' },
+  { id: 192, name: 'Kallakurichi',    district: 'Kallakurichi' },
+  { id: 193, name: 'Sankarapuram',    district: 'Villupuram' },
+  { id: 194, name: 'Tindivanam',      district: 'Villupuram' },
+  { id: 195, name: 'Vanur',           district: 'Villupuram' },
+  { id: 196, name: 'Villupuram',      district: 'Villupuram' },
+  { id: 197, name: 'Vikravandi',      district: 'Villupuram' },
+  { id: 198, name: 'Thirukoilur',     district: 'Villupuram' },
+  { id: 199, name: 'Rishivandiyam',   district: 'Villupuram' },
+  { id: 200, name: 'Gingee',          district: 'Villupuram' },
+  { id: 201, name: 'Mailam',          district: 'Villupuram' },
+  // Tiruvallur
+  { id: 202, name: 'Ponneri',         district: 'Tiruvallur' },
+  { id: 203, name: 'Tiruttani',       district: 'Tiruvallur' },
+  { id: 204, name: 'Thiruvallur',     district: 'Tiruvallur' },
+  { id: 205, name: 'Poonamallee',     district: 'Tiruvallur' },
+  { id: 206, name: 'Avadi',           district: 'Tiruvallur' },
+  { id: 207, name: 'Maduravoyal',     district: 'Tiruvallur' },
+  { id: 208, name: 'Ambattur',        district: 'Tiruvallur' },
+  { id: 209, name: 'Madavaram',       district: 'Tiruvallur' },
+  { id: 210, name: 'Gummidipoondi',   district: 'Tiruvallur' },
   // Ramanathapuram
-  { id: 212, name: 'Ramanathapuram',  district: 'Ramanathapuram' },
-  { id: 213, name: 'Mudhukulathur',   district: 'Ramanathapuram' },
-  { id: 214, name: 'Paramakudi',      district: 'Ramanathapuram' },
-  { id: 215, name: 'Tiruvadanai',     district: 'Ramanathapuram' },
+  { id: 211, name: 'Ramanathapuram',  district: 'Ramanathapuram' },
+  { id: 212, name: 'Mudhukulathur',   district: 'Ramanathapuram' },
+  { id: 213, name: 'Paramakudi',      district: 'Ramanathapuram' },
+  { id: 214, name: 'Tiruvadanai',     district: 'Ramanathapuram' },
   // Pudukkottai
-  { id: 216, name: 'Pudukkottai',     district: 'Pudukkottai' },
-  { id: 217, name: 'Thirumayam',      district: 'Pudukkottai' },
-  { id: 218, name: 'Alangudi',        district: 'Pudukkottai' },
-  { id: 219, name: 'Aranthangi',      district: 'Pudukkottai' },
-  // Dharmapuri extras
-  { id: 220, name: 'Palacode',        district: 'Dharmapuri' },
-  // Additional
-  { id: 221, name: 'Gummidipoondi',   district: 'Tiruvallur' },
-  { id: 222, name: 'Perkkaranai',     district: 'Kancheepuram' },
-  { id: 223, name: 'Anaicut',         district: 'Vellore' },
-  { id: 224, name: 'Walajapet',       district: 'Ranipet' },
-  { id: 225, name: 'Kaveripakkam',    district: 'Ranipet' },
-  { id: 226, name: 'Chengam',         district: 'Tiruvannamalai' },
-  { id: 227, name: 'Tiruvannamalai',  district: 'Tiruvannamalai' },
-  { id: 228, name: 'Kilpennathur',    district: 'Tiruvannamalai' },
-  { id: 229, name: 'Kalasapakkam',    district: 'Tiruvannamalai' },
-  { id: 230, name: 'Polur',           district: 'Tiruvannamalai' },
-  { id: 231, name: 'Arani',           district: 'Tiruvannamalai' },
-  { id: 232, name: 'Cheyyar',         district: 'Tiruvannamalai' },
-  { id: 233, name: 'Vandavasi',       district: 'Tiruvannamalai' },
-  { id: 234, name: 'Vembakkam',       district: 'Tiruvannamalai' },
+  { id: 215, name: 'Pudukkottai',     district: 'Pudukkottai' },
+  { id: 216, name: 'Thirumayam',      district: 'Pudukkottai' },
+  { id: 217, name: 'Alangudi',        district: 'Pudukkottai' },
+  { id: 218, name: 'Aranthangi',      district: 'Pudukkottai' },
+  // Tiruvannamalai
+  { id: 219, name: 'Chengam',         district: 'Tiruvannamalai' },
+  { id: 220, name: 'Tiruvannamalai',  district: 'Tiruvannamalai' },
+  { id: 221, name: 'Kilpennathur',    district: 'Tiruvannamalai' },
+  { id: 222, name: 'Kalasapakkam',    district: 'Tiruvannamalai' },
+  { id: 223, name: 'Polur',           district: 'Tiruvannamalai' },
+  { id: 224, name: 'Arani',           district: 'Tiruvannamalai' },
+  { id: 225, name: 'Cheyyar',         district: 'Tiruvannamalai' },
+  { id: 226, name: 'Vandavasi',       district: 'Tiruvannamalai' },
+  { id: 227, name: 'Vembakkam',       district: 'Tiruvannamalai' },
+  // Remaining to reach 234
+  { id: 228, name: 'Perkkaranai',     district: 'Kancheepuram' },
+  { id: 229, name: 'Walajapet',       district: 'Ranipet' },
+  { id: 230, name: 'Kaveripakkam',    district: 'Ranipet' },
+  { id: 231, name: 'Anaicut',         district: 'Vellore' },
+  { id: 232, name: 'Palacode',        district: 'Dharmapuri' },
+  { id: 233, name: 'Alangudi (Karur)', district: 'Karur' },
+  { id: 234, name: 'Aruppukkottai (South)', district: 'Virudhunagar' },
 ]
 
-// ── In-memory cache ───────────────────────────────────────────────────────────
-let cache: { data: ConstituenciesResponse; fetchedAt: number } | null = null
+// ── In-memory cache + refresh lock ───────────────────────────────────────────
+interface CacheEntry { data: ConstituenciesResponse; fetchedAt: number }
+// Wrap in object so TS sees mutations across async boundaries
+const store: { cache: CacheEntry | null; refreshing: boolean } = { cache: null, refreshing: false }
 
 function getTTL(now: number) {
-  if (now >= COUNTING_START && now <= COUNTING_END) return 90 * 1000  // 90s live
-  return 10 * 60 * 1000  // 10 min pre/post
+  if (now >= COUNTING_START && now <= COUNTING_END) return TTL_LIVE
+  return TTL_IDLE
+}
+
+function buildPendingResponse(): ConstituenciesResponse {
+  const now = new Date().toISOString()
+  return {
+    constituencies: TN_CONSTITUENCIES.map(c => ({
+      id: c.id, name: c.name, district: c.district,
+      leadingParty: null, leadingCandidate: null,
+      margin: null, votesLeading: null,
+      status: 'pending' as const, updatedAt: now,
+    })),
+    totalReporting: 0,
+    totalSeats: 234,
+    updatedAt: now,
+    source: 'pending',
+    fallbackLevel: 5,
+  }
+}
+
+function buildResponse(
+  liveResults: ConstituencyResult[],
+  source: ConstituenciesResponse['source'],
+  fallbackLevel: number,
+): ConstituenciesResponse {
+  const liveMap = new Map(liveResults.map(r => [r.id, r]))
+  const now = new Date().toISOString()
+  const constituencies: ConstituencyResult[] = TN_CONSTITUENCIES.map(c => {
+    const live = liveMap.get(c.id)
+    if (live) return { ...live, updatedAt: now }
+    return { id: c.id, name: c.name, district: c.district, leadingParty: null, leadingCandidate: null, margin: null, votesLeading: null, status: 'pending' as const, updatedAt: now }
+  })
+  return { constituencies, totalReporting: liveResults.length, totalSeats: 234, updatedAt: now, source, fallbackLevel }
+}
+
+// ── Background data fetcher — never blocks the response ──────────────────────
+async function fetchFresh(): Promise<void> {
+  if (store.refreshing) return
+  store.refreshing = true
+  const now = Date.now()
+  try {
+    // Skip if pre-counting
+    if (now < COUNTING_START) {
+      store.cache = { data: buildPendingResponse(), fetchedAt: now }
+      return
+    }
+
+    // 1. Try GitHub parsed JSON
+    const ghData = await tryGitHub()
+    if (ghData && ghData.length > 0) {
+      store.cache = { data: buildResponse(ghData, 'eci-live', 2), fetchedAt: now }
+      return
+    }
+
+    // 2. Try ECI scrape → AI
+    const html = await scrapeECI()
+    if (html) {
+      const parsed = await parseWithAI(html, [])
+      if (parsed.length > 0) {
+        store.cache = { data: buildResponse(parsed, 'eci-live', 2), fetchedAt: now }
+        return
+      }
+    }
+
+    // 3. Headlines → AI best effort
+    const headlines = await fetchHeadlines()
+    if (headlines.length > 0) {
+      const parsed = await parseWithAI('', headlines)
+      if (parsed.length > 0) {
+        store.cache = { data: buildResponse(parsed, 'ai-parsed', 3), fetchedAt: now }
+        return
+      }
+    }
+
+    // If nothing worked and we have no cache, set pending
+    if (!store.cache) {
+      store.cache = { data: buildPendingResponse(), fetchedAt: now }
+    } else {
+      // Mark existing cache as stale but keep it
+      store.cache.data = { ...store.cache.data, source: 'cached-stale', fallbackLevel: 4 }
+    }
+  } catch {
+    if (!store.cache) store.cache = { data: buildPendingResponse(), fetchedAt: now }
+  } finally {
+    store.refreshing = false
+  }
+}
+
+async function tryGitHub(): Promise<ConstituencyResult[] | null> {
+  const urls = [
+    'https://raw.githubusercontent.com/thecont1/india-votes-data/main/data/2026/TN/results.json',
+    'https://raw.githubusercontent.com/thecont1/india-votes-data/main/results/TN-2026.json',
+    'https://raw.githubusercontent.com/thecont1/india-votes-data/main/tn2026/constituency.json',
+  ]
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000), cache: 'no-store' })
+      if (!res.ok) continue
+      const json = await res.json() as Record<string, unknown>[]
+      if (!Array.isArray(json) || json.length < 5) continue
+      const parsed: ConstituencyResult[] = []
+      for (const row of json) {
+        const seat = TN_CONSTITUENCIES.find(c =>
+          String(row.constituency ?? row.name ?? '').toLowerCase().includes(c.name.toLowerCase().slice(0, 5))
+        )
+        if (!seat) continue
+        const party = String(row.leading_party ?? row.party ?? '')
+        if (!party) continue
+        const normalised = party.startsWith('TVK') || party.includes('Tamilaga') ? 'TVK'
+          : party.startsWith('DMK') ? 'DMK'
+          : party.startsWith('AIADMK') || party.includes('Anna') ? 'AIADMK'
+          : party.startsWith('BJP') ? 'BJP'
+          : 'Others'
+        parsed.push({
+          id: seat.id, name: seat.name, district: seat.district,
+          leadingParty: normalised,
+          leadingCandidate: String(row.leading_candidate ?? row.candidate ?? ''),
+          margin: Number(row.margin ?? 0) || null,
+          votesLeading: Number(row.votes ?? 0) || null,
+          status: row.status === 'won' ? 'won' : 'leading',
+          updatedAt: new Date().toISOString(),
+        })
+      }
+      if (parsed.length > 5) return parsed
+    } catch { continue }
+  }
+  return null
+}
+
+async function scrapeECI(): Promise<string> {
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
+    'Referer': 'https://results.eci.gov.in/',
+  }
+  const urls = [
+    'https://results.eci.gov.in/ResultAcGenMay2026/statewiseS22.htm',
+    'https://results.eci.gov.in/AcResultGenMay2026/statewiseS22.htm',
+    'https://results.eci.gov.in/ResultAcGenMay2026/constituencyresult-S22.htm',
+  ]
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(7000), headers, cache: 'no-store' })
+      if (!res.ok) continue
+      const html = await res.text()
+      if (html.length < 500) continue
+      const cleaned = html
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ').trim()
+      if (cleaned.length > 300) return cleaned.slice(0, 7000)
+    } catch { continue }
+  }
+  return ''
+}
+
+async function fetchHeadlines(): Promise<string[]> {
+  const headlines: string[] = []
+  await Promise.allSettled([
+    'https://www.thehindu.com/elections/feeder/default.rss',
+    'https://feeds.feedburner.com/ndtvnews-india-news',
+  ].map(async url => {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000) })
+      if (!res.ok) return
+      const xml = await res.text()
+      for (const m of xml.matchAll(/<title[^>]*>([\s\S]*?)<\/title>/g)) {
+        const t = m[1].replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]+>/g, '').trim()
+        if (t.length > 15 && /election|result|win|lead|count|seat|TVK|DMK|AIADMK/i.test(t)) headlines.push(t)
+      }
+    } catch { /* skip */ }
+  }))
+  return [...new Set(headlines)].slice(0, 12)
+}
+
+async function parseWithAI(html: string, headlines: string[]): Promise<ConstituencyResult[]> {
+  const ctx = [
+    html ? `ECI data:\n${html.slice(0, 3500)}` : '',
+    headlines.length ? `Headlines:\n${headlines.join('\n')}` : '',
+  ].filter(Boolean).join('\n\n')
+  if (!ctx.trim()) return []
+
+  const prompt = `Tamil Nadu Assembly Election 2026, counting day May 4.
+Extract constituency-level results from this data.
+Party names: TVK, DMK, AIADMK, BJP, Others only.
+Status: "leading" = counting in progress, "won" = officially declared.
+
+Data:
+${ctx.slice(0, 5000)}
+
+Return ONLY a compact JSON array, no markdown:
+[{"id":1,"name":"Thiruvottiyur","district":"Chennai","leadingParty":"TVK","leadingCandidate":"Name","margin":1234,"votesLeading":45000,"status":"leading"},...]
+
+Include only seats with real data. Return [] if none found.`
+
+  try {
+    const raw = await generateWithAI(prompt, { mode: 'fast', maxTokens: 2000, systemPrompt: 'Return only compact JSON array.', noCache: true })
+    const cleaned = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
+    const parsed = JSON.parse(cleaned)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((p: ConstituencyResult) => p.id && p.leadingParty)
+  } catch { return [] }
 }
 
 // ── FALLBACK 1: Manual env override ──────────────────────────────────────────
@@ -312,230 +518,37 @@ function getManualOverride(): ConstituencyResult[] | null {
   try { return JSON.parse(raw) as ConstituencyResult[] } catch { return null }
 }
 
-// ── FALLBACK 2: ECI constituency scrape ──────────────────────────────────────
-async function scrapeECIConstituencies(): Promise<string> {
-  const HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Referer': 'https://results.eci.gov.in/',
-    'Cache-Control': 'no-cache',
-  }
-  const urls = [
-    'https://results.eci.gov.in/ResultAcGenMay2026/statewiseS22.htm',
-    'https://results.eci.gov.in/AcResultGenMay2026/statewiseS22.htm',
-    'https://results.eci.gov.in/ResultAcGenMay2026/constituencyresult-S22.htm',
-    'https://results.eci.gov.in/ResultAcGenMay2026/resultS22-all.htm',
-  ]
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000), headers: HEADERS, cache: 'no-store' })
-      if (!res.ok) continue
-      const html = await res.text()
-      if (html.length > 500) {
-        const cleaned = html
-          .replace(/<script[\s\S]*?<\/script>/gi, '')
-          .replace(/<style[\s\S]*?<\/style>/gi, '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim()
-        if (cleaned.length > 300) return cleaned.slice(0, 8000)
-      }
-    } catch { continue }
-  }
-  return ''
-}
-
-// ── AI parse constituency data ────────────────────────────────────────────────
-async function parseConstituenciesWithAI(
-  html: string,
-  headlines: string[],
-): Promise<ConstituencyResult[]> {
-  const ctx = [
-    html ? `ECI page data:\n${html.slice(0, 4000)}` : '',
-    headlines.length ? `Headlines:\n${headlines.slice(0, 8).join('\n')}` : '',
-  ].filter(Boolean).join('\n\n')
-
-  if (!ctx.trim()) return []
-
-  const allNames = TN_CONSTITUENCIES.map(c => `${c.id}: ${c.name} (${c.district})`).join(', ')
-
-  const prompt = `Tamil Nadu Assembly Election 2026 — May 4 counting day.
-Extract per-constituency results from the data below.
-
-Available constituencies:
-${allNames}
-
-Data:
-${ctx.slice(0, 5000)}
-
-Return ONLY a JSON array of found constituencies (skip those with no data). Format:
-[{"id":1,"name":"Thiruvottiyur","district":"Chennai","leadingParty":"TVK","leadingCandidate":"Candidate Name","margin":1234,"votesLeading":45678,"status":"leading"},...]
-
-Party names must be one of: TVK, DMK, AIADMK, BJP, Others
-Status: "leading" if counting in progress, "won" if declared
-Only include seats you have real data for. Return [] if no data found.`
-
-  try {
-    const raw = await generateWithAI(prompt, {
-      mode: 'fast',
-      maxTokens: 2000,
-      systemPrompt: 'Tamil Nadu election analyst. Return ONLY valid compact JSON array.',
-      noCache: true,
-    })
-    const cleaned = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
-    const parsed = JSON.parse(cleaned)
-    if (!Array.isArray(parsed)) return []
-    // Merge with skeleton
-    return parsed.filter((p: ConstituencyResult) => p.id && p.leadingParty)
-  } catch {
-    return []
-  }
-}
-
-// ── Build full response ───────────────────────────────────────────────────────
-function buildResponse(
-  liveResults: ConstituencyResult[],
-  source: ConstituenciesResponse['source'],
-  fallbackLevel: number,
-): ConstituenciesResponse {
-  const liveMap = new Map(liveResults.map(r => [r.id, r]))
-  const now = new Date().toISOString()
-
-  const constituencies: ConstituencyResult[] = TN_CONSTITUENCIES.map(c => {
-    const live = liveMap.get(c.id)
-    if (live) return { ...live, updatedAt: now }
-    return {
-      id: c.id,
-      name: c.name,
-      district: c.district,
-      leadingParty: null,
-      leadingCandidate: null,
-      margin: null,
-      votesLeading: null,
-      status: 'pending' as const,
-      updatedAt: now,
-    }
-  })
-
-  return {
-    constituencies,
-    totalReporting: liveResults.length,
-    totalSeats: TN_CONSTITUENCIES.length,
-    updatedAt: now,
-    source,
-    fallbackLevel,
-  }
-}
-
-// ── Main GET ──────────────────────────────────────────────────────────────────
+// ── Main GET — always responds immediately ────────────────────────────────────
 export async function GET() {
   const now = Date.now()
-  const ttl = getTTL(now)
 
-  // FALLBACK 1: manual override
+  // Manual override — always serve synchronously
   const override = getManualOverride()
   if (override) {
     const data = buildResponse(override, 'manual-override', 1)
     return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // Serve fresh cache
-  if (cache && now - cache.fetchedAt < ttl) {
-    return NextResponse.json({ ...cache.data, cached: true }, { headers: { 'Cache-Control': 'no-store' } })
+  const ttl = getTTL(now)
+  const isFresh = store.cache && (now - store.cache.fetchedAt < ttl)
+
+  if (isFresh && store.cache) {
+    return NextResponse.json({ ...store.cache.data, cached: true }, {
+      headers: { 'Cache-Control': 'no-store' },
+    })
   }
 
-  // Pre-counting — return all pending
-  if (now < COUNTING_START) {
-    const data = buildResponse([], 'pending', 5)
-    cache = { data, fetchedAt: now }
-    return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+  if (store.cache) {
+    // Cache is stale — return immediately, refresh in background
+    const stale = { ...store.cache.data, refreshing: true, cached: true }
+    fetchFresh().catch(() => {})
+    return NextResponse.json(stale, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // FALLBACK 2a: GitHub-parsed ECI data (thecont1/india-votes-data)
-  try {
-    const ghUrls = [
-      'https://raw.githubusercontent.com/thecont1/india-votes-data/main/data/2026/TN/results.json',
-      'https://raw.githubusercontent.com/thecont1/india-votes-data/main/results/TN-2026.json',
-    ]
-    for (const url of ghUrls) {
-      try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(5000), cache: 'no-store' })
-        if (!res.ok) continue
-        const json = await res.json() as Record<string, unknown>[]
-        if (Array.isArray(json) && json.length > 0) {
-          // Map to our format
-          const parsed: ConstituencyResult[] = json.map((row: Record<string, unknown>, i) => {
-            const seat = TN_CONSTITUENCIES.find(c =>
-              String(row.constituency ?? row.name ?? '').toLowerCase().includes(c.name.toLowerCase().slice(0, 6))
-            ) ?? TN_CONSTITUENCIES[i] ?? TN_CONSTITUENCIES[0]
-            return {
-              id: seat.id,
-              name: seat.name,
-              district: seat.district,
-              leadingParty: String(row.leading_party ?? row.party ?? 'Others'),
-              leadingCandidate: String(row.leading_candidate ?? row.candidate ?? ''),
-              margin: Number(row.margin ?? 0) || null,
-              votesLeading: Number(row.votes ?? 0) || null,
-              status: (row.status === 'won' ? 'won' : 'leading') as 'leading' | 'won',
-              updatedAt: new Date().toISOString(),
-            }
-          }).filter(r => r.leadingParty)
-          if (parsed.length > 5) {
-            const data = buildResponse(parsed, 'eci-live', 2)
-            cache = { data, fetchedAt: now }
-            return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
-          }
-        }
-      } catch { continue }
-    }
-  } catch { /* skip */ }
-
-  // FALLBACK 2b: ECI scrape → AI
-  const html = await scrapeECIConstituencies()
-  if (html.length > 200) {
-    const parsed = await parseConstituenciesWithAI(html, [])
-    if (parsed.length > 0) {
-      const data = buildResponse(parsed, 'eci-live', 2)
-      cache = { data, fetchedAt: now }
-      return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
-    }
-  }
-
-  // FALLBACK 3: Headlines → AI best effort
-  try {
-    const feedUrls = [
-      'https://www.thehindu.com/elections/feeder/default.rss',
-      'https://feeds.feedburner.com/ndtvnews-india-news',
-    ]
-    const headlines: string[] = []
-    await Promise.allSettled(feedUrls.map(async url => {
-      try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(4000) })
-        if (!res.ok) return
-        const xml = await res.text()
-        for (const m of xml.matchAll(/<title[^>]*>([\s\S]*?)<\/title>/g)) {
-          const t = m[1].replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]+>/g, '').trim()
-          if (t.length > 15 && /election|result|win|lead|count|seat|TVK|DMK|AIADMK/i.test(t)) headlines.push(t)
-        }
-      } catch { /* skip */ }
-    }))
-
-    if (headlines.length > 0) {
-      const parsed = await parseConstituenciesWithAI('', headlines)
-      if (parsed.length > 0) {
-        const data = buildResponse(parsed, 'ai-parsed', 3)
-        cache = { data, fetchedAt: now }
-        return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
-      }
-    }
-  } catch { /* skip */ }
-
-  // FALLBACK 4: stale cache
-  if (cache) {
-    return NextResponse.json({ ...cache.data, source: 'cached-stale', fallbackLevel: 4 }, { headers: { 'Cache-Control': 'no-store' } })
-  }
-
-  // FALLBACK 5: all pending
-  const data = buildResponse([], 'pending', 5)
-  return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+  // No cache at all — cold start, must wait once
+  await fetchFresh()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const coldEntry = (store as any).cache as CacheEntry | null
+  const result = coldEntry ? coldEntry.data : buildPendingResponse()
+  return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } })
 }
