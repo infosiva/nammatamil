@@ -41,7 +41,7 @@ const PARTY_COLORS: Record<string, string> = {
   Others: '#94a3b8',
 }
 
-const REFRESH_MS = 90 * 1000
+const REFRESH_MS = 60 * 1000   // refresh every 60s on counting day
 
 function formatMargin(n: number | null): string {
   if (n === null) return ''
@@ -321,17 +321,17 @@ export default function ConstituencyLiveBoard() {
 
       {/* ── Card grid ── */}
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 9 }}>
+        <div className="const-grid">
           {Array.from({ length: 24 }).map((_, i) => (
             <div key={i} style={{
-              height: 80, borderRadius: 12,
+              height: 76, borderRadius: 12,
               background: 'rgba(255,255,255,0.03)',
               animation: 'cShimmer 1.5s infinite',
             }} />
           ))}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 9 }}>
+        <div className="const-grid">
           {filtered.map(c => (
             <ConstCard key={c.id} c={c} flash={flashIds.has(c.id)} />
           ))}
@@ -346,6 +346,17 @@ export default function ConstituencyLiveBoard() {
       <style>{`
         @keyframes cFadeOut { 0%{opacity:1} 100%{opacity:0} }
         @keyframes cShimmer { 0%,100%{opacity:0.5} 50%{opacity:1} }
+        .const-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          gap: 8px;
+        }
+        @media (max-width: 480px) {
+          .const-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+          }
+        }
       `}</style>
     </div>
   )
