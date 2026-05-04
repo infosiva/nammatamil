@@ -37,6 +37,7 @@ interface ElectionData {
   updatedAt: string
   source: string
   leader: string
+  refreshing?: boolean
 }
 
 const REFRESH_MS = 90 * 1000
@@ -321,6 +322,16 @@ export default function ElectionAnimatedStats() {
                 {data.phase === 'declared' ? 'RESULTS DECLARED' : isLive ? 'LIVE COUNTING' : 'TN ELECTION 2026'}
               </span>
             </div>
+            {(data.source === 'cached-stale' || data.refreshing) && (
+              <span style={{
+                fontSize: 8, fontWeight: 800, padding: '2px 7px', borderRadius: 99,
+                background: 'rgba(251,191,36,0.12)', color: '#fbbf24',
+                border: '1px solid rgba(251,191,36,0.3)', letterSpacing: '0.05em',
+                animation: 'updatingPulse 1.5s ease-in-out infinite',
+              }}>
+                Updating…
+              </span>
+            )}
             {hasData && (
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>
                 {totalWon} won · {totalLeading} leading

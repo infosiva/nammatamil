@@ -321,7 +321,7 @@ export default function ConstituencyLiveBoard() {
 
       {/* ── Card grid ── */}
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 9 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 9 }}>
           {Array.from({ length: 24 }).map((_, i) => (
             <div key={i} style={{
               height: 80, borderRadius: 12,
@@ -331,7 +331,7 @@ export default function ConstituencyLiveBoard() {
           ))}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: 9 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 9 }}>
           {filtered.map(c => (
             <ConstCard key={c.id} c={c} flash={flashIds.has(c.id)} />
           ))}

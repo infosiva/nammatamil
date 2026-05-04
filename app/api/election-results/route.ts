@@ -20,6 +20,7 @@
  */
 import { NextResponse } from 'next/server'
 import { generateWithAI } from '@/lib/ai'
+import { readPartiesFromGist, writePartiesToGist } from '@/lib/election-persist'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -82,7 +83,10 @@ export interface ElectionResultsResponse {
 }
 
 // ── In-memory cache (last known good data) ───────────────────────────────────
-let cache: { data: ElectionResultsResponse; fetchedAt: number } | null = null
+const store: {
+  cache: { data: ElectionResultsResponse; fetchedAt: number } | null
+  refreshing: boolean
+} = { cache: null, refreshing: false }
 
 function getCacheTTL(now: number): number {
   if (now >= COUNTING_START && now <= COUNTING_END) return 3 * 60 * 1000   // 3 min live
@@ -380,6 +384,77 @@ function buildEmptyCountingResponse(phase: 'pre-counting' | 'counting'): Electio
   }
 }
 
+// ── Background refresh (runs all fallbacks, updates store.cache) ─────────────
+async function fetchFresh(): Promise<void> {
+  if (store.refreshing) return
+  store.refreshing = true
+  try {
+    const now = Date.now()
+
+    // Fallback 0: On cold start, try Gist backup (instant warm data across cold starts)
+    if (!store.cache) {
+      try {
+        const gistData = await readPartiesFromGist()
+        if (gistData && typeof gistData === 'object' && (gistData as ElectionResultsResponse).parties?.length > 0) {
+          store.cache = {
+            data: { ...(gistData as ElectionResultsResponse), source: 'cached-stale', fallbackLevel: 4 },
+            fetchedAt: now - getCacheTTL(now),  // mark stale so bg refresh continues
+          }
+          // Don't return — continue to try fresh scrape
+        }
+      } catch { /* gist read failed, continue */ }
+    }
+
+    // Fallback 2a: GitHub parsed JSON (fastest, no AI needed)
+    const ghData = await fetchGitHubECIData()
+    if (ghData && (ghData.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)) {
+      const data = buildCountingResponse(ghData, 'eci-live', 2, now)
+      store.cache = { data, fetchedAt: now }
+      writePartiesToGist(data)
+      return
+    }
+
+    // Fallback 2+3: fetch ECI + headlines in parallel
+    const [html, headlines] = await Promise.all([
+      scrapeECIResults(),
+      fetchResultsHeadlines(),
+    ])
+
+    // Fallback 2: ECI HTML → AI parse
+    if (html.length > 100) {
+      const aiParsed = await parseResultsWithAI(html, headlines)
+      const hasData  = (aiParsed.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)
+      if (hasData) {
+        aiParsed.headlines = headlines.slice(0, 5)
+        const data = buildCountingResponse(aiParsed, 'eci-live', 2, now)
+        store.cache = { data, fetchedAt: now }
+        writePartiesToGist(data)
+        return
+      }
+    }
+
+    // Fallback 3: headlines only → AI parse
+    if (headlines.length > 0) {
+      const aiParsed = await parseResultsWithAI('', headlines)
+      const hasData  = (aiParsed.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)
+      if (hasData) {
+        aiParsed.headlines = headlines.slice(0, 5)
+        const data = buildCountingResponse(aiParsed, 'ai-parsed', 3, now)
+        store.cache = { data, fetchedAt: now }
+        writePartiesToGist(data)
+        return
+      }
+    }
+
+    // Fallback 4/5: keep existing stale cache or write empty state
+    if (!store.cache) {
+      store.cache = { data: buildEmptyCountingResponse('counting'), fetchedAt: now }
+    }
+  } finally {
+    store.refreshing = false
+  }
+}
+
 // ── Main GET handler ──────────────────────────────────────────────────────────
 export async function GET() {
   const now = Date.now()
@@ -406,67 +481,36 @@ export async function GET() {
     return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // ── Serve from cache if fresh ─────────────────────────────────────────────
-  if (cache && now - cache.fetchedAt < ttl) {
-    return NextResponse.json({ ...cache.data, cached: true }, { headers: { 'Cache-Control': 'no-store' } })
-  }
-
-  // ── PRE-COUNTING: show empty counting state (no hardcoded projections) ──────
-  if (now < COUNTING_START) {
+  // ── PRE-COUNTING cold start: build empty state synchronously ──────────────
+  if (now < COUNTING_START && !store.cache) {
     const data = buildEmptyCountingResponse('pre-counting')
-    cache = { data, fetchedAt: now }
+    store.cache = { data, fetchedAt: now }
     return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // ── COUNTING DAY: try each fallback in order ──────────────────────────────
+  // ── Stale-while-revalidate: always respond immediately from cache ──────────
+  const isStale = !store.cache || (now - store.cache.fetchedAt >= ttl)
 
-  // Fallback 2a: GitHub parsed JSON (fastest, no AI needed)
-  const ghData = await fetchGitHubECIData()
-  if (ghData && (ghData.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)) {
-    const data = buildCountingResponse(ghData, 'eci-live', 2, now)
-    cache = { data, fetchedAt: now }
-    return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+  if (isStale && now >= COUNTING_START) {
+    // Fire background refresh — do NOT await (respond immediately)
+    fetchFresh().catch(() => { /* silent */ })
   }
 
-  // Fallback 2+3: fetch ECI + headlines in parallel
-  const [html, headlines] = await Promise.all([
-    scrapeECIResults(),
-    fetchResultsHeadlines(),
-  ])
-
-  // Fallback 2: ECI HTML → AI parse
-  if (html.length > 100) {
-    const aiParsed = await parseResultsWithAI(html, headlines)
-    const hasData  = (aiParsed.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)
-    if (hasData) {
-      aiParsed.headlines = headlines.slice(0, 5)
-      const data = buildCountingResponse(aiParsed, 'eci-live', 2, now)
-      cache = { data, fetchedAt: now }
-      return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
-    }
+  if (store.cache) {
+    const payload = isStale
+      ? { ...store.cache.data, source: 'cached-stale' as const, fallbackLevel: 4, refreshing: true }
+      : { ...store.cache.data, cached: true, refreshing: false }
+    return NextResponse.json(payload, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // Fallback 3: headlines only → AI parse
-  if (headlines.length > 0) {
-    const aiParsed = await parseResultsWithAI('', headlines)
-    const hasData  = (aiParsed.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)
-    if (hasData) {
-      aiParsed.headlines = headlines.slice(0, 5)
-      const data = buildCountingResponse(aiParsed, 'ai-parsed', 3, now)
-      cache = { data, fetchedAt: now }
-      return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
-    }
-  }
-
-  // Fallback 4: return stale cache with flag (better than nothing)
-  if (cache) {
-    const stale = { ...cache.data, source: 'cached-stale' as const, fallbackLevel: 4, updatedAt: cache.data.updatedAt }
-    return NextResponse.json(stale, { headers: { 'Cache-Control': 'no-store' } })
-  }
-
-  // Fallback 5: empty state — no fake data
-  const data = buildEmptyCountingResponse('counting')
-  return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+  // ── Absolute cold start during counting (no cache yet) — must fetch once ──
+  await fetchFresh()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const coldCache = (store as any).cache as { data: ElectionResultsResponse; fetchedAt: number } | null
+  const payload = coldCache
+    ? { ...coldCache.data, cached: true, refreshing: false }
+    : buildEmptyCountingResponse('counting')
+  return NextResponse.json(payload, { headers: { 'Cache-Control': 'no-store' } })
 }
 
 // ── POST: admin manual update endpoint ───────────────────────────────────────
@@ -520,7 +564,7 @@ export async function POST(req: Request) {
     }
 
     // Inject into cache so next GET serves this immediately
-    cache = { data, fetchedAt: now }
+    store.cache = { data, fetchedAt: now }
     return NextResponse.json({ ok: true, data })
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 400 })
