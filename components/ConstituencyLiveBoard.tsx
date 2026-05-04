@@ -673,6 +673,10 @@ export default function ConstituencyLiveBoard() {
       {(() => {
         const totalWon  = constituencies.filter(c => c.status === 'won').length
         const totalLead = constituencies.filter(c => c.status === 'leading').length
+        const updatedAt = data?.updatedAt
+        const updatedTime = updatedAt
+          ? new Date(updatedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+          : null
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>
@@ -701,12 +705,26 @@ export default function ConstituencyLiveBoard() {
                 )}
               </div>
             )}
-            {flashIds.size > 0 && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: '#fbbf24', fontWeight: 700, marginLeft: 'auto' }}>
-                <Zap style={{ width: 10, height: 10 }} />
-                {flashIds.size} updated
-              </span>
-            )}
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+              {flashIds.size > 0 && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: '#fbbf24', fontWeight: 700 }}>
+                  <Zap style={{ width: 10, height: 10 }} />
+                  {flashIds.size} updated
+                </span>
+              )}
+              {updatedTime && (
+                <span style={{
+                  fontSize: 9, color: 'rgba(255,255,255,0.22)',
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '3px 8px', borderRadius: 6,
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                }}>
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: refreshing ? '#fbbf24' : '#22c55e', display: 'inline-block', flexShrink: 0 }} />
+                  {refreshing ? 'Refreshing…' : `Updated ${updatedTime}`}
+                </span>
+              )}
+            </div>
           </div>
         )
       })()}
