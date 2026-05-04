@@ -8,6 +8,7 @@ import ElectionScoreboard from '@/components/ElectionScoreboard'
 import ElectionSpotlight from '@/components/ElectionSpotlight'
 import ElectionReactions from '@/components/ElectionReactions'
 import DistrictHeatmap from '@/components/DistrictHeatmap'
+import ElectionStories from '@/components/ElectionStories'
 
 export default function HomePage() {
   return (
@@ -24,6 +25,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-0">
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
             <VisitorCounter />
+          </div>
+
+          {/* ── Story cards ── */}
+          <div style={{ marginBottom: 14 }}>
+            <ElectionStories />
           </div>
 
           {/* ── Spotlight: rotating WHO IS WINNING + Reactions ── */}
