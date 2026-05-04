@@ -133,6 +133,56 @@ function getManualOverride(): Partial<ElectionResultsResponse> | null {
   }
 }
 
+// ── FALLBACK 2a: GitHub parsed JSON (thecont1/india-votes-data) ─────────────
+// This repo converts ECI HTML to JSON in near-real-time on counting day
+async function fetchGitHubECIData(): Promise<Partial<ElectionResultsResponse> | null> {
+  const urls = [
+    'https://raw.githubusercontent.com/thecont1/india-votes-data/main/tn-2026/results.json',
+    'https://raw.githubusercontent.com/thecont1/india-votes-data/main/results/TN/2026/party-wise.json',
+    'https://raw.githubusercontent.com/thecont1/india-votes-data/main/tn2026/partywise.json',
+  ]
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000), cache: 'no-store' })
+      if (!res.ok) continue
+      const json = await res.json()
+      // Try to normalise into our shape
+      if (json && (json.parties || json.results || Array.isArray(json))) {
+        const raw = json.parties ?? json.results ?? json
+        if (!Array.isArray(raw)) continue
+        const partyMap: Record<string, { seatsWon: number; seatsLeading: number; voteShare: number }> = {}
+        for (const r of raw) {
+          const name = String(r.party ?? r.name ?? r.Party ?? '').trim()
+          const won     = Number(r.won     ?? r.seatsWon     ?? r.Won     ?? r.elected ?? 0)
+          const leading = Number(r.leading ?? r.seatsLeading ?? r.Leading ?? r.ahead   ?? 0)
+          const vs      = Number(r.voteShare ?? r.vote_share ?? r.votes   ?? 0)
+          // Map aliases
+          const key = name.startsWith('TVK') || name.includes('Tamilaga') ? 'TVK'
+            : name.startsWith('DMK') ? 'DMK'
+            : name.startsWith('AIADMK') || name.includes('All India Anna') ? 'AIADMK'
+            : name.startsWith('BJP') || name.includes('Bharatiya Janata') ? 'BJP'
+            : 'Others'
+          if (!partyMap[key]) partyMap[key] = { seatsWon: 0, seatsLeading: 0, voteShare: 0 }
+          partyMap[key].seatsWon     += won
+          partyMap[key].seatsLeading += leading
+          if (vs > partyMap[key].voteShare) partyMap[key].voteShare = vs
+        }
+        const parties = Object.entries(PARTIES).map(([key]) => ({
+          name: key,
+          seatsWon:     partyMap[key]?.seatsWon     ?? 0,
+          seatsLeading: partyMap[key]?.seatsLeading ?? 0,
+          voteShare:    partyMap[key]?.voteShare    ?? 0,
+        }))
+        const hasData = parties.some(p => p.seatsWon + p.seatsLeading > 0)
+        if (!hasData) continue
+        const seatsReported = json.seatsReported ?? json.seats_reported ?? parties.reduce((s, p) => s + p.seatsWon, 0)
+        return { parties: parties as Partial<ElectionResultsResponse>['parties'], seatsReported: Number(seatsReported) }
+      }
+    } catch { continue }
+  }
+  return null
+}
+
 // ── FALLBACK 2: Scrape ECI results page ─────────────────────────────────────
 async function scrapeECIResults(): Promise<string> {
   const HEADERS = {
@@ -369,6 +419,14 @@ export async function GET() {
   }
 
   // ── COUNTING DAY: try each fallback in order ──────────────────────────────
+
+  // Fallback 2a: GitHub parsed JSON (fastest, no AI needed)
+  const ghData = await fetchGitHubECIData()
+  if (ghData && (ghData.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)) {
+    const data = buildCountingResponse(ghData, 'eci-live', 2, now)
+    cache = { data, fetchedAt: now }
+    return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+  }
 
   // Fallback 2+3: fetch ECI + headlines in parallel
   const [html, headlines] = await Promise.all([
