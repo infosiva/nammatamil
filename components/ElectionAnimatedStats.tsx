@@ -263,6 +263,140 @@ function LiveInsights({ data }: { data: ElectionData }) {
   )
 }
 
+// ─── SVG Donut chart ────────────────────────────────────────────────────────
+function DonutChart({ parties }: { parties: PartyResult[] }) {
+  const R = 54, CX = 70, CY = 70, STROKE = 18
+  const circumference = 2 * Math.PI * R
+  const total = parties.reduce((s, p) => s + p.totalTally, 0)
+  const leader = parties.find(p => p.isLeading)
+
+  let offset = 0
+  const slices = parties.filter(p => p.totalTally > 0).map(p => {
+    const pct   = p.totalTally / Math.max(total, 1)
+    const dash  = pct * circumference
+    const gap   = circumference - dash
+    const slice = { name: p.name, color: p.color, dash, gap, offset, seats: p.totalTally, isLeading: p.isLeading }
+    offset += dash
+    return slice
+  })
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      {/* SVG donut */}
+      <div style={{ position: 'relative', flexShrink: 0 }}>
+        <svg width={140} height={140} style={{ transform: 'rotate(-90deg)' }}>
+          {/* background ring */}
+          <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={STROKE} />
+          {slices.map(s => (
+            <circle key={s.name} cx={CX} cy={CY} r={R} fill="none"
+              stroke={s.color}
+              strokeWidth={s.isLeading ? STROKE + 3 : STROKE - 2}
+              strokeDasharray={`${s.dash - 2} ${s.gap + 2}`}
+              strokeDashoffset={-s.offset}
+              strokeLinecap="round"
+              style={{ transition: 'stroke-dasharray 1.2s cubic-bezier(.34,1.56,.64,1)', filter: s.isLeading ? `drop-shadow(0 0 6px ${s.color})` : 'none' }}
+            />
+          ))}
+          {/* majority marker at 50.4% (118/234) */}
+          <line
+            x1={CX + R * Math.cos(2 * Math.PI * (MAJORITY / TOTAL) - Math.PI / 2)}
+            y1={CY + R * Math.sin(2 * Math.PI * (MAJORITY / TOTAL) - Math.PI / 2)}
+            x2={CX + (R - STROKE / 2 - 4) * Math.cos(2 * Math.PI * (MAJORITY / TOTAL) - Math.PI / 2)}
+            y2={CY + (R - STROKE / 2 - 4) * Math.sin(2 * Math.PI * (MAJORITY / TOTAL) - Math.PI / 2)}
+            stroke="#fbbf24" strokeWidth={2}
+          />
+        </svg>
+        {/* Center label */}
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center', pointerEvents: 'none' }}>
+          {leader && (
+            <>
+              <div style={{ fontSize: 22, fontWeight: 900, color: leader.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{leader.totalTally}</div>
+              <div style={{ fontSize: 8, fontWeight: 800, color: leader.color, letterSpacing: '0.05em', marginTop: 1 }}>{leader.name}</div>
+              <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>leading</div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+        {parties.filter(p => p.totalTally > 0).map(p => {
+          const pct = Math.round((p.totalTally / Math.max(total, 1)) * 100)
+          return (
+            <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 3, background: p.color, flexShrink: 0, boxShadow: p.isLeading ? `0 0 8px ${p.color}` : 'none' }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 3 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: p.isLeading ? p.color : 'rgba(255,255,255,0.7)' }}>{p.name}</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: p.color, fontVariantNumeric: 'tabular-nums' }}>{p.totalTally}</span>
+                </div>
+                <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${pct}%`, background: p.color, borderRadius: 99, transition: 'width 1.2s ease', boxShadow: p.isLeading ? `0 0 6px ${p.color}` : 'none' }} />
+                </div>
+              </div>
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.28)', minWidth: 28, textAlign: 'right' }}>{pct}%</span>
+            </div>
+          )
+        })}
+        <div style={{ fontSize: 8, color: 'rgba(251,191,36,0.5)', marginTop: 2 }}>⬆ majority = {MAJORITY} seats</div>
+      </div>
+    </div>
+  )
+}
+
+// ─── 2021 vs 2026 Comparison ────────────────────────────────────────────────
+const RESULT_2021: Record<string, number> = { DMK: 133, AIADMK: 66, TVK: 0, BJP: 4, Others: 31 }
+
+function CompareBar({ parties }: { parties: PartyResult[] }) {
+  const rows = [
+    { name: 'TVK',    color: '#fbbf24', prev: 0,   prevLabel: 'New party' },
+    { name: 'AIADMK', color: '#4ade80', prev: 66,  prevLabel: '2021: 66' },
+    { name: 'DMK',    color: '#f87171', prev: 133, prevLabel: '2021: 133' },
+    { name: 'BJP',    color: '#fb923c', prev: 4,   prevLabel: '2021: 4' },
+  ]
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+        <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>2026 vs 2021 Results</span>
+        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)' }}>out of 234 seats</span>
+      </div>
+      {rows.map(row => {
+        const p2026 = parties.find(p => p.name === row.name)
+        const now   = p2026?.totalTally ?? 0
+        const prev  = row.prev
+        const maxVal = Math.max(now, prev, 1)
+        const diff  = now - prev
+        return (
+          <div key={row.name}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: row.color }}>{row.name}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {prev > 0 && <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)' }}>{row.prevLabel}</span>}
+                {prev === 0 && <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>Debut</span>}
+                <span style={{
+                  fontSize: 9, fontWeight: 900, padding: '1px 6px', borderRadius: 4,
+                  background: diff > 0 ? 'rgba(74,222,128,0.12)' : diff < 0 ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.05)',
+                  color: diff > 0 ? '#4ade80' : diff < 0 ? '#f87171' : 'rgba(255,255,255,0.3)',
+                }}>
+                  {diff > 0 ? `+${diff}` : diff === 0 ? '—' : diff}
+                </span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: row.color, fontVariantNumeric: 'tabular-nums', minWidth: 28, textAlign: 'right' }}>{now}</span>
+              </div>
+            </div>
+            {/* Dual bars: 2026 (bright) over 2021 (dim ghost) */}
+            <div style={{ position: 'relative', height: 10, borderRadius: 99, background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+              {/* 2021 ghost */}
+              <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: `${(prev / TOTAL) * 100}%`, background: `${row.color}28`, borderRadius: 99 }} />
+              {/* 2026 live */}
+              <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: `${(now / TOTAL) * 100}%`, background: `linear-gradient(90deg,${row.color}aa,${row.color})`, borderRadius: 99, transition: 'width 1.3s cubic-bezier(.34,1.56,.64,1)', boxShadow: `0 0 8px ${row.color}60` }} />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ─── Seat bar ───────────────────────────────────────────────────────────────
 function SeatBar({ parties }: { parties: PartyResult[] }) {
   const total = parties.reduce((s, p) => s + p.totalTally, 0)
@@ -716,11 +850,77 @@ export default function ElectionAnimatedStats() {
         </div>
       </div>
 
+      {/* ── Donut + Comparison row ── */}
+      {hasData && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          {/* Donut card */}
+          <div style={{ borderRadius: 16, padding: '14px', background: 'rgba(255,255,255,0.022)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>Seat Share</div>
+            <DonutChart parties={parties} />
+          </div>
+          {/* Comparison card */}
+          <div style={{ borderRadius: 16, padding: '14px', background: 'rgba(255,255,255,0.022)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <CompareBar parties={parties} />
+          </div>
+        </div>
+      )}
+
+      {/* ── TVK Victory background banner ── */}
+      {hasData && (() => {
+        const tvk = parties.find(p => p.name === 'TVK')
+        if (!tvk || tvk.totalTally === 0) return null
+        const hasMaj = tvk.hasMajority
+        return (
+          <div style={{
+            borderRadius: 16, padding: '16px 20px', overflow: 'hidden', position: 'relative',
+            background: hasMaj
+              ? 'linear-gradient(135deg, rgba(251,191,36,0.12) 0%, rgba(0,0,0,0) 60%)'
+              : 'linear-gradient(135deg, rgba(251,191,36,0.06) 0%, rgba(0,0,0,0) 60%)',
+            border: `1px solid rgba(251,191,36,${hasMaj ? '0.3' : '0.12'})`,
+            animation: hasMaj ? 'tvkGlow 3s ease-in-out infinite' : 'none',
+          }}>
+            {/* Animated star particles */}
+            {hasMaj && [0,1,2,3,4].map(i => (
+              <div key={i} style={{
+                position: 'absolute',
+                left: `${10 + i * 18}%`, top: `${20 + (i % 3) * 20}%`,
+                width: 4, height: 4, borderRadius: '50%',
+                background: '#fbbf24', opacity: 0.4,
+                animation: `starFloat ${1.5 + i * 0.4}s ease-in-out infinite`,
+                animationDelay: `${i * 0.3}s`,
+              }} />
+            ))}
+            <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ fontSize: hasMaj ? 36 : 28, flexShrink: 0 }}>{hasMaj ? '🌟' : '⭐'}</div>
+              <div>
+                <div style={{ fontSize: hasMaj ? 15 : 13, fontWeight: 900, color: '#fbbf24', marginBottom: 3 }}>
+                  {hasMaj ? 'TVK — Government Secured!' : `TVK Leading — ${tvk.totalTally} Seats`}
+                </div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
+                  {hasMaj
+                    ? `Thalapathy Vijay's Tamilaga Vettri Kazhagam wins ${tvk.totalTally} seats — ${tvk.totalTally - MAJORITY} above the 118-seat majority mark. Historic debut.`
+                    : `TVK is the single largest party in Tamil Nadu 2026. Needs ${Math.max(0, MAJORITY - tvk.totalTally)} more seats for majority.`
+                  }
+                </div>
+              </div>
+              <div style={{ marginLeft: 'auto', textAlign: 'center', flexShrink: 0 }}>
+                <div style={{ fontSize: 34, fontWeight: 900, color: '#fbbf24', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                  <AnimNum n={tvk.totalTally} />
+                </div>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>/ {MAJORITY} needed</div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       <style>{`
         @keyframes elPulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
         @keyframes elSpin   { to{transform:rotate(360deg)} }
         @keyframes elGlow   { 0%,100%{box-shadow:0 4px 32px rgba(251,191,36,.12)} 50%{box-shadow:0 4px 48px rgba(251,191,36,.25)} }
         @keyframes shimBar  { 0%{background-position:-200%} 100%{background-position:200%} }
+        @keyframes tvkGlow  { 0%,100%{box-shadow:0 0 20px rgba(251,191,36,.08)} 50%{box-shadow:0 0 40px rgba(251,191,36,.22)} }
+        @keyframes starFloat{ 0%,100%{transform:translateY(0) scale(1);opacity:0.4} 50%{transform:translateY(-8px) scale(1.4);opacity:0.9} }
       `}</style>
     </div>
   )
