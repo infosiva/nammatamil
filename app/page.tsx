@@ -4,7 +4,7 @@ import ElectionAnimatedStats from '@/components/ElectionAnimatedStats'
 import ConstituencyLiveBoard from '@/components/ConstituencyLiveBoard'
 import NammaTVKVideos from '@/components/NammaTVKVideos'
 import VisitorCounter from '@/components/VisitorCounter'
-import ElectionTopHero from '@/components/ElectionTopHero'
+import ElectionScoreboard from '@/components/ElectionScoreboard'
 import ElectionSpotlight from '@/components/ElectionSpotlight'
 import ElectionReactions from '@/components/ElectionReactions'
 import DistrictHeatmap from '@/components/DistrictHeatmap'
@@ -18,20 +18,11 @@ export default function HomePage() {
         background: 'linear-gradient(180deg, rgba(239,68,68,0.06) 0%, transparent 60%)',
         borderBottom: '1px solid rgba(239,68,68,0.08)',
       }}>
-        {/* ── Animated Top Hero ── */}
-        <ElectionTopHero />
+        {/* ── Scoreboard: ticker + declared/remaining + party cards + progress ── */}
+        <ElectionScoreboard />
 
-        {/* ── Dashboard header ── */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-0">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontWeight: 900, fontSize: 18, color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.01em' }}>
-                TN Election 2026 — Live Results
-              </span>
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
-                Tamil Nadu Assembly Elections · 234 Constituencies · May 4, 2026
-              </span>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-0">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
             <VisitorCounter />
           </div>
 
