@@ -194,19 +194,24 @@ async function scrapeECIResults(): Promise<string> {
     'Accept-Language': 'en-IN,en;q=0.9,ta;q=0.8',
     'Referer': 'https://results.eci.gov.in/',
     'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
   }
   // S22 = Tamil Nadu state code (confirmed via ECI voters portal)
-  const urls = [
+  // Direct URL confirmed working: partywiseresult-S22.htm
+  const directUrls = [
     'https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm',
     'https://results.eci.gov.in/AcResultGenMay2026/partywiseresult-S22.htm',
     'https://results.eci.gov.in/ResultAcGen2026/partywiseresult-S22.htm',
-    'https://results.eci.gov.in/ResultAcGenMay2026/index.htm',
-    'https://elections.tn.gov.in/ElectionResults/results.html',
-    'https://results.eci.gov.in/',
   ]
-  for (const url of urls) {
+  // Proxy URLs — use public CORS proxies as fallback since ECI may block Vercel IPs
+  const proxyUrls = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent('https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm')}`,
+    `https://corsproxy.io/?${encodeURIComponent('https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm')}`,
+  ]
+  const allUrls = [...directUrls, ...proxyUrls]
+  for (const url of allUrls) {
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(7000), headers: HEADERS, cache: 'no-store' })
+      const res = await fetch(url, { signal: AbortSignal.timeout(10000), headers: HEADERS, cache: 'no-store' })
       if (!res.ok) continue
       const html = await res.text()
       if (html.length > 300) {
@@ -216,7 +221,10 @@ async function scrapeECIResults(): Promise<string> {
           .replace(/<[^>]+>/g, ' ')
           .replace(/\s+/g, ' ')
           .trim()
-        if (cleaned.length > 200) return cleaned.slice(0, 6000)
+        // Must contain actual party data to be useful
+        if (cleaned.length > 200 && (cleaned.includes('TVK') || cleaned.includes('DMK') || cleaned.includes('ADMK'))) {
+          return cleaned.slice(0, 6000)
+        }
       }
     } catch { continue }
   }
@@ -256,6 +264,58 @@ async function fetchResultsHeadlines(): Promise<string[]> {
     } catch { /* skip */ }
   }))
   return [...new Set(headlines)].slice(0, 20)
+}
+
+// ── Direct regex parse of ECI HTML (no AI needed) ───────────────────────────
+function parseECIDirectly(html: string): Partial<ElectionResultsResponse> | null {
+  // ECI party table format: "PartyFullName - ABBR Won Leading Total"
+  // e.g. "Tamilaga Vettri Kazhagam - TVK 0 101 101"
+  const partyAliases: Record<string, string> = {
+    TVK: 'TVK', ADMK: 'AIADMK', AIADMK: 'AIADMK', DMK: 'DMK',
+    BJP: 'BJP', PMK: 'Others', INC: 'Others', CPI: 'Others',
+    VCK: 'Others', DMDK: 'Others', PT: 'Others', AMMKMNKZ: 'Others',
+  }
+  const totals: Record<string, { won: number; leading: number }> = {}
+  let seatsReported = 0
+
+  // Match: abbrev followed by 3 numbers (won, leading, total)
+  const pattern = /\b(TVK|ADMK|AIADMK|DMK|BJP|PMK|INC|CPI|VCK|DMDK|PT|AMMKMNKZ)\b[^0-9]*(\d+)\s+(\d+)\s+(\d+)/g
+  let m: RegExpExecArray | null
+  while ((m = pattern.exec(html)) !== null) {
+    const abbr  = m[1]
+    const won   = parseInt(m[2], 10)
+    const lead  = parseInt(m[3], 10)
+    const key   = partyAliases[abbr] ?? 'Others'
+    if (!totals[key]) totals[key] = { won: 0, leading: 0 }
+    totals[key].won     += won
+    totals[key].leading += lead
+    seatsReported = Math.max(seatsReported, won + lead)
+  }
+
+  const hasData = Object.values(totals).some(v => v.won + v.leading > 0)
+  if (!hasData) return null
+
+  // Compute total seats reported
+  const totalSeats = Object.values(totals).reduce((s, v) => s + v.won + v.leading, 0)
+
+  const parties = ['TVK', 'DMK', 'AIADMK', 'BJP', 'Others'].map(name => ({
+    name,
+    seatsWon:     totals[name]?.won     ?? 0,
+    seatsLeading: totals[name]?.leading ?? 0,
+    voteShare:    0,
+  }))
+
+  const leader = [...parties].sort((a, b) => (b.seatsWon + b.seatsLeading) - (a.seatsWon + a.seatsLeading))[0]
+  const tvkTotal = (totals['TVK']?.won ?? 0) + (totals['TVK']?.leading ?? 0)
+  const narrative = `${leader.name} leads with ${leader.seatsWon + leader.seatsLeading} seats. ${totalSeats} of 234 reporting.`
+
+  return {
+    seatsReported: totalSeats,
+    parties: parties as Partial<ElectionResultsResponse>['parties'],
+    leader: leader.name,
+    narrative,
+    projectedWinner: tvkTotal >= 118 ? 'TVK' : null,
+  }
 }
 
 // ── AI parse (used for both ECI HTML and headlines-only fallback) ─────────────
@@ -403,8 +463,18 @@ async function fetchFresh(): Promise<void> {
       fetchResultsHeadlines(),
     ])
 
-    // Fallback 2: ECI HTML → AI parse
+    // Fallback 2: ECI HTML — direct regex parse first (fast, no AI tokens)
     if (html.length > 100) {
+      const direct = parseECIDirectly(html)
+      if (direct) {
+        direct.headlines = headlines.slice(0, 5)
+        store.cache = { data: buildCountingResponse(direct, 'eci-live', 2, now), fetchedAt: now }
+        return
+      }
+    }
+
+    // Fallback 2b: AI parse of HTML + headlines
+    if (html.length > 100 || headlines.length > 0) {
       const aiParsed = await parseResultsWithAI(html, headlines)
       const hasData  = (aiParsed.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)
       if (hasData) {

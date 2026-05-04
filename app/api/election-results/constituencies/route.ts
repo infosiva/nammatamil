@@ -353,14 +353,21 @@ async function fetchFresh(): Promise<void> {
       return
     }
 
-    // 1. Try GitHub parsed JSON
+    // 1. Try direct ECI party-constituency pages (most reliable, direct regex parse)
+    const directResults = await scrapeECIPartyPages()
+    if (directResults.length > 10) {
+      store.cache = { data: buildResponse(directResults, 'eci-live', 1), fetchedAt: now }
+      return
+    }
+
+    // 2. Try GitHub parsed JSON
     const ghData = await tryGitHub()
     if (ghData && ghData.length > 0) {
       store.cache = { data: buildResponse(ghData, 'eci-live', 2), fetchedAt: now }
       return
     }
 
-    // 2. Try ECI scrape → AI
+    // 3. Try ECI party overview scrape → AI
     const html = await scrapeECI()
     if (html) {
       const parsed = await parseWithAI(html, [])
@@ -370,7 +377,7 @@ async function fetchFresh(): Promise<void> {
       }
     }
 
-    // 3. Headlines → AI best effort
+    // 4. Headlines → AI best effort
     const headlines = await fetchHeadlines()
     if (headlines.length > 0) {
       const parsed = await parseWithAI('', headlines)
@@ -435,20 +442,97 @@ async function tryGitHub(): Promise<ConstituencyResult[] | null> {
   return null
 }
 
+// ── Direct ECI party-constituency pages (confirmed working URLs) ──────────────
+// Format: partywiseleadresult-{partyId}S22.htm
+// Contains: constituency name, leading candidate, votes, margin, status
+async function scrapeECIPartyPages(): Promise<ConstituencyResult[]> {
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
+    'Referer': 'https://results.eci.gov.in/',
+  }
+  const BASE = 'https://results.eci.gov.in/ResultAcGenMay2026/'
+  const results: ConstituencyResult[] = []
+  const seen = new Set<string>()
+
+  // Fetch top 3 party pages in parallel (TVK, ADMK, DMK)
+  const topPages = [
+    { id: '3679', party: 'TVK'    as const },
+    { id: '75',   party: 'AIADMK' as const },
+    { id: '582',  party: 'DMK'    as const },
+    { id: '369',  party: 'BJP'    as const },
+  ]
+
+  await Promise.allSettled(topPages.map(async ({ id, party }) => {
+    const urls = [
+      `${BASE}partywiseleadresult-${id}S22.htm`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(`${BASE}partywiseleadresult-${id}S22.htm`)}`,
+    ]
+    for (const url of urls) {
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(10000), headers, cache: 'no-store' })
+        if (!res.ok) continue
+        const html = await res.text()
+        if (html.length < 500) continue
+
+        // Parse the table: "N CONSTITUENCYNAME(AC_NO) CANDIDATE TOTALVOTES MARGIN STATUS"
+        // e.g. "1 TIRUTTANI(3) G.HARI 7098 171 2/25"
+        const text = html
+          .replace(/<script[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[\s\S]*?<\/style>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+
+        // Match: number CONSTITUENCYNAME(acNo) CANDIDATE votes margin rounds/total
+        const rowPattern = /\d+\s+([A-Z][A-Z\s\(\)]+\((\d+)\))\s+([A-Z][A-Z\s\.]+?)\s+(\d{4,})\s+(\d+)\s+(\d+)\/(\d+)/g
+        let m: RegExpExecArray | null
+        while ((m = rowPattern.exec(text)) !== null) {
+          const constNameRaw = m[1].trim()
+          const acNo         = parseInt(m[2], 10)
+          const candidate    = m[3].trim()
+          const margin       = parseInt(m[5], 10)
+
+          // Find the seat — first try AC number, then name match
+          const seat = TN_CONSTITUENCIES.find(c => c.id === acNo)
+            ?? TN_CONSTITUENCIES.find(c => constNameRaw.toLowerCase().includes(c.name.toLowerCase().slice(0, 5)))
+
+          if (!seat || seen.has(`${seat.id}`)) continue
+          seen.add(`${seat.id}`)
+
+          results.push({
+            id:               seat.id,
+            name:             seat.name,
+            district:         seat.district,
+            leadingParty:     party,
+            leadingCandidate: candidate,
+            margin:           margin || null,
+            votesLeading:     parseInt(m[4], 10) || null,
+            status:           'leading',
+            updatedAt:        new Date().toISOString(),
+          })
+        }
+        break // success for this party
+      } catch { continue }
+    }
+  }))
+
+  return results
+}
+
 async function scrapeECI(): Promise<string> {
+  // Fallback to text scrape only if direct party pages fail
   const headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
     'Referer': 'https://results.eci.gov.in/',
   }
   const urls = [
-    'https://results.eci.gov.in/ResultAcGenMay2026/statewiseS22.htm',
-    'https://results.eci.gov.in/AcResultGenMay2026/statewiseS22.htm',
-    'https://results.eci.gov.in/ResultAcGenMay2026/constituencyresult-S22.htm',
+    'https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm',
+    `https://api.allorigins.win/raw?url=${encodeURIComponent('https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm')}`,
   ]
   for (const url of urls) {
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(7000), headers, cache: 'no-store' })
+      const res = await fetch(url, { signal: AbortSignal.timeout(10000), headers, cache: 'no-store' })
       if (!res.ok) continue
       const html = await res.text()
       if (html.length < 500) continue
@@ -457,7 +541,9 @@ async function scrapeECI(): Promise<string> {
         .replace(/<style[\s\S]*?<\/style>/gi, '')
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ').trim()
-      if (cleaned.length > 300) return cleaned.slice(0, 7000)
+      if (cleaned.length > 300 && (cleaned.includes('TVK') || cleaned.includes('DMK'))) {
+        return cleaned.slice(0, 7000)
+      }
     } catch { continue }
   }
   return ''
