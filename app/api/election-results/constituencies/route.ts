@@ -10,7 +10,6 @@
  */
 import { NextResponse } from 'next/server'
 import { generateWithAI } from '@/lib/ai'
-import { readConstituenciesFromGist, writeConstituenciesToGist } from '@/lib/election-persist'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -354,26 +353,10 @@ async function fetchFresh(): Promise<void> {
       return
     }
 
-    // 0. On cold start, try Gist backup first (instant, no scraping needed)
-    if (!store.cache) {
-      try {
-        const gistData = await readConstituenciesFromGist()
-        if (gistData && typeof gistData === 'object' && (gistData as ConstituenciesResponse).constituencies?.length > 0) {
-          store.cache = {
-            data: { ...(gistData as ConstituenciesResponse), source: 'cached-stale', fallbackLevel: 4 },
-            fetchedAt: now - TTL_LIVE,  // mark as stale so bg refresh still runs
-          }
-          // Don't return — continue to try fresh scrape in bg
-        }
-      } catch { /* gist read failed, continue */ }
-    }
-
     // 1. Try GitHub parsed JSON
     const ghData = await tryGitHub()
     if (ghData && ghData.length > 0) {
-      const data = buildResponse(ghData, 'eci-live', 2)
-      store.cache = { data, fetchedAt: now }
-      writeConstituenciesToGist(data)
+      store.cache = { data: buildResponse(ghData, 'eci-live', 2), fetchedAt: now }
       return
     }
 
@@ -382,9 +365,7 @@ async function fetchFresh(): Promise<void> {
     if (html) {
       const parsed = await parseWithAI(html, [])
       if (parsed.length > 0) {
-        const data = buildResponse(parsed, 'eci-live', 2)
-        store.cache = { data, fetchedAt: now }
-        writeConstituenciesToGist(data)
+        store.cache = { data: buildResponse(parsed, 'eci-live', 2), fetchedAt: now }
         return
       }
     }
@@ -394,9 +375,7 @@ async function fetchFresh(): Promise<void> {
     if (headlines.length > 0) {
       const parsed = await parseWithAI('', headlines)
       if (parsed.length > 0) {
-        const data = buildResponse(parsed, 'ai-parsed', 3)
-        store.cache = { data, fetchedAt: now }
-        writeConstituenciesToGist(data)
+        store.cache = { data: buildResponse(parsed, 'ai-parsed', 3), fetchedAt: now }
         return
       }
     }

@@ -20,7 +20,6 @@
  */
 import { NextResponse } from 'next/server'
 import { generateWithAI } from '@/lib/ai'
-import { readPartiesFromGist, writePartiesToGist } from '@/lib/election-persist'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -391,26 +390,10 @@ async function fetchFresh(): Promise<void> {
   try {
     const now = Date.now()
 
-    // Fallback 0: On cold start, try Gist backup (instant warm data across cold starts)
-    if (!store.cache) {
-      try {
-        const gistData = await readPartiesFromGist()
-        if (gistData && typeof gistData === 'object' && (gistData as ElectionResultsResponse).parties?.length > 0) {
-          store.cache = {
-            data: { ...(gistData as ElectionResultsResponse), source: 'cached-stale', fallbackLevel: 4 },
-            fetchedAt: now - getCacheTTL(now),  // mark stale so bg refresh continues
-          }
-          // Don't return — continue to try fresh scrape
-        }
-      } catch { /* gist read failed, continue */ }
-    }
-
     // Fallback 2a: GitHub parsed JSON (fastest, no AI needed)
     const ghData = await fetchGitHubECIData()
     if (ghData && (ghData.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)) {
-      const data = buildCountingResponse(ghData, 'eci-live', 2, now)
-      store.cache = { data, fetchedAt: now }
-      writePartiesToGist(data)
+      store.cache = { data: buildCountingResponse(ghData, 'eci-live', 2, now), fetchedAt: now }
       return
     }
 
@@ -426,9 +409,7 @@ async function fetchFresh(): Promise<void> {
       const hasData  = (aiParsed.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)
       if (hasData) {
         aiParsed.headlines = headlines.slice(0, 5)
-        const data = buildCountingResponse(aiParsed, 'eci-live', 2, now)
-        store.cache = { data, fetchedAt: now }
-        writePartiesToGist(data)
+        store.cache = { data: buildCountingResponse(aiParsed, 'eci-live', 2, now), fetchedAt: now }
         return
       }
     }
@@ -439,9 +420,7 @@ async function fetchFresh(): Promise<void> {
       const hasData  = (aiParsed.parties ?? []).some((p: {seatsWon:number;seatsLeading:number}) => p.seatsWon + p.seatsLeading > 0)
       if (hasData) {
         aiParsed.headlines = headlines.slice(0, 5)
-        const data = buildCountingResponse(aiParsed, 'ai-parsed', 3, now)
-        store.cache = { data, fetchedAt: now }
-        writePartiesToGist(data)
+        store.cache = { data: buildCountingResponse(aiParsed, 'ai-parsed', 3, now), fetchedAt: now }
         return
       }
     }
