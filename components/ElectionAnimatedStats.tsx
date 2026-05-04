@@ -288,12 +288,155 @@ export default function ElectionAnimatedStats() {
       {/* ── Winner Banner ── */}
       {winner && hasData && <WinnerBanner p={winner} />}
 
+      {/* ── Counting progress strip ── */}
+      {(() => {
+        const counted   = data.seatsReported
+        const pending   = TOTAL - counted
+        const countPct  = Math.round((counted / TOTAL) * 100)
+        return (
+          <div style={{
+            borderRadius: 14, padding: '12px 16px',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            {/* Row 1: label + numbers */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {isLive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'elPulse 1.5s infinite', flexShrink: 0 }} />}
+                <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.07em' }}>COUNTED SO FAR</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
+                <span style={{ fontSize: 26, fontWeight: 900, color: 'rgba(255,255,255,0.9)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                  <AnimNum n={counted} />
+                </span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>/ {TOTAL}</span>
+                <span style={{
+                  fontSize: 10, fontWeight: 900, padding: '2px 7px', borderRadius: 5,
+                  background: countPct > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)',
+                  color: countPct > 0 ? '#ef4444' : 'rgba(255,255,255,0.2)',
+                  border: `1px solid ${countPct > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                  marginLeft: 4,
+                }}>
+                  {countPct}%
+                </span>
+              </div>
+            </div>
+            {/* Bar */}
+            <div style={{ height: 8, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 6 }}>
+              <div style={{
+                height: '100%', borderRadius: 99,
+                width: `${countPct}%`,
+                background: 'linear-gradient(90deg, #ef4444cc, #ef4444)',
+                transition: 'width 1.2s cubic-bezier(.34,1.56,.64,1)',
+                boxShadow: '0 0 8px rgba(239,68,68,0.5)',
+              }} />
+            </div>
+            {/* Row 2: pending */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>
+                {pending > 0 ? `${pending} seats still pending` : 'All seats counted'}
+              </span>
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>Majority: {MAJORITY} seats</span>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* ── Party win scenarios (TVK + top contenders) ── */}
+      {hasData && (() => {
+        const tvk    = parties.find(p => p.name === 'TVK')
+        const dmk    = parties.find(p => p.name === 'DMK')
+        const admk   = parties.find(p => p.name === 'AIADMK')
+        const counted = data.seatsReported
+        const pending = TOTAL - counted
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {[tvk, dmk, admk].filter(Boolean).map(p => {
+              if (!p) return null
+              const total   = p.totalTally
+              const needed  = Math.max(0, MAJORITY - total)
+              const canWin  = needed <= pending           // mathematically possible
+              const hasMaj  = total >= MAJORITY
+              const color   = p.color
+              const pctFill = Math.min(100, Math.round((total / MAJORITY) * 100))
+
+              let statusLabel = ''
+              let statusColor = ''
+              if (hasMaj) { statusLabel = 'MAJORITY WON'; statusColor = '#4ade80' }
+              else if (!canWin) { statusLabel = 'CANNOT WIN'; statusColor = 'rgba(255,255,255,0.25)' }
+              else if (needed <= 10) { statusLabel = 'VERY CLOSE'; statusColor = '#fbbf24' }
+              else if (needed <= 30) { statusLabel = 'IN RANGE'; statusColor = color }
+              else { statusLabel = 'NEEDS MORE'; statusColor = 'rgba(255,255,255,0.3)' }
+
+              return (
+                <div key={p.name} style={{
+                  borderRadius: 12, padding: '10px 14px',
+                  background: hasMaj ? `${color}14` : `${color}08`,
+                  border: `1px solid ${hasMaj ? color + '40' : color + '20'}`,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
+                    {/* Party name + status */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <span style={{ fontSize: 12, fontWeight: 900, color }}>{p.name}</span>
+                      <span style={{
+                        fontSize: 8, fontWeight: 900, padding: '2px 6px', borderRadius: 4, letterSpacing: '0.07em',
+                        background: hasMaj ? 'rgba(74,222,128,0.15)' : `${color}15`,
+                        color: statusColor,
+                        border: `1px solid ${hasMaj ? 'rgba(74,222,128,0.3)' : color + '25'}`,
+                      }}>{statusLabel}</span>
+                    </div>
+                    {/* Seats + needs */}
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                      <span style={{ fontSize: 22, fontWeight: 900, color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                        <AnimNum n={total} />
+                      </span>
+                      {!hasMaj && (
+                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.28)', fontVariantNumeric: 'tabular-nums' }}>
+                          needs {needed} more
+                        </span>
+                      )}
+                      {hasMaj && (
+                        <span style={{ fontSize: 9, color: '#4ade80' }}>
+                          +{total - MAJORITY} above majority
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {/* Progress bar to 118 */}
+                  <div style={{ position: 'relative', height: 6, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%', borderRadius: 99,
+                      width: `${pctFill}%`,
+                      background: hasMaj
+                        ? 'linear-gradient(90deg,#4ade80,#22c55e)'
+                        : `linear-gradient(90deg,${color}99,${color})`,
+                      transition: 'width 1.3s cubic-bezier(.34,1.56,.64,1)',
+                      boxShadow: `0 0 8px ${color}60`,
+                    }} />
+                  </div>
+                  {/* Sub row */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                    <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)' }}>
+                      {p.seatsWon}W + {p.seatsLeading}L
+                    </span>
+                    <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)' }}>
+                      {pctFill}% to majority
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )
+      })()}
+
       {/* ── 3-chip stat row ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
         <Chip
-          label="Reporting"
+          label="Counted"
           value={`${data.seatsReported}/${TOTAL}`}
-          sub={`${pct}% counted`}
+          sub={`${pct}% done`}
           color={isLive ? '#ef4444' : undefined}
           live={isLive}
         />
