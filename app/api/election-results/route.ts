@@ -566,9 +566,8 @@ async function fetchFresh(): Promise<void> {
 // ── Main GET handler ──────────────────────────────────────────────────────────
 export async function GET() {
   const now = Date.now()
-  const ttl = getCacheTTL(now)
 
-  // ── FALLBACK 1: Manual override (highest priority — ignores cache TTL) ──────
+  // ── FALLBACK 1: Manual override (highest priority) ──────────────────────────
   const override = getManualOverride()
   if (override) {
     const data: ElectionResultsResponse = {
@@ -589,31 +588,19 @@ export async function GET() {
     return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // ── PRE-COUNTING cold start: build empty state synchronously ──────────────
-  if (now < COUNTING_START && !store.cache) {
-    const data = buildEmptyCountingResponse('pre-counting')
-    store.cache = { data, fetchedAt: now }
-    return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+  // ── LIVE: fetch directly from ECI JSON (Vercel is stateless — no in-memory cache) ──
+  // We fetch on every request with a 5s timeout. ECI JSON is fast (~100ms).
+  if (now >= COUNTING_START) {
+    const eciData = await fetchECILivePartyTotals()
+    if (eciData && (eciData.parties ?? []).some((p: {seatsLeading:number}) => p.seatsLeading > 0)) {
+      const data = buildCountingResponse(eciData, 'eci-live', 1, now)
+      return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+    }
   }
 
-  // ── Stale-while-revalidate: always respond immediately from cache ──────────
-  const isStale = !store.cache || (now - store.cache.fetchedAt >= ttl)
-
-  if (isStale && now >= COUNTING_START) {
-    // Fire background refresh — do NOT await (respond immediately)
-    fetchFresh().catch(() => { /* silent */ })
-  }
-
-  if (store.cache) {
-    const payload = isStale
-      ? { ...store.cache.data, source: 'cached-stale' as const, fallbackLevel: 4, refreshing: true }
-      : { ...store.cache.data, cached: true, refreshing: false }
-    return NextResponse.json(payload, { headers: { 'Cache-Control': 'no-store' } })
-  }
-
-  // ── Absolute cold start during counting — respond immediately, fetch in background
-  fetchFresh().catch(() => { /* silent */ })
-  return NextResponse.json(buildEmptyCountingResponse('counting'), { headers: { 'Cache-Control': 'no-store' } })
+  // ── PRE-COUNTING or ECI fetch failed ────────────────────────────────────────
+  const phase = now < COUNTING_START ? 'pre-counting' : 'counting'
+  return NextResponse.json(buildEmptyCountingResponse(phase), { headers: { 'Cache-Control': 'no-store' } })
 }
 
 // ── POST: admin manual update endpoint ───────────────────────────────────────
