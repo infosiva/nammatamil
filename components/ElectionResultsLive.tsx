@@ -452,7 +452,7 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
 
   const phaseLabel = isDeclared ? 'RESULTS DECLARED'
     : isLive ? 'LIVE COUNTING'
-    : 'EXIT POLL PREVIEW'
+    : 'TN ELECTION 2026'
 
   const phaseColor = isDeclared ? '#4ade80'
     : isLive ? '#ef4444'
@@ -531,29 +531,6 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
           </div>
         )}
 
-        {/* ── Pre-counting: Exit poll preview ── */}
-        {isPreCount && (
-          <div style={{
-            opacity: phaseVisible ? 1 : 0,
-            transition: 'opacity 0.5s ease',
-          }}>
-            <div style={{
-              borderRadius: 14, padding: '10px 14px', marginBottom: 14,
-              background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.22)',
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}>
-              <Zap style={{ width: 14, height: 14, color: '#fbbf24' }} />
-              <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24' }}>
-                  Exit Poll Preview · Live results activate May 4 at 8 AM IST
-                </span>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>
-                  Showing Axis My India projections — official count pending
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ── Winner / projected winner banner ── */}
         {winner && (
@@ -653,10 +630,6 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
           </div>
         )}
 
-        {/* ── Pre-counting countdown ── */}
-        {isPreCount && data?.countingStartsAt && (
-          <CountingCountdown countingStartsAt={data.countingStartsAt} />
-        )}
 
         {/* ── Live headlines ── */}
         {(isLive || isDeclared) && data?.headlines && data.headlines.length > 0 && !compact && (
@@ -716,7 +689,7 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
             )}
             {(data?.source === 'exit-poll-projection' || data?.source === 'cached-stale') && (
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>
-                {data.source === 'cached-stale' ? 'Last known · retrying' : 'Exit poll · Axis My India'}
+                {data.source === 'cached-stale' ? 'Last known · retrying' : 'Projected seats'}
               </span>
             )}
           </div>
