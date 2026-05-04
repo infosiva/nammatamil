@@ -16,6 +16,13 @@ export default function VisitorCounter() {
   const [data, setData] = useState<VisitorData | null>(null)
 
   useEffect(() => {
+    // Log visit to VPS (fire-and-forget)
+    fetch('/api/log-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: window.location.pathname, ref: document.referrer }),
+    }).catch(() => {})
+
     const hit = async () => {
       try {
         const res = await fetch('/api/visitors', { cache: 'no-store' })
