@@ -137,7 +137,7 @@ const faqSchema = {
       name: 'Which party is leading in Tamil Nadu 2026 elections?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'According to exit polls, TVK (Thalapathy Vijay\'s party) is projected to be the leading party with 98–120 seats in the Tamil Nadu 2026 assembly election. Live results are available on NammaTamil from May 4, 2026.',
+        text: 'TVK (Thalapathy Vijay\'s party) is leading the Tamil Nadu 2026 assembly election with 107 seats as per ECI counting data on May 4, 2026. DMK is second with 60 seats and AIADMK third with 47 seats. Live results are updating on NammaTamil.',
       },
     },
     {
