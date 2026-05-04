@@ -300,33 +300,30 @@ function buildCountingResponse(
   }
 }
 
-// ── FALLBACK 5: Exit poll projections (always works) ─────────────────────────
-function buildPreCountingResponse(): ElectionResultsResponse {
-  const parties: PartyResult[] = Object.entries(PARTIES).map(([key, party]) => {
-    const proj = EXIT_PROJECTIONS[key as keyof typeof EXIT_PROJECTIONS]
-    return {
-      ...party,
-      seatsWon:     0,
-      seatsLeading: proj.midpoint,
-      totalTally:   proj.midpoint,
-      voteShare:    proj.voteShare,
-      trend:        (key === 'TVK' ? 'up' : key === 'AIADMK' ? 'down' : 'stable') as 'up' | 'down' | 'stable',
-      isLeading:    key === 'TVK',
-      hasMajority:  proj.midpoint >= MAJORITY_SEATS,
-    }
-  }).sort((a, b) => b.totalTally - a.totalTally)
+// ── FALLBACK 5: Empty state — no fake data ────────────────────────────────────
+function buildEmptyCountingResponse(phase: 'pre-counting' | 'counting'): ElectionResultsResponse {
+  const parties: PartyResult[] = Object.entries(PARTIES).map(([, party]) => ({
+    ...party,
+    seatsWon:     0,
+    seatsLeading: 0,
+    totalTally:   0,
+    voteShare:    0,
+    trend:        'stable' as const,
+    isLeading:    false,
+    hasMajority:  false,
+  }))
 
   return {
-    phase:            'pre-counting',
+    phase,
     countingStartsAt: new Date(COUNTING_START).toISOString(),
     seatsReported:    0,
     totalSeats:       TOTAL_SEATS,
     majorityMark:     MAJORITY_SEATS,
     parties,
-    narrative:        'Tamil Nadu Assembly Election 2026 — Live counting underway across 234 constituencies',
-    leader:           'TVK',
+    narrative:        'Tamil Nadu Assembly Election 2026 — Fetching live results…',
+    leader:           '',
     projectedWinner:  null,
-    source:           'exit-poll-projection',
+    source:           'static',
     updatedAt:        new Date().toISOString(),
     headlines:        [],
     fallbackLevel:    5,
@@ -364,9 +361,9 @@ export async function GET() {
     return NextResponse.json({ ...cache.data, cached: true }, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // ── PRE-COUNTING: exit poll projections ──────────────────────────────────
+  // ── PRE-COUNTING: show empty counting state (no hardcoded projections) ──────
   if (now < COUNTING_START) {
-    const data = buildPreCountingResponse()
+    const data = buildEmptyCountingResponse('pre-counting')
     cache = { data, fetchedAt: now }
     return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
   }
@@ -409,9 +406,9 @@ export async function GET() {
     return NextResponse.json(stale, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // Fallback 5: exit poll projections (last resort — always works)
-  const data = buildPreCountingResponse()
-  return NextResponse.json({ ...data, phase: 'counting' as const, fallbackLevel: 5 }, { headers: { 'Cache-Control': 'no-store' } })
+  // Fallback 5: empty state — no fake data
+  const data = buildEmptyCountingResponse('counting')
+  return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
 }
 
 // ── POST: admin manual update endpoint ───────────────────────────────────────

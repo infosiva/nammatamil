@@ -568,24 +568,34 @@ export default function ElectionResultsLive({ compact = false }: { compact?: boo
           </div>
         )}
 
-        {/* ── Party rows — fades when phase transitions ── */}
-        {!loading && parties.length > 0 && (
+        {/* ── Party rows — only show when we have real live data ── */}
+        {!loading && parties.length > 0 && parties.some(p => p.totalTally > 0) && (
           <div style={{
             display: 'flex', flexDirection: 'column', gap: 10,
             opacity: phaseVisible ? 1 : 0,
             transition: 'opacity 0.5s ease',
           }}>
-            {/* When fading out, show previous phase style; after fade-in, show new */}
-            {parties.map(p =>
-              (phaseVisible ? isPreCount : prevPhase === 'pre-counting')
-                ? <PartyRowPreCount key={p.name} party={p} />
-                : <PartyRowLive key={p.name} party={p} />
-            )}
+            {parties.map(p => <PartyRowLive key={p.name} party={p} />)}
+          </div>
+        )}
+
+        {/* ── No data yet — fetching live ── */}
+        {!loading && (!parties.some(p => p.totalTally > 0)) && (
+          <div style={{
+            borderRadius: 14, padding: '20px 16px', textAlign: 'center',
+            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+          }}>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginBottom: 8 }}>
+              Fetching live results from ECI…
+            </div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)' }}>
+              Data will appear as constituencies report · auto-refreshes every 3 min
+            </div>
           </div>
         )}
 
         {/* ── Semi-circle parliament arc ── */}
-        {!loading && parties.length > 0 && (
+        {!loading && parties.some(p => p.totalTally > 0) && (
           <div style={{
             borderRadius: 16, padding: '14px 10px',
             background: 'rgba(255,255,255,0.02)',
