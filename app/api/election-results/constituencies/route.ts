@@ -451,7 +451,46 @@ export async function GET() {
     return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // FALLBACK 2: ECI scrape → AI
+  // FALLBACK 2a: GitHub-parsed ECI data (thecont1/india-votes-data)
+  try {
+    const ghUrls = [
+      'https://raw.githubusercontent.com/thecont1/india-votes-data/main/data/2026/TN/results.json',
+      'https://raw.githubusercontent.com/thecont1/india-votes-data/main/results/TN-2026.json',
+    ]
+    for (const url of ghUrls) {
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000), cache: 'no-store' })
+        if (!res.ok) continue
+        const json = await res.json() as Record<string, unknown>[]
+        if (Array.isArray(json) && json.length > 0) {
+          // Map to our format
+          const parsed: ConstituencyResult[] = json.map((row: Record<string, unknown>, i) => {
+            const seat = TN_CONSTITUENCIES.find(c =>
+              String(row.constituency ?? row.name ?? '').toLowerCase().includes(c.name.toLowerCase().slice(0, 6))
+            ) ?? TN_CONSTITUENCIES[i] ?? TN_CONSTITUENCIES[0]
+            return {
+              id: seat.id,
+              name: seat.name,
+              district: seat.district,
+              leadingParty: String(row.leading_party ?? row.party ?? 'Others'),
+              leadingCandidate: String(row.leading_candidate ?? row.candidate ?? ''),
+              margin: Number(row.margin ?? 0) || null,
+              votesLeading: Number(row.votes ?? 0) || null,
+              status: (row.status === 'won' ? 'won' : 'leading') as 'leading' | 'won',
+              updatedAt: new Date().toISOString(),
+            }
+          }).filter(r => r.leadingParty)
+          if (parsed.length > 5) {
+            const data = buildResponse(parsed, 'eci-live', 2)
+            cache = { data, fetchedAt: now }
+            return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+          }
+        }
+      } catch { continue }
+    }
+  } catch { /* skip */ }
+
+  // FALLBACK 2b: ECI scrape → AI
   const html = await scrapeECIConstituencies()
   if (html.length > 200) {
     const parsed = await parseConstituenciesWithAI(html, [])
