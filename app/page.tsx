@@ -19,6 +19,7 @@ import TVKMomentumTicker from '@/components/TVKMomentumTicker'
 import SeatProjection from '@/components/SeatProjection'
 import ElectionNews from '@/components/ElectionNews'
 import CountingProgress from '@/components/CountingProgress'
+import AIElectionSummary from '@/components/AIElectionSummary'
 
 export default function HomePage() {
   return (
@@ -46,6 +47,11 @@ export default function HomePage() {
           {/* ── TVK Victory / Alliance totals ── */}
           <div style={{ marginBottom: 14 }}>
             <TVKVictoryBanner />
+          </div>
+
+          {/* ── AI-powered WON vs LEADING tally ── */}
+          <div style={{ marginBottom: 14 }}>
+            <AIElectionSummary />
           </div>
 
           {/* ── Live stats panel ── */}
