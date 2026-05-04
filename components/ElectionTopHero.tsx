@@ -14,7 +14,7 @@ const TOTAL    = 234
 
 const PARTY_ALIASES: Record<string, string> = {
   TVK:'TVK', DMK:'DMK', ADMK:'AIADMK', AIADMK:'AIADMK', BJP:'BJP',
-  PMK:'Others', INC:'Others', CPI:'Others', VCK:'Others', DMDK:'Others',
+  PMK:'Others', INC:'Others', CPI:'Others', 'CPI(M)':'Others', VCK:'Others', DMDK:'Others',
   IUML:'Others', AMMKMNKZ:'Others', PT:'Others',
 }
 

@@ -7,6 +7,7 @@ import VisitorCounter from '@/components/VisitorCounter'
 import ElectionTopHero from '@/components/ElectionTopHero'
 import ElectionSpotlight from '@/components/ElectionSpotlight'
 import ElectionReactions from '@/components/ElectionReactions'
+import DistrictHeatmap from '@/components/DistrictHeatmap'
 
 export default function HomePage() {
   return (
@@ -43,8 +44,13 @@ export default function HomePage() {
           {/* ── Main stats dashboard ── */}
           <ElectionAnimatedStats />
 
+          {/* ── District heatmap ── */}
+          <div style={{ marginTop: 14 }}>
+            <DistrictHeatmap />
+          </div>
+
           {/* ── Full constituency board ── */}
-          <div style={{ marginTop: 20, marginBottom: 0 }}>
+          <div style={{ marginTop: 16, marginBottom: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <div style={{ width: 3, height: 18, borderRadius: 99, background: 'linear-gradient(180deg, #ef4444, #fbbf24)' }} />
               <span style={{ fontWeight: 800, fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>Constituency Results</span>

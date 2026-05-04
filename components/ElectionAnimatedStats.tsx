@@ -31,7 +31,7 @@ const ECI_JSON = 'https://results.eci.gov.in/ResultAcGenMay2026/election-json-S2
 const PARTY_ALIASES: Record<string, string> = {
   TVK:'TVK', DMK:'DMK', ADMK:'AIADMK', AIADMK:'AIADMK', BJP:'BJP',
   // DMK allies
-  INC:'DMK_ALLY', CPI:'DMK_ALLY', CPIM:'DMK_ALLY', VCK:'DMK_ALLY',
+  INC:'DMK_ALLY', CPI:'DMK_ALLY', 'CPI(M)':'DMK_ALLY', VCK:'DMK_ALLY',
   MDMK:'DMK_ALLY', IUML:'DMK_ALLY', KMDK:'DMK_ALLY', KMM:'DMK_ALLY',
   MMKMNKZ:'DMK_ALLY', AMMKMNKZ:'DMK_ALLY',
   // AIADMK allies
