@@ -9,7 +9,6 @@
  * Background refresh runs at most once per TTL window.
  */
 import { NextResponse } from 'next/server'
-import { generateWithAI } from '@/lib/ai'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -341,6 +340,64 @@ function buildResponse(
   return { constituencies, totalReporting: liveResults.length, totalSeats: 234, updatedAt: now, source, fallbackLevel }
 }
 
+// ── Normalise ECI party code → our display name ───────────────────────────────
+function normaliseParty(raw: string): string {
+  const p = raw.toUpperCase().trim()
+  if (p === 'TVK' || p.includes('TAMILAGA') || p.includes('VETTRI')) return 'TVK'
+  if (p === 'DMK' || p.includes('DRAVIDA MUNNETRA')) return 'DMK'
+  if (p === 'ADMK' || p === 'AIADMK' || p.includes('ANNA DRAVIDA')) return 'AIADMK'
+  if (p === 'BJP' || p.includes('BHARATIYA JANATA')) return 'BJP'
+  return 'Others'
+}
+
+// ── Fetch ECI live JSON — the real official data source ───────────────────────
+// URL discovered from: https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm
+// Structure: { S22: { chartData: [party, stateCode, acNo, candidate, color][] } }
+async function fetchECILiveJSON(): Promise<ConstituencyResult[]> {
+  const ECI_JSON = 'https://results.eci.gov.in/ResultAcGenMay2026/election-json-S22-live.json'
+  const PROXY    = `https://api.allorigins.win/raw?url=${encodeURIComponent(ECI_JSON)}`
+
+  for (const url of [ECI_JSON, PROXY]) {
+    try {
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(8000),
+        cache: 'no-store',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+          'Referer': 'https://results.eci.gov.in/',
+        },
+      })
+      if (!res.ok) continue
+
+      const json = await res.json() as Record<string, { chartData: [string, string, number, string, string][] }>
+      const s22  = json['S22']
+      if (!s22?.chartData || !Array.isArray(s22.chartData) || s22.chartData.length < 10) continue
+
+      const now = new Date().toISOString()
+      const results: ConstituencyResult[] = []
+
+      for (const row of s22.chartData) {
+        const [partyRaw, , acNo, candidate] = row
+        const seat = TN_CONSTITUENCIES.find(c => c.id === acNo)
+        if (!seat) continue
+        const leadingParty = normaliseParty(partyRaw)
+        results.push({
+          id: seat.id, name: seat.name, district: seat.district,
+          leadingParty,
+          leadingCandidate: candidate ?? null,
+          margin: null,       // ECI live JSON doesn't include margin (JS-rendered separately)
+          votesLeading: null, // Same — only available after full count declared
+          status: 'leading',  // All entries are "leading" during live count
+          updatedAt: now,
+        })
+      }
+
+      if (results.length >= 10) return results
+    } catch { continue }
+  }
+  return []
+}
+
 // ── Background data fetcher — never blocks the response ──────────────────────
 async function fetchFresh(): Promise<void> {
   if (store.refreshing) return
@@ -353,41 +410,14 @@ async function fetchFresh(): Promise<void> {
       return
     }
 
-    // 1. Try direct ECI party-constituency pages (most reliable, direct regex parse)
-    const directResults = await scrapeECIPartyPages()
-    if (directResults.length > 10) {
-      store.cache = { data: buildResponse(directResults, 'eci-live', 1), fetchedAt: now }
+    // 1. Primary: ECI official live JSON (confirmed working, all 234 constituencies)
+    const eciResults = await fetchECILiveJSON()
+    if (eciResults.length >= 10) {
+      store.cache = { data: buildResponse(eciResults, 'eci-live', 1), fetchedAt: now }
       return
     }
 
-    // 2. Try GitHub parsed JSON
-    const ghData = await tryGitHub()
-    if (ghData && ghData.length > 0) {
-      store.cache = { data: buildResponse(ghData, 'eci-live', 2), fetchedAt: now }
-      return
-    }
-
-    // 3. Try ECI party overview scrape → AI
-    const html = await scrapeECI()
-    if (html) {
-      const parsed = await parseWithAI(html, [])
-      if (parsed.length > 0) {
-        store.cache = { data: buildResponse(parsed, 'eci-live', 2), fetchedAt: now }
-        return
-      }
-    }
-
-    // 4. Headlines → AI best effort
-    const headlines = await fetchHeadlines()
-    if (headlines.length > 0) {
-      const parsed = await parseWithAI('', headlines)
-      if (parsed.length > 0) {
-        store.cache = { data: buildResponse(parsed, 'ai-parsed', 3), fetchedAt: now }
-        return
-      }
-    }
-
-    // If nothing worked — keep stale cache or show pending (no hardcoded guesses)
+    // 2. Nothing worked — keep stale cache or show pending
     if (!store.cache) {
       store.cache = { data: buildPendingResponse(), fetchedAt: now }
     } else {
@@ -398,202 +428,6 @@ async function fetchFresh(): Promise<void> {
   } finally {
     store.refreshing = false
   }
-}
-
-async function tryGitHub(): Promise<ConstituencyResult[] | null> {
-  const urls = [
-    'https://raw.githubusercontent.com/thecont1/india-votes-data/main/data/2026/TN/results.json',
-    'https://raw.githubusercontent.com/thecont1/india-votes-data/main/results/TN-2026.json',
-    'https://raw.githubusercontent.com/thecont1/india-votes-data/main/tn2026/constituency.json',
-  ]
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(4000), cache: 'no-store' })
-      if (!res.ok) continue
-      const json = await res.json() as Record<string, unknown>[]
-      if (!Array.isArray(json) || json.length < 5) continue
-      const parsed: ConstituencyResult[] = []
-      for (const row of json) {
-        const seat = TN_CONSTITUENCIES.find(c =>
-          String(row.constituency ?? row.name ?? '').toLowerCase().includes(c.name.toLowerCase().slice(0, 5))
-        )
-        if (!seat) continue
-        const party = String(row.leading_party ?? row.party ?? '')
-        if (!party) continue
-        const normalised = party.startsWith('TVK') || party.includes('Tamilaga') ? 'TVK'
-          : party.startsWith('DMK') ? 'DMK'
-          : party.startsWith('AIADMK') || party.includes('Anna') ? 'AIADMK'
-          : party.startsWith('BJP') ? 'BJP'
-          : 'Others'
-        parsed.push({
-          id: seat.id, name: seat.name, district: seat.district,
-          leadingParty: normalised,
-          leadingCandidate: String(row.leading_candidate ?? row.candidate ?? ''),
-          margin: Number(row.margin ?? 0) || null,
-          votesLeading: Number(row.votes ?? 0) || null,
-          status: row.status === 'won' ? 'won' : 'leading',
-          updatedAt: new Date().toISOString(),
-        })
-      }
-      if (parsed.length > 5) return parsed
-    } catch { continue }
-  }
-  return null
-}
-
-// ── Direct ECI party-constituency pages (confirmed working URLs) ──────────────
-// Format: partywiseleadresult-{partyId}S22.htm
-// Contains: constituency name, leading candidate, votes, margin, status
-async function scrapeECIPartyPages(): Promise<ConstituencyResult[]> {
-  const headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
-    'Referer': 'https://results.eci.gov.in/',
-  }
-  const BASE = 'https://results.eci.gov.in/ResultAcGenMay2026/'
-  const results: ConstituencyResult[] = []
-  const seen = new Set<string>()
-
-  // Fetch top 3 party pages in parallel (TVK, ADMK, DMK)
-  const topPages = [
-    { id: '3679', party: 'TVK'    as const },
-    { id: '75',   party: 'AIADMK' as const },
-    { id: '582',  party: 'DMK'    as const },
-    { id: '369',  party: 'BJP'    as const },
-  ]
-
-  await Promise.allSettled(topPages.map(async ({ id, party }) => {
-    const urls = [
-      `${BASE}partywiseleadresult-${id}S22.htm`,
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(`${BASE}partywiseleadresult-${id}S22.htm`)}`,
-    ]
-    for (const url of urls) {
-      try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(10000), headers, cache: 'no-store' })
-        if (!res.ok) continue
-        const html = await res.text()
-        if (html.length < 500) continue
-
-        // Parse the table: "N CONSTITUENCYNAME(AC_NO) CANDIDATE TOTALVOTES MARGIN STATUS"
-        // e.g. "1 TIRUTTANI(3) G.HARI 7098 171 2/25"
-        const text = html
-          .replace(/<script[\s\S]*?<\/script>/gi, '')
-          .replace(/<style[\s\S]*?<\/style>/gi, '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/\s+/g, ' ')
-
-        // Match: number CONSTITUENCYNAME(acNo) CANDIDATE votes margin rounds/total
-        const rowPattern = /\d+\s+([A-Z][A-Z\s\(\)]+\((\d+)\))\s+([A-Z][A-Z\s\.]+?)\s+(\d{4,})\s+(\d+)\s+(\d+)\/(\d+)/g
-        let m: RegExpExecArray | null
-        while ((m = rowPattern.exec(text)) !== null) {
-          const constNameRaw = m[1].trim()
-          const acNo         = parseInt(m[2], 10)
-          const candidate    = m[3].trim()
-          const margin       = parseInt(m[5], 10)
-
-          // Find the seat — first try AC number, then name match
-          const seat = TN_CONSTITUENCIES.find(c => c.id === acNo)
-            ?? TN_CONSTITUENCIES.find(c => constNameRaw.toLowerCase().includes(c.name.toLowerCase().slice(0, 5)))
-
-          if (!seat || seen.has(`${seat.id}`)) continue
-          seen.add(`${seat.id}`)
-
-          results.push({
-            id:               seat.id,
-            name:             seat.name,
-            district:         seat.district,
-            leadingParty:     party,
-            leadingCandidate: candidate,
-            margin:           margin || null,
-            votesLeading:     parseInt(m[4], 10) || null,
-            status:           'leading',
-            updatedAt:        new Date().toISOString(),
-          })
-        }
-        break // success for this party
-      } catch { continue }
-    }
-  }))
-
-  return results
-}
-
-async function scrapeECI(): Promise<string> {
-  // Fallback to text scrape only if direct party pages fail
-  const headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
-    'Referer': 'https://results.eci.gov.in/',
-  }
-  const urls = [
-    'https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm',
-    `https://api.allorigins.win/raw?url=${encodeURIComponent('https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm')}`,
-  ]
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(10000), headers, cache: 'no-store' })
-      if (!res.ok) continue
-      const html = await res.text()
-      if (html.length < 500) continue
-      const cleaned = html
-        .replace(/<script[\s\S]*?<\/script>/gi, '')
-        .replace(/<style[\s\S]*?<\/style>/gi, '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ').trim()
-      if (cleaned.length > 300 && (cleaned.includes('TVK') || cleaned.includes('DMK'))) {
-        return cleaned.slice(0, 7000)
-      }
-    } catch { continue }
-  }
-  return ''
-}
-
-async function fetchHeadlines(): Promise<string[]> {
-  const headlines: string[] = []
-  await Promise.allSettled([
-    'https://www.thehindu.com/elections/feeder/default.rss',
-    'https://feeds.feedburner.com/ndtvnews-india-news',
-  ].map(async url => {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(4000) })
-      if (!res.ok) return
-      const xml = await res.text()
-      for (const m of xml.matchAll(/<title[^>]*>([\s\S]*?)<\/title>/g)) {
-        const t = m[1].replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]+>/g, '').trim()
-        if (t.length > 15 && /election|result|win|lead|count|seat|TVK|DMK|AIADMK/i.test(t)) headlines.push(t)
-      }
-    } catch { /* skip */ }
-  }))
-  return [...new Set(headlines)].slice(0, 12)
-}
-
-async function parseWithAI(html: string, headlines: string[]): Promise<ConstituencyResult[]> {
-  const ctx = [
-    html ? `ECI data:\n${html.slice(0, 3500)}` : '',
-    headlines.length ? `Headlines:\n${headlines.join('\n')}` : '',
-  ].filter(Boolean).join('\n\n')
-  if (!ctx.trim()) return []
-
-  const prompt = `Tamil Nadu Assembly Election 2026, counting day May 4.
-Extract constituency-level results from this data.
-Party names: TVK, DMK, AIADMK, BJP, Others only.
-Status: "leading" = counting in progress, "won" = officially declared.
-
-Data:
-${ctx.slice(0, 5000)}
-
-Return ONLY a compact JSON array, no markdown:
-[{"id":1,"name":"Thiruvottiyur","district":"Chennai","leadingParty":"TVK","leadingCandidate":"Name","margin":1234,"votesLeading":45000,"status":"leading"},...]
-
-Include only seats with real data. Return [] if none found.`
-
-  try {
-    const raw = await generateWithAI(prompt, { mode: 'fast', maxTokens: 2000, systemPrompt: 'Return only compact JSON array.', noCache: true })
-    const cleaned = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
-    const parsed = JSON.parse(cleaned)
-    if (!Array.isArray(parsed)) return []
-    return parsed.filter((p: ConstituencyResult) => p.id && p.leadingParty)
-  } catch { return [] }
 }
 
 // ── FALLBACK 1: Manual env override ──────────────────────────────────────────

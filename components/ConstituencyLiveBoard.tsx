@@ -449,6 +449,95 @@ export default function ConstituencyLiveBoard() {
       {/* ── Party summary pills ── */}
       {!loading && <PartyPills constituencies={constituencies} />}
 
+      {/* ── Race to 118 banner ── */}
+      {!loading && (() => {
+        const tallies118: Record<string, number> = {}
+        for (const c of constituencies) {
+          if (!c.leadingParty) continue
+          tallies118[c.leadingParty] = (tallies118[c.leadingParty] ?? 0) + 1
+        }
+        const sorted = Object.entries(tallies118).sort((a, b) => b[1] - a[1])
+        if (sorted.length === 0) return null
+        const [leader, leaderCount] = sorted[0]
+        const leaderColor  = PARTY_COLORS[leader] ?? '#94a3b8'
+        const needed       = Math.max(0, 118 - leaderCount)
+        const pctToMaj     = Math.min(100, Math.round((leaderCount / 118) * 100))
+        const hasMajority  = leaderCount >= 118
+
+        return (
+          <div style={{
+            borderRadius: 14, padding: '14px 16px',
+            background: hasMajority
+              ? `linear-gradient(135deg, ${leaderColor}1a 0%, rgba(74,222,128,0.08) 100%)`
+              : `linear-gradient(135deg, ${leaderColor}0f 0%, rgba(255,255,255,0.02) 100%)`,
+            border: `1px solid ${hasMajority ? leaderColor + '50' : leaderColor + '28'}`,
+            boxShadow: hasMajority ? `0 4px 24px ${leaderColor}28` : 'none',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+              {/* Left: label */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{
+                  fontSize: 9, fontWeight: 900, padding: '2px 7px', borderRadius: 4, letterSpacing: '0.1em',
+                  background: hasMajority ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.07)',
+                  color: hasMajority ? '#4ade80' : 'rgba(255,255,255,0.4)',
+                }}>
+                  {hasMajority ? '🏆 MAJORITY' : 'RACE TO 118'}
+                </span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: leaderColor }}>
+                  {leader}
+                </span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
+                  {hasMajority
+                    ? `won ${leaderCount} seats — majority secured!`
+                    : `leading ${leaderCount} · needs ${needed} more`}
+                </span>
+              </div>
+              {/* Right: big number */}
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                <span style={{ fontSize: 28, fontWeight: 900, color: leaderColor, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                  {leaderCount}
+                </span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', fontVariantNumeric: 'tabular-nums' }}>/118</span>
+              </div>
+            </div>
+
+            {/* Progress to majority */}
+            <div style={{ position: 'relative' }}>
+              <div style={{ height: 10, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%', borderRadius: 99,
+                  width: `${pctToMaj}%`,
+                  background: hasMajority
+                    ? 'linear-gradient(90deg, #4ade80, #22c55e)'
+                    : `linear-gradient(90deg, ${leaderColor}cc, ${leaderColor})`,
+                  transition: 'width 1.4s cubic-bezier(.34,1.56,.64,1)',
+                  boxShadow: `0 0 10px ${leaderColor}80`,
+                }} />
+              </div>
+              {/* Majority label at 100% */}
+              <div style={{
+                position: 'absolute', right: 0, top: -16,
+                fontSize: 8, fontWeight: 900, color: '#fbbf24',
+              }}>118 ↑</div>
+            </div>
+
+            {/* Runner-up row */}
+            {sorted.length > 1 && (
+              <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
+                {sorted.slice(1, 4).map(([p, cnt]) => {
+                  const c = PARTY_COLORS[p] ?? '#94a3b8'
+                  return (
+                    <span key={p} style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>
+                      <span style={{ color: c, fontWeight: 800 }}>{p}</span> {cnt}
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )
+      })()}
+
       {/* ── Progress bar ── */}
       {!loading && (() => {
         const pct     = totalReporting / 234

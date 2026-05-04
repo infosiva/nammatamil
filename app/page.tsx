@@ -3,6 +3,7 @@ import AdUnit from '@/components/AdUnit'
 import ElectionAnimatedStats from '@/components/ElectionAnimatedStats'
 import ConstituencyLiveBoard from '@/components/ConstituencyLiveBoard'
 import NammaTVKVideos from '@/components/NammaTVKVideos'
+import VisitorCounter from '@/components/VisitorCounter'
 
 export default function HomePage() {
   return (
@@ -66,7 +67,7 @@ export default function HomePage() {
 
         {/* ── Dashboard header ── */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-0">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontWeight: 900, fontSize: 18, color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.01em' }}>
                 TN Election 2026 — Live Results
@@ -75,6 +76,7 @@ export default function HomePage() {
                 Tamil Nadu Assembly Elections · 234 Constituencies · May 4, 2026
               </span>
             </div>
+            <VisitorCounter />
           </div>
 
           {/* ── Main stats dashboard ── */}
