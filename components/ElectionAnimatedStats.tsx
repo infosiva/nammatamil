@@ -170,6 +170,99 @@ function Chip({ label, value, sub, color, live }: { label: string; value: string
   )
 }
 
+// ─── Live Insights (auto-generated smart facts from live data) ───────────────
+function LiveInsights({ data }: { data: ElectionData }) {
+  const [idx, setIdx] = useState(0)
+  const [fade, setFade] = useState(true)
+
+  const parties = data.parties
+  const tvk   = parties.find(p => p.name === 'TVK')
+  const dmk   = parties.find(p => p.name === 'DMK')
+  const admk  = parties.find(p => p.name === 'AIADMK')
+  const bjp   = parties.find(p => p.name === 'BJP')
+  const leader = parties.find(p => p.isLeading)
+  const winner = parties.find(p => p.hasMajority)
+  const total234 = data.seatsReported
+
+  const insights: { icon: string; text: string; color: string }[] = []
+
+  if (winner) {
+    insights.push({ icon: '🏆', color: winner.color,
+      text: `${winner.fullName} wins Tamil Nadu 2026 with ${winner.totalTally} seats — ${winner.totalTally - MAJORITY} seats above majority` })
+  }
+  if (tvk && leader?.name === 'TVK') {
+    insights.push({ icon: '⭐', color: '#fbbf24',
+      text: `Thalapathy Vijay's TVK sweeps ${tvk.totalTally} constituencies — a historic debut for a party contesting its first election` })
+  }
+  if (admk && admk.totalTally > 0 && tvk && tvk.totalTally > 0) {
+    insights.push({ icon: '📊', color: '#4ade80',
+      text: `TVK leads ADMK by ${(tvk?.totalTally ?? 0) - admk.totalTally} seats — ADMK trails with ${admk.totalTally} constituencies` })
+  }
+  if (dmk && dmk.totalTally > 0) {
+    insights.push({ icon: '📉', color: '#f87171',
+      text: `DMK (ruling party) drops to ${dmk.totalTally} seats — a significant loss from their 2021 tally of 133` })
+  }
+  if (bjp && bjp.totalTally > 0) {
+    insights.push({ icon: '🪷', color: '#fb923c',
+      text: `BJP wins ${bjp.totalTally} seats in Tamil Nadu — Annamalai's campaign shows marginal gains` })
+  }
+  if (tvk && tvk.totalTally >= 118) {
+    insights.push({ icon: '🎯', color: '#fbbf24',
+      text: `TVK crosses the magic 118 majority mark with ${tvk.totalTally} seats — government formation confirmed` })
+  }
+  if (total234 > 0) {
+    insights.push({ icon: '🗳️', color: 'rgba(255,255,255,0.5)',
+      text: `All ${total234} of 234 constituencies have declared results in Tamil Nadu Assembly Election 2026` })
+  }
+  if (tvk && admk && dmk) {
+    const others = 234 - (tvk.totalTally + admk.totalTally + dmk.totalTally + (bjp?.totalTally ?? 0))
+    if (others > 0) insights.push({ icon: '🏛️', color: '#94a3b8',
+      text: `Other parties and independents win ${others} seats across Tamil Nadu's 234 constituencies` })
+  }
+
+  const items = insights.length > 0 ? insights : [{ icon: '📡', color: 'rgba(255,255,255,0.4)', text: 'Live results flowing in — Tamil Nadu Assembly Election 2026 counting underway' }]
+
+  useEffect(() => {
+    if (items.length <= 1) return
+    const t = setInterval(() => {
+      setFade(false)
+      setTimeout(() => { setIdx(i => (i + 1) % items.length); setFade(true) }, 400)
+    }, 4000)
+    return () => clearInterval(t)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length])
+
+  const item = items[idx % items.length]
+
+  return (
+    <div style={{
+      borderRadius: 12, padding: '10px 14px',
+      background: 'rgba(255,255,255,0.025)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      display: 'flex', alignItems: 'center', gap: 10,
+      minHeight: 44,
+      transition: 'opacity 0.4s ease',
+      opacity: fade ? 1 : 0,
+    }}>
+      <span style={{ fontSize: 16, flexShrink: 0 }}>{item.icon}</span>
+      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.4, flex: 1 }}>
+        {item.text}
+      </span>
+      {items.length > 1 && (
+        <div style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
+          {items.map((_, i) => (
+            <span key={i} style={{
+              width: i === idx % items.length ? 14 : 5, height: 5, borderRadius: 99,
+              background: i === idx % items.length ? item.color : 'rgba(255,255,255,0.15)',
+              transition: 'all 0.3s ease',
+            }} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Seat bar ───────────────────────────────────────────────────────────────
 function SeatBar({ parties }: { parties: PartyResult[] }) {
   const total = parties.reduce((s, p) => s + p.totalTally, 0)
@@ -353,6 +446,9 @@ export default function ElectionAnimatedStats() {
       {/* ── Winner Banner ── */}
       {winner && hasData && <WinnerBanner p={winner} />}
 
+      {/* ── Live Insights ticker ── */}
+      {hasData && <LiveInsights data={data} />}
+
       {/* ── Counting progress strip ── */}
       {(() => {
         const counted   = data.seatsReported
@@ -428,11 +524,11 @@ export default function ElectionAnimatedStats() {
 
               let statusLabel = ''
               let statusColor = ''
-              if (hasMaj) { statusLabel = 'MAJORITY WON'; statusColor = '#4ade80' }
-              else if (!canWin) { statusLabel = 'CANNOT WIN'; statusColor = 'rgba(255,255,255,0.25)' }
+              if (hasMaj) { statusLabel = 'MAJORITY'; statusColor = '#4ade80' }
+              else if (!canWin) { statusLabel = 'NO MAJORITY'; statusColor = 'rgba(255,255,255,0.35)' }
               else if (needed <= 10) { statusLabel = 'VERY CLOSE'; statusColor = '#fbbf24' }
               else if (needed <= 30) { statusLabel = 'IN RANGE'; statusColor = color }
-              else { statusLabel = 'NEEDS MORE'; statusColor = 'rgba(255,255,255,0.3)' }
+              else { statusLabel = 'TRAILING'; statusColor = 'rgba(255,255,255,0.3)' }
 
               return (
                 <div key={p.name} style={{
@@ -456,7 +552,12 @@ export default function ElectionAnimatedStats() {
                       <span style={{ fontSize: 22, fontWeight: 900, color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
                         <AnimNum n={total} />
                       </span>
-                      {!hasMaj && (
+                      {!hasMaj && pending === 0 && (
+                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.28)', fontVariantNumeric: 'tabular-nums' }}>
+                          fell short by {needed}
+                        </span>
+                      )}
+                      {!hasMaj && pending > 0 && (
                         <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.28)', fontVariantNumeric: 'tabular-nums' }}>
                           needs {needed} more
                         </span>
@@ -483,7 +584,7 @@ export default function ElectionAnimatedStats() {
                   {/* Sub row */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
                     <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)' }}>
-                      {p.seatsWon}W + {p.seatsLeading}L
+                      {total} of {MAJORITY} seats needed
                     </span>
                     <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)' }}>
                       {pctFill}% to majority
@@ -544,7 +645,7 @@ export default function ElectionAnimatedStats() {
             )}
             {hasData && (
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.05)', padding: '2px 7px', borderRadius: 99 }}>
-                {totalWon}W · {totalLead}L
+                {data.seatsReported} seats reporting
               </span>
             )}
           </div>
@@ -570,7 +671,7 @@ export default function ElectionAnimatedStats() {
         }}>
           <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Party</span>
           <span style={{ fontSize: 8, fontWeight: 700, color: '#4ade80', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Won</span>
-          <span style={{ fontSize: 8, fontWeight: 700, color: '#fbbf24', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Leading</span>
+          <span style={{ fontSize: 8, fontWeight: 700, color: '#fbbf24', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Seats</span>
           <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em', paddingRight: 8 }}>Total</span>
         </div>
 
