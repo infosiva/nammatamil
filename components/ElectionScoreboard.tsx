@@ -292,56 +292,158 @@ export default function ElectionScoreboard() {
           })}
         </div>
 
-        {/* ── COUNTING PROGRESS BAR ── */}
+        {/* ── SEAT BAR CHART ── bold horizontal visual, majority marker ── */}
         <div style={{
-          borderRadius: 12, padding: '10px 14px',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: 16, padding: '14px 16px',
+          background: 'rgba(255,255,255,0.025)',
+          border: '1px solid rgba(255,255,255,0.07)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
+          {/* Header row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {!allDone && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'sbDot 1.5s infinite' }} />}
               <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em' }}>
-                {allDone ? '✓ ALL CONSTITUENCIES DECLARED' : 'COUNTING PROGRESS'}
+                {allDone ? '✓ ALL SEATS DECLARED' : 'SEAT COUNT — LIVE'}
               </span>
             </div>
-            <span style={{ fontSize: 11, fontWeight: 900, color: allDone ? '#4ade80' : 'rgba(255,255,255,0.6)', fontVariantNumeric: 'tabular-nums' }}>
-              {declared} / {TOTAL} · {countPct}%
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.28)', fontWeight: 700 }}>
+              {declared}/{TOTAL} counted · {countPct}%
             </span>
           </div>
-          <div style={{ height: 10, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative' }}>
-            {/* Segmented party bar */}
-            <div style={{ display: 'flex', height: '100%', overflow: 'hidden', borderRadius: 99 }}>
-              {parties.map(p => (
-                <div key={p.name} style={{
-                  height: '100%',
-                  width: `${(p.seats / TOTAL) * 100}%`,
-                  background: `linear-gradient(90deg,${p.color}99,${p.color})`,
-                  transition: 'width 1.2s cubic-bezier(.34,1.56,.64,1)',
-                }} />
-              ))}
-              {/* uncounted portion */}
+
+          {/* ── MAIN FAT BAR ── */}
+          <div style={{ position: 'relative', marginBottom: 6 }}>
+            {/* Bar itself */}
+            <div style={{ height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', display: 'flex' }}>
+              {parties.map(p => {
+                const pct = (p.seats / TOTAL) * 100
+                return (
+                  <div key={p.name} style={{
+                    height: '100%',
+                    width: `${pct}%`,
+                    background: `linear-gradient(90deg,${p.color}bb,${p.color})`,
+                    transition: 'width 1.4s cubic-bezier(.34,1.56,.64,1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                    position: 'relative',
+                  }}>
+                    {/* Show seat count label inside segment if wide enough */}
+                    {pct > 8 && (
+                      <span style={{ fontSize: 12, fontWeight: 900, color: '#000', opacity: 0.7, whiteSpace: 'nowrap' }}>
+                        {p.seats}
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+              {/* Uncounted grey portion */}
               {remaining > 0 && (
-                <div style={{ height: '100%', flex: 1, background: 'rgba(255,255,255,0.04)' }} />
+                <div style={{ height: '100%', flex: 1, background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.18)', fontWeight: 700 }}>
+                    {remaining} left
+                  </span>
+                </div>
               )}
             </div>
-            {/* Majority line */}
+
+            {/* Majority needle */}
             <div style={{
-              position: 'absolute', top: -2, bottom: -2,
+              position: 'absolute', top: -8, bottom: -8,
               left: `${(MAJORITY / TOTAL) * 100}%`,
-              width: 3, background: '#fbbf24',
-              boxShadow: '0 0 8px rgba(251,191,36,0.9)',
-            }} />
+              width: 2, background: '#fbbf24',
+              boxShadow: '0 0 10px rgba(251,191,36,1)',
+              zIndex: 10,
+            }}>
+              {/* Needle top label */}
+              <div style={{
+                position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)',
+                fontSize: 7, fontWeight: 900, color: '#fbbf24', whiteSpace: 'nowrap',
+                letterSpacing: '0.04em',
+              }}>
+                {MAJORITY} ★
+              </div>
+            </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5, flexWrap: 'wrap', gap: 4 }}>
+
+          {/* ── PER-PARTY ROWS (compact bar chart) ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 14 }}>
+            {parties.map(p => {
+              const pct     = (p.seats / TOTAL) * 100
+              const toMaj   = MAJORITY - p.seats
+              const hasMaj  = p.seats >= MAJORITY
+              const nearMaj = !hasMaj && toMaj <= 20 // within 20 seats
+
+              return (
+                <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {/* Party label */}
+                  <div style={{ width: 36, textAlign: 'right', flexShrink: 0 }}>
+                    <span style={{ fontSize: 10, fontWeight: 900, color: p.color }}>{p.shortName}</span>
+                  </div>
+
+                  {/* Bar track */}
+                  <div style={{ flex: 1, height: 18, borderRadius: 6, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', position: 'relative' }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${pct}%`,
+                      background: hasMaj
+                        ? `linear-gradient(90deg,${p.color}99,${p.color})`
+                        : `linear-gradient(90deg,${p.color}66,${p.color}aa)`,
+                      borderRadius: 6,
+                      transition: 'width 1.4s cubic-bezier(.34,1.56,.64,1)',
+                      boxShadow: hasMaj ? `0 0 8px ${p.color}66` : 'none',
+                      display: 'flex', alignItems: 'center', paddingLeft: 6,
+                    }}>
+                      {pct > 5 && (
+                        <span style={{ fontSize: 9, fontWeight: 900, color: '#000', opacity: 0.65 }}>{p.seats}</span>
+                      )}
+                    </div>
+                    {/* Majority marker on row */}
+                    <div style={{
+                      position: 'absolute', top: 0, bottom: 0,
+                      left: `${(MAJORITY / TOTAL) * 100}%`,
+                      width: 1.5, background: 'rgba(251,191,36,0.6)',
+                    }} />
+                  </div>
+
+                  {/* Seat count + status */}
+                  <div style={{ width: 80, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: p.color, fontVariantNumeric: 'tabular-nums', minWidth: 28 }}>
+                      <AnimNum n={p.seats} />
+                    </span>
+                    {hasMaj && (
+                      <span style={{ fontSize: 7, fontWeight: 900, color: '#4ade80', background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: 99, padding: '1px 5px', whiteSpace: 'nowrap' }}>
+                        ✓ WON
+                      </span>
+                    )}
+                    {nearMaj && !hasMaj && (
+                      <span style={{ fontSize: 7, fontWeight: 900, color: '#fbbf24', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 99, padding: '1px 5px', whiteSpace: 'nowrap', animation: 'sbDot 1.5s infinite' }}>
+                        -{toMaj}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Legend */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, flexWrap: 'wrap', gap: 4 }}>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {parties.map(p => (
-                <span key={p.name} style={{ fontSize: 8, color: p.color, fontWeight: 700 }}>
-                  {p.emoji} {p.shortName} {p.seats}
+                <span key={p.name} style={{ fontSize: 8, color: p.color, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: p.color, display: 'inline-block' }} />
+                  {p.emoji} {p.shortName}
                 </span>
               ))}
+              {remaining > 0 && (
+                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: 'rgba(255,255,255,0.08)', display: 'inline-block' }} />
+                  Not declared
+                </span>
+              )}
             </div>
-            <span style={{ fontSize: 8, color: 'rgba(251,191,36,0.6)', fontWeight: 700 }}>▲ {MAJORITY} majority line</span>
+            <span style={{ fontSize: 8, color: 'rgba(251,191,36,0.7)', fontWeight: 700 }}>
+              ★ {MAJORITY} majority mark
+            </span>
           </div>
         </div>
       </div>
