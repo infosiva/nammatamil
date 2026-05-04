@@ -1,135 +1,89 @@
 'use client'
 
 /**
- * ElectionDashboard — Tamil Nadu Election 2026 Live Results Dashboard
- *
- * Features:
- * - Winner banner when any party crosses 118
- * - Large parliament arc / seat bar visualization
- * - Party tally with Won | Leading | Total | Vote% columns
- * - Majority tracker bar per party
- * - Auto-refresh every 90s with live indicator
- * - Animated number counters
+ * TN Election 2026 — Live Results Dashboard
+ * Google Material-inspired, mobile-first, dark theme.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface PartyResult {
-  name: string
-  fullName: string
-  leader: string
-  color: string
-  emoji: string
-  seatsWon: number
-  seatsLeading: number
-  totalTally: number
-  voteShare: number
-  trend: 'up' | 'down' | 'stable'
-  isLeading: boolean
-  hasMajority: boolean
+  name: string; fullName: string; leader: string; color: string; emoji: string
+  seatsWon: number; seatsLeading: number; totalTally: number; voteShare: number
+  trend: 'up' | 'down' | 'stable'; isLeading: boolean; hasMajority: boolean
 }
-
 interface ElectionData {
-  phase: string
-  seatsReported: number
-  totalSeats: number
-  majorityMark: number
-  parties: PartyResult[]
-  narrative: string
-  updatedAt: string
-  source: string
-  leader: string
-  projectedWinner: string | null
-  refreshing?: boolean
+  phase: string; seatsReported: number; totalSeats: number; majorityMark: number
+  parties: PartyResult[]; narrative: string; updatedAt: string; source: string
+  leader: string; projectedWinner: string | null; refreshing?: boolean
 }
 
-const REFRESH_MS = 60 * 1000   // refresh every 60s on counting day
-const MAJORITY = 118
-const TOTAL = 234
+const REFRESH_MS = 60_000
+const MAJORITY   = 118
+const TOTAL      = 234
 
-// ── Animated number counter ───────────────────────────────────────────────────
-function AnimNum({ value, duration = 800 }: { value: number; duration?: number }) {
-  const [display, setDisplay] = useState(value)
-  const prev = useRef(value)
+// ─── Animated counter ───────────────────────────────────────────────────────
+function AnimNum({ n, dur = 700 }: { n: number; dur?: number }) {
+  const [v, setV] = useState(n)
+  const prev = useRef(n)
   const raf  = useRef<number | null>(null)
-
   useEffect(() => {
-    if (prev.current === value) return
+    if (prev.current === n) return
     if (raf.current) cancelAnimationFrame(raf.current)
-    const start = prev.current
-    const diff  = value - start
-    const t0    = performance.now()
-    const step  = (now: number) => {
-      const t = Math.min((now - t0) / duration, 1)
-      const e = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
-      setDisplay(Math.round(start + diff * e))
-      if (t < 1) { raf.current = requestAnimationFrame(step) }
-      else { setDisplay(value); prev.current = value }
+    const s0 = prev.current, d = n - s0, t0 = performance.now()
+    const step = (now: number) => {
+      const t = Math.min((now - t0) / dur, 1)
+      const e = t < .5 ? 2*t*t : -1+(4-2*t)*t
+      setV(Math.round(s0 + d * e))
+      if (t < 1) raf.current = requestAnimationFrame(step)
+      else { setV(n); prev.current = n }
     }
     raf.current = requestAnimationFrame(step)
     return () => { if (raf.current) cancelAnimationFrame(raf.current) }
-  }, [value, duration])
-
-  return <>{display}</>
+  }, [n, dur])
+  return <>{v}</>
 }
 
-// ── Winner banner ─────────────────────────────────────────────────────────────
-function WinnerBanner({ party }: { party: PartyResult }) {
+// ─── Winner Banner ──────────────────────────────────────────────────────────
+function WinnerBanner({ p }: { p: PartyResult }) {
   return (
     <div style={{
-      borderRadius: 16,
-      padding: '16px',
-      background: `linear-gradient(135deg, ${party.color}18, ${party.color}08)`,
-      border: `1.5px solid ${party.color}50`,
-      boxShadow: `0 0 32px ${party.color}20`,
-      position: 'relative', overflow: 'hidden',
-      animation: 'winnerGlow 2.5s ease-in-out infinite',
+      borderRadius: 16, padding: '0', overflow: 'hidden',
+      background: `linear-gradient(135deg, ${p.color}22 0%, #0d0020 60%)`,
+      border: `1px solid ${p.color}44`,
+      boxShadow: `0 4px 32px ${p.color}22`,
+      animation: 'elGlow 3s ease-in-out infinite',
     }}>
-      {/* Floating dots */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        {[...Array(6)].map((_, i) => (
-          <div key={i} style={{
-            position: 'absolute', width: 4, height: 4, borderRadius: '50%',
-            background: party.color, opacity: 0.2,
-            left: `${8 + i * 16}%`, top: `${25 + (i % 2) * 40}%`,
-            animation: `float ${1.8 + i * 0.4}s ease-in-out infinite alternate`,
-          }} />
-        ))}
-      </div>
-
-      {/* Top line */}
-      <div style={{ fontSize: 9, fontWeight: 800, color: party.color, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-        🏆 MAJORITY WON — TAMIL NADU ASSEMBLY 2026
-      </div>
-
-      {/* Main content row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      {/* Shimmer top bar */}
+      <div style={{ height: 3, background: `linear-gradient(90deg, ${p.color}00, ${p.color}, ${p.color}00)`, animation: 'shimBar 2s ease-in-out infinite' }} />
+      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+        {/* Badge */}
         <div style={{
-          width: 52, height: 52, borderRadius: '50%', flexShrink: 0,
-          background: `${party.color}18`, border: `2px solid ${party.color}45`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
-        }}>
-          {party.emoji}
-        </div>
-
+          width: 56, height: 56, borderRadius: 14, flexShrink: 0,
+          background: `${p.color}18`, border: `1.5px solid ${p.color}40`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 26, boxShadow: `0 0 20px ${p.color}30`,
+        }}>{p.emoji}</div>
+        {/* Text */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 'clamp(16px, 4vw, 22px)', fontWeight: 900, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>
-            {party.fullName}
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', color: p.color, textTransform: 'uppercase', marginBottom: 3 }}>
+            🏆 Majority Won · Tamil Nadu 2026
           </div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
-            Led by {party.leader}
+          <div style={{ fontSize: 'clamp(15px,3.5vw,20px)', fontWeight: 900, color: '#fff', lineHeight: 1.15, marginBottom: 5 }}>
+            {p.fullName}
           </div>
-          <span style={{
-            display: 'inline-block', fontSize: 10, fontWeight: 900, padding: '3px 10px', borderRadius: 99,
-            background: `${party.color}22`, color: party.color, border: `1px solid ${party.color}40`,
-          }}>
-            {party.totalTally - MAJORITY}+ seats above majority
-          </span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Led by {p.leader}</span>
+            <span style={{
+              fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 99,
+              background: `${p.color}20`, color: p.color, border: `1px solid ${p.color}38`,
+            }}>{p.totalTally - MAJORITY}+ above majority</span>
+          </div>
         </div>
-
+        {/* Big seat count */}
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
-          <div style={{ fontSize: 'clamp(36px, 8vw, 52px)', fontWeight: 900, color: party.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-            <AnimNum value={party.totalTally} />
+          <div style={{ fontSize: 'clamp(32px,7vw,48px)', fontWeight: 900, color: p.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+            <AnimNum n={p.totalTally} />
           </div>
           <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>seats</div>
         </div>
@@ -138,430 +92,315 @@ function WinnerBanner({ party }: { party: PartyResult }) {
   )
 }
 
-// ── Top stat cards ────────────────────────────────────────────────────────────
-function StatCard({ label, value, sub, color, pulse }: {
-  label: string; value: string | number; sub?: string; color?: string; pulse?: boolean
-}) {
+// ─── Stat chip ──────────────────────────────────────────────────────────────
+function Chip({ label, value, sub, color, live }: { label: string; value: string | number; sub?: string; color?: string; live?: boolean }) {
+  const c = color ?? 'rgba(255,255,255,0.7)'
   return (
     <div style={{
-      borderRadius: 14, padding: '14px 16px',
-      background: color ? `${color}0c` : 'rgba(255,255,255,0.03)',
-      border: `1px solid ${color ? color + '28' : 'rgba(255,255,255,0.08)'}`,
-      flex: 1, minWidth: 0,
-      transition: 'border-color 0.5s',
+      borderRadius: 14, padding: '12px 14px', flex: 1, minWidth: 0,
+      background: color ? `${color}0a` : 'rgba(255,255,255,0.025)',
+      border: `1px solid ${color ? color + '22' : 'rgba(255,255,255,0.07)'}`,
     }}>
-      <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
-        {pulse && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', display: 'inline-block', flexShrink: 0, animation: 'livePulse 1.5s infinite' }} />}
+      <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.28)', marginBottom: 7, display: 'flex', alignItems: 'center', gap: 5 }}>
+        {live && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#ef4444', flexShrink: 0, display: 'inline-block', animation: 'elPulse 1.5s infinite' }} />}
         {label}
       </div>
-      <div style={{ fontWeight: 900, fontSize: 'clamp(18px, 4vw, 26px)', color: color ?? 'rgba(255,255,255,0.9)', fontVariantNumeric: 'tabular-nums', lineHeight: 1, wordBreak: 'break-all' }}>
+      <div style={{ fontSize: 'clamp(17px,3.8vw,24px)', fontWeight: 900, color: c, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
         {value}
       </div>
-      {sub && <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', marginTop: 6, lineHeight: 1.4 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', marginTop: 5 }}>{sub}</div>}
     </div>
   )
 }
 
-// ── Majority progress bar per party ──────────────────────────────────────────
-function MajorityBar({ party }: { party: PartyResult }) {
-  const pct = Math.min((party.totalTally / MAJORITY) * 100, 100)
-  return (
-    <div style={{ flex: 1, minWidth: 80 }}>
-      <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-        <div style={{
-          height: '100%', borderRadius: 99,
-          width: `${pct}%`,
-          background: party.hasMajority ? '#4ade80' : party.color,
-          transition: 'width 1.2s cubic-bezier(0.34,1.56,0.64,1)',
-          boxShadow: party.hasMajority ? '0 0 6px rgba(74,222,128,0.6)' : 'none',
-        }} />
-      </div>
-      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', marginTop: 3, textAlign: 'right' }}>
-        {party.totalTally}/{MAJORITY}
-      </div>
-    </div>
-  )
-}
-
-// ── Parliament bar ────────────────────────────────────────────────────────────
-function ParliamentBar({ parties }: { parties: PartyResult[] }) {
-  const totalReported = parties.reduce((s, p) => s + p.totalTally, 0)
-  const scale = totalReported > 0 ? Math.min(TOTAL / totalReported, 1) : 1
-
+// ─── Seat bar ───────────────────────────────────────────────────────────────
+function SeatBar({ parties }: { parties: PartyResult[] }) {
+  const total = parties.reduce((s, p) => s + p.totalTally, 0)
+  const scale = total > 0 ? Math.min(TOTAL / total, 1) : 0
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          Parliament — {TOTAL} seats
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          {TOTAL} Seats
         </span>
-        <span style={{ fontSize: 10, color: 'rgba(251,191,36,0.7)', fontWeight: 700 }}>
-          Majority: {MAJORITY} seats
+        <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(251,191,36,0.65)' }}>
+          Majority: {MAJORITY}
         </span>
       </div>
-
-      {/* Big seat bar */}
-      <div style={{ height: 36, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', display: 'flex', position: 'relative' }}>
+      {/* Bar */}
+      <div style={{ height: 32, borderRadius: 99, background: 'rgba(255,255,255,0.05)', display: 'flex', overflow: 'hidden', position: 'relative' }}>
         {parties.map(p => {
-          const pct = (p.totalTally * scale / TOTAL) * 100
-          if (pct < 0.5) return null
+          const w = (p.totalTally * scale / TOTAL) * 100
+          if (w < 0.4) return null
           return (
-            <div key={p.name} style={{
-              width: `${pct}%`,
-              background: p.isLeading
-                ? `linear-gradient(90deg, ${p.color}cc, ${p.color})`
-                : `linear-gradient(90deg, ${p.color}66, ${p.color}88)`,
-              transition: 'width 1.4s cubic-bezier(0.34,1.56,0.64,1)',
-              boxShadow: p.isLeading ? `0 0 16px ${p.color}50` : 'none',
+            <div key={p.name} title={`${p.name}: ${p.totalTally}`} style={{
+              width: `${w}%`,
+              background: p.isLeading ? `linear-gradient(90deg,${p.color}bb,${p.color})` : `${p.color}77`,
+              transition: 'width 1.3s cubic-bezier(.34,1.56,.64,1)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              {pct > 7 && (
-                <span style={{ fontSize: 10, fontWeight: 900, color: 'rgba(0,0,0,0.75)', whiteSpace: 'nowrap', letterSpacing: '0.02em' }}>
-                  {p.name} {p.totalTally}
-                </span>
-              )}
+              {w > 8 && <span style={{ fontSize: 9, fontWeight: 900, color: 'rgba(0,0,0,0.7)', whiteSpace: 'nowrap' }}>{p.name} {p.totalTally}</span>}
             </div>
           )
         })}
-
-        {/* Majority line at 118/234 */}
+        {/* Majority marker */}
         <div style={{
-          position: 'absolute', top: 0, bottom: 0,
-          left: `${(MAJORITY / TOTAL) * 100}%`,
-          width: 2,
-          background: 'rgba(251,191,36,0.95)',
-          boxShadow: '0 0 8px rgba(251,191,36,0.8), 0 0 2px rgba(251,191,36,1)',
-          zIndex: 2,
+          position: 'absolute', top: 0, bottom: 0, left: `${(MAJORITY/TOTAL)*100}%`,
+          width: 2, background: '#fbbf24', zIndex: 3,
+          boxShadow: '0 0 6px rgba(251,191,36,0.9)',
         }} />
       </div>
-
       {/* Legend */}
-      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 12, alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 10, alignItems: 'center' }}>
         {parties.filter(p => p.totalTally > 0).map(p => (
-          <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 3, background: p.color, display: 'inline-block', flexShrink: 0 }} />
-            <span style={{ fontSize: 10, color: p.color, fontWeight: 800 }}>{p.name}</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontVariantNumeric: 'tabular-nums' }}>{p.totalTally}</span>
+          <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 9, height: 9, borderRadius: 2, background: p.color, display: 'inline-block' }} />
+            <span style={{ fontSize: 9, fontWeight: 800, color: p.color }}>{p.name}</span>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}>{p.totalTally}</span>
           </div>
         ))}
-        <span style={{ marginLeft: 'auto', fontSize: 9, color: 'rgba(251,191,36,0.5)', fontWeight: 700 }}>
-          ↑ {MAJORITY} = majority line
-        </span>
+        <span style={{ fontSize: 8, color: 'rgba(251,191,36,0.45)', marginLeft: 'auto', fontWeight: 700 }}>▲ {MAJORITY} majority line</span>
       </div>
     </div>
   )
 }
 
-// ── Party tally table row ─────────────────────────────────────────────────────
-function PartyRow({ party, maxTally, rank }: { party: PartyResult; maxTally: number; rank: number }) {
-  const barPct = maxTally > 0 ? (party.totalTally / maxTally) * 100 : 0
+// ─── Party row ──────────────────────────────────────────────────────────────
+function PartyRow({ p, max, rank }: { p: PartyResult; max: number; rank: number }) {
+  const fillW = max > 0 ? (p.totalTally / max) * 52 : 0   // fill behind, % of party col
 
   return (
-    <div className="party-row" style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr 52px 62px 62px',
-      alignItems: 'center',
-      padding: '10px 12px',
-      gap: 6,
-      background: party.isLeading ? `${party.color}0e` : rank % 2 === 0 ? 'rgba(255,255,255,0.012)' : 'transparent',
-      borderRadius: 12,
+    <div style={{
+      display: 'grid', gridTemplateColumns: '1fr 48px 58px 58px',
+      alignItems: 'center', gap: 0,
+      background: p.isLeading ? `${p.color}0c` : rank % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent',
+      borderRadius: 12, overflow: 'hidden',
+      border: p.isLeading ? `1px solid ${p.color}22` : '1px solid transparent',
       position: 'relative',
-      overflow: 'hidden',
-      border: party.isLeading ? `1px solid ${party.color}28` : '1px solid transparent',
-      transition: 'background 0.3s',
     }}>
-      {/* Progress bar behind */}
-      <div style={{
-        position: 'absolute', left: 0, top: 0, bottom: 0,
-        width: `${barPct * 0.55}%`,
-        background: `${party.color}05`,
-        pointerEvents: 'none',
-        transition: 'width 1.2s ease',
-      }} />
+      {/* subtle fill strip */}
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${fillW}%`, background: `${p.color}06`, pointerEvents: 'none', transition: 'width 1.1s ease' }} />
 
-      {/* Party info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 1, minWidth: 0 }}>
+      {/* Party cell */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 12px', position: 'relative', zIndex: 1, minWidth: 0 }}>
+        {/* color dot / glow */}
         <div style={{
-          width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-          background: `${party.color}16`,
-          border: `1.5px solid ${party.color}35`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 13,
-          boxShadow: party.isLeading ? `0 0 8px ${party.color}40` : 'none',
-        }}>
-          {party.emoji}
-        </div>
+          width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+          background: p.color,
+          boxShadow: p.isLeading ? `0 0 10px ${p.color}` : 'none',
+        }} />
         <div style={{ minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 900, fontSize: 13, color: party.isLeading ? party.color : 'rgba(255,255,255,0.85)' }}>
-              {party.name}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'nowrap' }}>
+            <span style={{ fontWeight: 800, fontSize: 13, color: p.isLeading ? p.color : 'rgba(255,255,255,0.82)', whiteSpace: 'nowrap' }}>
+              {p.name}
             </span>
-            {party.isLeading && (
-              <span style={{ fontSize: 7, fontWeight: 900, padding: '2px 5px', borderRadius: 99, background: `${party.color}22`, color: party.color, border: `1px solid ${party.color}40`, letterSpacing: '0.06em', flexShrink: 0 }}>
-                LEADING
+            {p.hasMajority && (
+              <span style={{ fontSize: 7, fontWeight: 900, padding: '1px 5px', borderRadius: 99, background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)', flexShrink: 0 }}>
+                ✓ WON
               </span>
             )}
-            {party.hasMajority && (
-              <span style={{ fontSize: 7, fontWeight: 900, padding: '2px 5px', borderRadius: 99, background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.35)', letterSpacing: '0.06em', flexShrink: 0 }}>
-                ✓ MAJ
+            {p.isLeading && !p.hasMajority && (
+              <span style={{ fontSize: 7, fontWeight: 900, padding: '1px 5px', borderRadius: 99, background: `${p.color}1a`, color: p.color, border: `1px solid ${p.color}35`, flexShrink: 0 }}>
+                AHEAD
               </span>
             )}
           </div>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {party.voteShare > 0 ? `${party.voteShare.toFixed(1)}% vote share` : party.leader}
+          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {p.voteShare > 0 ? `${p.voteShare.toFixed(1)}% votes` : p.leader}
           </div>
         </div>
       </div>
 
       {/* Won */}
-      <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        <div style={{ fontWeight: 900, fontSize: 16, color: '#4ade80', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-          <AnimNum value={party.seatsWon} />
+      <div style={{ textAlign: 'center', padding: '11px 4px', position: 'relative', zIndex: 1 }}>
+        <div style={{ fontWeight: 900, fontSize: 15, color: p.seatsWon > 0 ? '#4ade80' : 'rgba(255,255,255,0.18)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+          <AnimNum n={p.seatsWon} />
         </div>
-        <div style={{ fontSize: 8, color: 'rgba(74,222,128,0.4)', marginTop: 2 }}>WON</div>
       </div>
 
       {/* Leading */}
-      <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        <div style={{ fontWeight: 900, fontSize: 16, color: '#fbbf24', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-          <AnimNum value={party.seatsLeading} />
+      <div style={{ textAlign: 'center', padding: '11px 4px', position: 'relative', zIndex: 1 }}>
+        <div style={{ fontWeight: 900, fontSize: 15, color: p.seatsLeading > 0 ? '#fbbf24' : 'rgba(255,255,255,0.18)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+          <AnimNum n={p.seatsLeading} />
         </div>
-        <div style={{ fontSize: 8, color: 'rgba(251,191,36,0.4)', marginTop: 2 }}>LEADING</div>
       </div>
 
       {/* Total */}
-      <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        <div style={{ fontWeight: 900, fontSize: 20, color: party.isLeading ? party.color : 'rgba(255,255,255,0.75)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-          <AnimNum value={party.totalTally} />
+      <div style={{ textAlign: 'center', padding: '11px 8px 11px 4px', position: 'relative', zIndex: 1 }}>
+        <div style={{ fontWeight: 900, fontSize: 18, color: p.isLeading ? p.color : 'rgba(255,255,255,0.65)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+          <AnimNum n={p.totalTally} />
         </div>
-        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>TOTAL</div>
       </div>
     </div>
   )
 }
 
-// ── Main Dashboard ────────────────────────────────────────────────────────────
+// ─── Main ───────────────────────────────────────────────────────────────────
 export default function ElectionAnimatedStats() {
-  const [data, setData]           = useState<ElectionData | null>(null)
-  const [loading, setLoading]     = useState(true)
-  const [lastRefresh, setLast]    = useState(0)
-  const [refreshing, setRefresh]  = useState(false)
-  const [secAgo, setSecAgo]       = useState(0)
+  const [data, setData]       = useState<ElectionData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [sec, setSec]         = useState(0)
+  const [busy, setBusy]       = useState(false)
 
-  const fetchData = useCallback(async (manual = false) => {
-    if (manual) setRefresh(true)
+  const load = useCallback(async (manual = false) => {
+    if (manual) setBusy(true)
     try {
-      const res = await fetch('/api/election-results', { cache: 'no-store', signal: AbortSignal.timeout(12000) })
-      if (!res.ok) return
-      const d = await res.json()
-      setData(d)
-      setLast(Date.now())
-      setSecAgo(0)
-    } catch { /* keep prev */ }
-    finally { setLoading(false); setRefresh(false) }
+      const r = await fetch('/api/election-results', { cache: 'no-store', signal: AbortSignal.timeout(12000) })
+      if (!r.ok) return
+      setData(await r.json())
+      setSec(0)
+    } catch { /* keep */ }
+    finally { setLoading(false); setBusy(false) }
   }, [])
 
   useEffect(() => {
-    fetchData()
-    const poll  = setInterval(fetchData, REFRESH_MS)
-    const clock = setInterval(() => setSecAgo(s => s + 1), 1000)
-    return () => { clearInterval(poll); clearInterval(clock) }
+    load()
+    const p = setInterval(load, REFRESH_MS)
+    const t = setInterval(() => setSec(s => s + 1), 1000)
+    return () => { clearInterval(p); clearInterval(t) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div style={{ display: 'flex', gap: 12 }}>
-          {[0, 1, 2].map(i => (
-            <div key={i} style={{ flex: 1, height: 90, borderRadius: 16, background: 'rgba(255,255,255,0.03)', animation: 'shimmer 1.5s infinite' }} />
-          ))}
-        </div>
-        <div style={{ height: 280, borderRadius: 18, background: 'rgba(255,255,255,0.02)', animation: 'shimmer 1.5s infinite' }} />
-        <style>{`@keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:0.5} }`}</style>
-      </div>
-    )
-  }
-
+  if (loading) return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {[90, 240, 170].map((h, i) => (
+        <div key={i} style={{ height: h, borderRadius: 16, background: 'rgba(255,255,255,0.025)', animation: 'elShimmer 1.6s ease-in-out infinite' }} />
+      ))}
+      <style>{`@keyframes elShimmer{0%,100%{opacity:1}50%{opacity:.45}}`}</style>
+    </div>
+  )
   if (!data) return null
 
-  const parties       = data.parties ?? []
-  const hasData       = parties.some(p => p.totalTally > 0)
-  const maxTally      = Math.max(...parties.map(p => p.totalTally), 1)
-  const leader        = parties.find(p => p.isLeading)
-  const winner        = parties.find(p => p.hasMajority)
-  const totalWon      = parties.reduce((s, p) => s + p.seatsWon, 0)
-  const totalLeading  = parties.reduce((s, p) => s + p.seatsLeading, 0)
-  const isLive        = data.phase === 'counting' || data.phase === 'declared'
-  const reportingPct  = Math.round((data.seatsReported / TOTAL) * 100)
+  const parties   = data.parties ?? []
+  const hasData   = parties.some(p => p.totalTally > 0)
+  const max       = Math.max(...parties.map(p => p.totalTally), 1)
+  const leader    = parties.find(p => p.isLeading)
+  const winner    = parties.find(p => p.hasMajority)
+  const isLive    = data.phase === 'counting' || data.phase === 'declared'
+  const pct       = Math.round((data.seatsReported / TOTAL) * 100)
+  const nextIn    = Math.max(0, 60 - sec)
+  const totalWon  = parties.reduce((s, p) => s + p.seatsWon, 0)
+  const totalLead = parties.reduce((s, p) => s + p.seatsLeading, 0)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-      {/* ── Winner banner (shows when any party has majority) ── */}
-      {winner && hasData && <WinnerBanner party={winner} />}
+      {/* ── Winner Banner ── */}
+      {winner && hasData && <WinnerBanner p={winner} />}
 
-      {/* ── Top stat row ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-        <StatCard
-          label="Seats Reporting"
+      {/* ── 3-chip stat row ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+        <Chip
+          label="Reporting"
           value={`${data.seatsReported}/${TOTAL}`}
-          sub={`${reportingPct}% counted`}
+          sub={`${pct}% counted`}
           color={isLive ? '#ef4444' : undefined}
-          pulse={isLive}
+          live={isLive}
         />
-        <StatCard
+        <Chip
           label="Majority"
-          value={`${MAJORITY}`}
+          value={MAJORITY}
           sub={`of ${TOTAL} seats`}
           color="#fbbf24"
         />
-        {leader && (
-          <StatCard
-            label={winner ? 'Winner' : 'Leading'}
-            value={leader.name}
-            sub={`${leader.totalTally} seats`}
-            color={leader.color}
-          />
-        )}
+        <Chip
+          label={winner ? 'Winner' : 'Leading'}
+          value={leader?.name ?? '—'}
+          sub={leader ? `${leader.totalTally} seats` : 'Counting…'}
+          color={leader?.color}
+        />
       </div>
 
-      {/* ── Main results panel ── */}
+      {/* ── Main results card ── */}
       <div style={{
-        borderRadius: 20,
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 18,
+        background: 'rgba(255,255,255,0.022)',
+        border: '1px solid rgba(255,255,255,0.07)',
         overflow: 'hidden',
       }}>
-        {/* Panel header */}
+
+        {/* Card header */}
         <div style={{
-          padding: '13px 18px',
-          background: 'rgba(255,255,255,0.03)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8,
+          padding: '10px 14px',
+          borderBottom: '1px solid rgba(255,255,255,0.055)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {isLive && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'livePulse 1.5s infinite' }} />
-                <span style={{ fontWeight: 900, fontSize: 13, color: '#ef4444', letterSpacing: '0.04em' }}>
-                  {data.phase === 'declared' ? 'RESULTS DECLARED' : 'LIVE COUNTING'}
+              <>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'elPulse 1.5s infinite', flexShrink: 0 }} />
+                <span style={{ fontWeight: 900, fontSize: 11, color: '#ef4444', letterSpacing: '0.05em' }}>
+                  {data.phase === 'declared' ? 'DECLARED' : 'LIVE COUNTING'}
                 </span>
-              </div>
-            )}
-            {!isLive && (
-              <span style={{ fontWeight: 900, fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
-                TN ELECTION 2026
-              </span>
+              </>
             )}
             {hasData && (
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', padding: '2px 8px', borderRadius: 99, background: 'rgba(255,255,255,0.05)' }}>
-                {totalWon} declared · {totalLeading} leading
-              </span>
-            )}
-            {(data.source === 'cached-stale' || data.refreshing) && (
-              <span style={{
-                fontSize: 8, fontWeight: 800, padding: '2px 7px', borderRadius: 99,
-                background: 'rgba(251,191,36,0.12)', color: '#fbbf24',
-                border: '1px solid rgba(251,191,36,0.28)', letterSpacing: '0.05em',
-                animation: 'updatingPulse 2s ease-in-out infinite',
-              }}>
-                Updating…
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.05)', padding: '2px 7px', borderRadius: 99 }}>
+                {totalWon}W · {totalLead}L
               </span>
             )}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.18)' }}>
-              {refreshing
-                ? 'Refreshing…'
-                : lastRefresh
-                  ? `Next in ${Math.max(0, 60 - secAgo)}s`
-                  : 'auto-refresh 60s'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.16)' }}>
+              {busy ? 'Refreshing…' : `↻ ${nextIn}s`}
             </span>
-            <button
-              onClick={() => fetchData(true)}
-              disabled={refreshing}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 5, color: 'rgba(255,255,255,0.25)', fontSize: 14, display: 'flex', alignItems: 'center' }}
-              title="Refresh now"
-            >
-              <span style={{ display: 'inline-block', animation: refreshing ? 'spin 1s linear infinite' : 'none' }}>↻</span>
-            </button>
+            <button onClick={() => load(true)} disabled={busy} style={{
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 8, padding: '4px 8px', cursor: 'pointer',
+              color: 'rgba(255,255,255,0.45)', fontSize: 11,
+              animation: busy ? 'elSpin 1s linear infinite' : 'none',
+            }} title="Refresh">↻</button>
           </div>
         </div>
 
-        {/* Table column headers */}
+        {/* Column headers */}
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 52px 62px 62px',
-          padding: '7px 12px',
-          gap: 6,
-          background: 'rgba(0,0,0,0.25)',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          display: 'grid', gridTemplateColumns: '1fr 48px 58px 58px',
+          padding: '6px 12px 6px 12px', gap: 0,
+          background: 'rgba(0,0,0,0.2)',
+          borderBottom: '1px solid rgba(255,255,255,0.045)',
         }}>
-          <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Party</span>
-          <span style={{ fontSize: 9, fontWeight: 800, color: '#4ade80', textAlign: 'center', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Won</span>
-          <span style={{ fontSize: 9, fontWeight: 800, color: '#fbbf24', textAlign: 'center', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Leading</span>
-          <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textAlign: 'center', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Total</span>
+          <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Party</span>
+          <span style={{ fontSize: 8, fontWeight: 700, color: '#4ade80', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Won</span>
+          <span style={{ fontSize: 8, fontWeight: 700, color: '#fbbf24', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Leading</span>
+          <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em', paddingRight: 8 }}>Total</span>
         </div>
 
-        {/* Party rows */}
-        <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-          {hasData ? (
-            parties.map((p, i) => (
-              <PartyRow key={p.name} party={p} maxTally={maxTally} rank={i} />
-            ))
-          ) : (
-            <div style={{ padding: '28px 20px', textAlign: 'center' }}>
-              <div style={{ fontSize: 26, marginBottom: 12 }}>📡</div>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', marginBottom: 8 }}>Connecting to ECI results feed…</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)' }}>
-                Counting begins 8:00 AM IST · auto-refreshes every 90s
+        {/* Rows */}
+        <div style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {hasData
+            ? parties.map((p, i) => <PartyRow key={p.name} p={p} max={max} rank={i} />)
+            : (
+              <div style={{ padding: '32px 20px', textAlign: 'center' }}>
+                <div style={{ fontSize: 28, marginBottom: 10 }}>📡</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.28)' }}>Connecting to live results…</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.14)', marginTop: 6 }}>Auto-refreshes every 60 s</div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
-        {/* Majority progress bars */}
+        {/* Seat bar */}
         {hasData && (
-          <div style={{ padding: '14px 18px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
-              Progress to Majority ({MAJORITY} seats)
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {parties.filter(p => p.totalTally > 0).map(p => (
-                <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: p.color, width: 52, flexShrink: 0 }}>{p.name}</span>
-                  <MajorityBar party={p} />
-                  {p.hasMajority && (
-                    <span style={{ fontSize: 9, fontWeight: 900, color: '#4ade80', flexShrink: 0 }}>✓</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Parliament seat bar */}
-        {hasData && (
-          <div style={{ padding: '16px 18px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <ParliamentBar parties={parties} />
+          <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            <SeatBar parties={parties} />
           </div>
         )}
 
         {/* Footer */}
         <div style={{
-          padding: '10px 18px',
+          padding: '8px 16px',
           borderTop: '1px solid rgba(255,255,255,0.04)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6,
         }}>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.18)' }}>
-            {data.source === 'eci-live'        ? '🟢 Live · ECI official data'
-              : data.source === 'ai-parsed'    ? '⚡ AI · parsed from news sources'
-              : data.source === 'manual-override' ? '🟡 Manual data update'
-              : data.source === 'cached-stale' ? '🟠 Snapshot data · refreshing'
-              : '⏳ Fetching live data…'}
+          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)' }}>
+            {data.source === 'eci-live' ? '🟢 ECI live'
+              : data.source === 'ai-parsed' ? '⚡ AI-parsed news'
+              : data.source === 'manual-override' ? '🟡 Manual update'
+              : data.source === 'cached-stale' ? '🟠 Snapshot · refreshing'
+              : '⏳ Fetching…'}
           </span>
           {data.narrative && (
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', maxWidth: 340, textAlign: 'right', lineHeight: 1.5, fontStyle: 'italic' }}>
+            <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', maxWidth: '60%', textAlign: 'right', lineHeight: 1.5, fontStyle: 'italic' }}>
               {data.narrative}
             </span>
           )}
@@ -569,11 +408,10 @@ export default function ElectionAnimatedStats() {
       </div>
 
       <style>{`
-        @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes winnerGlow { 0%,100%{box-shadow:0 0 40px rgba(251,191,36,0.15)} 50%{box-shadow:0 0 60px rgba(251,191,36,0.3)} }
-        @keyframes float { 0%{transform:translateY(0)} 100%{transform:translateY(-8px)} }
-        @keyframes updatingPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        @keyframes elPulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+        @keyframes elSpin   { to{transform:rotate(360deg)} }
+        @keyframes elGlow   { 0%,100%{box-shadow:0 4px 32px rgba(251,191,36,.12)} 50%{box-shadow:0 4px 48px rgba(251,191,36,.25)} }
+        @keyframes shimBar  { 0%{background-position:-200%} 100%{background-position:200%} }
       `}</style>
     </div>
   )
