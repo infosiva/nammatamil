@@ -2,6 +2,7 @@ import HomeTabLayout from '@/components/HomeTabLayout'
 import AdUnit from '@/components/AdUnit'
 import ElectionAnimatedStats from '@/components/ElectionAnimatedStats'
 import ConstituencyLiveBoard from '@/components/ConstituencyLiveBoard'
+import NammaTVKVideos from '@/components/NammaTVKVideos'
 
 export default function HomePage() {
   return (
@@ -97,6 +98,23 @@ export default function HomePage() {
         {/* ── Ad between election and content ── */}
         <div style={{ marginBottom: 28 }}>
           <AdUnit format="horizontal" className="min-h-[90px]" />
+        </div>
+
+        {/* ── NammaTVK Latest Videos ── */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16,
+            paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            <div style={{
+              width: 3, height: 20, borderRadius: 99,
+              background: 'linear-gradient(180deg, #fbbf24, #ff0000)',
+            }} />
+            <span style={{ fontWeight: 800, fontSize: 16, color: 'rgba(255,255,255,0.75)' }}>
+              NammaTVK — Latest Videos
+            </span>
+          </div>
+          <NammaTVKVideos />
         </div>
 
         {/* ── Entertainment section ── */}
