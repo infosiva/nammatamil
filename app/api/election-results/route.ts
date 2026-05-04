@@ -452,21 +452,34 @@ function buildEmptyCountingResponse(phase: 'pre-counting' | 'counting'): Electio
 // Structure: { S22: { chartData: [party, stateCode, acNo, candidate, color][] } }
 async function fetchECILivePartyTotals(): Promise<Partial<ElectionResultsResponse> | null> {
   const ECI_JSON = 'https://results.eci.gov.in/ResultAcGenMay2026/election-json-S22-live.json'
-  const PROXY    = `https://api.allorigins.win/raw?url=${encodeURIComponent(ECI_JSON)}`
   const partyAliases: Record<string, string> = {
     TVK: 'TVK', DMK: 'DMK', ADMK: 'AIADMK', AIADMK: 'AIADMK', BJP: 'BJP',
     PMK: 'Others', INC: 'Others', CPI: 'Others', 'CPI(M)': 'Others',
     VCK: 'Others', DMDK: 'Others', IUML: 'Others', AMMKMNKZ: 'Others', PT: 'Others',
   }
 
-  for (const url of [ECI_JSON, PROXY]) {
+  // Try multiple proxies + direct — edge runtime may not reach ECI directly
+  const urlsToTry = [
+    ECI_JSON,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(ECI_JSON)}`,
+    `https://corsproxy.io/?${encodeURIComponent(ECI_JSON)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(ECI_JSON)}`,
+  ]
+
+  for (const url of urlsToTry) {
     try {
+      const headers: Record<string, string> = { 'User-Agent': 'Mozilla/5.0', 'Cache-Control': 'no-cache' }
+      // Only send Referer to direct ECI URL to avoid confusing proxies
+      if (url === ECI_JSON) headers['Referer'] = 'https://results.eci.gov.in/'
+
       const res = await fetch(url, {
-        signal: AbortSignal.timeout(8000), cache: 'no-store',
-        headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://results.eci.gov.in/' },
+        signal: AbortSignal.timeout(8000), cache: 'no-store', headers,
       })
       if (!res.ok) continue
-      const json = await res.json() as Record<string, { chartData: [string, string, number, string, string][] }>
+
+      let json: Record<string, { chartData: [string, string, number, string, string][] }>
+      try { json = await res.json() } catch { continue }
+
       const s22 = json['S22']
       if (!s22?.chartData || s22.chartData.length < 10) continue
 
