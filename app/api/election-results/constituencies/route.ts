@@ -437,7 +437,7 @@ function getManualOverride(): ConstituencyResult[] | null {
   try { return JSON.parse(raw) as ConstituencyResult[] } catch { return null }
 }
 
-// ── Main GET — always responds immediately ────────────────────────────────────
+// ── Main GET — fetch directly (Vercel is stateless, no persistent in-memory cache) ──
 export async function GET() {
   const now = Date.now()
 
@@ -448,24 +448,14 @@ export async function GET() {
     return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  const ttl = getTTL(now)
-  const isFresh = store.cache && (now - store.cache.fetchedAt < ttl)
-
-  if (isFresh && store.cache) {
-    return NextResponse.json({ ...store.cache.data, cached: true }, {
-      headers: { 'Cache-Control': 'no-store' },
-    })
+  // Fetch ECI JSON directly on every request (fast ~100ms, 5s timeout)
+  if (now >= COUNTING_START) {
+    const eciResults = await fetchECILiveJSON()
+    if (eciResults.length >= 10) {
+      const data = buildResponse(eciResults, 'eci-live', 1)
+      return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+    }
   }
 
-  if (store.cache) {
-    // Cache is stale — return immediately, refresh in background
-    const stale = { ...store.cache.data, refreshing: true, cached: true }
-    fetchFresh().catch(() => {})
-    return NextResponse.json(stale, { headers: { 'Cache-Control': 'no-store' } })
-  }
-
-  // No cache at all — cold start: return pending immediately, refresh in background
-  // Never block the response on scraping — the client polls every 90s anyway
-  fetchFresh().catch(() => {})
   return NextResponse.json(buildPendingResponse(), { headers: { 'Cache-Control': 'no-store' } })
 }
