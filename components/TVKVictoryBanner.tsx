@@ -125,7 +125,20 @@ export default function TVKVictoryBanner() {
       </div>
 
       {/* ── MAIN CONTENT ── */}
-      <div style={{ padding: '18px 16px 14px' }}>
+      <div style={{ padding: '18px 16px 14px', position: 'relative', overflow: 'hidden' }}>
+
+        {/* VIJAY watermark text behind content */}
+        {tvkWon && (
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: 'clamp(60px, 20vw, 140px)', fontWeight: 900,
+            color: 'rgba(251,191,36,0.04)',
+            letterSpacing: '-0.02em', whiteSpace: 'nowrap',
+            pointerEvents: 'none', userSelect: 'none',
+            lineHeight: 1,
+          }}>VIJAY</div>
+        )}
 
         {/* TVK WIN headline */}
         {tvkWon ? (
@@ -166,6 +179,19 @@ export default function TVKVictoryBanner() {
               Thalapathy Vijay's TVK won <strong style={{ color: '#fbbf24' }}>{tvk} of {TOTAL} seats</strong> — securing a majority
               with <strong style={{ color: '#4ade80' }}>{tvkAbove} seats to spare</strong>. A historic debut: first party ever
               to win a state majority in its first election.
+            </div>
+
+            {/* Vijay campaign quote */}
+            <div style={{
+              marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '7px 14px', borderRadius: 99,
+              background: 'rgba(251,191,36,0.08)',
+              border: '1px solid rgba(251,191,36,0.2)',
+            }}>
+              <span style={{ fontSize: 14 }}>⭐</span>
+              <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(251,191,36,0.8)', letterSpacing: '0.04em' }}>
+                நம்மவன் வெற்றி பெற்றான் — Thalapathy Vijay
+              </span>
             </div>
           </div>
         ) : (
