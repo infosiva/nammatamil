@@ -417,17 +417,17 @@ function buildCountingResponse(
 // This ensures users never see 0/0/0 on election day even if all fetches fail.
 // Update these numbers manually if scraping fails: check results.eci.gov.in
 const SEED_DATA = {
-  updatedAt: '2026-05-04T11:15:00+05:30', // IST time of last manual check
-  seatsReported: 225,
+  updatedAt: '2026-05-04T11:45:00+05:30', // IST time of last manual check
+  seatsReported: 233,
   parties: [
-    { name: 'TVK',    seatsWon: 0, seatsLeading: 102, voteShare: 35.0 },
-    { name: 'AIADMK', seatsWon: 0, seatsLeading: 68,  voteShare: 23.0 },
-    { name: 'DMK',    seatsWon: 0, seatsLeading: 39,  voteShare: 22.0 },
-    { name: 'BJP',    seatsWon: 0, seatsLeading: 2,   voteShare: 4.2  },
-    { name: 'Others', seatsWon: 0, seatsLeading: 14,  voteShare: 15.8 },
+    { name: 'TVK',    seatsWon: 0, seatsLeading: 108, voteShare: 35.0 },
+    { name: 'AIADMK', seatsWon: 0, seatsLeading: 64,  voteShare: 23.0 },
+    { name: 'DMK',    seatsWon: 0, seatsLeading: 40,  voteShare: 22.0 },
+    { name: 'BJP',    seatsWon: 0, seatsLeading: 3,   voteShare: 4.2  },
+    { name: 'Others', seatsWon: 0, seatsLeading: 18,  voteShare: 15.8 },
   ],
   leader: 'TVK',
-  narrative: 'TVK leads with 102 seats, AIADMK second with 68 — TVK heading for majority.',
+  narrative: 'TVK leads with 108 seats — clear majority. AIADMK 64, DMK 40. 233/234 reporting.',
   projectedWinner: 'TVK',
 }
 
