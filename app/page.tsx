@@ -4,6 +4,7 @@ import ElectionAnimatedStats from '@/components/ElectionAnimatedStats'
 import ConstituencyLiveBoard from '@/components/ConstituencyLiveBoard'
 import NammaTVKVideos from '@/components/NammaTVKVideos'
 import VisitorCounter from '@/components/VisitorCounter'
+import ElectionTopHero from '@/components/ElectionTopHero'
 
 export default function HomePage() {
   return (
@@ -14,56 +15,8 @@ export default function HomePage() {
         background: 'linear-gradient(180deg, rgba(239,68,68,0.06) 0%, transparent 60%)',
         borderBottom: '1px solid rgba(239,68,68,0.08)',
       }}>
-        {/* ── Live ticker ── */}
-        <div style={{
-          background: 'rgba(239,68,68,0.88)',
-          padding: '5px 0',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 24,
-        }}>
-          <span style={{
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-            padding: '0 16px',
-            fontSize: 10,
-            fontWeight: 900,
-            color: 'white',
-            letterSpacing: '0.12em',
-            borderRight: '1px solid rgba(255,255,255,0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 5,
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'white', display: 'inline-block', animation: 'dotPulse 1.5s infinite' }} />
-            LIVE
-          </span>
-          <div style={{ overflow: 'hidden', flex: 1 }}>
-            <div style={{
-              display: 'flex',
-              gap: 60,
-              animation: 'ticker 32s linear infinite',
-              whiteSpace: 'nowrap',
-            }}>
-              {[
-                'Tamil Nadu Assembly Election 2026 — Counting Day',
-                'May 4, 2026 · Results declared across 234 constituencies',
-                'TVK vs DMK vs AIADMK — Who will form the government?',
-                'Majority mark: 118 seats · 234 total seats',
-                'Live constituency-by-constituency updates below ↓',
-                // Duplicate for seamless loop
-                'Tamil Nadu Assembly Election 2026 — Counting Day',
-                'May 4, 2026 · Results declared across 234 constituencies',
-                'TVK vs DMK vs AIADMK — Who will form the government?',
-                'Majority mark: 118 seats · 234 total seats',
-                'Live constituency-by-constituency updates below ↓',
-              ].map((t, i) => (
-                <span key={i} style={{ fontSize: 10, color: 'white', fontWeight: 700, opacity: 0.95 }}>{t}</span>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* ── Animated Top Hero ── */}
+        <ElectionTopHero />
 
         {/* ── Dashboard header ── */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-0">
@@ -143,16 +96,6 @@ export default function HomePage() {
         <AdUnit format="horizontal" className="min-h-[90px]" />
       </div>
 
-      <style>{`
-        @keyframes ticker {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes dotPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50%       { opacity: 0.4; transform: scale(1.4); }
-        }
-      `}</style>
     </div>
   )
 }
