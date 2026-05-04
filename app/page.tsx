@@ -9,6 +9,8 @@ import ElectionSpotlight from '@/components/ElectionSpotlight'
 import ElectionReactions from '@/components/ElectionReactions'
 import DistrictHeatmap from '@/components/DistrictHeatmap'
 import ElectionStories from '@/components/ElectionStories'
+import ConstituencySearch from '@/components/ConstituencySearch'
+import FamousCandidates from '@/components/FamousCandidates'
 
 export default function HomePage() {
   return (
@@ -25,6 +27,16 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-0">
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
             <VisitorCounter />
+          </div>
+
+          {/* ── Constituency Search ── */}
+          <div style={{ marginBottom: 14 }}>
+            <ConstituencySearch />
+          </div>
+
+          {/* ── Famous candidates ── */}
+          <div style={{ marginBottom: 14 }}>
+            <FamousCandidates />
           </div>
 
           {/* ── Story cards ── */}
