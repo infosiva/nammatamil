@@ -15,6 +15,10 @@ import LiveStatsPanel from '@/components/LiveStatsPanel'
 import TVKVictoryBanner from '@/components/TVKVictoryBanner'
 import TVKHeroBg from '@/components/TVKHeroBg'
 import TVKDistrictSweep from '@/components/TVKDistrictSweep'
+import TVKMomentumTicker from '@/components/TVKMomentumTicker'
+import SeatProjection from '@/components/SeatProjection'
+import ElectionNews from '@/components/ElectionNews'
+import CountingProgress from '@/components/CountingProgress'
 
 export default function HomePage() {
   return (
@@ -36,6 +40,9 @@ export default function HomePage() {
             <VisitorCounter />
           </div>
 
+          {/* ── TVK momentum ticker ── */}
+          <TVKMomentumTicker />
+
           {/* ── TVK Victory / Alliance totals ── */}
           <div style={{ marginBottom: 14 }}>
             <TVKVictoryBanner />
@@ -44,6 +51,16 @@ export default function HomePage() {
           {/* ── Live stats panel ── */}
           <div style={{ marginBottom: 14 }}>
             <LiveStatsPanel />
+          </div>
+
+          {/* ── Seat projection ── */}
+          <div style={{ marginBottom: 14 }}>
+            <SeatProjection />
+          </div>
+
+          {/* ── Counting progress / voter stats ── */}
+          <div style={{ marginBottom: 14 }}>
+            <CountingProgress />
           </div>
 
           {/* ── Constituency Search ── */}
@@ -59,6 +76,11 @@ export default function HomePage() {
           {/* ── Story cards ── */}
           <div style={{ marginBottom: 14 }}>
             <ElectionStories />
+          </div>
+
+          {/* ── Election news ── */}
+          <div style={{ marginBottom: 14 }}>
+            <ElectionNews />
           </div>
 
           {/* ── Spotlight: rotating WHO IS WINNING + Reactions ── */}

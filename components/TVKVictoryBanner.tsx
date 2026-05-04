@@ -17,11 +17,11 @@ const TOTAL    = 234
 const ALIAS: Record<string, string> = {
   TVK:'TVK',
   DMK:'DMK', INC:'DMK', CPI:'DMK', 'CPI(M)':'DMK', VCK:'DMK', IUML:'DMK', MDMK:'DMK',
-  ADMK:'ADMK', AIADMK:'ADMK', PMK:'ADMK', DMDK:'ADMK', PT:'ADMK',
-  BJP:'BJP', AMMKMNKZ:'Others',
+  ADMK:'ADMK', AIADMK:'ADMK', PMK:'ADMK', DMDK:'ADMK', PT:'ADMK', BJP:'ADMK',
+  AMMKMNKZ:'Others',
 }
 
-interface Tally { tvk: number; dmk: number; admk: number; bjp: number; others: number; declared: number }
+interface Tally { tvk: number; dmk: number; admk: number; others: number; declared: number }
 
 async function fetchTally(): Promise<Tally | null> {
   try {
@@ -39,7 +39,6 @@ async function fetchTally(): Promise<Tally | null> {
       tvk: t['TVK'] ?? 0,
       dmk: t['DMK'] ?? 0,
       admk: t['ADMK'] ?? 0,
-      bjp: t['BJP'] ?? 0,
       others: t['Others'] ?? 0,
       declared: rows.length,
     }
@@ -85,13 +84,13 @@ export default function TVKVictoryBanner() {
 
   if (!mounted || !tally) return null
 
-  const { tvk, dmk, admk, bjp, others, declared } = tally
+  const { tvk, dmk, admk, others, declared } = tally
   const remaining  = TOTAL - declared
   const allDone    = remaining === 0
-  const tvkAbove   = tvk - MAJORITY          // seats above majority
+  const tvkAbove   = tvk - MAJORITY
   const tvkWon     = tvk >= MAJORITY
   const dmkAlliance  = dmk   // DMK+INC+CPI+VCK+IUML already merged via ALIAS
-  const admkAlliance = admk  // ADMK+PMK+DMDK already merged
+  const admkAlliance = admk  // ADMK+PMK+DMDK+BJP already merged
 
   const countPct = Math.round((declared / TOTAL) * 100)
 
@@ -246,28 +245,18 @@ export default function TVKVictoryBanner() {
             won={false} majority={MAJORITY}
           />
 
-          {/* BJP + Others compact */}
-          <div style={{
-            borderRadius: 12, padding: '10px 12px',
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.06)',
-          }}>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', fontWeight: 700, marginBottom: 6 }}>Others</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {bjp > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 10, color: '#fb923c' }}>🪷 BJP</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: '#fb923c' }}>{bjp}</span>
-                </div>
-              )}
-              {others > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 10, color: '#94a3b8' }}>🏛️ Ind/Others</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: '#94a3b8' }}>{others}</span>
-                </div>
-              )}
+          {/* Others compact */}
+          {others > 0 && (
+            <div style={{
+              borderRadius: 12, padding: '10px 12px',
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.06)',
+            }}>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', fontWeight: 700, marginBottom: 6 }}>🏛️ Others</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#94a3b8' }}>{others}</div>
+              <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>Independents</div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* ── SEAT DISTRIBUTION BAR ── */}
@@ -277,7 +266,7 @@ export default function TVKVictoryBanner() {
               { seats: tvk,          color: '#fbbf24' },
               { seats: dmkAlliance,  color: '#f87171' },
               { seats: admkAlliance, color: '#4ade80' },
-              { seats: bjp + others, color: '#94a3b8' },
+              { seats: others,       color: '#94a3b8' },
               { seats: remaining,    color: 'rgba(255,255,255,0.04)' },
             ].map((s, i) => (
               <div key={i} style={{

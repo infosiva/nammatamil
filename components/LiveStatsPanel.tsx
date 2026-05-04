@@ -14,19 +14,17 @@ const TOTAL    = 234
 const ALIAS: Record<string, string> = {
   TVK:'TVK',
   DMK:'DMK', INC:'DMK', CPI:'DMK', 'CPI(M)':'DMK', VCK:'DMK', IUML:'DMK', MDMK:'DMK',
-  ADMK:'ADMK', AIADMK:'ADMK', PMK:'ADMK', DMDK:'ADMK', PT:'ADMK',
-  BJP:'BJP',
+  ADMK:'ADMK', AIADMK:'ADMK', PMK:'ADMK', DMDK:'ADMK', PT:'ADMK', BJP:'ADMK',
   AMMKMNKZ:'Others',
 }
 
 const ALLIANCES: {
   key: string; label: string; subLabel: string; color: string; emoji: string
 }[] = [
-  { key:'TVK',   label:'TVK',           subLabel:'Vijay Alliance',      color:'#fbbf24', emoji:'⭐' },
+  { key:'TVK',   label:'TVK',           subLabel:'Vijay Alliance',               color:'#fbbf24', emoji:'⭐' },
   { key:'DMK',   label:'DMK Alliance',  subLabel:'DMK · INC · VCK · IUML · CPI', color:'#f87171', emoji:'🌅' },
-  { key:'ADMK',  label:'ADMK Alliance', subLabel:'ADMK · PMK · DMDK',   color:'#4ade80', emoji:'🍃' },
-  { key:'BJP',   label:'BJP',           subLabel:'NDA',                  color:'#fb923c', emoji:'🪷' },
-  { key:'Others',label:'Others',        subLabel:'Independent & small',  color:'#94a3b8', emoji:'🏛️' },
+  { key:'ADMK',  label:'ADMK Alliance', subLabel:'ADMK · PMK · DMDK · BJP',      color:'#4ade80', emoji:'🍃' },
+  { key:'Others',label:'Others',        subLabel:'Independents',                  color:'#94a3b8', emoji:'🏛️' },
 ]
 
 interface RecentSeat { acNo: number; name: string; party: string; color: string; emoji: string }

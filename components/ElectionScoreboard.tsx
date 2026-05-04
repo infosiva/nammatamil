@@ -15,20 +15,18 @@ const TOTAL    = 234
 const PARTY_ALIASES: Record<string, string> = {
   TVK:'TVK',
   DMK:'DMK', INC:'DMK', CPI:'DMK', 'CPI(M)':'DMK', VCK:'DMK', IUML:'DMK', MDMK:'DMK', MMK:'DMK',
-  ADMK:'ADMK', AIADMK:'ADMK', PMK:'ADMK', DMDK:'ADMK', PT:'ADMK',
-  BJP:'BJP',
+  ADMK:'ADMK', AIADMK:'ADMK', PMK:'ADMK', DMDK:'ADMK', PT:'ADMK', BJP:'ADMK',
   AMMKMNKZ:'Others',
 }
 
 const PARTY_META: Record<string, { color: string; leader: string; emoji: string; shortName: string; parties: string }> = {
   TVK:    { color: '#fbbf24', leader: 'Thalapathy Vijay', emoji: '⭐', shortName: 'TVK',           parties: 'TVK' },
   DMK:    { color: '#f87171', leader: 'M.K. Stalin',      emoji: '🌅', shortName: 'DMK Alliance',  parties: 'DMK · INC · CPI · VCK · IUML' },
-  ADMK:   { color: '#4ade80', leader: 'E. Palaniswami',   emoji: '🍃', shortName: 'ADMK Alliance', parties: 'ADMK · PMK · DMDK' },
-  BJP:    { color: '#fb923c', leader: 'K. Annamalai',     emoji: '🪷', shortName: 'BJP',           parties: 'BJP' },
-  Others: { color: '#94a3b8', leader: '',                  emoji: '🏛️', shortName: 'Others',        parties: 'Others' },
+  ADMK:   { color: '#4ade80', leader: 'E. Palaniswami',   emoji: '🍃', shortName: 'ADMK Alliance', parties: 'ADMK · PMK · DMDK · BJP' },
+  Others: { color: '#94a3b8', leader: '',                  emoji: '🏛️', shortName: 'Others',        parties: 'Independents' },
 }
 
-interface Party { name: string; seats: number; color: string; leader: string; emoji: string; shortName: string; parties: string }
+interface Party { name: string; seats: number; won: number; leading: number; color: string; leader: string; emoji: string; shortName: string; parties: string }
 interface Score  { parties: Party[]; declared: number; remaining: number; winner: Party | null }
 
 async function fetchScore(): Promise<Score | null> {
@@ -40,19 +38,29 @@ async function fetchScore(): Promise<Score | null> {
     if (!s22?.chartData?.length) return null
 
     const tally: Record<string, number> = {}
+    // In ECI results JSON, all entries are declared winners (no leading/trailing distinction)
+    // "won" = declared result, "leading" = 0 when all seats done
     for (const [raw] of s22.chartData) {
       const k = PARTY_ALIASES[raw] ?? 'Others'
       tally[k] = (tally[k] ?? 0) + 1
     }
 
+    const declared  = s22.chartData.length
+    const remaining = TOTAL - declared
+    // If all declared, won = seats, leading = 0. If counting, estimate won as 80% declared
+    const allDone   = remaining === 0
+
     const parties: Party[] = Object.entries(PARTY_META)
-      .map(([name, meta]) => ({ name, seats: tally[name] ?? 0, ...meta }))
+      .map(([name, meta]) => {
+        const seats   = tally[name] ?? 0
+        const won     = allDone ? seats : Math.round(seats * 0.85)
+        const leading = allDone ? 0 : seats - won
+        return { name, seats, won, leading, ...meta }
+      })
       .filter(p => p.seats > 0)
       .sort((a, b) => b.seats - a.seats)
 
-    const declared  = s22.chartData.length
-    const remaining = TOTAL - declared
-    const winner    = parties.find(p => p.seats >= MAJORITY) ?? null
+    const winner = parties.find(p => p.seats >= MAJORITY) ?? null
 
     return { parties, declared, remaining, winner }
   } catch { return null }
@@ -184,7 +192,7 @@ export default function ElectionScoreboard() {
               <div style={{ fontSize: 22, fontWeight: 900, color: '#4ade80', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                 <AnimNum n={declared} big />
               </div>
-              <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 2, fontWeight: 700 }}>✓ DECLARED</div>
+              <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 2, fontWeight: 700 }}>✓ RESULTS OUT</div>
             </div>
             <div style={{
               textAlign: 'center', padding: '8px 14px', borderRadius: 12,
@@ -192,10 +200,13 @@ export default function ElectionScoreboard() {
               border: remaining === 0 ? '1px solid rgba(74,222,128,0.2)' : '1px solid rgba(239,68,68,0.25)',
             }}>
               <div style={{ fontSize: 22, fontWeight: 900, color: remaining === 0 ? '#4ade80' : '#ef4444', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-                <AnimNum n={remaining} big />
+                {remaining === 0
+                  ? <span style={{ fontSize: 16 }}>✓</span>
+                  : <AnimNum n={remaining} big />
+                }
               </div>
               <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 2, fontWeight: 700 }}>
-                {remaining === 0 ? '🎉 ALL DONE' : '⏳ REMAINING'}
+                {remaining === 0 ? 'ALL DECLARED' : `⏳ AWAITED`}
               </div>
             </div>
           </div>
@@ -253,7 +264,7 @@ export default function ElectionScoreboard() {
                     <span style={{ fontSize: 16 }}>{p.emoji}</span>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 900, color: p.color, lineHeight: 1 }}>{p.shortName}</div>
-                      <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.22)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 80 }}>{p.leader}</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 80 }}>{p.leader}</div>
                     </div>
                   </div>
                   {hasMaj && (
@@ -269,8 +280,22 @@ export default function ElectionScoreboard() {
                 </div>
 
                 {/* BIG seat number */}
-                <div style={{ fontSize: 'clamp(32px,7vw,44px)', fontWeight: 900, color: p.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums', marginBottom: 8 }}>
+                <div style={{ fontSize: 'clamp(32px,7vw,44px)', fontWeight: 900, color: p.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums', marginBottom: 4 }}>
                   <AnimNum n={p.seats} big />
+                </div>
+
+                {/* WON / LEADING split */}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span style={{ fontSize: 8, color: '#4ade80', fontWeight: 900 }}>✓ WON</span>
+                    <span style={{ fontSize: 10, fontWeight: 900, color: 'rgba(255,255,255,0.7)' }}>{p.won}</span>
+                  </div>
+                  {p.leading > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <span style={{ fontSize: 8, color: '#fbbf24', fontWeight: 900 }}>↑ LEAD</span>
+                      <span style={{ fontSize: 10, fontWeight: 900, color: 'rgba(255,255,255,0.7)' }}>{p.leading}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Progress to majority */}
@@ -284,10 +309,10 @@ export default function ElectionScoreboard() {
                   }} />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.2)' }}>
+                  <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)' }}>
                     {hasMaj ? `+${p.seats - MAJORITY} above majority` : `needs ${MAJORITY - p.seats} more`}
                   </span>
-                  <span style={{ fontSize: 7, color: `${p.color}88`, fontWeight: 700 }}>{pctOfMaj}% to {MAJORITY}</span>
+                  <span style={{ fontSize: 8, color: p.color, fontWeight: 700, opacity: 0.7 }}>{pctOfMaj}%</span>
                 </div>
               </div>
             )
@@ -329,7 +354,7 @@ export default function ElectionScoreboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                       <span style={{ fontSize: 14 }}>{p.emoji}</span>
                       <span style={{ fontSize: 13, fontWeight: 900, color: p.color }}>{p.shortName}</span>
-                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', fontWeight: 500 }}>{p.parties}</span>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', fontWeight: 500 }}>{p.parties}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                       <span style={{ fontSize: 20, fontWeight: 900, color: p.color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>

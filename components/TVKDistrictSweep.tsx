@@ -12,8 +12,8 @@ const ECI_JSON = 'https://results.eci.gov.in/ResultAcGenMay2026/election-json-S2
 const ALIAS: Record<string, string> = {
   TVK:'TVK',
   DMK:'DMK', INC:'DMK', CPI:'DMK', 'CPI(M)':'DMK', VCK:'DMK', IUML:'DMK', MDMK:'DMK',
-  ADMK:'ADMK', AIADMK:'ADMK', PMK:'ADMK', DMDK:'ADMK', PT:'ADMK',
-  BJP:'BJP', AMMKMNKZ:'Others',
+  ADMK:'ADMK', AIADMK:'ADMK', PMK:'ADMK', DMDK:'ADMK', PT:'ADMK', BJP:'ADMK',
+  AMMKMNKZ:'Others',
 }
 
 // ECI AC# → district (correct mapping)
