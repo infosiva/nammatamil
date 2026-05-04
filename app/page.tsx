@@ -2,6 +2,7 @@ import HomeTabLayout from '@/components/HomeTabLayout'
 import AdUnit from '@/components/AdUnit'
 import ElectionResultsLive from '@/components/ElectionResultsLive'
 import ConstituencyLiveBoard from '@/components/ConstituencyLiveBoard'
+import ElectionAnimatedStats from '@/components/ElectionAnimatedStats'
 
 export default function HomePage() {
   return (
@@ -62,6 +63,11 @@ export default function HomePage() {
 
       {/* ══ MAIN CONTENT ════════════════════════════════════════════════════════ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        {/* ── Animated stats: 3D tally table + vote race ── */}
+        <div style={{ marginBottom: 24 }}>
+          <ElectionAnimatedStats />
+        </div>
 
         {/* ── Full-width constituency board ── */}
         <ConstituencyLiveBoard />
