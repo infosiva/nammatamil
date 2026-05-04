@@ -16,6 +16,7 @@ interface ElectionData {
   phase: string; seatsReported: number; totalSeats: number; majorityMark: number
   parties: PartyResult[]; narrative: string; updatedAt: string; source: string
   leader: string; projectedWinner: string | null; refreshing?: boolean
+  allianceTotals?: { tvk: number; dmkAlliance: number; admkAlliance: number }
 }
 
 const REFRESH_MS = 60_000
@@ -24,10 +25,17 @@ const TOTAL      = 234
 
 // ── ECI direct fetch (browser-side) ─────────────────────────────────────────
 const ECI_JSON = 'https://results.eci.gov.in/ResultAcGenMay2026/election-json-S22-live.json'
+
+// Party → alliance mapping
+// TVK runs alone. DMK alliance includes INC, CPI, VCK etc. AIADMK alliance includes DMDK, PMK.
 const PARTY_ALIASES: Record<string, string> = {
   TVK:'TVK', DMK:'DMK', ADMK:'AIADMK', AIADMK:'AIADMK', BJP:'BJP',
-  PMK:'Others', INC:'Others', CPI:'Others', VCK:'Others', DMDK:'Others',
-  IUML:'Others', AMMKMNKZ:'Others', PT:'Others',
+  // DMK allies
+  INC:'DMK_ALLY', CPI:'DMK_ALLY', CPIM:'DMK_ALLY', VCK:'DMK_ALLY',
+  MDMK:'DMK_ALLY', IUML:'DMK_ALLY', KMDK:'DMK_ALLY', KMM:'DMK_ALLY',
+  MMKMNKZ:'DMK_ALLY', AMMKMNKZ:'DMK_ALLY',
+  // AIADMK allies
+  PMK:'ADMK_ALLY', DMDK:'ADMK_ALLY', PT:'ADMK_ALLY', AISMK:'ADMK_ALLY',
 }
 const PARTY_META: Record<string, { fullName: string; leader: string; color: string; emoji: string; voteShare: number }> = {
   TVK:    { fullName:'Tamilaga Vettri Kazhagam', leader:'Vijay (Thalapathy)', color:'#fbbf24', emoji:'⭐', voteShare:35.0 },
@@ -36,6 +44,9 @@ const PARTY_META: Record<string, { fullName: string; leader: string; color: stri
   BJP:    { fullName:'Bharatiya Janata Party',     leader:'K. Annamalai',     color:'#fb923c', emoji:'🪷', voteShare:4.2  },
   Others: { fullName:'Others / Independents',      leader:'',                  color:'#94a3b8', emoji:'🏛️', voteShare:2.8  },
 }
+
+// Alliance totals stored in ElectionData.allianceTotals
+interface AllianceTotals { tvk: number; dmkAlliance: number; admkAlliance: number }
 
 async function fetchECIStats(): Promise<ElectionData | null> {
   try {
@@ -61,6 +72,15 @@ async function fetchECIStats(): Promise<ElectionData | null> {
     }).sort((a, b) => b.totalTally - a.totalTally)
     if (parties.length > 0) parties[0].isLeading = true
 
+    // Alliance totals
+    const dmkAlly  = tally['DMK_ALLY']  ?? 0
+    const admkAlly = tally['ADMK_ALLY'] ?? 0
+    const allianceTotals: AllianceTotals = {
+      tvk:         tally['TVK'] ?? 0,
+      dmkAlliance: (tally['DMK'] ?? 0) + dmkAlly,
+      admkAlliance:(tally['AIADMK'] ?? 0) + admkAlly,
+    }
+
     const leader = parties[0]
     return {
       phase: 'counting',
@@ -73,6 +93,7 @@ async function fetchECIStats(): Promise<ElectionData | null> {
       source: 'eci-live',
       leader: leader.name,
       projectedWinner: leader.totalTally >= MAJORITY ? leader.name : null,
+      allianceTotals,
     }
   } catch {
     return null
@@ -583,56 +604,118 @@ export default function ElectionAnimatedStats() {
       {/* ── Live Insights ticker ── */}
       {hasData && <LiveInsights data={data} />}
 
-      {/* ── Counting progress strip ── */}
+      {/* ── Counting progress + Alliance totals ── */}
       {(() => {
         const counted   = data.seatsReported
         const pending   = TOTAL - counted
         const countPct  = Math.round((counted / TOTAL) * 100)
+        const at        = data.allianceTotals
         return (
-          <div style={{
-            borderRadius: 14, padding: '12px 16px',
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.07)',
-          }}>
-            {/* Row 1: label + numbers */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                {isLive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'elPulse 1.5s infinite', flexShrink: 0 }} />}
-                <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.07em' }}>COUNTED SO FAR</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+            {/* Rounds progress card */}
+            <div style={{
+              borderRadius: 14, padding: '12px 16px',
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.07)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {isLive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'elPulse 1.5s infinite', flexShrink: 0 }} />}
+                  <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.07em' }}>CONSTITUENCIES DECLARED</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                  <span style={{ fontSize: 26, fontWeight: 900, color: 'rgba(255,255,255,0.9)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                    <AnimNum n={counted} />
+                  </span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>/ {TOTAL}</span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 900, padding: '2px 7px', borderRadius: 5,
+                    background: countPct > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)',
+                    color: countPct > 0 ? '#ef4444' : 'rgba(255,255,255,0.2)',
+                    border: `1px solid ${countPct > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                    marginLeft: 4,
+                  }}>{countPct}%</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
-                <span style={{ fontSize: 26, fontWeight: 900, color: 'rgba(255,255,255,0.9)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-                  <AnimNum n={counted} />
-                </span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>/ {TOTAL}</span>
-                <span style={{
-                  fontSize: 10, fontWeight: 900, padding: '2px 7px', borderRadius: 5,
-                  background: countPct > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)',
-                  color: countPct > 0 ? '#ef4444' : 'rgba(255,255,255,0.2)',
-                  border: `1px solid ${countPct > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                  marginLeft: 4,
-                }}>
-                  {countPct}%
-                </span>
+              {/* Progress bar */}
+              <div style={{ height: 8, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 6 }}>
+                <div style={{
+                  height: '100%', borderRadius: 99, width: `${countPct}%`,
+                  background: 'linear-gradient(90deg, #ef4444cc, #ef4444)',
+                  transition: 'width 1.2s cubic-bezier(.34,1.56,.64,1)',
+                  boxShadow: '0 0 8px rgba(239,68,68,0.5)',
+                }} />
+              </div>
+              {/* Counted / Remaining chips */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
+                <div style={{ borderRadius: 10, padding: '8px 12px', background: 'rgba(74,222,128,0.07)', border: '1px solid rgba(74,222,128,0.18)', textAlign: 'center' }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#4ade80', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                    <AnimNum n={counted} />
+                  </div>
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>✓ declared</div>
+                </div>
+                <div style={{ borderRadius: 10, padding: '8px 12px', background: pending === 0 ? 'rgba(74,222,128,0.07)' : 'rgba(255,255,255,0.03)', border: `1px solid ${pending === 0 ? 'rgba(74,222,128,0.18)' : 'rgba(255,255,255,0.08)'}`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: pending === 0 ? '#4ade80' : 'rgba(255,255,255,0.55)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                    <AnimNum n={pending} />
+                  </div>
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>{pending === 0 ? '🎉 all done' : '⏳ remaining'}</div>
+                </div>
               </div>
             </div>
-            {/* Bar */}
-            <div style={{ height: 8, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 6 }}>
+
+            {/* Alliance comparison card */}
+            {at && (at.tvk > 0 || at.dmkAlliance > 0 || at.admkAlliance > 0) && (
               <div style={{
-                height: '100%', borderRadius: 99,
-                width: `${countPct}%`,
-                background: 'linear-gradient(90deg, #ef4444cc, #ef4444)',
-                transition: 'width 1.2s cubic-bezier(.34,1.56,.64,1)',
-                boxShadow: '0 0 8px rgba(239,68,68,0.5)',
-              }} />
-            </div>
-            {/* Row 2: pending */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>
-                {pending > 0 ? `${pending} seats still pending` : 'All seats counted'}
-              </span>
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>Majority: {MAJORITY} seats</span>
-            </div>
+                borderRadius: 14, padding: '12px 16px',
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.07)',
+              }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
+                  Alliance Seat Totals
+                </div>
+                {[
+                  { label: 'TVK', sub: 'Thalapathy Vijay (alone)', color: '#fbbf24', emoji: '⭐', seats: at.tvk },
+                  { label: 'DMK Alliance', sub: 'DMK + INC + CPI + VCK + allies', color: '#f87171', emoji: '🌅', seats: at.dmkAlliance },
+                  { label: 'ADMK Alliance', sub: 'AIADMK + PMK + DMDK + allies', color: '#4ade80', emoji: '🍃', seats: at.admkAlliance },
+                ].sort((a, b) => b.seats - a.seats).map((row, i) => {
+                  const pct = Math.min(100, Math.round((row.seats / MAJORITY) * 100))
+                  const hasMaj = row.seats >= MAJORITY
+                  return (
+                    <div key={row.label} style={{ marginBottom: i < 2 ? 10 : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ fontSize: 13 }}>{row.emoji}</span>
+                          <div>
+                            <div style={{ fontSize: 11, fontWeight: 800, color: row.color }}>{row.label}</div>
+                            <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.2)' }}>{row.sub}</div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
+                          {hasMaj && <span style={{ fontSize: 8, color: '#4ade80', fontWeight: 700 }}>✓ majority</span>}
+                          <span style={{ fontSize: 20, fontWeight: 900, color: row.color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                            <AnimNum n={row.seats} />
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ position: 'relative', height: 7, borderRadius: 99, background: 'rgba(255,255,255,0.06)' }}>
+                        <div style={{
+                          height: '100%', borderRadius: 99, width: `${pct}%`,
+                          background: hasMaj ? 'linear-gradient(90deg,#4ade80,#22c55e)' : `linear-gradient(90deg,${row.color}88,${row.color})`,
+                          transition: 'width 1.3s cubic-bezier(.34,1.56,.64,1)',
+                          boxShadow: `0 0 8px ${row.color}55`,
+                        }} />
+                        {/* majority marker */}
+                        <div style={{ position: 'absolute', top: -2, bottom: -2, left: '100%', width: 2, background: '#fbbf2455' }} />
+                      </div>
+                    </div>
+                  )
+                })}
+                <div style={{ fontSize: 7, color: 'rgba(251,191,36,0.4)', marginTop: 8, fontWeight: 700 }}>
+                  ▲ 118-seat majority mark shown on each bar
+                </div>
+              </div>
+            )}
           </div>
         )
       })()}

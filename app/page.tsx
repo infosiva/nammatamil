@@ -5,6 +5,8 @@ import ConstituencyLiveBoard from '@/components/ConstituencyLiveBoard'
 import NammaTVKVideos from '@/components/NammaTVKVideos'
 import VisitorCounter from '@/components/VisitorCounter'
 import ElectionTopHero from '@/components/ElectionTopHero'
+import ElectionSpotlight from '@/components/ElectionSpotlight'
+import ElectionReactions from '@/components/ElectionReactions'
 
 export default function HomePage() {
   return (
@@ -30,6 +32,12 @@ export default function HomePage() {
               </span>
             </div>
             <VisitorCounter />
+          </div>
+
+          {/* ── Spotlight: rotating WHO IS WINNING + Reactions ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }} className="election-two-col">
+            <ElectionSpotlight />
+            <ElectionReactions />
           </div>
 
           {/* ── Main stats dashboard ── */}
@@ -96,6 +104,11 @@ export default function HomePage() {
         <AdUnit format="horizontal" className="min-h-[90px]" />
       </div>
 
+      <style>{`
+        @media (max-width: 640px) {
+          .election-two-col { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   )
 }
