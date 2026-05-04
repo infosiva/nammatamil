@@ -555,14 +555,9 @@ export async function GET() {
     return NextResponse.json(payload, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // ── Absolute cold start during counting (no cache yet) — must fetch once ──
-  await fetchFresh()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const coldCache = (store as any).cache as { data: ElectionResultsResponse; fetchedAt: number } | null
-  const payload = coldCache
-    ? { ...coldCache.data, cached: true, refreshing: false }
-    : buildEmptyCountingResponse('counting')
-  return NextResponse.json(payload, { headers: { 'Cache-Control': 'no-store' } })
+  // ── Absolute cold start during counting — respond immediately, fetch in background
+  fetchFresh().catch(() => { /* silent */ })
+  return NextResponse.json(buildEmptyCountingResponse('counting'), { headers: { 'Cache-Control': 'no-store' } })
 }
 
 // ── POST: admin manual update endpoint ───────────────────────────────────────

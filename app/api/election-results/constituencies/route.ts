@@ -630,10 +630,8 @@ export async function GET() {
     return NextResponse.json(stale, { headers: { 'Cache-Control': 'no-store' } })
   }
 
-  // No cache at all — cold start, must wait once
-  await fetchFresh()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const coldEntry = (store as any).cache as CacheEntry | null
-  const result = coldEntry ? coldEntry.data : buildPendingResponse()
-  return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } })
+  // No cache at all — cold start: return pending immediately, refresh in background
+  // Never block the response on scraping — the client polls every 90s anyway
+  fetchFresh().catch(() => {})
+  return NextResponse.json(buildPendingResponse(), { headers: { 'Cache-Control': 'no-store' } })
 }

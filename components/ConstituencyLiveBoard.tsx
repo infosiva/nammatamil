@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Search, Zap, ChevronDown } from 'lucide-react'
+import { Search, Zap, ChevronDown, X, TrendingUp, Users, Award, MapPin } from 'lucide-react'
 
 interface ConstituencyResult {
   id: number
@@ -56,26 +56,32 @@ function formatVotes(n: number | null): string {
 }
 
 // ── Single constituency card ──────────────────────────────────────────────────
-function ConstCard({ c, flash }: { c: ConstituencyResult; flash: boolean }) {
+function ConstCard({ c, flash, onClick }: { c: ConstituencyResult; flash: boolean; onClick: () => void }) {
   const color  = c.leadingParty ? PARTY_COLORS[c.leadingParty] ?? '#94a3b8' : 'rgba(255,255,255,0.10)'
   const isPend = c.status === 'pending'
   const isWon  = c.status === 'won'
 
   return (
-    <div style={{
-      borderRadius: 12,
-      padding: '10px 11px',
-      background: isPend
-        ? 'rgba(255,255,255,0.018)'
-        : isWon
-          ? `${color}18`
-          : `${color}0b`,
-      border: `1px solid ${isPend ? 'rgba(255,255,255,0.045)' : isWon ? color + '50' : color + '2a'}`,
-      boxShadow: flash ? `0 0 18px ${color}38` : isWon ? `0 2px 12px ${color}28` : 'none',
-      transition: 'box-shadow 0.4s ease',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
+    <div
+      onClick={onClick}
+      style={{
+        borderRadius: 12,
+        padding: '10px 11px',
+        background: isPend
+          ? 'rgba(255,255,255,0.018)'
+          : isWon
+            ? `${color}18`
+            : `${color}0b`,
+        border: `1px solid ${isPend ? 'rgba(255,255,255,0.045)' : isWon ? color + '50' : color + '2a'}`,
+        boxShadow: flash ? `0 0 18px ${color}38` : isWon ? `0 2px 12px ${color}28` : 'none',
+        transition: 'box-shadow 0.4s ease, transform 0.12s ease',
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: 'pointer',
+      }}
+      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
+    >
       {/* Flash overlay */}
       {flash && (
         <div style={{
@@ -221,6 +227,157 @@ function PartyPills({ constituencies }: { constituencies: ConstituencyResult[] }
   )
 }
 
+// ── Constituency detail modal ─────────────────────────────────────────────────
+function ConstituencyModal({ c, onClose }: { c: ConstituencyResult; onClose: () => void }) {
+  const color  = c.leadingParty ? PARTY_COLORS[c.leadingParty] ?? '#94a3b8' : '#94a3b8'
+  const isWon  = c.status === 'won'
+  const isLead = c.status === 'leading'
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 400,
+        background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)',
+        display: 'flex', alignItems: 'flex-end',
+        justifyContent: 'center', padding: '0 0 0 0',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: '100%', maxWidth: 480,
+          background: '#0d0018',
+          border: `1px solid ${color}40`,
+          borderRadius: '20px 20px 0 0',
+          padding: '20px 20px 32px',
+          boxShadow: `0 -8px 40px ${color}28`,
+          animation: 'slideUp 0.25s cubic-bezier(.34,1.56,.64,1)',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute', top: 16, right: 16,
+            width: 28, height: 28, borderRadius: '50%',
+            background: 'rgba(255,255,255,0.07)', border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)',
+          }}
+        >
+          <X style={{ width: 14, height: 14 }} />
+        </button>
+
+        {/* Status badge */}
+        <div style={{ marginBottom: 12 }}>
+          <span style={{
+            fontSize: 9, fontWeight: 900, padding: '3px 8px', borderRadius: 5, letterSpacing: '0.08em',
+            background: isWon ? color : isLead ? `${color}22` : 'rgba(255,255,255,0.07)',
+            color: isWon ? '#000' : isLead ? color : 'rgba(255,255,255,0.3)',
+            border: isLead ? `1px solid ${color}40` : 'none',
+          }}>
+            {isWon ? '✓ WON' : isLead ? 'LEADING' : 'PENDING'}
+          </span>
+        </div>
+
+        {/* Constituency name */}
+        <h2 style={{ fontSize: 22, fontWeight: 900, color: 'rgba(255,255,255,0.92)', marginBottom: 4, lineHeight: 1.2 }}>
+          {c.name}
+        </h2>
+
+        {/* District */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 20, color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>
+          <MapPin style={{ width: 11, height: 11 }} />
+          {c.district} District
+        </div>
+
+        {c.status === 'pending' ? (
+          <div style={{
+            padding: '24px', borderRadius: 12, textAlign: 'center',
+            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>⏳</div>
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Awaiting count results</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Party card */}
+            <div style={{
+              padding: '14px 16px', borderRadius: 12,
+              background: `${color}10`, border: `1px solid ${color}30`,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{
+                  fontSize: 13, fontWeight: 900, padding: '3px 10px', borderRadius: 6,
+                  background: `${color}20`, color, border: `1px solid ${color}40`,
+                }}>
+                  {c.leadingParty}
+                </span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>
+                  {c.leadingCandidate}
+                </span>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {c.margin !== null && (
+                <div style={{
+                  padding: '12px', borderRadius: 10,
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                    <TrendingUp style={{ width: 11, height: 11, color: color }} />
+                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.07em' }}>MARGIN</span>
+                  </div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                    {formatMargin(c.margin)}
+                  </div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', marginTop: 3 }}>votes ahead</div>
+                </div>
+              )}
+              {c.votesLeading !== null && (
+                <div style={{
+                  padding: '12px', borderRadius: 10,
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                    <Users style={{ width: 11, height: 11, color: 'rgba(255,255,255,0.4)' }} />
+                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.07em' }}>VOTES</span>
+                  </div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.75)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                    {formatVotes(c.votesLeading)}
+                  </div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', marginTop: 3 }}>leading candidate</div>
+                </div>
+              )}
+            </div>
+
+            {/* Majority context */}
+            {isWon && (
+              <div style={{
+                padding: '10px 14px', borderRadius: 10,
+                background: 'rgba(74,222,128,0.07)', border: '1px solid rgba(74,222,128,0.2)',
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                <Award style={{ width: 14, height: 14, color: '#4ade80', flexShrink: 0 }} />
+                <span style={{ fontSize: 11, color: 'rgba(74,222,128,0.8)', fontWeight: 700 }}>
+                  Result officially declared — seat counted
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Last updated */}
+        <p style={{ marginTop: 16, fontSize: 9, color: 'rgba(255,255,255,0.15)', textAlign: 'right' }}>
+          Last updated: {new Date(c.updatedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 export default function ConstituencyLiveBoard() {
   const [data, setData]               = useState<ConstituenciesResponse | null>(null)
@@ -231,6 +388,7 @@ export default function ConstituencyLiveBoard() {
   const [partyFilter, setPartyFilter] = useState('All')
   const [flashIds, setFlashIds]       = useState<Set<number>>(new Set())
   const [secAgo, setSecAgo]           = useState(0)
+  const [expanded, setExpanded]       = useState<ConstituencyResult | null>(null)
   const prevRef                       = useRef<Map<number, string>>(new Map())
 
   const fetchData = useCallback(async (manual = false) => {
@@ -292,30 +450,169 @@ export default function ConstituencyLiveBoard() {
       {!loading && <PartyPills constituencies={constituencies} />}
 
       {/* ── Progress bar ── */}
-      {!loading && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Seats Reporting
-            </span>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>
-              {totalReporting} / 234
-              {refreshing ? ' · Refreshing…' : secAgo > 0 ? ` · ${secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`}` : ''}
-            </span>
+      {!loading && (() => {
+        const pct     = totalReporting / 234
+        const pctNum  = Math.round(pct * 100)
+        const remaining = 234 - totalReporting
+
+        // Per-party segment widths from live data
+        const tallies: Record<string, { won: number; leading: number }> = {}
+        for (const c of constituencies) {
+          if (!c.leadingParty) continue
+          if (!tallies[c.leadingParty]) tallies[c.leadingParty] = { won: 0, leading: 0 }
+          if (c.status === 'won') tallies[c.leadingParty].won++
+          else tallies[c.leadingParty].leading++
+        }
+        const PARTY_ORDER = ['TVK', 'DMK', 'AIADMK', 'BJP', 'Others']
+
+        return (
+          <div style={{
+            borderRadius: 14,
+            padding: '14px 16px',
+            background: 'rgba(255,255,255,0.022)',
+            border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            {/* Top row: label + count + timer */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                {/* Live pulse */}
+                <span style={{
+                  width: 7, height: 7, borderRadius: '50%', flexShrink: 0, display: 'inline-block',
+                  background: totalReporting > 0 ? '#ef4444' : 'rgba(255,255,255,0.2)',
+                  boxShadow: totalReporting > 0 ? '0 0 8px #ef4444' : 'none',
+                  animation: totalReporting > 0 ? 'cbPulse 1.5s ease-in-out infinite' : 'none',
+                }} />
+                <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.05em' }}>
+                  SEATS COUNTED
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                <span style={{ fontSize: 22, fontWeight: 900, color: 'rgba(255,255,255,0.9)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                  {totalReporting}
+                </span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontVariantNumeric: 'tabular-nums' }}>/ 234</span>
+                <span style={{
+                  marginLeft: 6, fontSize: 10, fontWeight: 900, padding: '2px 7px', borderRadius: 5,
+                  background: pctNum > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)',
+                  color: pctNum > 0 ? '#ef4444' : 'rgba(255,255,255,0.2)',
+                  border: `1px solid ${pctNum > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                  fontVariantNumeric: 'tabular-nums',
+                }}>
+                  {pctNum}%
+                </span>
+              </div>
+            </div>
+
+            {/* Multi-segment bar */}
+            <div style={{ position: 'relative', marginBottom: 8 }}>
+              {/* Track */}
+              <div style={{
+                height: 18, borderRadius: 99,
+                background: 'rgba(255,255,255,0.05)',
+                overflow: 'hidden', display: 'flex',
+                position: 'relative',
+              }}>
+                {totalReporting === 0 ? (
+                  /* Animated waiting stripe when no data */
+                  <div style={{
+                    width: '100%', height: '100%',
+                    background: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.07) 20px, rgba(255,255,255,0.04) 40px)',
+                    animation: 'cbScroll 2s linear infinite',
+                  }} />
+                ) : (
+                  PARTY_ORDER.map(party => {
+                    const t = tallies[party]
+                    if (!t) return null
+                    const color = PARTY_COLORS[party] ?? '#94a3b8'
+                    const wonW  = (t.won / 234) * 100
+                    const leadW = (t.leading / 234) * 100
+                    return (
+                      <div key={party} style={{ display: 'flex', height: '100%' }}>
+                        {wonW > 0.2 && (
+                          <div title={`${party} Won: ${t.won}`} style={{
+                            width: `${wonW}%`,
+                            background: color,
+                            transition: 'width 1.2s cubic-bezier(.34,1.56,.64,1)',
+                            position: 'relative',
+                          }}>
+                            {wonW > 6 && (
+                              <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: 'rgba(0,0,0,0.65)' }}>
+                                {t.won}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {leadW > 0.2 && (
+                          <div title={`${party} Leading: ${t.leading}`} style={{
+                            width: `${leadW}%`,
+                            background: `${color}60`,
+                            backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.06) 4px, rgba(255,255,255,0.06) 8px)`,
+                            transition: 'width 1.2s cubic-bezier(.34,1.56,.64,1)',
+                          }} />
+                        )}
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+
+              {/* Majority marker */}
+              <div style={{
+                position: 'absolute', top: -3, bottom: -3,
+                left: `${(118 / 234) * 100}%`,
+                width: 2, background: '#fbbf24',
+                borderRadius: 99,
+                boxShadow: '0 0 8px rgba(251,191,36,0.9)',
+                zIndex: 2,
+              }}>
+                <div style={{
+                  position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)',
+                  fontSize: 7, fontWeight: 900, color: '#fbbf24',
+                  whiteSpace: 'nowrap', letterSpacing: '0.05em',
+                }}>118</div>
+              </div>
+            </div>
+
+            {/* Legend row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              {PARTY_ORDER.map(party => {
+                const t = tallies[party]
+                if (!t || (t.won + t.leading) === 0) return null
+                const color = PARTY_COLORS[party] ?? '#94a3b8'
+                return (
+                  <div key={party} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: 2, background: color, display: 'inline-block', flexShrink: 0 }} />
+                    <span style={{ fontSize: 9, fontWeight: 800, color }}>{party}</span>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontVariantNumeric: 'tabular-nums' }}>
+                      {t.won > 0 ? `${t.won}W` : ''}{t.won > 0 && t.leading > 0 ? '+' : ''}{t.leading > 0 ? `${t.leading}L` : ''}
+                    </span>
+                  </div>
+                )
+              })}
+              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+                {remaining > 0 && (
+                  <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)' }}>
+                    {remaining} pending
+                  </span>
+                )}
+                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>
+                  {refreshing ? '↻ Refreshing…'
+                    : secAgo > 0 ? `↻ ${secAgo < 60 ? `${secAgo}s` : `${Math.floor(secAgo / 60)}m`} ago`
+                    : '↻ Live'}
+                </span>
+              </div>
+            </div>
+
+            {/* Source */}
+            <div style={{ marginTop: 8, fontSize: 8, color: 'rgba(255,255,255,0.13)' }}>
+              {source === 'eci-live' ? '🟢 ECI official data'
+                : source === 'ai-parsed' ? '⚡ AI news parse'
+                : source === 'cached-stale' ? '🟠 Snapshot · refreshing'
+                : '⏳ Awaiting count start'} · majority mark at 118 seats
+            </div>
           </div>
-          <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-            <div style={{
-              height: '100%', borderRadius: 99,
-              width: `${(totalReporting / 234) * 100}%`,
-              background: 'linear-gradient(90deg, #fbbf24, #ef4444)',
-              transition: 'width 1s ease',
-            }} />
-          </div>
-          <div style={{ marginTop: 4, fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>
-            {source === 'eci-live' ? '🟢 ECI official data' : source === 'ai-parsed' ? '⚡ AI news parse' : source === 'cached-stale' ? '🟠 Snapshot · refreshing' : '⏳ Awaiting count'} · auto-updates every 60s
-          </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* ── Filter bar ── */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -428,7 +725,7 @@ export default function ConstituencyLiveBoard() {
       ) : (
         <div className="const-grid">
           {filtered.map(c => (
-            <ConstCard key={c.id} c={c} flash={flashIds.has(c.id)} />
+            <ConstCard key={c.id} c={c} flash={flashIds.has(c.id)} onClick={() => setExpanded(c)} />
           ))}
           {filtered.length === 0 && (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '36px 20px', color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>
@@ -438,9 +735,14 @@ export default function ConstituencyLiveBoard() {
         </div>
       )}
 
+      {expanded && <ConstituencyModal c={expanded} onClose={() => setExpanded(null)} />}
+
       <style>{`
         @keyframes cFadeOut { 0%{opacity:1} 100%{opacity:0} }
         @keyframes cShimmer { 0%,100%{opacity:0.5} 50%{opacity:1} }
+        @keyframes cbPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(1.5)} }
+        @keyframes cbScroll { 0%{background-position:0 0} 100%{background-position:80px 0} }
+        @keyframes slideUp { 0%{transform:translateY(100%);opacity:0} 100%{transform:translateY(0);opacity:1} }
         .const-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
