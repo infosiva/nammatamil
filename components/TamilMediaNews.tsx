@@ -67,7 +67,7 @@ function NewsCard({ item }: { item: NewsItem }) {
     >
       {/* Thumbnail or placeholder */}
       <div style={{
-        flexShrink: 0, width: 80, height: 60, borderRadius: 10, overflow: 'hidden',
+        flexShrink: 0, width: 88, height: 66, borderRadius: 10, overflow: 'hidden',
         background: 'rgba(255,255,255,0.05)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
@@ -211,10 +211,10 @@ export default function TamilMediaNews() {
         </span>
       </div>
 
-      {/* News list */}
+      {/* News grid */}
       {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 8 }}>
+          {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : visible.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.25)', fontSize: 13 }}>
@@ -222,7 +222,7 @@ export default function TamilMediaNews() {
         </div>
       ) : (
         <>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 8 }}>
             {visible.map((item, i) => <NewsCard key={`${item.link}-${i}`} item={item} />)}
           </div>
           {filtered.length > 8 && (

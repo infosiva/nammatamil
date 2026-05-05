@@ -2,20 +2,22 @@ import HomeTabLayout from '@/components/HomeTabLayout'
 import TamilMediaNews from '@/components/TamilMediaNews'
 import VisitorCounter from '@/components/VisitorCounter'
 import TVKHeroBg from '@/components/TVKHeroBg'
-import ElectionMiniPanel from '@/components/ElectionMiniPanel'
+import ElectionResultsPanel from '@/components/ElectionResultsPanel'
+import CricketWidget from '@/components/CricketWidget'
 
 export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
 
-      {/* ══ TVK HERO ─ Cinematic Vijay background, always present ══════════════ */}
-      <div style={{ position: 'relative', borderBottom: '1px solid rgba(251,191,36,0.08)', minHeight: 320 }}>
+      {/* ══ HERO ══════════════════════════════════════════════════════════════ */}
+      <div style={{ position: 'relative', borderBottom: '1px solid rgba(251,191,36,0.08)', minHeight: 280 }}>
         <TVKHeroBg />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ position: 'relative', zIndex: 1, paddingTop: 24, paddingBottom: 28 }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+          style={{ position: 'relative', zIndex: 1, paddingTop: 22, paddingBottom: 24 }}>
 
-          {/* Site identity row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          {/* Site identity */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
             <div>
               <div style={{
                 fontSize: 'clamp(1.6rem,5vw,2.6rem)', fontWeight: 900, lineHeight: 1,
@@ -32,27 +34,39 @@ export default function HomePage() {
             <VisitorCounter />
           </div>
 
-          {/* ── Election 2026 Mini Panel ── */}
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <div style={{ width: 3, height: 14, borderRadius: 99, background: 'linear-gradient(180deg, #ef4444, #fbbf24)' }} />
-              <span style={{ fontWeight: 800, fontSize: 12, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                TN Election 2026
-              </span>
+          {/* ── Live widgets row ── */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 12,
+          }}>
+            {/* Election results — real declared data */}
+            <ElectionResultsPanel />
+
+            {/* IPL standings widget */}
+            <div style={{
+              borderRadius: 14,
+              background: 'rgba(10,2,18,0.85)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              overflow: 'hidden',
+              backdropFilter: 'blur(8px)',
+            }}>
+              <CricketWidget compact />
             </div>
-            <ElectionMiniPanel />
           </div>
 
         </div>
       </div>
 
-      {/* ══ ENTERTAINMENT CONTENT ══════════════════════════════════════════════ */}
+      {/* ══ MAIN CONTENT ══════════════════════════════════════════════════════ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <div style={{ marginBottom: 28 }}>
+        {/* Tamil Media News — 2-col grid */}
+        <div style={{ marginBottom: 32 }}>
           <TamilMediaNews />
         </div>
 
+        {/* Entertainment tabs */}
         <div style={{ marginBottom: 24 }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16,
