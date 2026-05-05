@@ -87,7 +87,7 @@ const PARTIES = [
     leaderImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Vijay_at_Protest_of_the_Nadigar_Sangam.jpg/330px-Vijay_at_Protest_of_the_Nadigar_Sangam.jpg',
     aiSentiment: 91,
     aiTrend: '+28.5%',
-    aiLabel: 'LIVE: Leading in 107 of 234 seats · heading to majority',
+    aiLabel: 'FINAL: Won 107 of 234 seats · Largest party, hung assembly',
     voteShare: 35.0,
     ranges: [
       { label: '<80',    pct: 1  },
@@ -111,7 +111,7 @@ const PARTIES = [
     leaderImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/The_Chief_Minister_of_Tamil_Nadu%2C_Thiru_MK_Stalin.jpg/330px-The_Chief_Minister_of_Tamil_Nadu%2C_Thiru_MK_Stalin.jpg',
     aiSentiment: 55,
     aiTrend: '-18.2%',
-    aiLabel: 'LIVE: Leading in 60 of 234 seats · below majority mark',
+    aiLabel: 'FINAL: Won 60 of 234 seats · below majority mark',
     voteShare: 35.0,
     ranges: [
       { label: '<50',    pct: 5  },
@@ -135,7 +135,7 @@ const PARTIES = [
     leaderImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Palanisamy.jpg/330px-Palanisamy.jpg',
     aiSentiment: 38,
     aiTrend: '-12.4%',
-    aiLabel: 'LIVE: Leading in 47 of 234 seats · below exit poll forecast',
+    aiLabel: 'FINAL: Won 47 of 234 seats · below exit poll forecast',
     voteShare: 23.0,
     ranges: [
       { label: '<30',   pct: 12 },
@@ -538,7 +538,7 @@ function PartyCard({ party, exitSeats, isWinner }: { party: typeof PARTIES[0]; e
           </div>
           <div style={{ paddingBottom: 4 }}>
             <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>seats</div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>🔴 LIVE</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>✅ FINAL</div>
           </div>
         </div>
 
@@ -608,12 +608,12 @@ function ExitPollSection() {
     <div style={{ marginBottom: 28 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
         <Newspaper style={{ width: 16, height: 16, color: '#ef4444' }} />
-        <h2 style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>Live Results & Exit Polls</h2>
+        <h2 style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>Final Results & Exit Polls</h2>
         <span style={{
-          fontSize: 9, fontWeight: 900, letterSpacing: '0.08em', color: '#ef4444',
-          background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)',
+          fontSize: 9, fontWeight: 900, letterSpacing: '0.08em', color: '#4ade80',
+          background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.35)',
           borderRadius: 99, padding: '2px 8px', marginLeft: 4,
-        }}>🔴 LIVE</span>
+        }}>✅ FINAL</span>
       </div>
 
       {/* Scrollable poll cards */}
@@ -1008,9 +1008,9 @@ export default function TNElectionClient() {
               ← NammaTamil
             </Link>
             <span style={{ color: 'rgba(255,255,255,0.12)' }}>|</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 900, color: '#ef4444' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
-              ⚖️ HUNG ASSEMBLY · Coalition talks live
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 900, color: '#4ade80' }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
+              ⚖️ HUNG ASSEMBLY · TVK 107 · Final Results
             </span>
           </div>
           <button

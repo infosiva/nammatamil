@@ -92,7 +92,7 @@ export default function TVKHeroBg() {
               /* Single mask — fade left edge into bg, keep rest fully visible */
               maskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 20%, rgba(0,0,0,1) 45%)',
               WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 20%, rgba(0,0,0,1) 45%)',
-              filter: 'contrast(1.05) brightness(1.15) saturate(0.95)',
+              filter: 'contrast(1.05) brightness(1.35) saturate(1.0)',
             }}
           />
           {/* Gold-crimson tone overlay — ties photo to flag palette (kept very light) */}
@@ -148,8 +148,8 @@ export default function TVKHeroBg() {
           50%       { opacity: 1;   transform: translateX(-50%) scale(1.1); }
         }
         @keyframes heroFigure {
-          0%, 100% { transform: translateY(0px);   filter: drop-shadow(0 0 50px rgba(255,193,7,0.25)) brightness(0.85); }
-          50%       { transform: translateY(-10px); filter: drop-shadow(0 0 80px rgba(255,193,7,0.40)) brightness(0.90); }
+          0%, 100% { transform: translateY(0px);   filter: drop-shadow(0 0 50px rgba(255,193,7,0.25)) brightness(1.05); }
+          50%       { transform: translateY(-10px); filter: drop-shadow(0 0 80px rgba(255,193,7,0.40)) brightness(1.10); }
         }
         @keyframes whistleFloat {
           0%, 100% { transform: translateY(-50%) rotate(-4deg); opacity: 0.07; }

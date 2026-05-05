@@ -58,7 +58,6 @@ export default function CricketWidget({ compact = false }: { compact?: boolean }
 
   // ── Compact mode: shown in hero panel ─────────────────────────────────────
   if (compact) {
-    const top5 = standings.slice(0, 5)
     return (
       <div style={{ padding: '12px 14px 11px', paddingLeft: 16 }}>
         {/* Header */}
@@ -88,18 +87,18 @@ export default function CricketWidget({ compact = false }: { compact?: boolean }
           </div>
         )}
 
-        {/* Top 5 teams */}
+        {/* All teams */}
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            {[...Array(5)].map((_, i) => <div key={i} style={{ height: 22, borderRadius: 6, background: 'rgba(255,255,255,0.05)', animation: 'shimmer 1.5s infinite' }} />)}
+            {[...Array(10)].map((_, i) => <div key={i} style={{ height: 22, borderRadius: 6, background: 'rgba(255,255,255,0.05)', animation: 'shimmer 1.5s infinite' }} />)}
           </div>
-        ) : top5.length === 0 ? (
+        ) : standings.length === 0 ? (
           <div style={{ padding: '10px 0', textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
             Fetching live standings…
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {top5.map((row, i) => (
+            {standings.map((row, i) => (
               <div key={row.short} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '3px 0' }}>
                 <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', width: 12, textAlign: 'right' }}>{row.pos}</span>
                 <div style={{ width: 22, height: 22, borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#fff', background: row.color + 'cc', flexShrink: 0 }}>
