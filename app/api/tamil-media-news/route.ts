@@ -46,18 +46,31 @@ const POLITICS_KW = [
 ]
 
 const CINEMA_KW = [
+  // Tamil
   'திரைப்படம்', 'சினிமா', 'நடிகர்', 'நடிகை', 'இயக்குனர்', 'இசை',
+  'படம்', 'படத்தில்', 'படத்தின்', 'கோலிவுட்', 'தமிழ் படம்',
+  'ஓடிடி', 'வெளியீடு', 'இயக்குனர்', 'தயாரிப்பு', 'விழா',
+  'நடித்த', 'நடிக்கிறார்', 'ரிலீஸ்', 'தியேட்டர்', 'போஸ்டர்',
+  // English
   'movie', 'film', 'actor', 'actress', 'director', 'cinema', 'trailer',
   'release', 'ott', 'serial', 'series', 'tv show', 'music', 'song',
   'kollywood', 'rajinikanth', 'kamal', 'dhanush', 'ajith', 'suriya',
-  'thalapathy', 'vikram', 'sivakarthikeyan',
+  'thalapathy', 'vikram', 'sivakarthikeyan', 'nayanthara', 'trisha',
+  'samantha', 'pooja hegde', 'rashmika', 'atlee', 'shankar', 'lokesh',
+  'box office', 'first look', 'teaser', 'audio launch', 'album',
+  'vijay tv', 'sun tv', 'zee tamil', 'star vijay', 'kalaignar tv',
 ]
 
 const SPORTS_KW = [
-  'விளையாட்டு', 'கிரிக்கெட்', 'கால்பந்து',
+  // Tamil
+  'விளையாட்டு', 'கிரிக்கெட்', 'கால்பந்து', 'டென்னிஸ்', 'ஹாக்கி',
+  'வீரர்', 'வெற்றி', 'தோல்வி', 'போட்டி', 'டூர்னமென்ட்',
+  // English
   'cricket', 'ipl', 'football', 'sports', 'match', 'tournament',
   'championship', 'player', 'team', 'score', 'wicket', 'goal',
-  'chennai super kings', 'csk',
+  'chennai super kings', 'csk', 'ms dhoni', 'rohit', 'virat',
+  'fifa', 'olympics', 'kabaddi', 'badminton', 'tennis', 'hockey',
+  'batting', 'bowling', 'innings', 'over', 'run', 'boundary', 'six',
 ]
 
 function categorize(title: string, desc: string): 'politics' | 'cinema' | 'sports' | 'general' {
@@ -233,5 +246,10 @@ export async function GET() {
   const data = { news, updatedAt: new Date().toISOString(), count: news.length }
   cache = { data, at: Date.now() }
 
-  return NextResponse.json(data)
+  return NextResponse.json(data, {
+    headers: {
+      'Cache-Control': 'no-store, max-age=0',
+      'X-Sources': [...new Set(news.map(n => n.source))].join(', '),
+    },
+  })
 }
