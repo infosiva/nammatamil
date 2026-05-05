@@ -16,8 +16,9 @@
  *
  * Cache: 5 minutes — situation moves fast
  */
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { generateWithAI } from '@/lib/ai'
+import { rateLimit } from '@/lib/ratelimit'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -193,7 +194,12 @@ Respond ONLY with valid compact JSON — no markdown fences:
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // Rate limit: 30 req/IP/min — cached responses are cheap but AI calls aren't
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'anon'
+  if (!rateLimit(`election-news:${ip}`, 30, 60 * 1000)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
   const now = Date.now()
 
   // Fetch news

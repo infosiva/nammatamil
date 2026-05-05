@@ -16,7 +16,8 @@
  *
  * Cache: 5 minutes server-side
  */
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/ratelimit'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -205,7 +206,13 @@ function dedup(items: RawItem[]): RawItem[] {
   })
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // Rate limit: 20 req/IP/min
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'anon'
+  if (!rateLimit(`tamil-news:${ip}`, 20, 60 * 1000)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   // Serve from cache if fresh
   if (cache && Date.now() - cache.at < CACHE_TTL) {
     return NextResponse.json(cache.data, { headers: { 'X-Cache': 'HIT' } })

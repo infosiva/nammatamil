@@ -22,13 +22,13 @@ export async function POST(req: NextRequest) {
     const ua      = req.headers.get('user-agent') ?? ''
 
     const payload = {
-      site:      'nammatamil.live',
-      page:      body?.page ?? '/',
-      ref:       body?.ref ?? '',
+      site:    'nammatamil.live',
+      page:    String(body?.page ?? '/').slice(0, 200),
+      ref:     String(body?.ref ?? '').slice(0, 200),
       country,
-      city,
-      ua:        ua.slice(0, 120),
-      ts:        Date.now(),
+      city:    city.slice(0, 60),
+      ua:      ua.slice(0, 120),
+      ts:      Date.now(),
     }
 
     // Fire-and-forget to VPS — don't block the response

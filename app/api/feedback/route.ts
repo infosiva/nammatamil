@@ -4,6 +4,7 @@
  * Falls back to console log if RESEND_API_KEY not set
  */
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/ratelimit'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,8 +20,19 @@ interface FeedbackBody {
   page?: string
 }
 
+// Escape HTML special chars to prevent injection in email body
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
 async function sendViaResend(body: FeedbackBody, ip: string) {
   const stars = '★'.repeat(body.rating) + '☆'.repeat(5 - body.rating)
+  // All user-supplied values are escaped before interpolation
+  const safeMsg  = escHtml(body.message).replace(/\n/g, '<br>')
+  const safeType = escHtml(body.type ?? '')
+  const safePage = escHtml(body.page ?? 'Home')
+  const safeEmail = body.email ? escHtml(body.email) : null
   const html = `
     <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#f9f9f9;padding:24px;border-radius:12px">
       <h2 style="margin:0 0 4px;color:#111">NammaTamil Feedback</h2>
@@ -28,19 +40,19 @@ async function sendViaResend(body: FeedbackBody, ip: string) {
 
       <table style="width:100%;border-collapse:collapse">
         <tr><td style="padding:8px 0;color:#555;font-size:13px;width:100px"><strong>Type</strong></td>
-            <td style="padding:8px 0;font-size:13px">${body.type}</td></tr>
+            <td style="padding:8px 0;font-size:13px">${safeType}</td></tr>
         <tr><td style="padding:8px 0;color:#555;font-size:13px"><strong>Rating</strong></td>
             <td style="padding:8px 0;font-size:18px;color:#f59e0b">${stars}</td></tr>
         <tr><td style="padding:8px 0;color:#555;font-size:13px"><strong>Page</strong></td>
-            <td style="padding:8px 0;font-size:13px">${body.page ?? 'Home'}</td></tr>
-        ${body.email ? `<tr><td style="padding:8px 0;color:#555;font-size:13px"><strong>Email</strong></td>
-            <td style="padding:8px 0;font-size:13px">${body.email}</td></tr>` : ''}
+            <td style="padding:8px 0;font-size:13px">${safePage}</td></tr>
+        ${safeEmail ? `<tr><td style="padding:8px 0;color:#555;font-size:13px"><strong>Email</strong></td>
+            <td style="padding:8px 0;font-size:13px">${safeEmail}</td></tr>` : ''}
         <tr><td style="padding:8px 0;color:#555;font-size:13px"><strong>IP</strong></td>
             <td style="padding:8px 0;font-size:13px;color:#999">${ip}</td></tr>
       </table>
 
       <div style="margin-top:16px;padding:16px;background:#fff;border-radius:8px;border-left:4px solid #f59e0b">
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#333">${body.message.replace(/\n/g, '<br>')}</p>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:#333">${safeMsg}</p>
       </div>
 
       <p style="margin-top:20px;font-size:11px;color:#aaa">
@@ -66,23 +78,37 @@ async function sendViaResend(body: FeedbackBody, ip: string) {
 
   if (!res.ok) {
     const err = await res.text()
-    throw new Error(`Resend error ${res.status}: ${err}`)
+    console.error('[Feedback] Resend error', res.status, err) // server log only
+    throw new Error('Email delivery failed')
   }
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 feedback submissions per IP per 10 minutes
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  if (!rateLimit(`feedback:${ip}`, 5, 10 * 60 * 1000)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   try {
     const body = await req.json() as FeedbackBody
 
-    // Basic validation
+    // Input validation — length limits prevent DoS and injection
     if (!body.message?.trim() || body.message.trim().length < 5) {
       return NextResponse.json({ error: 'Message too short' }, { status: 400 })
+    }
+    if (body.message.length > 2000) {
+      return NextResponse.json({ error: 'Message too long' }, { status: 400 })
     }
     if (!body.rating || body.rating < 1 || body.rating > 5) {
       return NextResponse.json({ error: 'Rating 1–5 required' }, { status: 400 })
     }
-
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
+    if (body.type && body.type.length > 50) {
+      return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
+    }
+    if (body.email && (body.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email))) {
+      return NextResponse.json({ error: 'Invalid email' }, { status: 400 })
+    }
 
     if (RESEND_KEY) {
       await sendViaResend(body, ip)
