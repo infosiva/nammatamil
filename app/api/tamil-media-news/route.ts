@@ -21,20 +21,19 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-// ── RSS sources — Tamil-language FIRST ──────────────────────────────────────
+// ── RSS sources — Tamil-language FIRST (URLs verified 2026-05-05) ───────────
 const FEEDS: Array<{ name: string; url: string; tamil: boolean; logoColor: string }> = [
-  // ── PRIMARY: Tamil-language sources ──
-  { name: 'Dinamalar',          url: 'https://www.dinamalar.com/rss/news_rss.asp',              tamil: true,  logoColor: '#e11d48' },
-  { name: 'Maalaimalar',        url: 'https://www.maalaimalar.com/rss/news.xml',                tamil: true,  logoColor: '#7c3aed' },
-  { name: 'OneIndia Tamil',     url: 'https://tamil.oneindia.com/rss/tamil-news-fb.xml',        tamil: true,  logoColor: '#0891b2' },
-  { name: 'Vikatan',            url: 'https://www.vikatan.com/rss/news.xml',                    tamil: true,  logoColor: '#d97706' },
-  { name: 'Puthiya Thalaimurai', url: 'https://www.puthiyathalaimurai.com/rss.xml',             tamil: true,  logoColor: '#dc2626' },
-  { name: 'Sun News',           url: 'https://www.sunnews.in/feed/',                            tamil: true,  logoColor: '#f59e0b' },
-  { name: 'Polimer News',       url: 'https://www.polimernews.com/rss.xml',                     tamil: true,  logoColor: '#16a34a' },
+  // ── PRIMARY: Tamil-language sources (verified working) ──
+  { name: 'Vikatan',             url: 'https://www.vikatan.com/feed',                             tamil: true,  logoColor: '#d97706' },
+  { name: 'Maalaimalar',         url: 'https://www.maalaimalar.com/feed',                         tamil: true,  logoColor: '#7c3aed' },
+  { name: 'Puthiya Thalaimurai', url: 'https://www.puthiyathalaimurai.com/feed/',                 tamil: true,  logoColor: '#dc2626' },
+  { name: 'OneIndia Tamil',      url: 'https://tamil.oneindia.com/rss/tamil-news-fb.xml',         tamil: true,  logoColor: '#0891b2' },
+  { name: 'Polimer News',        url: 'https://www.polimernews.com/feed/',                        tamil: true,  logoColor: '#16a34a' },
+  { name: 'Dinamalar',           url: 'https://www.dinamalar.com/rss.asp',                        tamil: true,  logoColor: '#e11d48' },
   // ── SECONDARY: English sources covering TN ──
-  { name: 'The Hindu Tamil',    url: 'https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss', tamil: false, logoColor: '#1d4ed8' },
-  { name: 'NDTV India',         url: 'https://feeds.feedburner.com/ndtvnews-south-mids',        tamil: false, logoColor: '#dc2626' },
-  { name: 'India Today',        url: 'https://www.indiatoday.in/rss/1206577',                   tamil: false, logoColor: '#d97706' },
+  { name: 'The Hindu Tamil',     url: 'https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss', tamil: false, logoColor: '#1d4ed8' },
+  { name: 'NDTV India',          url: 'https://feeds.feedburner.com/ndtvnews-south-mids',         tamil: false, logoColor: '#dc2626' },
+  { name: 'India Today',         url: 'https://www.indiatoday.in/rss/1206577',                    tamil: false, logoColor: '#d97706' },
 ]
 
 // ── Category keywords ────────────────────────────────────────────────────────
@@ -74,16 +73,29 @@ function categorize(title: string, desc: string): 'politics' | 'cinema' | 'sport
 }
 
 function extractImage(block: string): string | null {
-  // media:content url="..."
-  const media = block.match(/media:content[^>]+url=["']([^"']+)["']/i)?.[1]
-  if (media) return media
+  // 1. media:content url="..." (Vikatan, Polimer, OneIndia)
+  const media = block.match(/media:content[^>]+url=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i)?.[1]
+    ?? block.match(/media:content[^>]+url=["']([^"']{20,})["']/i)?.[1]
+  if (media && media.startsWith('http')) return media
 
-  // enclosure url="..." type="image/..."
+  // 2. media:thumbnail url="..." (Vikatan CDN thumbnails)
+  const thumb = block.match(/media:thumbnail[^>]+url=["']([^"']+)["']/i)?.[1]
+  if (thumb && thumb.startsWith('http')) return thumb
+
+  // 3. enclosure url="..." type="image/..."
   const enclosure = block.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]+type=["']image[^"']*["']/i)?.[1]
     ?? block.match(/<enclosure[^>]+type=["']image[^"']*["'][^>]+url=["']([^"']+)["']/i)?.[1]
   if (enclosure) return enclosure
 
-  // <img src="..."> in description CDATA
+  // 4. content:encoded — extract first <img src> from article HTML (Maalaimalar, WordPress feeds)
+  const encoded = block.match(/<content:encoded><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>/i)?.[1]
+    ?? block.match(/<content:encoded>([\s\S]*?)<\/content:encoded>/i)?.[1]
+  if (encoded) {
+    const img = encoded.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1]
+    if (img && img.startsWith('http')) return img
+  }
+
+  // 5. <img src="..."> in description CDATA
   const img = block.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1]
   if (img && img.startsWith('http')) return img
 
