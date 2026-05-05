@@ -1,12 +1,14 @@
 'use client'
 
 /**
- * ElectionResultsPanel — Live declared results from /api/election-results
- * Shows on homepage. Auto-refreshes every 10 min (results declared, changes rarely).
+ * ElectionResultsPanel — TN Election 2026 declared results
+ * Fetches from /api/election-results. Auto-refreshes every 15 min.
+ * Shows seat bar, party tallies, narrative. Links to /tn-election-2026.
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { RefreshCw } from 'lucide-react'
 
 interface PartyResult {
   name: string
@@ -31,23 +33,33 @@ interface ElectionData {
   updatedAt: string
 }
 
-const REFRESH_MS = 10 * 60 * 1000
+const REFRESH_MS = 15 * 60 * 1000
 
 export default function ElectionResultsPanel() {
   const [data, setData] = useState<ElectionData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [secAgo, setSecAgo] = useState(0)
+
+  const load = useCallback(async (manual = false) => {
+    if (manual) setRefreshing(true)
+    try {
+      const url = manual ? `/api/election-results?t=${Date.now()}` : '/api/election-results'
+      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(10000) })
+      if (res.ok) {
+        setData(await res.json())
+        setSecAgo(0)
+      }
+    } catch { /* keep previous */ }
+    finally { setLoading(false); setRefreshing(false) }
+  }, [])
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch('/api/election-results', { cache: 'no-store', signal: AbortSignal.timeout(8000) })
-        if (res.ok) setData(await res.json())
-      } catch { /* keep previous */ }
-      finally { setLoading(false) }
-    }
     load()
-    const id = setInterval(load, REFRESH_MS)
-    return () => clearInterval(id)
+    const poll  = setInterval(() => load(), REFRESH_MS)
+    const tick  = setInterval(() => setSecAgo(s => s + 1), 1000)
+    return () => { clearInterval(poll); clearInterval(tick) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const parties = data?.parties ?? []
@@ -56,6 +68,9 @@ export default function ElectionResultsPanel() {
   const TOTAL = data?.totalSeats ?? 234
   const MAJORITY = data?.majorityMark ?? 118
   const isDeclared = data?.phase === 'declared'
+  const isCounting = data?.phase === 'counting'
+
+  const freshLabel = secAgo < 5 ? 'just now' : secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`
 
   return (
     <Link href="/tn-election-2026" style={{ textDecoration: 'none', display: 'block' }}>
@@ -80,14 +95,28 @@ export default function ElectionResultsPanel() {
               <span style={{ fontWeight: 800, fontSize: 12, color: '#FFC107', letterSpacing: '0.02em' }}>TN Election 2026</span>
               <span style={{
                 padding: '1px 7px', borderRadius: 99, fontSize: 9, fontWeight: 900,
-                background: isDeclared ? 'rgba(74,222,128,0.15)' : 'rgba(239,68,68,0.15)',
-                color: isDeclared ? '#4ade80' : '#f87171',
-                border: `1px solid ${isDeclared ? 'rgba(74,222,128,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                background: isDeclared ? 'rgba(74,222,128,0.15)' : isCounting ? 'rgba(239,68,68,0.15)' : 'rgba(255,193,7,0.1)',
+                color: isDeclared ? '#4ade80' : isCounting ? '#f87171' : '#fbbf24',
+                border: `1px solid ${isDeclared ? 'rgba(74,222,128,0.3)' : isCounting ? 'rgba(239,68,68,0.3)' : 'rgba(255,193,7,0.2)'}`,
               }}>
-                {isDeclared ? 'DECLARED' : 'LIVE'}
+                {isDeclared ? 'DECLARED' : isCounting ? 'LIVE' : 'UPCOMING'}
               </span>
             </div>
-            <span style={{ fontSize: 9, color: '#FFC107', fontWeight: 700 }}>Full results →</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              {!loading && (
+                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>
+                  {refreshing ? 'updating…' : freshLabel}
+                </span>
+              )}
+              <button
+                onClick={e => { e.preventDefault(); load(true) }}
+                disabled={refreshing}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(255,255,255,0.25)' }}
+              >
+                <RefreshCw style={{ width: 9, height: 9, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+              </button>
+              <span style={{ fontSize: 9, color: '#FFC107', fontWeight: 700 }}>Full results →</span>
+            </div>
           </div>
 
           {/* Seat bar */}
@@ -121,6 +150,10 @@ export default function ElectionResultsPanel() {
                 <div key={i} style={{ height: 28, width: w, borderRadius: 8, background: 'rgba(255,255,255,0.06)', animation: 'shimmer 1.5s infinite' }} />
               ))}
             </div>
+          ) : parties.length === 0 ? (
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', padding: '4px 0' }}>
+              Fetching results from ECI…
+            </div>
           ) : (
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'nowrap' }}>
               {top3.map(p => (
@@ -128,7 +161,7 @@ export default function ElectionResultsPanel() {
                   <span style={{ fontSize: 10 }}>{p.emoji}</span>
                   <span style={{ fontWeight: 900, fontSize: 11, color: p.color }}>{p.name}</span>
                   <span style={{ fontWeight: 900, fontSize: 19, color: p.color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{p.totalTally}</span>
-                  {p.hasMajority && <span style={{ fontSize: 9, color: '#4ade80', fontWeight: 800 }}>✓ Maj</span>}
+                  {p.hasMajority && <span style={{ fontSize: 9, color: '#4ade80', fontWeight: 800 }}>✓</span>}
                 </div>
               ))}
               <span style={{ marginLeft: 'auto', fontSize: 9, color: 'rgba(255,255,255,0.25)', whiteSpace: 'nowrap' }}>
@@ -148,6 +181,7 @@ export default function ElectionResultsPanel() {
 
         </div>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </Link>
   )
 }

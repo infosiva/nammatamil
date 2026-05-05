@@ -10,19 +10,21 @@ import ContentCard from '@/components/ContentCard'
 import OTTExplorer from '@/components/OTTExplorer'
 import CricketWidget from '@/components/CricketWidget'
 import TrailersSection from '@/components/TrailersSection'
+import ElectionResultsPanel from '@/components/ElectionResultsPanel'
 import type { Movie } from '@/data/movies'
 import type { Serial } from '@/data/serials'
 import type { Album } from '@/data/albums'
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'cricket',  label: 'Cricket',  icon: Trophy,       color: '#4ade80', live: true  },
-  { id: 'news',     label: 'News',     icon: Radio,        color: '#f87171', live: false },
-  { id: 'movies',   label: 'Movies',   icon: Film,         color: '#60a5fa', live: false },
-  { id: 'serials',  label: 'Serials',  icon: Tv2,          color: '#f97316', live: false },
-  { id: 'trailers', label: 'Trailers', icon: Clapperboard, color: '#fb923c', live: false },
-  { id: 'albums',   label: 'Albums',   icon: Music,        color: '#f472b6', live: false },
-  { id: 'ott',      label: 'OTT',      icon: Play,         color: '#a78bfa', live: false },
+  { id: 'election', label: 'TN Election', icon: Trophy,       color: '#fbbf24', live: true  },
+  { id: 'cricket',  label: 'IPL',         icon: Trophy,       color: '#4ade80', live: true  },
+  { id: 'news',     label: 'News',        icon: Radio,        color: '#f87171', live: false },
+  { id: 'movies',   label: 'Movies',      icon: Film,         color: '#60a5fa', live: false },
+  { id: 'serials',  label: 'Serials',     icon: Tv2,          color: '#f97316', live: false },
+  { id: 'trailers', label: 'Trailers',    icon: Clapperboard, color: '#fb923c', live: false },
+  { id: 'albums',   label: 'Albums',      icon: Music,        color: '#f472b6', live: false },
+  { id: 'ott',      label: 'OTT',         icon: Play,         color: '#a78bfa', live: false },
 ]
 
 
@@ -487,9 +489,28 @@ function CricketTab() {
   return <CricketWidget />
 }
 
+// ── Election Tab ──────────────────────────────────────────────────────────────
+function ElectionTab() {
+  return (
+    <div className="space-y-4">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+        <span style={{ fontWeight: 800, fontSize: 15, color: '#fbbf24' }}>🗳️ TN Election 2026 — Declared Results</span>
+      </div>
+      <ElectionResultsPanel />
+      <div style={{ marginTop: 8, padding: '10px 14px', borderRadius: 12, background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' }}>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', margin: 0, lineHeight: 1.6 }}>
+          <strong style={{ color: '#fbbf24' }}>TVK 107 · DMK 60 · AIADMK 47 · BJP 12 · Others 8</strong><br/>
+          Thalapathy Vijay's TVK wins decisive majority in Tamil Nadu Assembly Election 2026.
+          Counting completed May 4, 2026. Results declared by Election Commission of India.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function HomeTabLayout() {
-  const [activeTab, setActiveTab] = useState('cricket')
+  const [activeTab, setActiveTab] = useState('election')
 
   // Listen for tab-jump events from TrendingTicker
   useEffect(() => {
@@ -536,11 +557,12 @@ export default function HomeTabLayout() {
 
       {/* Tab content */}
       <div>
+        {activeTab === 'election' && <ElectionTab />}
+        {activeTab === 'cricket'  && <CricketTab />}
         {activeTab === 'movies'   && <MoviesTab />}
         {activeTab === 'serials'  && <SerialsTab />}
         {activeTab === 'trailers' && <TrailersSection embedded />}
         {activeTab === 'news'     && <LiveTab />}
-        {activeTab === 'cricket'  && <CricketTab />}
         {activeTab === 'albums'   && <AlbumsTab />}
         {activeTab === 'ott'      && <OTTExplorer />}
       </div>

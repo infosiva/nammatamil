@@ -2,6 +2,7 @@ import HomeTabLayout from '@/components/HomeTabLayout'
 import TamilMediaNews from '@/components/TamilMediaNews'
 import VisitorCounter from '@/components/VisitorCounter'
 import TVKHeroBg from '@/components/TVKHeroBg'
+import ElectionResultsPanel from '@/components/ElectionResultsPanel'
 import CricketWidget from '@/components/CricketWidget'
 
 export default function HomePage() {
@@ -33,16 +34,25 @@ export default function HomePage() {
             <VisitorCounter />
           </div>
 
-          {/* ── IPL standings widget ── */}
+          {/* ── Hero widgets: IPL compact + Election mini ── */}
           <div style={{
-            maxWidth: 360,
-            borderRadius: 14,
-            background: 'rgba(10,2,18,0.85)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            overflow: 'hidden',
-            backdropFilter: 'blur(8px)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: 12,
           }}>
-            <CricketWidget compact />
+            {/* TN Election 2026 — declared results */}
+            <ElectionResultsPanel />
+
+            {/* IPL standings — compact */}
+            <div style={{
+              borderRadius: 14,
+              background: 'rgba(10,2,18,0.85)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              overflow: 'hidden',
+              backdropFilter: 'blur(8px)',
+            }}>
+              <CricketWidget compact />
+            </div>
           </div>
 
         </div>

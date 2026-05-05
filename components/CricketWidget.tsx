@@ -91,7 +91,11 @@ export default function CricketWidget({ compact = false }: { compact?: boolean }
         {/* Top 5 teams */}
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            {[...Array(5)].map((_, i) => <div key={i} style={{ height: 22, borderRadius: 6, background: 'rgba(255,255,255,0.05)' }} />)}
+            {[...Array(5)].map((_, i) => <div key={i} style={{ height: 22, borderRadius: 6, background: 'rgba(255,255,255,0.05)', animation: 'shimmer 1.5s infinite' }} />)}
+          </div>
+        ) : top5.length === 0 ? (
+          <div style={{ padding: '10px 0', textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
+            Fetching live standings…
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
