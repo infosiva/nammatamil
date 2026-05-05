@@ -1177,6 +1177,9 @@ export default function TNElectionClient() {
           <HungParliamentLive />
         </div>
 
+        {/* ── AD — after coalition news, high attention spot ── */}
+        <AdUnit size="banner" className="mb-7" />
+
         {/* ── SEAT SNAPSHOT — static final results ── */}
         <div style={{ marginBottom: 28 }}>
           <ElectionResultsLive />

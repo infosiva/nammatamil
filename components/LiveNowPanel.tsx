@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { ExternalLink, RefreshCw } from 'lucide-react'
+import { goLink } from '@/lib/goLink'
 
 interface NewsItem {
   title: string
@@ -175,7 +176,7 @@ export default function LiveNowPanel() {
             {items.map((item, i) => (
               <a
                 key={i}
-                href={item.link || '#'}
+                href={goLink(item.link, 'live-panel')}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{

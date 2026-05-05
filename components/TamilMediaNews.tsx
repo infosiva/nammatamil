@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { RefreshCw, ExternalLink, Newspaper } from 'lucide-react'
+import { goLink } from '@/lib/goLink'
 
 interface NewsItem {
   title: string
@@ -45,7 +46,7 @@ function NewsCard({ item }: { item: NewsItem }) {
   const color = SOURCE_COLORS[item.source] ?? '#6b7280'
   return (
     <a
-      href={item.link || '#'}
+      href={goLink(item.link, 'tamil-media-news')}
       target="_blank"
       rel="noopener noreferrer"
       style={{

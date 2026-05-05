@@ -14,6 +14,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { RefreshCw, Zap, AlertTriangle, TrendingUp, Newspaper, ExternalLink } from 'lucide-react'
+import { goLink } from '@/lib/goLink'
 
 interface CoalitionAnalysis {
   summary: string
@@ -160,7 +161,7 @@ function LikelihoodBar({ label, pct, color, sub }: { label: string; pct: number;
 function NewsCard({ item, rank }: { item: NewsItem; rank: number }) {
   return (
     <a
-      href={item.link || '#'}
+      href={goLink(item.link, 'coalition-news')}
       target="_blank"
       rel="noopener noreferrer"
       style={{
