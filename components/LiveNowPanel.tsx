@@ -2,64 +2,43 @@
 
 /**
  * LiveNowPanel — "What's happening now" live feed in hero.
- * Pulls political/TVK/coalition headlines from /api/tamil-media-news
- * filtered to politics category. Auto-refreshes every 3 min.
+ * Pulls TVK/coalition/TN politics headlines from /api/tvk-news (purpose-built endpoint).
+ * Shows top 4 stories as a stacked list. Auto-refreshes every 2 min.
  */
 
 import { useState, useEffect, useCallback } from 'react'
 import { ExternalLink, RefreshCw } from 'lucide-react'
 
-interface NewsItem {
+interface TVKNewsItem {
   title: string
   link: string
   source: string
-  sourceLogo: string
   pubDate: string
   timeAgo: string
   desc: string
-  imageUrl: string | null
-  category: string
+  score: number
+  isHot: boolean
 }
 
-const REFRESH_MS = 3 * 60 * 1000
-
-// Keywords that signal TVK / coalition / government formation news
-const TVK_KW = [
-  'tvk', 'vijay', 'thalapathy', 'coalition', 'alliance', 'கூட்டணி',
-  'government', 'cabinet', 'chief minister', 'cm', 'முதலமைச்சர்',
-  'ஆட்சி', 'dmk', 'திமுக', 'stalin', 'ஸ்டாலின்',
-  'government formation', 'oath', 'swearing', 'minister',
-]
-
-function isTVKRelated(title: string, desc: string): boolean {
-  const text = (title + ' ' + desc).toLowerCase()
-  return TVK_KW.some(kw => text.includes(kw.toLowerCase()))
-}
+const REFRESH_MS = 2 * 60 * 1000
 
 export default function LiveNowPanel() {
-  const [items, setItems] = useState<NewsItem[]>([])
+  const [items, setItems] = useState<TVKNewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [activeIdx, setActiveIdx] = useState(0)
   const [secAgo, setSecAgo] = useState(0)
 
   const fetchNews = useCallback(async (manual = false) => {
     if (manual) setRefreshing(true)
     try {
-      const res = await fetch('/api/tamil-media-news', {
+      const url = manual ? `/api/tvk-news?t=${Date.now()}` : '/api/tvk-news'
+      const res = await fetch(url, {
         cache: 'no-store',
         signal: AbortSignal.timeout(10000),
       })
       if (!res.ok) return
       const json = await res.json()
-      const all: NewsItem[] = json.news ?? []
-
-      // Priority: TVK/coalition headlines first, then any politics
-      const tvk = all.filter(n => isTVKRelated(n.title, n.desc))
-      const politics = all.filter(n => n.category === 'politics' && !isTVKRelated(n.title, n.desc))
-      const merged = [...tvk, ...politics].slice(0, 8)
-      setItems(merged)
-      setActiveIdx(0)
+      setItems((json.news ?? []).slice(0, 5))
       setSecAgo(0)
     } catch { /* keep existing */ }
     finally { setLoading(false); setRefreshing(false) }
@@ -73,14 +52,6 @@ export default function LiveNowPanel() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Auto-rotate through items every 5s
-  useEffect(() => {
-    if (items.length === 0) return
-    const id = setInterval(() => setActiveIdx(i => (i + 1) % items.length), 5000)
-    return () => clearInterval(id)
-  }, [items.length])
-
-  const item = items[activeIdx]
   const freshLabel = secAgo < 5 ? 'just now' : secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`
 
   return (
@@ -98,12 +69,11 @@ export default function LiveNowPanel() {
         background: 'linear-gradient(180deg, #8B0000 0%, #FFC107 50%, #8B0000 100%)',
       }} />
 
-      <div style={{ padding: '12px 14px 12px', paddingLeft: 18 }}>
+      <div style={{ padding: '12px 14px 10px', paddingLeft: 18 }}>
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-            {/* Pulsing live dot */}
             <span style={{
               display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
               background: '#ef4444', boxShadow: '0 0 0 0 rgba(239,68,68,0.6)',
@@ -118,9 +88,11 @@ export default function LiveNowPanel() {
             }}>TVK · Coalition · TN Politics</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>
-              {refreshing ? 'updating…' : freshLabel}
-            </span>
+            {!loading && (
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>
+                {refreshing ? 'updating…' : freshLabel}
+              </span>
+            )}
             <button
               onClick={() => fetchNews(true)}
               disabled={refreshing}
@@ -131,66 +103,65 @@ export default function LiveNowPanel() {
           </div>
         </div>
 
-        {/* Content */}
+        {/* News list */}
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ height: 14, borderRadius: 4, background: 'rgba(255,255,255,0.06)', animation: 'shimmer 1.5s infinite' }} />
-            <div style={{ height: 14, borderRadius: 4, background: 'rgba(255,255,255,0.04)', width: '80%', animation: 'shimmer 1.5s infinite' }} />
-            <div style={{ height: 10, borderRadius: 4, background: 'rgba(255,255,255,0.03)', width: '45%', animation: 'shimmer 1.5s infinite' }} />
+            {[100, 85, 70].map((w, i) => (
+              <div key={i} style={{ height: 12, borderRadius: 4, background: 'rgba(255,255,255,0.06)', width: `${w}%`, animation: 'shimmer 1.5s infinite' }} />
+            ))}
           </div>
-        ) : !item ? (
+        ) : items.length === 0 ? (
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', margin: 0 }}>No live updates right now</p>
         ) : (
-          <a
-            href={item.link || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ textDecoration: 'none', display: 'block' }}
-          >
-            {/* Headline */}
-            <p style={{
-              fontSize: 13, fontWeight: 800, color: '#f4f4f5',
-              lineHeight: 1.45, margin: '0 0 6px',
-              display: '-webkit-box', WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical', overflow: 'hidden',
-            }}>
-              {item.title}
-            </p>
-
-            {/* Meta row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{
-                fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 99,
-                background: `${item.sourceLogo}18`, color: item.sourceLogo,
-                border: `1px solid ${item.sourceLogo}30`,
-              }}>{item.source}</span>
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>{item.timeAgo}</span>
-              {item.link && (
-                <ExternalLink style={{ width: 9, height: 9, color: 'rgba(255,255,255,0.2)', marginLeft: 'auto' }} />
-              )}
-            </div>
-          </a>
-        )}
-
-        {/* Dot indicators */}
-        {items.length > 1 && (
-          <div style={{ display: 'flex', gap: 4, marginTop: 10, alignItems: 'center' }}>
-            {items.map((_, i) => (
-              <button
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {items.map((item, i) => (
+              <a
                 key={i}
-                onClick={() => setActiveIdx(i)}
+                href={item.link || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
-                  width: i === activeIdx ? 16 : 4, height: 4, borderRadius: 99,
-                  background: i === activeIdx ? '#fbbf24' : 'rgba(255,255,255,0.15)',
-                  border: 'none', cursor: 'pointer', padding: 0,
-                  transition: 'all 0.3s ease',
-                  flexShrink: 0,
+                  textDecoration: 'none', display: 'block',
+                  padding: '7px 0',
+                  borderBottom: i < items.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
                 }}
-              />
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                  {/* Hot indicator */}
+                  {item.isHot && (
+                    <span style={{
+                      flexShrink: 0, marginTop: 2,
+                      width: 5, height: 5, borderRadius: '50%',
+                      background: '#ef4444',
+                      display: 'inline-block',
+                    }} />
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontSize: i === 0 ? 12 : 11,
+                      fontWeight: i === 0 ? 800 : 600,
+                      color: i === 0 ? '#f4f4f5' : 'rgba(255,255,255,0.7)',
+                      lineHeight: 1.4, margin: '0 0 3px',
+                      display: '-webkit-box', WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                    }}>
+                      {item.title}
+                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{
+                        fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 99,
+                        background: 'rgba(255,193,7,0.1)', color: '#fbbf24',
+                        border: '1px solid rgba(255,193,7,0.2)',
+                      }}>{item.source}</span>
+                      <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>{item.timeAgo}</span>
+                      {item.link && i === 0 && (
+                        <ExternalLink style={{ width: 8, height: 8, color: 'rgba(255,255,255,0.15)', marginLeft: 'auto' }} />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </a>
             ))}
-            <span style={{ marginLeft: 'auto', fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>
-              {activeIdx + 1}/{items.length}
-            </span>
           </div>
         )}
       </div>

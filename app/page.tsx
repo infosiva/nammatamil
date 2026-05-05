@@ -34,20 +34,16 @@ export default function HomePage() {
             <VisitorCounter />
           </div>
 
-          {/* ── Hero widgets: IPL compact + Election mini ── */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: 12,
-          }}>
-            {/* Live now — TVK coalition/politics headlines */}
+          {/* ── Hero: LiveNow panel full-width, cricket compact below ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Live now — TVK coalition/politics headlines — full width */}
             <LiveNowPanel />
 
-            {/* IPL standings — compact */}
+            {/* IPL standings — compact strip below */}
             <div style={{
-              borderRadius: 14,
-              background: 'rgba(10,2,18,0.85)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 10,
+              background: 'rgba(10,2,18,0.7)',
+              border: '1px solid rgba(255,255,255,0.06)',
               overflow: 'hidden',
               backdropFilter: 'blur(8px)',
             }}>

@@ -87,7 +87,7 @@ function timeAgo(pubDate: string): string {
 
 // Simple cache
 let cache: { data: unknown; fetchedAt: number } | null = null
-const CACHE_TTL = 5 * 60 * 1000
+const CACHE_TTL = 2 * 60 * 1000
 
 export async function GET() {
   const now = Date.now()
