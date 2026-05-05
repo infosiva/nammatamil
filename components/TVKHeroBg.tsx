@@ -90,25 +90,25 @@ export default function TVKHeroBg() {
               height: '100%',
               objectFit: 'cover',
               objectPosition: 'center top',
-              /* Fade left edge + bottom edge into page bg */
+              /* Fade left edge + bottom edge into page bg — wider left fade so content is readable */
               maskImage: `
-                linear-gradient(to left,  rgba(0,0,0,0.9) 25%, rgba(0,0,0,0.45) 65%, rgba(0,0,0,0) 100%),
-                linear-gradient(to top,   rgba(0,0,0,0)   0%,  rgba(0,0,0,1)    22%)
+                linear-gradient(to left,  rgba(0,0,0,1) 35%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0) 100%),
+                linear-gradient(to top,   rgba(0,0,0,0) 0%,  rgba(0,0,0,1)   18%)
               `,
               WebkitMaskImage: `
-                linear-gradient(to left,  rgba(0,0,0,0.9) 25%, rgba(0,0,0,0.45) 65%, rgba(0,0,0,0) 100%),
-                linear-gradient(to top,   rgba(0,0,0,0)   0%,  rgba(0,0,0,1)    22%)
+                linear-gradient(to left,  rgba(0,0,0,1) 35%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0) 100%),
+                linear-gradient(to top,   rgba(0,0,0,0) 0%,  rgba(0,0,0,1)   18%)
               `,
               maskComposite: 'intersect',
               WebkitMaskComposite: 'source-in',
-              filter: 'contrast(1.10) brightness(0.85) saturate(0.80)',
+              filter: 'contrast(1.08) brightness(1.05) saturate(0.90)',
             }}
           />
-          {/* Gold-crimson tone overlay — ties photo to flag palette */}
+          {/* Gold-crimson tone overlay — ties photo to flag palette (kept very light) */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(160deg, rgba(139,0,0,0.18) 0%, rgba(255,193,7,0.08) 50%, transparent 80%)',
-            mixBlendMode: 'multiply',
+            background: 'linear-gradient(160deg, rgba(139,0,0,0.08) 0%, rgba(255,193,7,0.04) 50%, transparent 80%)',
+            mixBlendMode: 'normal',
           }} />
           {/* Right edge glow */}
           <div style={{

@@ -106,6 +106,32 @@ export default function TrendingTicker() {
   const fetchLiveItems = useCallback(async () => {
     const base: TickerItem[] = [buildCalendarItem()]
 
+    // TVK government formation / coalition talks — always shown (static, updated as news breaks)
+    const tvkUpdates: TickerItem[] = [
+      {
+        id: 'tvk-cm',
+        icon: <span style={{ fontSize: 11 }}>🏛️</span>,
+        label: 'TVK',
+        text: 'Thalapathy Vijay — Chief Minister Proposed · TN 2026',
+        color: '#FFC107',
+      },
+      {
+        id: 'tvk-coalition',
+        icon: <span style={{ fontSize: 11 }}>🤝</span>,
+        label: 'COALITION',
+        text: 'TVK–DMK alliance talks underway · Seat-sharing discussions ongoing',
+        color: '#FFC107',
+      },
+      {
+        id: 'tvk-election',
+        icon: <span style={{ fontSize: 11 }}>🗳️</span>,
+        label: 'TN 2026',
+        text: 'TN Election 2026 — TVK leading with 107 seats · Results declared',
+        color: '#4ade80',
+      },
+    ]
+    base.push(...tvkUpdates)
+
     // Fetch cricket for live score/standings
     try {
       const r = await fetch('/api/cricket', { cache: 'no-store', signal: AbortSignal.timeout(4000) })
