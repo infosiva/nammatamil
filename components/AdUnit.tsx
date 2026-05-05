@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 interface AdUnitProps {
   size?: 'banner' | 'rectangle'
   className?: string
+  network?: string
+  format?: string
 }
 
-// ── Adsterra keys for nammatamil.live (approved 2026-05-04) ──────────────────
-const ADSTERRA_KEY_RECT   = 'aa69afb2f2b7de0d5087c6d5a38b63a6'  // 300×250
-const ADSTERRA_KEY_BANNER = '7785fb36450d23c29552e70fe221bf34'  // 728×90
-const ADSTERRA_SOCIAL_BAR = '63acc4552ee58ba7e10602221b112388'  // Social Bar
+// ── Adsterra Social Bar — sticky bottom bar, injected once into body ─────────
+const ADSTERRA_SOCIAL_BAR = '63acc4552ee58ba7e10602221b112388'
 
 // ── OTT affiliate banners — rotate every 8s ───────────────────────────────────
 const OTT_AFFILIATES = [
@@ -19,8 +19,9 @@ const OTT_AFFILIATES = [
     text: '30-day free trial',
     sub: 'Tamil movies & serials',
     url: 'https://www.amazon.co.uk/gp/video/primesignup?tag=nammatamil-21',
-    color: 'from-[#00A8E1]/20 to-[#FF9900]/10',
-    border: 'border-[#FF9900]/20',
+    color: '#FF9900',
+    bg: 'rgba(255,153,0,0.10)',
+    border: 'rgba(255,153,0,0.22)',
     cta: 'Try Free →',
   },
   {
@@ -29,18 +30,20 @@ const OTT_AFFILIATES = [
     text: 'Watch Tamil content',
     sub: 'Sun TV, Vijay TV & more',
     url: 'https://www.hotstar.com/in',
-    color: 'from-[#0F3FA6]/20 to-[#00B8F5]/10',
-    border: 'border-[#00B8F5]/20',
+    color: '#00B8F5',
+    bg: 'rgba(0,184,245,0.10)',
+    border: 'rgba(0,184,245,0.22)',
     cta: 'Watch Now →',
   },
   {
     name: 'Netflix',
     icon: '🎥',
     text: 'Tamil originals & dubs',
-    sub: 'Free first month',
+    sub: 'Thousands of Tamil titles',
     url: 'https://www.netflix.com/in/',
-    color: 'from-[#E50914]/20 to-[#831010]/10',
-    border: 'border-[#E50914]/20',
+    color: '#E50914',
+    bg: 'rgba(229,9,20,0.10)',
+    border: 'rgba(229,9,20,0.22)',
     cta: 'Start Free →',
   },
 ]
@@ -54,67 +57,156 @@ export function SocialBar() {
     const s = document.createElement('script')
     s.async = true
     s.setAttribute('data-cfasync', 'false')
-    s.src = `//pl29337006.profitablecpmratenetwork.com/63/ac/c4/63acc4552ee58ba7e10602221b112388.js`
+    s.src = `//pl29337006.profitablecpmratenetwork.com/63/ac/c4/${ADSTERRA_SOCIAL_BAR}.js`
     document.body.appendChild(s)
   }, [])
   return null
 }
 
-function AffiliateUnit({ size }: { size: 'banner' | 'rectangle' }) {
+// ── Sticky Sidebar Ad — desktop only, right side, does NOT block content ─────
+export function SidebarAd() {
   const [idx, setIdx] = useState(0)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % OTT_AFFILIATES.length), 9000)
+    return () => clearInterval(t)
+  }, [])
+
+  if (!visible) return null
+
+  const aff = OTT_AFFILIATES[idx]
+
+  return (
+    <div style={{
+      position: 'fixed',
+      right: 16,
+      top: '50%',
+      transform: 'translateY(-50%)',
+      zIndex: 40,
+      width: 160,
+      // Only visible on large screens
+      display: 'none',
+    }}
+      className="sidebar-ad-container"
+    >
+      <div style={{
+        borderRadius: 16,
+        background: aff.bg,
+        border: `1px solid ${aff.border}`,
+        padding: '14px 12px',
+        backdropFilter: 'blur(12px)',
+        position: 'relative',
+      }}>
+        {/* Close button */}
+        <button
+          onClick={() => setVisible(false)}
+          style={{
+            position: 'absolute', top: 6, right: 6,
+            background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '50%',
+            width: 18, height: 18, cursor: 'pointer',
+            color: 'rgba(255,255,255,0.4)', fontSize: 10, lineHeight: 1,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          aria-label="Close ad"
+        >×</button>
+
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Sponsored</div>
+
+        <div style={{ fontSize: 22, marginBottom: 8 }}>{aff.icon}</div>
+        <div style={{ fontWeight: 800, fontSize: 12, color: '#fff', marginBottom: 3 }}>{aff.name}</div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>{aff.text}</div>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>{aff.sub}</div>
+
+        <a
+          href={aff.url}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          style={{
+            display: 'block', textAlign: 'center',
+            padding: '7px 10px', borderRadius: 10,
+            background: aff.color,
+            color: '#fff', fontWeight: 800, fontSize: 11,
+            textDecoration: 'none',
+          }}
+        >
+          {aff.cta}
+        </a>
+      </div>
+    </div>
+  )
+}
+
+// ── Default AdUnit — now renders the clean affiliate banner, NOT Adsterra ─────
+// Adsterra was injecting intrusive full-page ads (Adzilla etc.) in content.
+// We only use Adsterra's SocialBar (bottom strip) — not inline ad units.
+export default function AdUnit({ size, format, className = '' }: AdUnitProps) {
+  // Accept both `size` and `format` props — normalize to size
+  const resolvedSize: 'banner' | 'rectangle' =
+    (size === 'banner' || format === 'horizontal') ? 'banner' : 'rectangle'
+  const [idx, setIdx] = useState(0)
+
   useEffect(() => {
     const t = setInterval(() => setIdx(i => (i + 1) % OTT_AFFILIATES.length), 8000)
     return () => clearInterval(t)
   }, [])
+
   const aff = OTT_AFFILIATES[idx]
-  if (size === 'banner') {
+
+  if (resolvedSize === 'banner') {
     return (
-      <a href={aff.url} target="_blank" rel="noopener noreferrer sponsored"
-        className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-gradient-to-r ${aff.color} border ${aff.border} hover:opacity-90 transition-opacity`}
-        style={{ minHeight: 60 }}>
-        <span className="text-2xl">{aff.icon}</span>
-        <div className="flex-1 min-w-0">
-          <div className="text-white font-semibold text-sm truncate">{aff.name} — {aff.text}</div>
-          <div className="text-white/50 text-xs truncate">{aff.sub}</div>
+      <a
+        href={aff.url}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        className={className}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '10px 16px', borderRadius: 12, width: '100%',
+          background: aff.bg, border: `1px solid ${aff.border}`,
+          textDecoration: 'none', minHeight: 52,
+        }}
+      >
+        <span style={{ fontSize: 20 }}>{aff.icon}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: '#fff' }}>{aff.name} — {aff.text}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{aff.sub}</div>
         </div>
-        <span className="shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg bg-white/10 text-white">{aff.cta}</span>
+        <span style={{
+          flexShrink: 0, fontSize: 11, fontWeight: 800,
+          padding: '6px 12px', borderRadius: 8,
+          background: aff.color, color: '#fff',
+        }}>{aff.cta}</span>
+        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)', flexShrink: 0 }}>Ad</span>
       </a>
     )
   }
+
+  // Rectangle — horizontal slim affiliate strip
   return (
-    <a href={aff.url} target="_blank" rel="noopener noreferrer sponsored"
-      className={`flex flex-col gap-2 w-full px-4 py-4 rounded-xl bg-gradient-to-br ${aff.color} border ${aff.border} hover:opacity-90 transition-opacity`}
-      style={{ minHeight: 180 }}>
-      <span className="text-3xl">{aff.icon}</span>
-      <div className="text-white font-bold text-base">{aff.name}</div>
-      <div className="text-white/60 text-sm">{aff.text}</div>
-      <div className="text-white/40 text-xs">{aff.sub}</div>
-      <span className="mt-auto self-start text-xs font-bold px-3 py-1.5 rounded-lg bg-white/10 text-white">{aff.cta}</span>
+    <a
+      href={aff.url}
+      target="_blank"
+      rel="noopener noreferrer sponsored"
+      className={className}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '10px 14px', borderRadius: 12, width: '100%',
+        background: aff.bg, border: `1px solid ${aff.border}`,
+        textDecoration: 'none',
+      }}
+    >
+      <span style={{ fontSize: 18 }}>{aff.icon}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: 12, color: '#fff' }}>{aff.name} — {aff.text}</div>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{aff.sub}</div>
+      </div>
+      <span style={{
+        flexShrink: 0, fontSize: 10, fontWeight: 800,
+        padding: '5px 10px', borderRadius: 7,
+        background: aff.color, color: '#fff',
+      }}>{aff.cta}</span>
+      <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.12)', flexShrink: 0 }}>Ad</span>
     </a>
-  )
-}
-
-export default function AdUnit({ size = 'rectangle', className = '' }: AdUnitProps) {
-  const key    = size === 'banner' ? ADSTERRA_KEY_BANNER : ADSTERRA_KEY_RECT
-  const width  = size === 'banner' ? 728 : 300
-  const height = size === 'banner' ? 90  : 250
-  const ref    = useRef<HTMLDivElement>(null)
-  const loaded = useRef(false)
-
-  useEffect(() => {
-    if (loaded.current || !ref.current) return
-    loaded.current = true
-    const s = document.createElement('script')
-    s.type = 'text/javascript'
-    s.setAttribute('data-cfasync', 'false')
-    s.text = `(function(){var o={key:'${key}',format:'iframe',height:${height},width:${width},params:{}};var d=document.createElement('script');d.type='text/javascript';d.setAttribute('data-cfasync','false');d.src='//www.highperformanceformat.com/${key}/invoke.js';var c=document.currentScript||document.scripts[document.scripts.length-1];c.parentNode.insertBefore(d,c.nextSibling);window.atOptions=o;})();`
-    ref.current.appendChild(s)
-  }, [key, height, width])
-
-  return (
-    <div className={`relative w-full overflow-hidden ${className}`}>
-      <div className="text-[9px] text-white/10 text-center mb-0.5 uppercase tracking-widest">Sponsored</div>
-      <div ref={ref} style={{ width, maxWidth: '100%', minHeight: height }} />
-    </div>
   )
 }

@@ -1,5 +1,4 @@
 import HomeTabLayout from '@/components/HomeTabLayout'
-import AdUnit from '@/components/AdUnit'
 import NammaTVKVideos from '@/components/NammaTVKVideos'
 import VisitorCounter from '@/components/VisitorCounter'
 import TVKHeroBg from '@/components/TVKHeroBg'
@@ -51,10 +50,6 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
         <div style={{ marginBottom: 28 }}>
-          <AdUnit format="horizontal" className="min-h-[90px]" />
-        </div>
-
-        <div style={{ marginBottom: 28 }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16,
             paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.07)',
@@ -76,10 +71,6 @@ export default function HomePage() {
           <HomeTabLayout />
         </div>
 
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <AdUnit format="horizontal" className="min-h-[90px]" />
       </div>
 
     </div>
