@@ -1,5 +1,5 @@
 import HomeTabLayout from '@/components/HomeTabLayout'
-import NammaTVKVideos from '@/components/NammaTVKVideos'
+import TamilMediaNews from '@/components/TamilMediaNews'
 import VisitorCounter from '@/components/VisitorCounter'
 import TVKHeroBg from '@/components/TVKHeroBg'
 import ElectionMiniPanel from '@/components/ElectionMiniPanel'
@@ -9,7 +9,7 @@ export default function HomePage() {
     <div className="overflow-x-hidden">
 
       {/* ══ TVK HERO ─ Cinematic Vijay background, always present ══════════════ */}
-      <div style={{ position: 'relative', borderBottom: '1px solid rgba(251,191,36,0.08)' }}>
+      <div style={{ position: 'relative', borderBottom: '1px solid rgba(251,191,36,0.08)', minHeight: 320 }}>
         <TVKHeroBg />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ position: 'relative', zIndex: 1, paddingTop: 24, paddingBottom: 28 }}>
@@ -50,14 +50,7 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
         <div style={{ marginBottom: 28 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16,
-            paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.07)',
-          }}>
-            <div style={{ width: 3, height: 20, borderRadius: 99, background: 'linear-gradient(180deg, #fbbf24, #ff0000)' }} />
-            <span style={{ fontWeight: 800, fontSize: 16, color: 'rgba(255,255,255,0.75)' }}>NammaTVK — Latest Videos</span>
-          </div>
-          <NammaTVKVideos />
+          <TamilMediaNews />
         </div>
 
         <div style={{ marginBottom: 24 }}>
