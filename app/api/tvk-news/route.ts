@@ -11,12 +11,16 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 const FEEDS = [
-  { name: 'The Hindu TN',   url: 'https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss' },
-  { name: 'The Hindu',      url: 'https://www.thehindu.com/elections/tamil-nadu/feeder/default.rss' },
-  { name: 'Dinamalar',      url: 'https://www.dinamalar.com/rss/news_rss.asp' },
-  { name: 'OneIndia Tamil', url: 'https://tamil.oneindia.com/rss/tamil-news-fb.xml' },
-  { name: 'India Today',    url: 'https://www.indiatoday.in/rss/1206577' },
-  { name: 'NDTV',           url: 'https://feeds.feedburner.com/ndtvnews-top-stories' },
+  // ── Tamil-language sources (priority) ──
+  { name: 'Dinamalar',       url: 'https://www.dinamalar.com/rss/news_rss.asp',                               lang: 'ta' },
+  { name: 'OneIndia Tamil',  url: 'https://tamil.oneindia.com/rss/tamil-news-fb.xml',                         lang: 'ta' },
+  { name: 'Vikatan',         url: 'https://www.vikatan.com/rss/news.xml',                                     lang: 'ta' },
+  { name: 'Puthiyathalaimurai', url: 'https://www.puthiyathalaimurai.com/feed',                               lang: 'ta' },
+  // ── English-language sources (fallback) ──
+  { name: 'The Hindu TN',    url: 'https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss',     lang: 'en' },
+  { name: 'The Hindu Elect', url: 'https://www.thehindu.com/elections/tamil-nadu/feeder/default.rss',         lang: 'en' },
+  { name: 'India Today',     url: 'https://www.indiatoday.in/rss/1206577',                                    lang: 'en' },
+  { name: 'NDTV',            url: 'https://feeds.feedburner.com/ndtvnews-top-stories',                        lang: 'en' },
 ]
 
 // TVK/Vijay relevance keywords — tiered scoring (expanded for hung-parliament phase)
@@ -36,9 +40,14 @@ function scoreItem(title: string, desc: string): number {
   return score
 }
 
-function parseRSS(xml: string, source: string) {
+function isTamil(text: string): boolean {
+  // Unicode range for Tamil script: U+0B80–U+0BFF
+  return /[\u0B80-\u0BFF]/.test(text)
+}
+
+function parseRSS(xml: string, source: string, feedLang: string) {
   const items: Array<{
-    title: string; link: string; pubDate: string; desc: string; source: string; score: number
+    title: string; link: string; pubDate: string; desc: string; source: string; score: number; lang: string
   }> = []
 
   const itemMatches = xml.matchAll(/<item>([\s\S]*?)<\/item>/g)
@@ -65,7 +74,10 @@ function parseRSS(xml: string, source: string) {
     const score = scoreItem(title, desc)
     if (score === 0) continue // skip totally irrelevant items
 
-    items.push({ title, link, pubDate, desc, source, score })
+    // Detect actual language from content (Tamil Unicode chars = Tamil regardless of feed lang)
+    const lang = isTamil(title) ? 'ta' : (isTamil(desc) ? 'ta' : feedLang)
+
+    items.push({ title, link, pubDate, desc, source, score, lang })
     if (items.length >= 15) break
   }
   return items
@@ -107,7 +119,7 @@ export async function GET() {
       })
       if (!res.ok) throw new Error(`${feed.name}: ${res.status}`)
       const xml = await res.text()
-      return parseRSS(xml, feed.name)
+      return parseRSS(xml, feed.name, feed.lang)
     })
   )
 
@@ -122,14 +134,23 @@ export async function GET() {
     return true
   })
 
+  // Sort: Tamil first → then by score → then by recency
   deduped.sort((a, b) => {
+    const langA = a.lang === 'ta' ? 0 : 1
+    const langB = b.lang === 'ta' ? 0 : 1
+    if (langA !== langB) return langA - langB
     if (b.score !== a.score) return b.score - a.score
     const da = new Date(a.pubDate).getTime() || 0
     const db = new Date(b.pubDate).getTime() || 0
     return db - da
   })
 
-  const news = deduped.slice(0, 20).map(item => ({
+  // Take top 5 Tamil + fill remainder with English up to 20
+  const tamil   = deduped.filter(i => i.lang === 'ta').slice(0, 20)
+  const english = deduped.filter(i => i.lang !== 'ta').slice(0, 20 - tamil.length)
+  const merged  = [...tamil, ...english]
+
+  const news = merged.slice(0, 20).map(item => ({
     title:   item.title,
     link:    item.link,
     source:  item.source,
@@ -138,6 +159,7 @@ export async function GET() {
     desc:    item.desc,
     score:   item.score,
     isHot:   item.score >= 10,
+    lang:    item.lang,
   }))
 
   const data = {

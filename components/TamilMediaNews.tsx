@@ -130,7 +130,7 @@ function SkeletonCard() {
   )
 }
 
-export default function TamilMediaNews() {
+export default function TamilMediaNews({ skipFirst = 0 }: { skipFirst?: number }) {
   const [data, setData] = useState<ApiResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -159,8 +159,9 @@ export default function TamilMediaNews() {
   }, [])
 
   const allNews = data?.news ?? []
-  const filtered = activeTab === 'all' ? allNews
-    : allNews.filter(n => n.category === activeTab)
+  // When "all" tab is active, skip the first N items (already shown in hero LiveNowPanel)
+  const filteredRaw = activeTab === 'all' ? allNews : allNews.filter(n => n.category === activeTab)
+  const filtered = activeTab === 'all' ? filteredRaw.slice(skipFirst) : filteredRaw
   const visible = showAll ? filtered : filtered.slice(0, 8)
 
   const tabs: Array<{ key: typeof activeTab; label: string }> = [

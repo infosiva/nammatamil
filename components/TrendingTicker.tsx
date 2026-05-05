@@ -150,7 +150,28 @@ export default function TrendingTicker() {
       }
     } catch { /* skip */ }
 
-    // Fetch news headlines
+    // Fetch TVK / TN politics headlines (priority news in ticker)
+    try {
+      const r = await fetch('/api/tvk-news', { cache: 'no-store', signal: AbortSignal.timeout(5000) })
+      if (r.ok) {
+        const d = await r.json()
+        const tvkHeadlines = (d.news ?? []).slice(0, 3)
+        for (const h of tvkHeadlines) {
+          if (h.title?.length > 10) {
+            base.push({
+              id: `tvk-${h.title.slice(0, 20)}`,
+              icon: <Radio className="w-3 h-3" />,
+              label: h.isHot ? '🔥 TVK' : 'TN Politics',
+              text: h.title.slice(0, 100),
+              tab: 'election',
+              color: '#fbbf24',
+            })
+          }
+        }
+      }
+    } catch { /* skip */ }
+
+    // Fetch general news headlines (fallback)
     try {
       const r = await fetch('/api/news', { cache: 'no-store', signal: AbortSignal.timeout(4000) })
       if (r.ok) {

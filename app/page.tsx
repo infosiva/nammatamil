@@ -57,9 +57,9 @@ export default function HomePage() {
       {/* ══ MAIN CONTENT ══════════════════════════════════════════════════════ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        {/* Tamil Media News — 2-col grid */}
+        {/* Tamil Media News — skip top 5 already shown in hero LiveNowPanel */}
         <div style={{ marginBottom: 32 }}>
-          <TamilMediaNews />
+          <TamilMediaNews skipFirst={5} />
         </div>
 
         {/* Entertainment tabs */}

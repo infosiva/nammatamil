@@ -2,28 +2,49 @@
 
 /**
  * LiveNowPanel — "What's happening now" live feed in hero.
- * Pulls TVK/coalition/TN politics headlines from /api/tvk-news (purpose-built endpoint).
- * Shows top 4 stories as a stacked list. Auto-refreshes every 2 min.
+ * Primary: /api/tamil-media-news filtered to politics (Tamil-language sources first).
+ * Fallback: /api/tvk-news (English TVK headlines) to fill any gaps.
+ * Shows top 5 stories stacked. Auto-refreshes every 2 min.
  */
 
 import { useState, useEffect, useCallback } from 'react'
 import { ExternalLink, RefreshCw } from 'lucide-react'
 
-interface TVKNewsItem {
+interface NewsItem {
   title: string
   link: string
   source: string
+  sourceLogo?: string
   pubDate: string
   timeAgo: string
   desc: string
-  score: number
-  isHot: boolean
+  category?: string
+  isHot?: boolean
+  lang?: string
+}
+
+// TVK/politics keywords to filter from general Tamil media news
+const POLITICS_KW = [
+  'tvk', 'vijay', 'thalapathy', 'coalition', 'alliance', 'கூட்டணி',
+  'government', 'cabinet', 'chief minister', 'cm', 'முதலமைச்சர்',
+  'ஆட்சி', 'dmk', 'திமுக', 'aiadmk', 'அதிமுக', 'stalin', 'ஸ்டாலின்',
+  'election', 'தேர்தல்', 'minister', 'அமைச்சர்', 'assembly', 'சட்டமன்றம்',
+  'political', 'அரசியல்', 'bjp', 'pmk', 'mla', 'vote', 'voter',
+]
+
+function isPolitics(title: string, desc: string): boolean {
+  const text = (title + ' ' + desc).toLowerCase()
+  return POLITICS_KW.some(kw => text.includes(kw.toLowerCase()))
+}
+
+function isTamil(text: string): boolean {
+  return /[\u0B80-\u0BFF]/.test(text)
 }
 
 const REFRESH_MS = 2 * 60 * 1000
 
 export default function LiveNowPanel() {
-  const [items, setItems] = useState<TVKNewsItem[]>([])
+  const [items, setItems] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [secAgo, setSecAgo] = useState(0)
@@ -31,15 +52,52 @@ export default function LiveNowPanel() {
   const fetchNews = useCallback(async (manual = false) => {
     if (manual) setRefreshing(true)
     try {
-      const url = manual ? `/api/tvk-news?t=${Date.now()}` : '/api/tvk-news'
-      const res = await fetch(url, {
-        cache: 'no-store',
-        signal: AbortSignal.timeout(10000),
-      })
-      if (!res.ok) return
-      const json = await res.json()
-      setItems((json.news ?? []).slice(0, 5))
-      setSecAgo(0)
+      // Fetch both in parallel
+      const [tamilRes, tvkRes] = await Promise.allSettled([
+        fetch(manual ? `/api/tamil-media-news?t=${Date.now()}` : '/api/tamil-media-news', {
+          cache: 'no-store', signal: AbortSignal.timeout(10000),
+        }),
+        fetch('/api/tvk-news', {
+          cache: 'no-store', signal: AbortSignal.timeout(10000),
+        }),
+      ])
+
+      const combined: NewsItem[] = []
+
+      // Primary: Tamil media news filtered to politics — Tamil items bubble up naturally
+      if (tamilRes.status === 'fulfilled' && tamilRes.value.ok) {
+        const json = await tamilRes.value.json()
+        const all: NewsItem[] = json.news ?? []
+        const political = all.filter(n => isPolitics(n.title, n.desc))
+        // Tamil-script titles first, then English
+        const tamilFirst = [
+          ...political.filter(n => isTamil(n.title)),
+          ...political.filter(n => !isTamil(n.title)),
+        ]
+        combined.push(...tamilFirst.slice(0, 5))
+      }
+
+      // Fallback: fill with English TVK news if not enough Tamil politics
+      if (combined.length < 3 && tvkRes.status === 'fulfilled' && tvkRes.value.ok) {
+        const json = await tvkRes.value.json()
+        const tvkItems: NewsItem[] = (json.news ?? []).map((n: NewsItem & { score?: number; isHot?: boolean }) => ({
+          ...n,
+          isHot: n.isHot ?? false,
+        }))
+        // Only add items not already in combined (dedup by title prefix)
+        const existingTitles = new Set(combined.map(i => i.title.slice(0, 50).toLowerCase()))
+        for (const item of tvkItems) {
+          if (!existingTitles.has(item.title.slice(0, 50).toLowerCase())) {
+            combined.push(item)
+          }
+          if (combined.length >= 5) break
+        }
+      }
+
+      if (combined.length > 0) {
+        setItems(combined.slice(0, 5))
+        setSecAgo(0)
+      }
     } catch { /* keep existing */ }
     finally { setLoading(false); setRefreshing(false) }
   }, [])
