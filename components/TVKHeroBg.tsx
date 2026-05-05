@@ -20,25 +20,24 @@ export default function TVKHeroBg() {
           background: '#07010f',
         }} />
 
-        {/* ── TVK FLAG STRIPE BANDS — crimson top, gold centre, crimson bottom ── */}
-        {/* Top crimson band */}
+        {/* ── TVK FLAG STRIPE BANDS — subtle crimson/gold accents, left side only ── */}
+        {/* Top crimson band — only covers left half so photo stays clear */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0,
-          height: '32%',
-          background: 'linear-gradient(180deg, rgba(139,0,0,0.55) 0%, rgba(139,0,0,0.18) 100%)',
+          position: 'absolute', top: 0, left: 0, right: '45%',
+          height: '35%',
+          background: 'linear-gradient(180deg, rgba(139,0,0,0.45) 0%, rgba(139,0,0,0.08) 100%)',
         }} />
-        {/* Gold centre stripe */}
+        {/* Gold centre stripe — left half only */}
         <div style={{
-          position: 'absolute', top: '28%', left: 0, right: 0,
-          height: '22%',
-          background: 'linear-gradient(180deg, rgba(255,193,7,0.22) 0%, rgba(255,193,7,0.32) 50%, rgba(255,193,7,0.22) 100%)',
-          boxShadow: '0 0 80px 0 rgba(255,193,7,0.12)',
+          position: 'absolute', top: '28%', left: 0, right: '50%',
+          height: '20%',
+          background: 'linear-gradient(180deg, rgba(255,193,7,0.18) 0%, rgba(255,193,7,0.26) 50%, rgba(255,193,7,0.18) 100%)',
         }} />
-        {/* Bottom crimson band */}
+        {/* Bottom fade — full width but very subtle */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0,
-          height: '38%',
-          background: 'linear-gradient(0deg, rgba(139,0,0,0.45) 0%, rgba(139,0,0,0.08) 100%)',
+          height: '30%',
+          background: 'linear-gradient(0deg, rgba(139,0,0,0.30) 0%, rgba(139,0,0,0.04) 100%)',
         }} />
 
         {/* ── GOLD SPOTLIGHT — top centre, like a stage light ── */}
@@ -90,18 +89,10 @@ export default function TVKHeroBg() {
               height: '100%',
               objectFit: 'cover',
               objectPosition: 'center top',
-              /* Fade left edge + bottom edge into page bg — wider left fade so content is readable */
-              maskImage: `
-                linear-gradient(to left,  rgba(0,0,0,1) 35%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0) 100%),
-                linear-gradient(to top,   rgba(0,0,0,0) 0%,  rgba(0,0,0,1)   18%)
-              `,
-              WebkitMaskImage: `
-                linear-gradient(to left,  rgba(0,0,0,1) 35%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0) 100%),
-                linear-gradient(to top,   rgba(0,0,0,0) 0%,  rgba(0,0,0,1)   18%)
-              `,
-              maskComposite: 'intersect',
-              WebkitMaskComposite: 'source-in',
-              filter: 'contrast(1.08) brightness(1.05) saturate(0.90)',
+              /* Single mask — fade left edge into bg, keep rest fully visible */
+              maskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 20%, rgba(0,0,0,1) 45%)',
+              WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 20%, rgba(0,0,0,1) 45%)',
+              filter: 'contrast(1.05) brightness(1.15) saturate(0.95)',
             }}
           />
           {/* Gold-crimson tone overlay — ties photo to flag palette (kept very light) */}
