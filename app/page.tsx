@@ -2,7 +2,7 @@ import HomeTabLayout from '@/components/HomeTabLayout'
 import TamilMediaNews from '@/components/TamilMediaNews'
 import VisitorCounter from '@/components/VisitorCounter'
 import TVKHeroBg from '@/components/TVKHeroBg'
-import ElectionResultsPanel from '@/components/ElectionResultsPanel'
+import LiveNowPanel from '@/components/LiveNowPanel'
 import CricketWidget from '@/components/CricketWidget'
 
 export default function HomePage() {
@@ -40,8 +40,8 @@ export default function HomePage() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
             gap: 12,
           }}>
-            {/* TN Election 2026 — declared results */}
-            <ElectionResultsPanel />
+            {/* Live now — TVK coalition/politics headlines */}
+            <LiveNowPanel />
 
             {/* IPL standings — compact */}
             <div style={{
