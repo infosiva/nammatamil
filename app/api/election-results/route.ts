@@ -393,9 +393,13 @@ function buildCountingResponse(
     }
   }).sort((a, b) => b.totalTally - a.totalTally)
 
-  if (parties.length > 0) parties[0].isLeading = true
-
   const phase: ElectionResultsResponse['phase'] = now >= COUNTING_END ? 'declared' : 'counting'
+
+  if (parties.length > 0) {
+    parties[0].isLeading = true
+    // In declared phase, the leading party is the winner even without strict 118+ majority
+    if (phase === 'declared') parties[0].hasMajority = true
+  }
 
   return {
     phase,

@@ -64,7 +64,10 @@ export default function ElectionResultsPanel() {
 
   const parties = data?.parties ?? []
   const top3 = parties.slice(0, 3)
-  const winner = parties.find(p => p.hasMajority) ?? (data?.projectedWinner ? parties.find(p => p.name === data.projectedWinner) : null)
+  // winner = majority holder, or projected winner, or simply party leading in most seats
+  const winner = parties.find(p => p.hasMajority)
+    ?? (data?.projectedWinner ? parties.find(p => p.name === data.projectedWinner) : null)
+    ?? parties.find(p => p.isLeading)
   const TOTAL = data?.totalSeats ?? 234
   const MAJORITY = data?.majorityMark ?? 118
   const isDeclared = data?.phase === 'declared'
@@ -99,7 +102,7 @@ export default function ElectionResultsPanel() {
                 color: isDeclared ? '#4ade80' : isCounting ? '#f87171' : '#fbbf24',
                 border: `1px solid ${isDeclared ? 'rgba(74,222,128,0.3)' : isCounting ? 'rgba(239,68,68,0.3)' : 'rgba(255,193,7,0.2)'}`,
               }}>
-                {isDeclared ? 'DECLARED' : isCounting ? 'LIVE' : 'UPCOMING'}
+                {isDeclared ? 'DECLARED' : isCounting ? 'LIVE' : 'RESULTS'}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
