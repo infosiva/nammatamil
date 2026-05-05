@@ -5,6 +5,7 @@ import { Brain, TrendingUp, Users, Zap, Share2, BarChart2, ChevronDown, CheckCir
 import Link from 'next/link'
 import ElectionResultsLive from '@/components/ElectionResultsLive'
 import HungParliamentLive from '@/components/HungParliamentLive'
+import CoalitionMathDashboard from '@/components/CoalitionMathDashboard'
 import AdUnit from '@/components/AdUnit'
 
 // ─── Exit Poll Data (April 29, 2026) ─────────────────────────────────────────
@@ -1035,119 +1036,165 @@ export default function TNElectionClient() {
 
       <div className="max-w-5xl mx-auto" style={{ padding: '0 20px 80px' }}>
 
-        {/* ── CINEMATIC HERO ── */}
+        {/* ── CINEMATIC HERO — Vijay photo + Hung Parliament alert ── */}
         <div style={{
           position: 'relative', overflow: 'hidden',
           borderRadius: '0 0 32px 32px',
           marginBottom: 32,
-          padding: '48px 24px 40px',
-          textAlign: 'center',
+          minHeight: 'clamp(320px, 55vw, 520px)',
         }}>
-          {/* Animated gradient background */}
+          {/* Real Vijay photo — full bleed, right-anchored */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/tvk-vijay.jpg"
+            alt="Thalapathy Vijay — TVK Leader"
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover', objectPosition: '50% 15%',
+              filter: 'brightness(0.45) contrast(1.1) saturate(0.7)',
+              zIndex: 0,
+            }}
+          />
+          {/* Gradient overlay — left side text readability + bottom fade */}
           <div style={{
-            position: 'absolute', inset: 0, zIndex: 0,
-            background: 'linear-gradient(160deg, rgba(255,153,51,0.18) 0%, rgba(255,255,255,0.04) 40%, rgba(19,136,8,0.14) 100%)',
+            position: 'absolute', inset: 0, zIndex: 1,
+            background: `
+              linear-gradient(90deg, rgba(7,1,15,0.92) 0%, rgba(7,1,15,0.65) 50%, rgba(7,1,15,0.20) 100%),
+              linear-gradient(180deg, rgba(7,1,15,0.3) 0%, transparent 30%, transparent 65%, rgba(7,1,15,0.85) 100%)
+            `,
           }} />
-          {/* Radial glow centre */}
+          {/* Gold glow from top-left */}
           <div style={{
-            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-            width: 500, height: 300,
-            borderRadius: '50%',
-            background: 'radial-gradient(ellipse, rgba(251,191,36,0.12) 0%, transparent 70%)',
-            pointerEvents: 'none', zIndex: 0,
+            position: 'absolute', top: -100, left: -100, zIndex: 1,
+            width: 500, height: 500,
+            background: 'radial-gradient(ellipse, rgba(251,191,36,0.18) 0%, transparent 65%)',
+            borderRadius: '50%', pointerEvents: 'none',
           }} />
 
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '6px 16px', borderRadius: 99, marginBottom: 20,
-              background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.35)',
-              color: '#a78bfa', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
-            }}>
-              <Brain style={{ width: 14, height: 14 }} />
-              AI ELECTION PULSE · தமிழ்நாடு 2026
+          {/* Content */}
+          <div style={{ position: 'relative', zIndex: 2, padding: 'clamp(28px,5vw,52px) clamp(20px,4vw,40px)' }}>
+
+            {/* Badge row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 7,
+                padding: '5px 14px', borderRadius: 99,
+                background: 'rgba(139,92,246,0.18)', border: '1px solid rgba(139,92,246,0.4)',
+                color: '#a78bfa', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+              }}>
+                <Brain style={{ width: 13, height: 13 }} />
+                AI ELECTION PULSE · தமிழ்நாடு 2026
+              </div>
+              {isLive && (
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 7,
+                  padding: '5px 14px', borderRadius: 99,
+                  background: 'rgba(239,68,68,0.18)', border: '1px solid rgba(239,68,68,0.45)',
+                  color: '#ef4444', fontSize: 10, fontWeight: 900, letterSpacing: '0.08em',
+                }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'ping 1s infinite' }} />
+                  RESULTS DECLARED
+                </div>
+              )}
             </div>
 
             {/* Big Tamil headline */}
             <div style={{
-              fontSize: 'clamp(2.4rem,8vw,4.8rem)', fontWeight: 900, lineHeight: 1.05,
-              color: '#fff', marginBottom: 8, letterSpacing: '-0.02em',
+              fontSize: 'clamp(2.2rem,7vw,4.4rem)', fontWeight: 900, lineHeight: 1.05,
+              color: '#fff', marginBottom: 6, letterSpacing: '-0.02em',
             }}>
               தேர்தல் 2026
             </div>
             <div style={{
-              fontSize: 'clamp(1.2rem,4vw,2.2rem)', fontWeight: 900, lineHeight: 1.1,
-              marginBottom: 16, letterSpacing: '-0.02em',
-              background: 'linear-gradient(135deg, #ff9933 0%, #ffffff 40%, #138808 100%)',
+              fontSize: 'clamp(1.1rem,3.5vw,2rem)', fontWeight: 900, lineHeight: 1.1,
+              marginBottom: 20, letterSpacing: '-0.01em',
+              background: 'linear-gradient(135deg, #fbbf24 0%, #fff 55%, #4ade80 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             }}>
-              Tamil Nadu Election Results
+              Tamil Nadu Results 2026
             </div>
 
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 28 }}>
-              234 Assembly Seats · 6.4 Crore Voters · Counting: May 4, 2026 at 8:00 AM IST
-            </p>
+            {/* ── HUNG ASSEMBLY ALERT — the main story ── */}
+            <div style={{
+              display: 'inline-flex', flexDirection: 'column', gap: 10,
+              background: 'rgba(7,1,15,0.75)', backdropFilter: 'blur(16px)',
+              border: '1.5px solid rgba(239,68,68,0.45)', borderRadius: 20,
+              padding: '16px 20px', maxWidth: 480,
+            }}>
+              {/* Hung Assembly headline */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 18 }}>⚖️</span>
+                <div>
+                  <div style={{ fontWeight: 900, fontSize: 15, color: '#ef4444', lineHeight: 1 }}>HUNG ASSEMBLY</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>No party crossed 118 seats · Coalition talks underway</div>
+                </div>
+              </div>
 
-            {/* Hero Countdown / LIVE badge */}
-            {isLive ? (
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 10,
-                padding: '12px 28px', borderRadius: 99,
-                background: 'rgba(239,68,68,0.15)', border: '2px solid rgba(239,68,68,0.5)',
-                color: '#ef4444', fontWeight: 900, fontSize: 18, letterSpacing: '0.06em',
-              }}>
-                <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'ping 1s infinite' }} />
-                🔴 LIVE COUNTING
+              {/* Quick seat tally */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                {[
+                  { name: 'TVK', seats: 107, color: '#fbbf24', gap: 11, leader: '🏆 Largest' },
+                  { name: 'DMK', seats: 60,  color: '#f87171', gap: 58, leader: 'Incumbent' },
+                  { name: 'ADMK', seats: 47, color: '#4ade80', gap: 71, leader: 'Opposition' },
+                ].map(p => (
+                  <div key={p.name} style={{
+                    flex: 1, borderRadius: 14, padding: '10px 8px', textAlign: 'center',
+                    background: `${p.color}12`, border: `1px solid ${p.color}30`,
+                  }}>
+                    <div style={{ fontWeight: 900, fontSize: 22, color: p.color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                      {p.seats}
+                    </div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: p.color, marginTop: 2 }}>{p.name}</div>
+                    <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{p.leader}</div>
+                    <div style={{ fontSize: 8, color: '#ef4444', marginTop: 3 }}>needs +{p.gap}</div>
+                  </div>
+                ))}
               </div>
-            ) : countdown ? (
+
+              {/* Majority bar */}
               <div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
-                  COUNTING BEGINS IN
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Seats · majority at 118</span>
+                  <span style={{ fontSize: 9, color: 'rgba(251,191,36,0.7)', fontWeight: 700 }}>234 total</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 6 }}>
-                  {countdown.d > 0 && (
-                    <>
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', fontSize: 'clamp(2.8rem,10vw,5.5rem)', color: '#fff', lineHeight: 1 }}>
-                          {String(countdown.d).padStart(2, '0')}
-                        </div>
-                        <div style={{ fontSize: 9, color: 'rgba(255,153,51,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 4 }}>Days</div>
-                      </div>
-                      <div style={{ color: 'rgba(251,191,36,0.4)', fontWeight: 900, fontSize: '3rem', marginBottom: 14 }}>:</div>
-                    </>
-                  )}
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', fontSize: 'clamp(2.8rem,10vw,5.5rem)', color: '#fbbf24', lineHeight: 1 }}>
-                      {String(countdown.h).padStart(2, '0')}
-                    </div>
-                    <div style={{ fontSize: 9, color: 'rgba(251,191,36,0.6)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 4 }}>Hrs</div>
-                  </div>
-                  <div style={{ color: 'rgba(251,191,36,0.4)', fontWeight: 900, fontSize: '3rem', marginBottom: 14 }}>:</div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', fontSize: 'clamp(2.8rem,10vw,5.5rem)', color: '#fbbf24', lineHeight: 1 }}>
-                      {String(countdown.m).padStart(2, '0')}
-                    </div>
-                    <div style={{ fontSize: 9, color: 'rgba(251,191,36,0.6)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 4 }}>Min</div>
-                  </div>
-                  <div style={{ color: 'rgba(251,191,36,0.4)', fontWeight: 900, fontSize: '3rem', marginBottom: 14 }}>:</div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', fontSize: 'clamp(2.8rem,10vw,5.5rem)', color: 'rgba(255,255,255,0.35)', lineHeight: 1 }}>
-                      {String(countdown.s).padStart(2, '0')}
-                    </div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 4 }}>Sec</div>
-                  </div>
+                <div style={{ height: 7, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden', display: 'flex', gap: 1 }}>
+                  <div style={{ width: `${(107/234)*100}%`, background: '#fbbf24', borderRadius: '99px 0 0 99px' }} />
+                  <div style={{ width: `${(60/234)*100}%`,  background: '#f87171' }} />
+                  <div style={{ width: `${(47/234)*100}%`,  background: '#4ade80' }} />
+                  <div style={{ width: `${(20/234)*100}%`,  background: 'rgba(148,163,184,0.4)', borderRadius: '0 99px 99px 0' }} />
+                </div>
+                {/* 118 mark */}
+                <div style={{ position: 'relative', height: 10 }}>
+                  <div style={{
+                    position: 'absolute', top: 0, bottom: 0,
+                    left: `${(118/234)*100}%`,
+                    width: 1.5, background: 'rgba(251,191,36,0.7)',
+                  }} />
+                  <span style={{
+                    position: 'absolute', top: 2, fontSize: 8, color: 'rgba(251,191,36,0.7)', fontWeight: 700,
+                    left: `calc(${(118/234)*100}% + 3px)`,
+                  }}>118 ← majority</span>
                 </div>
               </div>
-            ) : (
-              <div style={{ fontSize: 20, fontWeight: 900, color: '#fbbf24' }}>Counting has begun!</div>
-            )}
+            </div>
+
           </div>
+
+          {/* Bottom fade to page bg */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, zIndex: 2,
+            background: 'linear-gradient(0deg, #07010f 0%, transparent 100%)',
+          }} />
         </div>
 
         {/* ── ELECTION RESULTS LIVE (always shown) ── */}
         <div style={{ marginBottom: 28 }}>
           <ElectionResultsLive />
         </div>
+
+        {/* ── COALITION MATH DASHBOARD — main story post-counting ── */}
+        <CoalitionMathDashboard />
 
         {/* ── HUNG PARLIAMENT — coalition news + AI analysis ── */}
         <div style={{ marginBottom: 28 }}>

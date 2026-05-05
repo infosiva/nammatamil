@@ -15,10 +15,11 @@ function getCountdown() {
   }
 }
 
+// Post-counting final results — hung assembly
 const PARTIES = [
-  { id: 'tvk',    name: 'TVK',    seats: '98–120', color: '#fbbf24', leader: 'Vijay' },
-  { id: 'dmk',    name: 'DMK',    seats: '92–110', color: '#f87171', leader: 'Stalin' },
-  { id: 'aiadmk', name: 'AIADMK', seats: '22–32',  color: '#4ade80', leader: 'EPS' },
+  { id: 'tvk',    name: 'TVK',    seats: '107', color: '#fbbf24', leader: 'Vijay' },
+  { id: 'dmk',    name: 'DMK',    seats: '60',  color: '#f87171', leader: 'Stalin' },
+  { id: 'aiadmk', name: 'AIADMK', seats: '47',  color: '#4ade80', leader: 'EPS' },
 ]
 
 export default function ElectionHomeBanner() {
@@ -98,10 +99,10 @@ export default function ElectionHomeBanner() {
           {/* Headline — flex-1 to take remaining space */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 900, fontSize: 13, color: '#fff', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {isLive ? '🔴 TN Election 2026 — LIVE counting' : preHeadline}
+              {isLive ? '⚖️ HUNG ASSEMBLY · TVK 107 · Coalition talks' : preHeadline}
             </div>
             {/* Party chips row — always visible */}
-            <div style={{ display: 'flex', gap: 5, marginTop: 4, flexWrap: 'nowrap' }}>
+            <div style={{ display: 'flex', gap: 5, marginTop: 4, flexWrap: 'nowrap', alignItems: 'center' }}>
               {PARTIES.map(p => (
                 <span key={p.id} style={{
                   fontWeight: 900, fontSize: 10, color: p.color,
@@ -110,6 +111,11 @@ export default function ElectionHomeBanner() {
                   {p.name} <span style={{ opacity: 0.7 }}>{p.seats}</span>
                 </span>
               ))}
+              {isLive && (
+                <span style={{ fontSize: 9, color: 'rgba(239,68,68,0.8)', fontWeight: 700, marginLeft: 2 }}>
+                  · needs 118
+                </span>
+              )}
             </div>
           </div>
 

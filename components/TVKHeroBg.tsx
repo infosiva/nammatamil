@@ -2,7 +2,7 @@
 
 /**
  * TVKHeroBg — Cinematic hero background.
- * Bold gold Vijay silhouette on the right, strong gradient backdrop.
+ * Real Vijay/TVK photo on the right with gold glow overlay.
  */
 
 export default function TVKHeroBg() {
@@ -16,73 +16,65 @@ export default function TVKHeroBg() {
         <div style={{
           position: 'absolute', inset: 0,
           background: `
-            radial-gradient(ellipse 100% 60% at 50% 0%, rgba(251,191,36,0.25) 0%, transparent 55%),
-            radial-gradient(ellipse 50% 40% at 85% 15%, rgba(251,140,36,0.15) 0%, transparent 50%),
-            radial-gradient(ellipse 60% 40% at 15% 30%, rgba(220,38,38,0.10) 0%, transparent 50%),
+            radial-gradient(ellipse 100% 60% at 50% 0%, rgba(251,191,36,0.20) 0%, transparent 55%),
+            radial-gradient(ellipse 50% 40% at 85% 15%, rgba(251,140,36,0.12) 0%, transparent 50%),
+            radial-gradient(ellipse 60% 40% at 15% 30%, rgba(220,38,38,0.08) 0%, transparent 50%),
             linear-gradient(180deg, #120300 0%, #08010e 45%, #030008 100%)
           `,
         }} />
 
-        {/* Strong gold spotlight cone from top */}
+        {/* Strong gold spotlight cone from top-centre */}
         <div style={{
           position: 'absolute', top: -300, left: '50%', transform: 'translateX(-50%)',
           width: 900, height: 900,
-          background: 'radial-gradient(ellipse, rgba(251,191,36,0.35) 0%, rgba(251,191,36,0.08) 35%, transparent 65%)',
+          background: 'radial-gradient(ellipse, rgba(251,191,36,0.28) 0%, rgba(251,191,36,0.06) 35%, transparent 65%)',
           borderRadius: '50%',
           animation: 'heroPulse 5s ease-in-out infinite',
         }} />
 
-        {/* Right side glow behind silhouette */}
+        {/* Right side glow — behind photo */}
         <div style={{
           position: 'absolute', right: 0, top: 0, bottom: 0,
-          width: '40%',
-          background: 'linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.06) 60%, rgba(251,191,36,0.12) 100%)',
+          width: '45%',
+          background: 'linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.04) 50%, rgba(251,191,36,0.10) 100%)',
         }} />
 
-        {/* ── VIJAY SILHOUETTE ── bold, visible, right side ── */}
+        {/* ── REAL VIJAY PHOTO — right side, masked into silhouette ── */}
         <div style={{
           position: 'absolute',
           right: 0,
           bottom: 0,
-          width: 'clamp(220px, 35vw, 500px)',
-          height: 'clamp(340px, 70vw, 800px)',
-          opacity: 0.55,
-          filter: 'drop-shadow(0 0 40px rgba(251,191,36,0.4)) drop-shadow(0 0 80px rgba(251,191,36,0.2))',
+          width: 'clamp(200px, 38vw, 520px)',
+          height: 'clamp(300px, 65vw, 780px)',
           animation: 'heroFigure 7s ease-in-out infinite',
         }}>
-          <svg viewBox="0 0 260 520" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="figGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#fbbf24" stopOpacity="1" />
-                <stop offset="60%" stopColor="#f59e0b" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#d97706" stopOpacity="0.7" />
-              </linearGradient>
-            </defs>
-            {/* Head */}
-            <ellipse cx="130" cy="55" rx="38" ry="44" fill="url(#figGrad)" />
-            {/* Hair / top silhouette detail */}
-            <ellipse cx="130" cy="18" rx="32" ry="14" fill="url(#figGrad)" />
-            {/* Neck */}
-            <rect x="118" y="94" width="24" height="22" rx="6" fill="url(#figGrad)" />
-            {/* Torso */}
-            <path d="M62 118 Q90 105 130 112 Q170 105 198 118 L206 260 Q170 272 130 270 Q90 272 54 260 Z" fill="url(#figGrad)" />
-            {/* Left arm — raised high (victory pose) */}
-            <path d="M66 120 Q40 95 24 55 Q16 38 26 26 Q36 14 48 28 Q64 52 82 88 L84 122 Z" fill="url(#figGrad)" />
-            {/* Raised fist left */}
-            <rect x="18" y="14" width="34" height="28" rx="10" fill="url(#figGrad)" />
-            {/* Thumb on fist */}
-            <rect x="10" y="20" width="12" height="16" rx="6" fill="url(#figGrad)" />
-            {/* Right arm — slight out pose */}
-            <path d="M196 120 Q224 150 228 220 Q228 230 216 230 L208 228 Q208 162 186 130 Z" fill="url(#figGrad)" />
-            {/* Right hand */}
-            <ellipse cx="222" cy="234" rx="14" ry="10" fill="url(#figGrad)" />
-            {/* Legs */}
-            <path d="M86 268 L72 430 L96 432 L108 320 L130 316 L152 320 L164 432 L188 430 L174 268 Z" fill="url(#figGrad)" />
-            {/* Left foot */}
-            <ellipse cx="84" cy="438" rx="24" ry="11" fill="url(#figGrad)" />
-            {/* Right foot */}
-            <ellipse cx="176" cy="438" rx="24" ry="11" fill="url(#figGrad)" />
-          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/tvk-vijay.jpg"
+            alt="Thalapathy Vijay — TVK"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center top',
+              maskImage: 'linear-gradient(to left, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0) 100%), linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 20%)',
+              WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0) 100%), linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 20%)',
+              maskComposite: 'intersect',
+              WebkitMaskComposite: 'source-in',
+              filter: 'contrast(1.08) brightness(0.88) saturate(0.85)',
+            }}
+          />
+          {/* Gold-tint overlay on photo */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(135deg, rgba(251,191,36,0.12) 0%, transparent 60%)',
+            mixBlendMode: 'overlay',
+          }} />
+          {/* Right edge glow */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            boxShadow: 'inset -40px 0 80px rgba(251,191,36,0.18)',
+          }} />
         </div>
 
         {/* "VIJAY" large watermark — behind content, very subtle */}
@@ -121,7 +113,7 @@ export default function TVKHeroBg() {
           position: 'absolute', inset: 0,
           background: `repeating-linear-gradient(
             -45deg, transparent, transparent 140px,
-            rgba(251,191,36,0.015) 140px, rgba(251,191,36,0.015) 141px
+            rgba(251,191,36,0.012) 140px, rgba(251,191,36,0.012) 141px
           )`,
         }} />
 
@@ -143,8 +135,8 @@ export default function TVKHeroBg() {
           66%       { transform: translateY(7px) rotate(-8deg); }
         }
         @keyframes heroFigure {
-          0%, 100% { transform: translateY(0px); filter: drop-shadow(0 0 40px rgba(251,191,36,0.4)) drop-shadow(0 0 80px rgba(251,191,36,0.2)); }
-          50%       { transform: translateY(-10px); filter: drop-shadow(0 0 60px rgba(251,191,36,0.6)) drop-shadow(0 0 100px rgba(251,191,36,0.3)); }
+          0%, 100% { transform: translateY(0px); filter: drop-shadow(0 0 40px rgba(251,191,36,0.3)) brightness(0.88) contrast(1.08); }
+          50%       { transform: translateY(-8px);  filter: drop-shadow(0 0 60px rgba(251,191,36,0.5)) brightness(0.92) contrast(1.1); }
         }
       `}</style>
     </>
