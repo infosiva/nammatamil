@@ -1008,23 +1008,10 @@ export default function TNElectionClient() {
               ← NammaTamil
             </Link>
             <span style={{ color: 'rgba(255,255,255,0.12)' }}>|</span>
-            {isLive ? (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 900, color: '#ef4444' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'ping 1s infinite' }} />
-                COUNTING LIVE
-              </span>
-            ) : (
-              <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12 }}>
-                TN Election 2026 ·{' '}
-                {countdown ? (
-                  <span style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums', color: '#fbbf24' }}>
-                    {countdown.d > 0 ? `${countdown.d}d ` : ''}
-                    {String(countdown.h).padStart(2, '0')}:{String(countdown.m).padStart(2, '0')}:{String(countdown.s).padStart(2, '0')}
-                  </span>
-                ) : 'Counting started'}
-                {' '}to counting
-              </span>
-            )}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 900, color: '#ef4444' }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
+              ⚖️ HUNG ASSEMBLY · Coalition talks live
+            </span>
           </div>
           <button
             onClick={() => navigator.share?.({ title: 'TN Election AI Pulse 2026', url: window.location.href })}
@@ -1086,17 +1073,14 @@ export default function TNElectionClient() {
                 <Brain style={{ width: 13, height: 13 }} />
                 AI ELECTION PULSE · தமிழ்நாடு 2026
               </div>
-              {isLive && (
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 7,
-                  padding: '5px 14px', borderRadius: 99,
-                  background: 'rgba(239,68,68,0.18)', border: '1px solid rgba(239,68,68,0.45)',
-                  color: '#ef4444', fontSize: 10, fontWeight: 900, letterSpacing: '0.08em',
-                }}>
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'ping 1s infinite' }} />
-                  RESULTS DECLARED
-                </div>
-              )}
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 7,
+                padding: '5px 14px', borderRadius: 99,
+                background: 'rgba(239,68,68,0.18)', border: '1px solid rgba(239,68,68,0.45)',
+                color: '#ef4444', fontSize: 10, fontWeight: 900, letterSpacing: '0.08em',
+              }}>
+                ⚖️ HUNG ASSEMBLY · TVK 107
+              </div>
             </div>
 
             {/* Big Tamil headline */}
@@ -1188,18 +1172,18 @@ export default function TNElectionClient() {
           }} />
         </div>
 
-        {/* ── ELECTION RESULTS LIVE (always shown) ── */}
+        {/* ── COALITION NEWS — top story post-counting (what's changing) ── */}
+        <div style={{ marginBottom: 28 }}>
+          <HungParliamentLive />
+        </div>
+
+        {/* ── SEAT SNAPSHOT — static final results ── */}
         <div style={{ marginBottom: 28 }}>
           <ElectionResultsLive />
         </div>
 
-        {/* ── COALITION MATH DASHBOARD — main story post-counting ── */}
+        {/* ── COALITION MATH DASHBOARD ── */}
         <CoalitionMathDashboard />
-
-        {/* ── HUNG PARLIAMENT — coalition news + AI analysis ── */}
-        <div style={{ marginBottom: 28 }}>
-          <HungParliamentLive />
-        </div>
 
         {/* ── AD UNIT — after live results ── */}
         <AdUnit network="affiliate" className="mb-7" />

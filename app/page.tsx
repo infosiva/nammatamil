@@ -1,108 +1,49 @@
 import HomeTabLayout from '@/components/HomeTabLayout'
 import AdUnit from '@/components/AdUnit'
-import ElectionAnimatedStats from '@/components/ElectionAnimatedStats'
-import ConstituencyLiveBoard from '@/components/ConstituencyLiveBoard'
 import NammaTVKVideos from '@/components/NammaTVKVideos'
 import VisitorCounter from '@/components/VisitorCounter'
-import ElectionScoreboard from '@/components/ElectionScoreboard'
-import ElectionSpotlight from '@/components/ElectionSpotlight'
-import ElectionReactions from '@/components/ElectionReactions'
-import DistrictHeatmap from '@/components/DistrictHeatmap'
-import ElectionStories from '@/components/ElectionStories'
-import ConstituencySearch from '@/components/ConstituencySearch'
-import FamousCandidates from '@/components/FamousCandidates'
-import TVKVictoryBanner from '@/components/TVKVictoryBanner'
 import TVKHeroBg from '@/components/TVKHeroBg'
-import TVKDistrictSweep from '@/components/TVKDistrictSweep'
-import TVKMomentumTicker from '@/components/TVKMomentumTicker'
-import SeatProjection from '@/components/SeatProjection'
-import ElectionNews from '@/components/ElectionNews'
-import CountingProgress from '@/components/CountingProgress'
-import AIElectionSummary from '@/components/AIElectionSummary'
-import VoteMarginHighlights from '@/components/VoteMarginHighlights'
+import ElectionMiniPanel from '@/components/ElectionMiniPanel'
 
 export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
 
-      {/* ══ ELECTION DASHBOARD ══════════════════════════════════════════════════ */}
-      <div style={{ position: 'relative', borderBottom: '1px solid rgba(251,191,36,0.1)' }}>
+      {/* ══ TVK HERO ─ Cinematic Vijay background, always present ══════════════ */}
+      <div style={{ position: 'relative', borderBottom: '1px solid rgba(251,191,36,0.08)' }}>
         <TVKHeroBg />
 
-        {/* ── Scoreboard: ticker + declared/remaining + party cards ── */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <ElectionScoreboard />
-        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ position: 'relative', zIndex: 1, paddingTop: 24, paddingBottom: 28 }}>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-0" style={{ position: 'relative', zIndex: 1 }}>
-
-          {/* Visitor counter */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+          {/* Site identity row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div>
+              <div style={{
+                fontSize: 'clamp(1.6rem,5vw,2.6rem)', fontWeight: 900, lineHeight: 1,
+                background: 'linear-gradient(135deg, #fbbf24 0%, #ffffff 60%, #fbbf24 100%)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                letterSpacing: '-0.02em',
+              }}>
+                NammaTamil
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 3, fontWeight: 600 }}>
+                Tamil · தமிழ் · Entertainment &amp; Politics
+              </div>
+            </div>
             <VisitorCounter />
           </div>
 
-          {/* ── Gold scrolling ticker ── */}
-          <TVKMomentumTicker />
-
-          {/* ── HERO: TVK Victory + AI tally side by side on desktop ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }} className="election-two-col">
-            <TVKVictoryBanner />
-            <AIElectionSummary />
-          </div>
-
-          {/* ── ROW 2: Seat projection + Counting progress ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }} className="election-two-col">
-            <SeatProjection />
-            <CountingProgress />
-          </div>
-
-          {/* ── Constituency Search ── */}
-          <div style={{ marginBottom: 14 }}>
-            <ConstituencySearch />
-          </div>
-
-          {/* ── Famous candidates ── */}
-          <div style={{ marginBottom: 14 }}>
-            <FamousCandidates />
-          </div>
-
-          {/* ── Vote Margins + Election News ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }} className="election-two-col">
-            <VoteMarginHighlights />
-            <ElectionNews />
-          </div>
-
-          {/* ── Story cards + Spotlight ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }} className="election-two-col">
-            <ElectionStories />
-            <ElectionSpotlight />
-          </div>
-
-          {/* ── Reactions ── */}
-          <div style={{ marginBottom: 14 }}>
-            <ElectionReactions />
-          </div>
-
-          {/* ── Animated stats ── */}
-          <div style={{ marginBottom: 14 }}>
-            <ElectionAnimatedStats />
-          </div>
-
-          {/* ── TVK district sweep + Heatmap ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }} className="election-two-col">
-            <TVKDistrictSweep />
-            <DistrictHeatmap />
-          </div>
-
-          {/* ── Full constituency board ── */}
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <div style={{ width: 3, height: 18, borderRadius: 99, background: 'linear-gradient(180deg, #ef4444, #fbbf24)' }} />
-              <span style={{ fontWeight: 800, fontSize: 14, color: 'rgba(255,255,255,0.75)' }}>All Constituency Results</span>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>234 seats</span>
+          {/* ── Election 2026 Mini Panel ── */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <div style={{ width: 3, height: 14, borderRadius: 99, background: 'linear-gradient(180deg, #ef4444, #fbbf24)' }} />
+              <span style={{ fontWeight: 800, fontSize: 12, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                TN Election 2026
+              </span>
             </div>
-            <ConstituencyLiveBoard />
+            <ElectionMiniPanel />
           </div>
+
         </div>
       </div>
 
@@ -141,11 +82,6 @@ export default function HomePage() {
         <AdUnit format="horizontal" className="min-h-[90px]" />
       </div>
 
-      <style>{`
-        @media (max-width: 640px) {
-          .election-two-col { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
   )
 }
