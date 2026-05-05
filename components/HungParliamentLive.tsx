@@ -20,6 +20,9 @@ interface CoalitionAnalysis {
   scenario: string
   tvkPath: string
   dmkPath: string
+  prediction: string
+  timeline: string
+  riskFactor: string
   likelihood: { tvk_led: number; dmk_led: number; presidents_rule: number }
   keyDeal: string
   urgency: 'low' | 'medium' | 'high' | 'breaking'
@@ -286,29 +289,33 @@ export default function HungParliamentLive() {
   return (
     <div style={{
       borderRadius: 24, overflow: 'hidden',
-      background: 'linear-gradient(160deg, rgba(15,5,32,0.98) 0%, rgba(7,1,15,0.98) 100%)',
-      border: `1px solid ${uc}28`,
-      boxShadow: `0 0 40px ${uc}0d`,
+      background: 'linear-gradient(160deg, rgba(20,3,6,0.98) 0%, rgba(7,1,15,0.98) 100%)',
+      border: '1px solid rgba(139,0,0,0.45)',
+      boxShadow: '0 0 40px rgba(139,0,0,0.12)',
     }}>
 
-      {/* ── Header ── */}
+      {/* ── Header — TVK flag theme ── */}
       <div style={{
         padding: '12px 18px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8,
-        background: `${uc}0d`, borderBottom: `1px solid ${uc}1e`,
+        background: 'rgba(139,0,0,0.18)',
+        borderBottom: '1px solid rgba(255,193,7,0.15)',
+        position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+        {/* Gold stripe accent */}
+        <div style={{ position: 'absolute', top: '35%', left: 0, right: 0, height: '30%', background: 'rgba(255,193,7,0.06)', pointerEvents: 'none' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', position: 'relative' }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             padding: '4px 12px', borderRadius: 99,
-            background: `${uc}20`, border: `1px solid ${uc}50`,
-            color: uc, fontSize: 10, fontWeight: 900, letterSpacing: '0.08em',
+            background: 'rgba(139,0,0,0.4)', border: '1px solid rgba(255,193,7,0.45)',
+            color: '#FFC107', fontSize: 10, fontWeight: 900, letterSpacing: '0.08em',
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: uc, display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
-            HUNG ASSEMBLY
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FFC107', display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
+            ⚖️ HUNG ASSEMBLY
           </span>
           <span style={{ fontWeight: 700, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
-            Coalition Watch · TN 2026
+            Coalition Intelligence · TN 2026
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -417,17 +424,50 @@ export default function HungParliamentLive() {
                 ))}
               </div>
 
-              {/* Key deal */}
-              <div style={{
-                borderRadius: 12, padding: '12px 14px',
-                background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)',
-              }}>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>🔑 Key Deal to Watch</p>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.55, margin: 0 }}>{analysis.keyDeal}</p>
+              {/* AI Prediction + Timeline */}
+              <div style={{ display: 'grid', gap: 8, marginBottom: 10 }}>
+                {analysis.prediction && (
+                  <div style={{
+                    borderRadius: 12, padding: '12px 14px',
+                    background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.22)',
+                  }}>
+                    <p style={{ fontSize: 9, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>🤖 AI Prediction</p>
+                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.55, margin: 0, fontWeight: 700 }}>{analysis.prediction}</p>
+                  </div>
+                )}
+                {analysis.timeline && (
+                  <div style={{
+                    borderRadius: 12, padding: '12px 14px',
+                    background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.20)',
+                  }}>
+                    <p style={{ fontSize: 9, fontWeight: 700, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>⏱ Next 48–72h</p>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.55, margin: 0 }}>{analysis.timeline}</p>
+                  </div>
+                )}
               </div>
 
+              {/* Key deal */}
+              <div style={{
+                borderRadius: 12, padding: '12px 14px', marginBottom: 8,
+                background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.15)',
+              }}>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>🔑 Key Deal to Watch</p>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.55, margin: 0 }}>{analysis.keyDeal}</p>
+              </div>
+
+              {/* Risk factor */}
+              {analysis.riskFactor && (
+                <div style={{
+                  borderRadius: 12, padding: '12px 14px',
+                  background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)',
+                }}>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: '#f87171', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>⚠️ Risk Factor</p>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55, margin: 0 }}>{analysis.riskFactor}</p>
+                </div>
+              )}
+
               {analysis.scenario && (
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, marginTop: 12, marginBottom: 0, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6, marginTop: 12, marginBottom: 0, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                   <span style={{ color: '#a78bfa', fontWeight: 700 }}>Most likely: </span>{analysis.scenario}
                 </p>
               )}

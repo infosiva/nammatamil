@@ -1,14 +1,20 @@
 /**
- * /api/election-news — Hung Parliament Live News + AI Coalition Analysis
+ * /api/election-news — Post-Counting Coalition Intelligence
  *
- * May 4, 2026: No party crossed 118. Tamil Nadu is heading to a hung assembly.
- * This route:
- *   1. Fetches breaking news from RSS feeds (The Hindu, NDTV, Dinamalar, etc.)
- *   2. Filters for hung-parliament / coalition / government-formation news
- *   3. Passes top headlines to AI → generates live coalition analysis + narrative
- *   4. Returns structured JSON ready for the live dashboard
+ * May 4, 2026: HUNG ASSEMBLY — TVK 107, DMK 60, AIADMK 47, Others 20
+ * Nobody crossed 118. This route powers the real story NOW:
+ *   — What coalition talks are happening?
+ *   — Who is TVK meeting? What's the deal?
+ *   — AI prediction: who will be CM? When?
+ *   — Governor's timeline
  *
- * Cache: 5 minutes (fast-moving situation)
+ * Pipeline:
+ *   1. Fetch RSS from TN politics sources (The Hindu, NDTV, Dinamalar, Maalaimalar)
+ *   2. Score headlines for coalition / government formation relevance
+ *   3. AI (Groq → Gemini → Claude) analyses → coalition prediction + next 48h timeline
+ *   4. Return structured JSON with news + AI narrative + prediction
+ *
+ * Cache: 5 minutes — situation moves fast
  */
 import { NextResponse } from 'next/server'
 import { generateWithAI } from '@/lib/ai'
@@ -16,44 +22,38 @@ import { generateWithAI } from '@/lib/ai'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-// ── RSS feeds — politics-heavy sources ───────────────────────────────────────
+// ── RSS sources — heavy TN politics coverage ─────────────────────────────────
 const FEEDS = [
-  { name: 'The Hindu TN',    url: 'https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss' },
-  { name: 'The Hindu Elec',  url: 'https://www.thehindu.com/elections/tamil-nadu/feeder/default.rss' },
-  { name: 'NDTV Top',        url: 'https://feeds.feedburner.com/ndtvnews-top-stories' },
-  { name: 'India Today',     url: 'https://www.indiatoday.in/rss/1206577' },
-  { name: 'Dinamalar',       url: 'https://www.dinamalar.com/rss/news_rss.asp' },
-  { name: 'OneIndia Tamil',  url: 'https://tamil.oneindia.com/rss/tamil-news-fb.xml' },
-  { name: 'Times of India',  url: 'https://timesofindia.indiatimes.com/rssfeeds/296589292.cms' },
-  { name: 'Hindustan Times', url: 'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml' },
+  { name: 'The Hindu TN',     url: 'https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss' },
+  { name: 'The Hindu Elec',   url: 'https://www.thehindu.com/elections/tamil-nadu/feeder/default.rss' },
+  { name: 'NDTV India',       url: 'https://feeds.feedburner.com/ndtvnews-top-stories' },
+  { name: 'India Today',      url: 'https://www.indiatoday.in/rss/1206577' },
+  { name: 'Dinamalar',        url: 'https://www.dinamalar.com/rss/news_rss.asp' },
+  { name: 'Maalaimalar',      url: 'https://www.maalaimalar.com/rss/news.xml' },
+  { name: 'OneIndia Tamil',   url: 'https://tamil.oneindia.com/rss/tamil-news-fb.xml' },
+  { name: 'Times of India',   url: 'https://timesofindia.indiatimes.com/rssfeeds/296589292.cms' },
+  { name: 'Hindustan Times',  url: 'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml' },
+  { name: 'Indian Express TN', url: 'https://indianexpress.com/section/india/feed/' },
 ]
 
-// Keywords that signal hung-parliament / coalition / TN political breaking news
-const BREAKING_KEYWORDS = [
-  'hung', 'coalition', 'alliance', 'government formation', 'support',
-  'TVK', 'DMK', 'AIADMK', 'BJP', 'Stalin', 'Vijay', 'Palaniswami', 'Thalapathy',
-  'Tamil Nadu election', 'TN election', 'counting', 'results', 'seats',
-  'majority', 'Chief Minister', 'CM', 'governor', 'president rule',
-  'post-poll', 'post poll', 'deal', 'merger', 'rebel', 'defection',
-  'தேர்தல்', 'கூட்டணி', 'அரசு', 'முதலமைச்சர்',
-]
+// Coalition / government formation keywords — scored by tier
+const TIER1 = ['hung', 'coalition', 'government formation', 'form government', 'majority',
+  'president rule', 'governor invite', 'governor', 'alliance', 'support letter',
+  'கூட்டணி', 'ஆட்சி', 'முதலமைச்சர்', 'ராஜ்பவன்']
+
+const TIER2 = ['TVK', 'Vijay', 'Thalapathy', 'Stalin', 'Palaniswami', 'EPS',
+  'AIADMK', 'DMK', 'PMK', 'BJP', 'INC', 'Congress', 'VCK',
+  'Chief Minister', 'CM', 'MLAs', 'floor test', 'cabinet']
+
+const TIER3 = ['Tamil Nadu election', 'TN election', 'results', 'seats', 'deal',
+  'merger', 'defection', 'rebel', 'independent', 'post-poll']
 
 function scoreHeadline(title: string, desc: string): number {
   const text = (title + ' ' + desc).toLowerCase()
   let score = 0
-
-  // Tier 1 — hung parliament specific
-  for (const kw of ['hung', 'coalition', 'government formation', 'majority', 'president rule', 'கூட்டணி']) {
-    if (text.includes(kw.toLowerCase())) score += 15
-  }
-  // Tier 2 — party / leader specific
-  for (const kw of ['TVK', 'Vijay', 'Thalapathy', 'Stalin', 'Palaniswami', 'AIADMK', 'DMK']) {
-    if (text.includes(kw.toLowerCase())) score += 8
-  }
-  // Tier 3 — election context
-  for (const kw of ['Tamil Nadu election', 'TN election', 'counting', 'results', 'seats', 'CM', 'Chief Minister']) {
-    if (text.includes(kw.toLowerCase())) score += 3
-  }
+  for (const kw of TIER1) if (text.includes(kw.toLowerCase())) score += 18
+  for (const kw of TIER2) if (text.includes(kw.toLowerCase())) score += 8
+  for (const kw of TIER3) if (text.includes(kw.toLowerCase())) score += 3
   return score
 }
 
@@ -75,13 +75,13 @@ function parseRSS(xml: string, source: string) {
     const desc = (
       block.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/)?.[1] ??
       block.match(/<description>([\s\S]*?)<\/description>/)?.[1] ?? ''
-    ).replace(/<[^>]+>/g, '').trim().slice(0, 250)
+    ).replace(/<[^>]+>/g, '').trim().slice(0, 300)
 
     if (!title || title.length < 12) continue
     const score = scoreHeadline(title, desc)
     if (score < 3) continue
     items.push({ title, link, pubDate, desc, source, score })
-    if (items.length >= 20) break
+    if (items.length >= 25) break
   }
   return items
 }
@@ -98,117 +98,43 @@ function timeAgo(pubDate: string): string {
   } catch { return 'Today' }
 }
 
-// ── AI coalition analysis ─────────────────────────────────────────────────────
+// ── AI Coalition Intelligence ─────────────────────────────────────────────────
 interface CoalitionAnalysis {
-  summary: string          // 1-2 sentence current status
-  scenario: string         // most likely govt formation scenario
-  tvkPath: string          // TVK's path to CM
-  dmkPath: string          // DMK's path
+  summary: string           // Current situation in 2 sentences
+  scenario: string          // Most likely government formation path
+  tvkPath: string           // TVK's path to CM
+  dmkPath: string           // DMK's path
+  prediction: string        // Who will be CM and by when — AI's best call
+  timeline: string          // Next 48h key events to watch
   likelihood: {
-    tvk_led: number        // % chance TVK forms govt
-    dmk_led: number        // % chance DMK forms govt
-    presidents_rule: number
+    tvk_led: number         // % chance TVK forms govt
+    dmk_led: number         // % chance DMK leads
+    presidents_rule: number // % chance President's rule imposed
   }
-  keyDeal: string          // most important potential deal right now
+  keyDeal: string           // Most important deal right now
+  riskFactor: string        // What could derail the most likely scenario
   urgency: 'low' | 'medium' | 'high' | 'breaking'
-  breakingAlert: string | null  // null or one-line breaking headline
+  breakingAlert: string | null
 }
 
 const FALLBACK_ANALYSIS: CoalitionAnalysis = {
-  summary: 'Tamil Nadu has a hung assembly. TVK leads with 107 seats, DMK at 60, AIADMK at 47. No party has the 118-seat majority.',
-  scenario: 'TVK is the single largest party and will likely be invited first by the Governor to form government. Needs 11 more seats.',
-  tvkPath: 'TVK (107) needs ~11 seats. PMK (4), INC (5) + independents (5) can get them to 121.',
-  dmkPath: 'DMK (60) + AIADMK (47) = 107 — still short of majority and historically opposed.',
-  likelihood: { tvk_led: 62, dmk_led: 18, presidents_rule: 20 },
-  keyDeal: 'TVK-PMK alliance talks are the most likely deal to watch. PMK has 4 seats and constituency weight.',
+  summary: 'Tamil Nadu has a hung assembly. TVK leads with 107 seats — 11 short of the 118 majority. DMK at 60, AIADMK at 47. Coalition talks are underway.',
+  scenario: 'TVK is the single largest party. Governor must invite TVK first to prove majority on the floor of the assembly within 14 days.',
+  tvkPath: 'TVK (107) + PMK (4) + INC (5) + 5 friendly independents = 121 seats. This is the most viable path.',
+  dmkPath: 'DMK (60) + AIADMK (47) = 107 — still short of 118 and historically these two are arch rivals. Very unlikely.',
+  prediction: 'Vijay (TVK) is most likely to be sworn in as Tamil Nadu CM within 7–10 days. PMK and INC support is the key variable.',
+  timeline: 'Next 48h: Governor calls TVK first → TVK submits support letters → Floor test scheduled. Watch PMK announcement.',
+  likelihood: { tvk_led: 65, dmk_led: 15, presidents_rule: 20 },
+  keyDeal: 'TVK-PMK talks are the most critical. PMK (4 seats) with ministerial berths can push TVK past 118.',
+  riskFactor: 'If 5+ independents demand cash or cabinet posts TVK cannot afford, President\'s Rule becomes more likely.',
   urgency: 'high',
-  breakingAlert: 'Hung assembly confirmed: TVK 107 | DMK 60 | AIADMK 47 · No party crosses 118',
+  breakingAlert: 'Hung assembly: TVK 107 · DMK 60 · AIADMK 47 · Coalition talks live',
 }
 
 let aiCache: { analysis: CoalitionAnalysis; fetchedAt: number } | null = null
 let newsCache: { items: ReturnType<typeof parseRSS>; fetchedAt: number } | null = null
-let seatsCache: { splits: SeatsLive; fetchedAt: number } | null = null
-const NEWS_TTL  = 5  * 60 * 1000   // 5 min
-const AI_TTL    = 10 * 60 * 1000  // 10 min
-const SEATS_TTL = 2  * 60 * 1000   // 2 min — refresh split often
-
-// Live seat splits from ECI partywise HTML
-interface SeatsLive {
-  TVK:    { won: number; leading: number; total: number }
-  DMK:    { won: number; leading: number; total: number }
-  AIADMK: { won: number; leading: number; total: number }
-  BJP:    { won: number; leading: number; total: number }
-  Others: { won: number; leading: number; total: number }
-  total: number; majority: number; reported: number
-}
-
-const SEATS_FALLBACK: SeatsLive = {
-  TVK:    { won: 107, leading: 0, total: 107 },
-  DMK:    { won: 60,  leading: 0, total: 60  },
-  AIADMK: { won: 47,  leading: 0, total: 47  },
-  BJP:    { won: 1,   leading: 0, total: 1   },
-  Others: { won: 19,  leading: 0, total: 19  },
-  total: 234, majority: 118, reported: 234,
-}
-
-async function fetchLiveSeatSplits(): Promise<SeatsLive> {
-  const now = Date.now()
-  if (seatsCache && now - seatsCache.fetchedAt < SEATS_TTL) return seatsCache.splits
-
-  const ECI_HTML = 'https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm'
-  const partyAliases: Record<string, string> = {
-    TVK: 'TVK', ADMK: 'AIADMK', AIADMK: 'AIADMK', DMK: 'DMK',
-    BJP: 'BJP', PMK: 'Others', INC: 'Others', CPI: 'Others', 'CPI(M)': 'Others',
-    VCK: 'Others', DMDK: 'Others', IUML: 'Others', AMMKMNKZ: 'Others', PT: 'Others',
-  }
-  const urlsToTry = [
-    ECI_HTML,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(ECI_HTML)}`,
-    `https://corsproxy.io/?${encodeURIComponent(ECI_HTML)}`,
-  ]
-
-  for (const url of urlsToTry) {
-    try {
-      const res = await fetch(url, {
-        signal: AbortSignal.timeout(8000), cache: 'no-store',
-        headers: { 'User-Agent': 'Mozilla/5.0 NammaTamil/1.0', ...(url === ECI_HTML ? { Referer: 'https://results.eci.gov.in/' } : {}) },
-      })
-      if (!res.ok) continue
-      const html = await res.text()
-      if (html.length < 1000) continue
-
-      const clean = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')
-      const totals: Record<string, { won: number; leading: number }> = {}
-      const pattern = /\b(TVK|ADMK|AIADMK|DMK|BJP|PMK|INC|CPI(?:\(M\))?|VCK|DMDK|PT|IUML|AMMKMNKZ)\b[^0-9]{0,30}?(\d+)\s+(\d+)\s+(\d+)/g
-      let m: RegExpExecArray | null
-      while ((m = pattern.exec(clean)) !== null) {
-        const abbr = m[1], won = parseInt(m[2], 10), lead = parseInt(m[3], 10), tot = parseInt(m[4], 10)
-        if (Math.abs(won + lead - tot) > 2) continue
-        const key = partyAliases[abbr] ?? 'Others'
-        if (!totals[key]) totals[key] = { won: 0, leading: 0 }
-        totals[key].won += won; totals[key].leading += lead
-      }
-
-      const hasData = Object.values(totals).some(v => v.won + v.leading > 0)
-      if (!hasData) continue
-
-      const make = (k: string) => ({
-        won:     totals[k]?.won     ?? 0,
-        leading: totals[k]?.leading ?? 0,
-        total:  (totals[k]?.won ?? 0) + (totals[k]?.leading ?? 0),
-      })
-      const splits: SeatsLive = {
-        TVK: make('TVK'), DMK: make('DMK'), AIADMK: make('AIADMK'), BJP: make('BJP'), Others: make('Others'),
-        total: 234, majority: 118,
-        reported: Object.values(totals).reduce((s, v) => s + v.won + v.leading, 0),
-      }
-      seatsCache = { splits, fetchedAt: now }
-      return splits
-    } catch { continue }
-  }
-
-  return seatsCache?.splits ?? SEATS_FALLBACK
-}
+const NEWS_TTL = 5  * 60 * 1000  // 5 min
+const AI_TTL   = 12 * 60 * 1000  // 12 min
 
 async function getCoalitionAnalysis(headlines: string[]): Promise<CoalitionAnalysis> {
   const now = Date.now()
@@ -216,41 +142,50 @@ async function getCoalitionAnalysis(headlines: string[]): Promise<CoalitionAnaly
 
   if (headlines.length === 0) return FALLBACK_ANALYSIS
 
-  const prompt = `You are a Tamil Nadu political analyst. It is May 4, 2026 — Tamil Nadu election results day.
+  const prompt = `You are a senior Tamil Nadu political analyst writing for NammaTamil.live on May 2026.
 
-FINAL SEAT COUNT (ECI official):
-- TVK (Thalapathy Vijay): 107 seats
+OFFICIAL FINAL RESULTS (ECI declared, May 4, 2026):
+- TVK (Thalapathy Vijay, first-time party): 107 seats
 - DMK (MK Stalin, incumbent CM): 60 seats
-- AIADMK (Palaniswami): 47 seats
+- AIADMK (E. Palaniswami / EPS): 47 seats
 - BJP: 1 seat
-- Others (PMK, INC, CPI, VCK, DMDK etc.): 19 seats
+- PMK: 4 seats
+- INC (Congress): 5 seats
+- VCK / others / independents: ~12 seats
 - TOTAL: 234 seats | MAJORITY: 118 seats
 
-SITUATION: HUNG ASSEMBLY. No party has majority.
+SITUATION: HUNG ASSEMBLY. Counting is OVER. Now it's all about government formation.
 
-LATEST NEWS HEADLINES:
-${headlines.slice(0, 15).map((h, i) => `${i + 1}. ${h}`).join('\n')}
+LATEST NEWS HEADLINES (live, from The Hindu / NDTV / Dinamalar):
+${headlines.slice(0, 18).map((h, i) => `${i + 1}. ${h}`).join('\n')}
 
-Analyse the government formation situation. Respond ONLY with valid JSON — no markdown:
+Based on these headlines and your expert knowledge of TN politics, provide a coalition intelligence brief.
+Respond ONLY with valid compact JSON — no markdown fences:
 {
-  "summary": "<2 sentences: current political situation>",
-  "scenario": "<most likely government formation scenario based on news>",
-  "tvkPath": "<how TVK can reach 118: which parties, how many seats>",
-  "dmkPath": "<how DMK can reach 118: which parties, what's blocking them>",
+  "summary": "<2 sentences: today's political situation>",
+  "scenario": "<most likely path to government formation based on news>",
+  "tvkPath": "<how TVK reaches 118: specific parties + seat math>",
+  "dmkPath": "<how DMK could reach 118, or why they can't>",
+  "prediction": "<AI best prediction: who will be CM and approximately when>",
+  "timeline": "<next 48–72h key events to watch>",
   "likelihood": { "tvk_led": <0-100>, "dmk_led": <0-100>, "presidents_rule": <0-100> },
-  "keyDeal": "<the single most important coalition deal being discussed right now>",
+  "keyDeal": "<single most important coalition deal to watch right now>",
+  "riskFactor": "<what could derail the most likely scenario>",
   "urgency": "<low|medium|high|breaking>",
-  "breakingAlert": "<null or one ultra-concise breaking update from the headlines, max 80 chars>"
+  "breakingAlert": "<null or one ultra-concise breaking update from headlines, max 85 chars>"
 }`
 
   try {
     const raw = await generateWithAI(prompt, {
-      mode: 'fast', maxTokens: 500,
-      systemPrompt: 'Tamil Nadu political analyst. Return only valid compact JSON.',
+      mode: 'fast', maxTokens: 600,
+      systemPrompt: 'Tamil Nadu political analyst. Return only valid compact JSON. Be specific and data-driven.',
       noCache: true,
     })
     const cleaned = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
     const parsed = JSON.parse(cleaned) as CoalitionAnalysis
+    // Sanity check likelihoods sum to ~100
+    const sum = (parsed.likelihood?.tvk_led ?? 0) + (parsed.likelihood?.dmk_led ?? 0) + (parsed.likelihood?.presidents_rule ?? 0)
+    if (sum < 80 || sum > 120) parsed.likelihood = FALLBACK_ANALYSIS.likelihood
     aiCache = { analysis: parsed, fetchedAt: now }
     return parsed
   } catch {
@@ -261,7 +196,7 @@ Analyse the government formation situation. Respond ONLY with valid JSON — no 
 export async function GET() {
   const now = Date.now()
 
-  // Check news cache
+  // Fetch news
   let allItems: ReturnType<typeof parseRSS> = []
   if (newsCache && now - newsCache.fetchedAt < NEWS_TTL) {
     allItems = newsCache.items
@@ -278,10 +213,10 @@ export async function GET() {
     )
     allItems = results.flatMap(r => r.status === 'fulfilled' ? r.value : [])
 
-    // De-dupe + sort
+    // De-dupe by normalised title prefix
     const seen = new Set<string>()
     allItems = allItems.filter(it => {
-      const k = it.title.toLowerCase().slice(0, 55)
+      const k = it.title.toLowerCase().slice(0, 60)
       if (seen.has(k)) return false
       seen.add(k); return true
     }).sort((a, b) => {
@@ -293,10 +228,7 @@ export async function GET() {
   }
 
   const headlines = allItems.slice(0, 20).map(it => it.title)
-  const [analysis, seats] = await Promise.all([
-    getCoalitionAnalysis(headlines),
-    fetchLiveSeatSplits(),
-  ])
+  const analysis = await getCoalitionAnalysis(headlines)
 
   const news = allItems.slice(0, 15).map(it => ({
     title:   it.title,
@@ -304,16 +236,26 @@ export async function GET() {
     source:  it.source,
     pubDate: it.pubDate,
     timeAgo: timeAgo(it.pubDate),
-    desc:    it.desc,
+    desc:    it.desc.slice(0, 180),
     score:   it.score,
-    isHot:   it.score >= 15,
+    isHot:   it.score >= 20,
   }))
+
+  // Static final seat data
+  const seats = {
+    TVK:    { won: 107, leading: 0, total: 107 },
+    DMK:    { won: 60,  leading: 0, total: 60  },
+    AIADMK: { won: 47,  leading: 0, total: 47  },
+    BJP:    { won: 1,   leading: 0, total: 1   },
+    Others: { won: 19,  leading: 0, total: 19  },
+    total: 234, majority: 118, reported: 234,
+  }
 
   return NextResponse.json({
     news,
     analysis,
     seats,
-    phase: 'hung',
+    phase: 'post-counting-coalition',
     updatedAt: new Date().toISOString(),
   }, { headers: { 'Cache-Control': 'no-store' } })
 }

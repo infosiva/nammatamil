@@ -49,21 +49,20 @@ export default function ElectionHomeBanner() {
     <Link href="/tn-election-2026" style={{ textDecoration: 'none', display: 'block' }}>
       <div style={{
         position: 'relative', overflow: 'hidden',
-        background: isLive
-          ? 'linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(7,1,15,0.95) 50%, rgba(239,68,68,0.12) 100%)'
-          : 'linear-gradient(135deg, rgba(255,153,51,0.15) 0%, rgba(7,1,15,0.95) 50%, rgba(19,136,8,0.12) 100%)',
-        borderBottom: isLive
-          ? '1px solid rgba(239,68,68,0.3)'
-          : '1px solid rgba(251,191,36,0.2)',
+        background: 'linear-gradient(90deg, rgba(139,0,0,0.55) 0%, rgba(7,1,15,0.92) 45%, rgba(139,0,0,0.35) 100%)',
+        borderBottom: '1px solid rgba(255,193,7,0.25)',
         cursor: 'pointer',
         transition: 'filter 0.2s',
       }}>
-        {/* Animated radial glow */}
+        {/* TVK flag gold stripe */}
+        <div style={{
+          position: 'absolute', top: '30%', left: 0, right: 0, height: '38%',
+          background: 'rgba(255,193,7,0.12)', zIndex: 0, pointerEvents: 'none',
+        }} />
+        {/* Radial glow */}
         <div style={{
           position: 'absolute', inset: 0, zIndex: 0,
-          background: isLive
-            ? 'radial-gradient(ellipse 60% 100% at 50% 50%, rgba(239,68,68,0.08) 0%, transparent 70%)'
-            : 'radial-gradient(ellipse 60% 100% at 50% 50%, rgba(251,191,36,0.07) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 60% 100% at 50% 50%, rgba(255,193,7,0.06) 0%, transparent 70%)',
           pointerEvents: 'none',
         }} />
 
@@ -74,27 +73,14 @@ export default function ElectionHomeBanner() {
         }}>
 
           {/* Badge */}
-          {isLive ? (
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              padding: '4px 10px', borderRadius: 99, flexShrink: 0,
-              background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.5)',
-              color: '#ef4444', fontSize: 9, fontWeight: 900, letterSpacing: '0.1em',
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'ping 1s infinite' }} />
-              LIVE
-            </span>
-          ) : (
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-              padding: '4px 10px', borderRadius: 99, flexShrink: 0,
-              background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.4)',
-              color: '#fbbf24', fontSize: 9, fontWeight: 900, letterSpacing: '0.06em',
-              animation: 'pulse 2s infinite',
-            }}>
-              {preLabel}
-            </span>
-          )}
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            padding: '4px 10px', borderRadius: 99, flexShrink: 0,
+            background: 'rgba(139,0,0,0.4)', border: '1px solid rgba(255,193,7,0.5)',
+            color: '#FFC107', fontSize: 9, fontWeight: 900, letterSpacing: '0.08em',
+          }}>
+            ⚖️ HUNG
+          </span>
 
           {/* Headline — flex-1 to take remaining space */}
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -132,12 +118,12 @@ export default function ElectionHomeBanner() {
           {/* CTA */}
           <div style={{
             padding: '6px 12px', borderRadius: 8, fontWeight: 900, fontSize: 11,
-            background: isLive ? 'rgba(239,68,68,0.2)' : 'rgba(251,191,36,0.18)',
-            border: isLive ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(251,191,36,0.45)',
-            color: isLive ? '#ef4444' : '#fbbf24',
+            background: 'rgba(255,193,7,0.15)',
+            border: '1px solid rgba(255,193,7,0.5)',
+            color: '#FFC107',
             whiteSpace: 'nowrap', flexShrink: 0,
           }}>
-            {isLive ? '🔴 Live →' : 'Track →'}
+            Coalition →
           </div>
         </div>
       </div>

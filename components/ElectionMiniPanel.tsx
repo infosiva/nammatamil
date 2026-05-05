@@ -55,14 +55,28 @@ export default function ElectionMiniPanel() {
   return (
     <Link href="/tn-election-2026" style={{ textDecoration: 'none', display: 'block' }}>
       <div style={{
-        borderRadius: 20,
-        background: 'linear-gradient(135deg, rgba(251,191,36,0.06) 0%, rgba(7,1,15,0.95) 60%, rgba(239,68,68,0.05) 100%)',
-        border: '1px solid rgba(251,191,36,0.18)',
+        borderRadius: 16,
+        background: '#0e0108',
+        border: '1px solid rgba(139,0,0,0.5)',
         overflow: 'hidden',
         position: 'relative',
         transition: 'border-color 0.2s',
+        boxShadow: '0 4px 32px rgba(139,0,0,0.18)',
       }}>
-        {/* Vijay background — subtle right side */}
+        {/* TVK Flag stripe bands */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          {/* Crimson top */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35%', background: 'linear-gradient(180deg, rgba(139,0,0,0.55) 0%, rgba(139,0,0,0.1) 100%)' }} />
+          {/* Gold centre stripe */}
+          <div style={{ position: 'absolute', top: '30%', left: 0, right: 0, height: '20%', background: 'rgba(255,193,7,0.18)' }} />
+          {/* Crimson bottom */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '38%', background: 'linear-gradient(0deg, rgba(139,0,0,0.45) 0%, rgba(139,0,0,0.05) 100%)' }} />
+        </div>
+
+        {/* Left accent border — flag colours */}
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, background: 'linear-gradient(180deg, #8B0000 0%, #FFC107 50%, #8B0000 100%)', pointerEvents: 'none' }} />
+
+        {/* Vijay photo — right, waving pose */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/tvk-vijay.jpg"
@@ -70,35 +84,38 @@ export default function ElectionMiniPanel() {
           aria-hidden
           style={{
             position: 'absolute', right: 0, top: 0, bottom: 0,
-            width: '40%', height: '100%',
+            width: '38%', height: '100%',
             objectFit: 'cover', objectPosition: 'center top',
-            opacity: 0.07,
-            maskImage: 'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
-            WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
+            opacity: 0.18,
+            maskImage: 'linear-gradient(to left, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)',
             pointerEvents: 'none',
           }}
         />
 
-        <div style={{ position: 'relative', zIndex: 1, padding: '14px 16px 12px' }}>
+        <div style={{ position: 'relative', zIndex: 1, padding: '14px 16px 12px', paddingLeft: 20 }}>
 
           {/* Header row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                padding: '3px 10px', borderRadius: 99,
-                background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)',
-                color: '#ef4444', fontSize: 9, fontWeight: 900, letterSpacing: '0.1em',
-              }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
-                HUNG ASSEMBLY
+              {/* TVK Whistle icon inline */}
+              <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                <MiniWhistle />
               </span>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
-                தமிழ்நாடு 2026
+              <span style={{ fontWeight: 900, fontSize: 13, color: '#FFC107', letterSpacing: '0.02em' }}>
+                தமிழக வெற்றி கழகம்
+              </span>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '2px 8px', borderRadius: 99,
+                background: 'rgba(139,0,0,0.35)', border: '1px solid rgba(139,0,0,0.6)',
+                color: '#fca5a5', fontSize: 9, fontWeight: 900, letterSpacing: '0.08em',
+              }}>
+                ⚖️ HUNG
               </span>
             </div>
             <span style={{
-              fontSize: 10, fontWeight: 700, color: '#fbbf24',
+              fontSize: 10, fontWeight: 700, color: '#FFC107',
               display: 'flex', alignItems: 'center', gap: 4,
             }}>
               Full analysis →
@@ -183,5 +200,20 @@ export default function ElectionMiniPanel() {
         </div>
       </div>
     </Link>
+  )
+}
+
+/* Inline whistle icon for the mini panel header */
+function MiniWhistle() {
+  return (
+    <svg width="22" height="17" viewBox="0 0 200 156" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="72" cy="90" rx="58" ry="58" fill="#FFC107" opacity="0.9" />
+      <ellipse cx="72" cy="90" rx="38" ry="38" fill="none" stroke="#FFC107" strokeWidth="2" opacity="0.3" />
+      <rect x="124" y="72" width="70" height="28" rx="8" fill="#FFC107" opacity="0.85" />
+      <rect x="126" y="58" width="42" height="18" rx="5" fill="#FFC107" opacity="0.7" />
+      <path d="M 124 72 Q 112 72 108 82 Q 112 98 124 100" fill="#FFC107" opacity="0.6" />
+      <circle cx="72" cy="148" r="7" fill="none" stroke="#FFC107" strokeWidth="3" opacity="0.7" />
+      <line x1="72" y1="141" x2="72" y2="148" stroke="#FFC107" strokeWidth="2.5" opacity="0.5" />
+    </svg>
   )
 }

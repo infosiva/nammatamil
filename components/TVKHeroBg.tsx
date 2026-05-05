@@ -2,7 +2,9 @@
 
 /**
  * TVKHeroBg — Cinematic hero background.
- * Real Vijay/TVK photo on the right with gold glow overlay.
+ * TVK flag theme: crimson + gold horizontal stripe.
+ * Vijay CM-proposed photo right side.
+ * SVG whistle symbol as the brand centrepiece.
  */
 
 export default function TVKHeroBg() {
@@ -12,146 +14,199 @@ export default function TVKHeroBg() {
         position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0,
       }}>
 
-        {/* Deep cinematic gradient base */}
+        {/* ── BASE: deep dark page bg — the flag colours sit ON TOP as accents ── */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: `
-            radial-gradient(ellipse 100% 60% at 50% 0%, rgba(251,191,36,0.20) 0%, transparent 55%),
-            radial-gradient(ellipse 50% 40% at 85% 15%, rgba(251,140,36,0.12) 0%, transparent 50%),
-            radial-gradient(ellipse 60% 40% at 15% 30%, rgba(220,38,38,0.08) 0%, transparent 50%),
-            linear-gradient(180deg, #120300 0%, #08010e 45%, #030008 100%)
-          `,
+          background: '#07010f',
         }} />
 
-        {/* Strong gold spotlight cone from top-centre */}
+        {/* ── TVK FLAG STRIPE BANDS — crimson top, gold centre, crimson bottom ── */}
+        {/* Top crimson band */}
         <div style={{
-          position: 'absolute', top: -300, left: '50%', transform: 'translateX(-50%)',
-          width: 900, height: 900,
-          background: 'radial-gradient(ellipse, rgba(251,191,36,0.28) 0%, rgba(251,191,36,0.06) 35%, transparent 65%)',
+          position: 'absolute', top: 0, left: 0, right: 0,
+          height: '32%',
+          background: 'linear-gradient(180deg, rgba(139,0,0,0.55) 0%, rgba(139,0,0,0.18) 100%)',
+        }} />
+        {/* Gold centre stripe */}
+        <div style={{
+          position: 'absolute', top: '28%', left: 0, right: 0,
+          height: '22%',
+          background: 'linear-gradient(180deg, rgba(255,193,7,0.22) 0%, rgba(255,193,7,0.32) 50%, rgba(255,193,7,0.22) 100%)',
+          boxShadow: '0 0 80px 0 rgba(255,193,7,0.12)',
+        }} />
+        {/* Bottom crimson band */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          height: '38%',
+          background: 'linear-gradient(0deg, rgba(139,0,0,0.45) 0%, rgba(139,0,0,0.08) 100%)',
+        }} />
+
+        {/* ── GOLD SPOTLIGHT — top centre, like a stage light ── */}
+        <div style={{
+          position: 'absolute', top: -200, left: '50%', transform: 'translateX(-50%)',
+          width: 800, height: 800,
+          background: 'radial-gradient(ellipse, rgba(255,193,7,0.22) 0%, rgba(255,193,7,0.05) 35%, transparent 65%)',
           borderRadius: '50%',
-          animation: 'heroPulse 5s ease-in-out infinite',
+          animation: 'heroPulse 6s ease-in-out infinite',
         }} />
 
-        {/* Right side glow — behind photo */}
+        {/* ── LARGE SVG WHISTLE — centrepiece watermark, left-of-centre ── */}
         <div style={{
-          position: 'absolute', right: 0, top: 0, bottom: 0,
-          width: '45%',
-          background: 'linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.04) 50%, rgba(251,191,36,0.10) 100%)',
-        }} />
+          position: 'absolute',
+          left: '4%',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          opacity: 0.07,
+          animation: 'whistleFloat 8s ease-in-out infinite',
+        }}>
+          <WhistleSVG size={340} color="#FFC107" />
+        </div>
 
-        {/* ── REAL VIJAY PHOTO — right side, masked into silhouette ── */}
+        {/* ── SECONDARY WHISTLE — top right corner, very small ── */}
+        <div style={{
+          position: 'absolute',
+          right: '5%',
+          top: '6%',
+          opacity: 0.12,
+        }}>
+          <WhistleSVG size={52} color="#FFC107" />
+        </div>
+
+        {/* ── VIJAY PHOTO — right side, CM-proposed waving pose ── */}
         <div style={{
           position: 'absolute',
           right: 0,
           bottom: 0,
-          width: 'clamp(200px, 38vw, 520px)',
-          height: 'clamp(300px, 65vw, 780px)',
-          animation: 'heroFigure 7s ease-in-out infinite',
+          width: 'clamp(220px, 42vw, 560px)',
+          height: 'clamp(320px, 72vw, 840px)',
+          animation: 'heroFigure 8s ease-in-out infinite',
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/tvk-vijay.jpg"
-            alt="Thalapathy Vijay — TVK"
+            alt="Thalapathy Vijay — TVK · Chief Minister Proposed"
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
               objectPosition: 'center top',
-              maskImage: 'linear-gradient(to left, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0) 100%), linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 20%)',
-              WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0) 100%), linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 20%)',
+              /* Fade left edge + bottom edge into page bg */
+              maskImage: `
+                linear-gradient(to left,  rgba(0,0,0,0.9) 25%, rgba(0,0,0,0.45) 65%, rgba(0,0,0,0) 100%),
+                linear-gradient(to top,   rgba(0,0,0,0)   0%,  rgba(0,0,0,1)    22%)
+              `,
+              WebkitMaskImage: `
+                linear-gradient(to left,  rgba(0,0,0,0.9) 25%, rgba(0,0,0,0.45) 65%, rgba(0,0,0,0) 100%),
+                linear-gradient(to top,   rgba(0,0,0,0)   0%,  rgba(0,0,0,1)    22%)
+              `,
               maskComposite: 'intersect',
               WebkitMaskComposite: 'source-in',
-              filter: 'contrast(1.08) brightness(0.88) saturate(0.85)',
+              filter: 'contrast(1.10) brightness(0.85) saturate(0.80)',
             }}
           />
-          {/* Gold-tint overlay on photo */}
+          {/* Gold-crimson tone overlay — ties photo to flag palette */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(135deg, rgba(251,191,36,0.12) 0%, transparent 60%)',
-            mixBlendMode: 'overlay',
+            background: 'linear-gradient(160deg, rgba(139,0,0,0.18) 0%, rgba(255,193,7,0.08) 50%, transparent 80%)',
+            mixBlendMode: 'multiply',
           }} />
           {/* Right edge glow */}
           <div style={{
             position: 'absolute', inset: 0,
-            boxShadow: 'inset -40px 0 80px rgba(251,191,36,0.18)',
+            boxShadow: 'inset -50px 0 100px rgba(255,193,7,0.12)',
           }} />
         </div>
 
-        {/* "VIJAY" large watermark — behind content, very subtle */}
+        {/* ── FLAG STRIPE LEFT ACCENT LINE — like the banner edge ── */}
         <div style={{
-          position: 'absolute', top: '12%', left: '3%',
-          fontSize: 'clamp(70px, 16vw, 180px)', fontWeight: 900,
-          color: 'rgba(251,191,36,0.04)',
-          letterSpacing: '0.04em', whiteSpace: 'nowrap',
-          userSelect: 'none', lineHeight: 1,
-        }}>VIJAY</div>
+          position: 'absolute', left: 0, top: 0, bottom: 0,
+          width: 4,
+          background: 'linear-gradient(180deg, #8B0000 0%, #FFC107 50%, #8B0000 100%)',
+          opacity: 0.6,
+        }} />
 
-        {/* Tamil slogan — bottom left */}
+        {/* ── CRIMSON GLOW from bottom-left ── */}
         <div style={{
-          position: 'absolute', bottom: '5%', left: '2%',
-          fontSize: 'clamp(10px, 1.8vw, 16px)', fontWeight: 800,
-          color: 'rgba(251,191,36,0.22)',
-          letterSpacing: '0.1em',
-          userSelect: 'none',
-        }}>தமிழகம் வெல்லும்</div>
+          position: 'absolute', bottom: -100, left: -100,
+          width: 500, height: 500,
+          background: 'radial-gradient(ellipse, rgba(139,0,0,0.22) 0%, transparent 65%)',
+          borderRadius: '50%',
+          pointerEvents: 'none',
+        }} />
 
-        {/* Floating ⭐ particles */}
-        {STARS.map((s, i) => (
-          <div key={i} style={{
-            position: 'absolute',
-            left: `${s.x}%`, top: `${s.y}%`,
-            fontSize: s.size, opacity: s.opacity,
-            animation: `heroFloat ${s.dur}s ease-in-out infinite`,
-            animationDelay: `${s.delay}s`,
-            color: '#fbbf24',
-            textShadow: '0 0 10px rgba(251,191,36,0.8)',
-          }}>⭐</div>
-        ))}
-
-        {/* Diagonal gold streaks — cinematic */}
+        {/* ── DIAGONAL GOLD STREAKS — very subtle cinematic scan lines ── */}
         <div style={{
           position: 'absolute', inset: 0,
           background: `repeating-linear-gradient(
-            -45deg, transparent, transparent 140px,
-            rgba(251,191,36,0.012) 140px, rgba(251,191,36,0.012) 141px
+            -52deg, transparent, transparent 160px,
+            rgba(255,193,7,0.014) 160px, rgba(255,193,7,0.014) 161px
           )`,
         }} />
 
-        {/* Bottom fade to page bg */}
+        {/* ── BOTTOM FADE to page bg ── */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: 160,
-          background: 'linear-gradient(0deg, #030008 0%, transparent 100%)',
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 120,
+          background: 'linear-gradient(0deg, #07010f 0%, transparent 100%)',
         }} />
+
       </div>
 
       <style>{`
         @keyframes heroPulse {
-          0%, 100% { opacity: 0.8; transform: translateX(-50%) scale(1); }
-          50%       { opacity: 1;   transform: translateX(-50%) scale(1.12); }
-        }
-        @keyframes heroFloat {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33%       { transform: translateY(-14px) rotate(12deg); }
-          66%       { transform: translateY(7px) rotate(-8deg); }
+          0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+          50%       { opacity: 1;   transform: translateX(-50%) scale(1.1); }
         }
         @keyframes heroFigure {
-          0%, 100% { transform: translateY(0px); filter: drop-shadow(0 0 40px rgba(251,191,36,0.3)) brightness(0.88) contrast(1.08); }
-          50%       { transform: translateY(-8px);  filter: drop-shadow(0 0 60px rgba(251,191,36,0.5)) brightness(0.92) contrast(1.1); }
+          0%, 100% { transform: translateY(0px);   filter: drop-shadow(0 0 50px rgba(255,193,7,0.25)) brightness(0.85); }
+          50%       { transform: translateY(-10px); filter: drop-shadow(0 0 80px rgba(255,193,7,0.40)) brightness(0.90); }
+        }
+        @keyframes whistleFloat {
+          0%, 100% { transform: translateY(-50%) rotate(-4deg); opacity: 0.07; }
+          50%       { transform: translateY(calc(-50% - 12px)) rotate(2deg); opacity: 0.10; }
         }
       `}</style>
     </>
   )
 }
 
-const STARS = [
-  { x:5,  y:8,  size:10, opacity:0.4,  dur:7,  delay:0   },
-  { x:15, y:25, size:7,  opacity:0.25, dur:9,  delay:1.2 },
-  { x:25, y:5,  size:13, opacity:0.5,  dur:6,  delay:0.5 },
-  { x:35, y:18, size:6,  opacity:0.2,  dur:11, delay:2.1 },
-  { x:45, y:30, size:9,  opacity:0.32, dur:8,  delay:0.8 },
-  { x:55, y:10, size:15, opacity:0.55, dur:5,  delay:1.5 },
-  { x:18, y:42, size:7,  opacity:0.22, dur:10, delay:3.0 },
-  { x:28, y:60, size:10, opacity:0.3,  dur:7,  delay:1.0 },
-  { x:40, y:50, size:6,  opacity:0.18, dur:12, delay:2.8 },
-  { x:8,  y:70, size:8,  opacity:0.2,  dur:9,  delay:4.0 },
-]
+/* ── Faithful TVK whistle SVG (ECI-registered symbol) ── */
+function WhistleSVG({ size = 120, color = '#FFC107' }: { size?: number; color?: string }) {
+  return (
+    <svg
+      width={size} height={size * 0.78}
+      viewBox="0 0 200 156"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Whistle body — large oval/sphere */}
+      <ellipse cx="72" cy="90" rx="58" ry="58" fill={color} opacity="0.9" />
+      <ellipse cx="72" cy="90" rx="58" ry="58" fill="none" stroke={color} strokeWidth="3.5" opacity="0.6" />
+      {/* Inner sphere highlight */}
+      <ellipse cx="72" cy="90" rx="38" ry="38" fill="none" stroke={color} strokeWidth="1.5" opacity="0.25" />
+      <ellipse cx="58" cy="76" rx="16" ry="10" fill={color} opacity="0.15" />
+
+      {/* Mouthpiece stem */}
+      <rect x="124" y="72" width="70" height="28" rx="8" fill={color} opacity="0.85" />
+      <rect x="124" y="72" width="70" height="28" rx="8" fill="none" stroke={color} strokeWidth="2" opacity="0.5" />
+
+      {/* Mouthpiece tip notch */}
+      <rect x="186" y="76" width="10" height="20" rx="3" fill={color} opacity="0.6" />
+
+      {/* Top flange / chamber */}
+      <rect x="126" y="58" width="42" height="18" rx="5" fill={color} opacity="0.7" />
+      <rect x="126" y="58" width="42" height="18" rx="5" fill="none" stroke={color} strokeWidth="1.5" opacity="0.4" />
+
+      {/* Junction between body and stem */}
+      <path d="M 124 72 Q 112 72 108 82 Q 112 98 124 100" fill={color} opacity="0.6" />
+
+      {/* Small ring/loop at bottom of sphere */}
+      <circle cx="72" cy="148" r="7" fill="none" stroke={color} strokeWidth="3.5" opacity="0.7" />
+      <line x1="72" y1="148" x2="72" y2="148" stroke={color} strokeWidth="2" opacity="0.5" />
+      {/* Chain link */}
+      <line x1="72" y1="141" x2="72" y2="148" stroke={color} strokeWidth="2.5" opacity="0.5" />
+
+      {/* Sound hole at front */}
+      <ellipse cx="72" cy="90" rx="12" ry="12" fill="none" stroke={color} strokeWidth="2" opacity="0.18" />
+    </svg>
+  )
+}
