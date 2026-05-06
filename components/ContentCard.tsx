@@ -69,7 +69,7 @@ export default function ContentCard({
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={thumbnail}
-            alt={title}
+            alt={`Thumbnail for ${title}`}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
