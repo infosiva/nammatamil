@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     shortcut: '/favicon.svg',
     apple: '/favicon.svg',
   },
-  description: 'Discover the best of Tamil entertainment - serials, movies, dubbed films, music, and more. Your ultimate hub for Tamil cinema, TV shows, and culture, including Tamil dubbed movies.',
+  description: 'Discover the best of Tamil entertainment - serials, movies, dubbed films, music, and more. Your ultimate hub for Tamil cinema, TV shows, culture & dubbed movies.',
   keywords: [
     'Tamil serials', 'Tamil movies', 'Tamil dubbed movies',
     'Sun TV serials', 'Vijay TV serials', 'Tamil albums',
