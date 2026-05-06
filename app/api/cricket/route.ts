@@ -31,6 +31,20 @@ interface StandingRow {
   w: number; l: number; pts: number; nrr: string; color: string
 }
 
+// ── Static fallback — May 6 2026 (ESPNCricinfo) ───────────────────────────────
+const STATIC_STANDINGS: StandingRow[] = [
+  { pos: 1,  short: 'PBKS', name: 'Punjab Kings',           played: 9,  w: 6, l: 2, pts: 13, nrr: '+0.855', color: '#a855f7' },
+  { pos: 2,  short: 'RCB',  name: 'Royal Challengers',      played: 9,  w: 6, l: 3, pts: 12, nrr: '+1.420', color: '#ef4444' },
+  { pos: 3,  short: 'SRH',  name: 'Sunrisers Hyderabad',    played: 10, w: 6, l: 4, pts: 12, nrr: '+0.644', color: '#f97316' },
+  { pos: 4,  short: 'RR',   name: 'Rajasthan Royals',       played: 10, w: 6, l: 4, pts: 12, nrr: '+0.510', color: '#ec4899' },
+  { pos: 5,  short: 'GT',   name: 'Gujarat Titans',         played: 10, w: 6, l: 4, pts: 12, nrr: '-0.147', color: '#6b7280' },
+  { pos: 6,  short: 'CSK',  name: 'Chennai Super Kings',    played: 9,  w: 4, l: 5, pts: 8,  nrr: '+0.005', color: '#eab308' },
+  { pos: 7,  short: 'DC',   name: 'Delhi Capitals',         played: 9,  w: 4, l: 5, pts: 8,  nrr: '-0.895', color: '#3b82f6' },
+  { pos: 8,  short: 'KKR',  name: 'Kolkata Knight Riders',  played: 9,  w: 3, l: 5, pts: 7,  nrr: '-0.539', color: '#7c3aed' },
+  { pos: 9,  short: 'MI',   name: 'Mumbai Indians',         played: 9,  w: 2, l: 7, pts: 4,  nrr: '-0.803', color: '#0ea5e9' },
+  { pos: 10, short: 'LSG',  name: 'Lucknow Super Giants',   played: 8,  w: 2, l: 6, pts: 4,  nrr: '-1.106', color: '#14b8a6' },
+]
+
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
 
 // ── Scrape Cricbuzz IPL 2026 points table ─────────────────────────────────────
@@ -211,7 +225,7 @@ async function buildResponse(): Promise<ResponseData> {
   ])
 
   const { latestResult, nextMatch, liveScore } = matchStatus
-  const finalStandings = standings ?? []
+  const finalStandings = standings ?? STATIC_STANDINGS
 
   const matches = [
     ...(liveScore    ? [{ id: 'live',   status: liveScore,    live: true,  date: 'Live'     }] : []),

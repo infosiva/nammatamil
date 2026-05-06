@@ -5,9 +5,7 @@ import Header from '@/components/Header'
 import { SidebarAd } from '@/components/AdUnit'
 import Footer from '@/components/Footer'
 import TVKWidget from '@/components/TVKWidget'
-import TVKTrendingBanner from '@/components/TVKTrendingBanner'
 import TrendingTicker from '@/components/TrendingTicker'
-import IPLBanner from '@/components/IPLBanner'
 
 export const metadata: Metadata = {
   title: {
@@ -81,10 +79,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col bg-site">
         <SidebarAd />
         <TVKWidget />
-        <TVKTrendingBanner />
         <Header />
         <TrendingTicker />
-        <IPLBanner />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>
