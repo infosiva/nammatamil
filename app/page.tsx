@@ -21,7 +21,7 @@ export default function HomePage() {
           <div className="flex items-end justify-between mb-6">
             <div>
               <h1 className="text-gradient font-black tracking-tight"
-                style={{ fontSize: 'clamp(1.8rem,5vw,2.8rem)', lineHeight: 1 }}>
+                style={{ fontSize: 'clamp(1.6rem,4vw,2.2rem)', lineHeight: 1 }}>
                 NammaTamil
               </h1>
               <p className="text-white/30 text-[11px] font-semibold tracking-widest mt-1.5 uppercase">
