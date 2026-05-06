@@ -29,19 +29,19 @@ interface IPLData {
   source:     'live' | 'static'
 }
 
-// ── Completed matches (hardcoded — they won't change) ────────────────────────
+// ── Completed matches (last 2 shown — hardcoded recent results) ───────────────
 const COMPLETED = [
   {
-    id: 'c1', isoDate: '2026-04-27',
-    team1: 'DC', team2: 'RCB',
-    score1: '75 (16.3)', score2: '76/1 (6.3)',
-    result: 'RCB won by 9 wkts',
+    id: 'c1', isoDate: '2026-05-04',
+    team1: 'MI', team2: 'LSG',
+    score1: '167/7 (20)', score2: '168/4 (18.4)',
+    result: 'LSG won by 6 wkts',
   },
   {
-    id: 'c2', isoDate: '2026-04-28',
-    team1: 'PBKS', team2: 'RR',
-    score1: '183/5 (20)', score2: '158/8 (20)',
-    result: 'PBKS won by 25 runs',
+    id: 'c2', isoDate: '2026-05-05',
+    team1: 'DC', team2: 'CSK',
+    score1: '194/4 (20)', score2: '191/7 (20)',
+    result: 'DC won by 3 runs',
   },
 ]
 
