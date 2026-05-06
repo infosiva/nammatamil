@@ -14,26 +14,21 @@ export default function TVKHeroBg() {
         position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0,
       }}>
 
-        {/* ── BASE: clean ultra-dark surface ── */}
+        {/* ── BASE: deep space ── */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: '#0a0a0f',
+          background: '#050510',
         }} />
 
-        {/* ── Subtle left-side gold ambient glow — replaces heavy crimson bands ── */}
+        {/* ── Aurora hero glow — teal left, violet right ── */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: '55%',
-          height: '100%',
-          background: 'linear-gradient(135deg, rgba(245,158,11,0.04) 0%, transparent 70%)',
-        }} />
-
-        {/* ── GOLD SPOTLIGHT — top centre, very faint ── */}
-        <div style={{
-          position: 'absolute', top: -200, left: '50%', transform: 'translateX(-50%)',
-          width: 800, height: 800,
-          background: 'radial-gradient(ellipse, rgba(245,158,11,0.10) 0%, rgba(245,158,11,0.03) 35%, transparent 65%)',
-          borderRadius: '50%',
-          animation: 'heroPulse 6s ease-in-out infinite',
+          position: 'absolute', inset: 0,
+          background: `
+            radial-gradient(ellipse 70% 80% at 0% 50%, rgba(56,189,248,0.09) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 70% at 100% 30%, rgba(139,92,246,0.10) 0%, transparent 55%),
+            radial-gradient(ellipse 50% 50% at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 50%)
+          `,
+          animation: 'heroPulse 8s ease-in-out infinite',
         }} />
 
         {/* ── LARGE SVG WHISTLE — centrepiece watermark, left-of-centre ── */}
@@ -115,7 +110,7 @@ export default function TVKHeroBg() {
         {/* ── BOTTOM FADE to page bg ── */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 120,
-          background: 'linear-gradient(0deg, #0a0a0f 0%, transparent 100%)',
+          background: 'linear-gradient(0deg, #050510 0%, transparent 100%)',
         }} />
 
       </div>

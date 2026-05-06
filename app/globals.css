@@ -9,7 +9,7 @@
   html { scroll-behavior: smooth; font-size: 16px; }
 
   body {
-    background-color: #060612;
+    background-color: #050510;
     color: #e2e8f0;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -106,8 +106,8 @@
 }
 
 @layer utilities {
-  .bg-site   { background-color: #060612; }
-  .bg-card   { background-color: #111118; }
+  .bg-site   { background-color: #050510; }
+  .bg-card   { background-color: #0d0d1a; }
   .text-muted { color: rgba(148,163,184,0.7); }
   .border-subtle { border-color: rgba(255,255,255,0.07); }
 
@@ -116,22 +116,43 @@
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
-/* ── Site background — clean ultra-dark with faint gold glow ── */
+/* ── Site background — deep space with aurora ── */
 body {
-  background:
-    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(245,158,11,0.07) 0%, transparent 60%),
-    #0a0a0f;
+  background: #050510;
 }
 
-/* Subtle dot-grid background */
+/* Aurora layer — slow drifting colour bands */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background:
+    radial-gradient(ellipse 120% 55% at 15% -10%, rgba(56,189,248,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 80%  50% at 85%  -5%, rgba(139,92,246,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 60%  40% at 50%   5%, rgba(99,102,241,0.06) 0%, transparent 45%),
+    radial-gradient(ellipse 40%  60% at  5%  60%, rgba(56,189,248,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 40%  50% at 95%  70%, rgba(139,92,246,0.04) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+  animation: auroraDrift 18s ease-in-out infinite alternate;
+}
+
+/* Very fine noise grain over everything */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+@keyframes auroraDrift {
+  0%   { opacity: 1;    transform: scale(1)    translateY(0px); }
+  50%  { opacity: 0.75; transform: scale(1.04) translateY(-12px); }
+  100% { opacity: 1;    transform: scale(1.02) translateY(6px); }
 }
 
 /* All page content above the grid */
