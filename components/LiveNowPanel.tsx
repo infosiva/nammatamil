@@ -24,6 +24,28 @@ interface NewsItem {
   lang?: string
 }
 
+interface TallyParty {
+  name: string
+  seats: number
+  bloc: 'tvk_direct' | 'tvk_support' | 'opposition' | 'admk' | 'others'
+}
+
+interface Tally {
+  tvk_direct: number
+  tvk_support: number
+  tvk_total: number
+  opposition: number
+  admk_bloc: number
+  others: number
+  declared: number
+  total: number
+  majority: number
+  majority_gap: number
+  parties: TallyParty[]
+  source: 'eci_live' | 'fallback'
+  updatedAt: string
+}
+
 // TVK/politics keywords to filter from general Tamil media news
 const POLITICS_KW = [
   'tvk', 'vijay', 'thalapathy', 'coalition', 'alliance', 'கூட்டணி',
@@ -49,6 +71,7 @@ export default function LiveNowPanel() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [secAgo, setSecAgo] = useState(0)
+  const [tally, setTally] = useState<Tally | null>(null)
 
   const fetchNews = useCallback(async (manual = false) => {
     if (manual) setRefreshing(true)
@@ -107,7 +130,21 @@ export default function LiveNowPanel() {
     fetchNews()
     const poll = setInterval(() => fetchNews(), REFRESH_MS)
     const tick = setInterval(() => setSecAgo(s => s + 1), 1000)
-    return () => { clearInterval(poll); clearInterval(tick) }
+
+    // Fetch real-time seat tally from ECI
+    const fetchTally = async () => {
+      try {
+        const res = await fetch('/api/tvk-tally', { cache: 'no-store', signal: AbortSignal.timeout(6000) })
+        if (res.ok) {
+          const data: Tally = await res.json()
+          setTally(data)
+        }
+      } catch { /* keep existing */ }
+    }
+    fetchTally()
+    const tallyPoll = setInterval(fetchTally, 3 * 60 * 1000) // refresh every 3 min
+
+    return () => { clearInterval(poll); clearInterval(tick); clearInterval(tallyPoll) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -162,25 +199,44 @@ export default function LiveNowPanel() {
           </div>
         </div>
 
-        {/* Seat count context strip */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap',
-          marginBottom: 10, padding: '6px 10px', borderRadius: 8,
-          background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)',
-        }}>
-          <span style={{ fontSize: 10, fontWeight: 800, color: '#f59e0b' }}>TVK 108</span>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>+</span>
-          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)' }}>Congress 5</span>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>+</span>
-          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)' }}>PMK 4</span>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>+</span>
-          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)' }}>AIADMK splinter 35</span>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>+</span>
-          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)' }}>Left 4</span>
-          <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 99, background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.25)', whiteSpace: 'nowrap' }}>
-            ✓ 156 seats · Majority secured
-          </span>
-        </div>
+        {/* Seat count context strip — live from /api/tvk-tally (ECI JSON) */}
+        {tally && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap',
+            marginBottom: 10, padding: '6px 10px', borderRadius: 8,
+            background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)',
+          }}>
+            {/* TVK direct */}
+            <span style={{ fontSize: 10, fontWeight: 800, color: '#f59e0b' }}>
+              TVK {tally.tvk_direct}
+            </span>
+            {/* Support parties (INC, PMK, Left etc.) */}
+            {tally.parties
+              .filter(p => p.bloc === 'tvk_support')
+              .map((p, i) => (
+                <span key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>+</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)' }}>
+                    {p.name} {p.seats}
+                  </span>
+                </span>
+              ))
+            }
+            {/* Majority badge */}
+            <span style={{
+              marginLeft: 'auto', fontSize: 9, fontWeight: 800, padding: '2px 7px',
+              borderRadius: 99, whiteSpace: 'nowrap',
+              background: tally.majority_gap >= 0 ? 'rgba(74,222,128,0.12)' : 'rgba(239,68,68,0.12)',
+              color: tally.majority_gap >= 0 ? '#4ade80' : '#f87171',
+              border: `1px solid ${tally.majority_gap >= 0 ? 'rgba(74,222,128,0.25)' : 'rgba(239,68,68,0.25)'}`,
+            }}>
+              {tally.majority_gap >= 0
+                ? `✓ ${tally.tvk_total} seats · Majority +${tally.majority_gap}`
+                : `⚠ ${tally.tvk_total} seats · Need ${Math.abs(tally.majority_gap)} more`
+              }
+            </span>
+          </div>
+        )}
 
         {/* News list */}
         {loading ? (
