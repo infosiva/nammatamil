@@ -204,8 +204,6 @@ export default function OttPlansPage() {
         </p>
       </div>
 
-      <AdUnit format="horizontal" className="mb-10 min-h-[90px]" />
-
       {/* Best-For cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
         {BEST_FOR.map((item) => (
@@ -261,8 +259,6 @@ export default function OttPlansPage() {
           </div>
         ))}
       </div>
-
-      <AdUnit format="rectangle" className="mb-12 min-h-[250px]" />
 
       {/* Detailed comparison table */}
       <h2 className="text-2xl font-bold text-white mb-6">Feature Comparison Table</h2>

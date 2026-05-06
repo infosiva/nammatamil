@@ -4,73 +4,62 @@ import VisitorCounter from '@/components/VisitorCounter'
 import TVKHeroBg from '@/components/TVKHeroBg'
 import LiveNowPanel from '@/components/LiveNowPanel'
 import CricketWidget from '@/components/CricketWidget'
+import TVKWidget from '@/components/TVKWidget'
+import AdUnit from '@/components/AdUnit'
 
 export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
 
-      {/* ══ HERO ══════════════════════════════════════════════════════════════ */}
-      <div style={{ position: 'relative', borderBottom: '1px solid rgba(245,158,11,0.08)', minHeight: 280 }}>
+      {/* ══ HERO ════════════════════════════════════════════════════════════ */}
+      <section className="relative border-b border-white/[0.06]">
         <TVKHeroBg />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-          style={{ position: 'relative', zIndex: 1, paddingTop: 24, paddingBottom: 28 }}>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-8">
 
-          {/* Site identity */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          {/* Identity row */}
+          <div className="flex items-end justify-between mb-6">
             <div>
-              <div style={{
-                fontSize: 'clamp(1.6rem,5vw,2.6rem)', fontWeight: 900, lineHeight: 1,
-                background: 'linear-gradient(135deg, #f59e0b 0%, #ffffff 55%, #f59e0b 100%)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                letterSpacing: '-0.02em',
-              }}>
+              <h1 className="text-gradient font-black tracking-tight"
+                style={{ fontSize: 'clamp(1.8rem,5vw,2.8rem)', lineHeight: 1 }}>
                 NammaTamil
-              </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.30)', marginTop: 4, fontWeight: 600, letterSpacing: '0.06em' }}>
-                TAMIL · தமிழ் · ENTERTAINMENT &amp; POLITICS
-              </div>
+              </h1>
+              <p className="text-white/30 text-[11px] font-semibold tracking-widest mt-1.5 uppercase">
+                Tamil · தமிழ் · Entertainment &amp; Politics
+              </p>
             </div>
             <VisitorCounter />
           </div>
 
-          {/* ── Hero: 2-col on md+, stacked on mobile ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,340px)', gap: 12, alignItems: 'start' }}
-            className="hero-grid">
-            {/* Left: Live headlines */}
+          {/* 2-col hero grid */}
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-3 items-start hero-grid">
             <LiveNowPanel />
-
-            {/* Right: IPL standings */}
-            <div style={{
-              borderRadius: 12,
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              overflow: 'hidden',
-              backdropFilter: 'blur(12px)',
-            }}>
+            <div className="glass rounded-xl overflow-hidden">
               <CricketWidget compact />
             </div>
           </div>
-
         </div>
+      </section>
+
+      {/* ══ SINGLE NON-INTRUSIVE AD — below hero, above content ════════════ */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
+        <AdUnit size="banner" />
       </div>
 
-      {/* ══ MAIN CONTENT ══════════════════════════════════════════════════════ */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* ══ MAIN CONTENT ════════════════════════════════════════════════════ */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
 
-        {/* Tamil Media News — skip top 5 already shown in hero LiveNowPanel */}
-        <div style={{ marginBottom: 32 }}>
-          <TamilMediaNews skipFirst={5} />
-        </div>
+        {/* Tamil Media News */}
+        <TamilMediaNews skipFirst={5} />
+
+        {/* TV Schedule widget — contextual, only on home */}
+        <TVKWidget />
 
         {/* Entertainment tabs */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16,
-            paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.07)',
-          }}>
-            <div style={{ width: 3, height: 20, borderRadius: 99, background: 'linear-gradient(180deg, #fbbf24, #dc2626)' }} />
-            <span style={{ fontWeight: 800, fontSize: 16, color: 'rgba(255,255,255,0.75)' }}>Tamil Entertainment</span>
+        <div>
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/[0.07]">
+            <span className="w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-400 to-red-600 shrink-0" />
+            <h2 className="font-extrabold text-base text-white/75 tracking-tight">Tamil Entertainment</h2>
           </div>
           <HomeTabLayout />
         </div>
