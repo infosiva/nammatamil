@@ -132,21 +132,19 @@ export default function LiveNowPanel() {
       <div style={{ padding: '14px 16px 12px', paddingLeft: 20 }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{
               display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
               background: '#ef4444', boxShadow: '0 0 0 0 rgba(239,68,68,0.6)',
-              animation: 'livePulse 1.8s ease-in-out infinite',
-              flexShrink: 0,
+              animation: 'livePulse 1.8s ease-in-out infinite', flexShrink: 0,
             }} />
-            <span style={{ fontWeight: 900, fontSize: 11, color: '#fff', letterSpacing: '0.08em' }}>LIVE NOW</span>
+            <span style={{ fontWeight: 900, fontSize: 11, color: '#fff', letterSpacing: '0.08em' }}>LIVE</span>
             <span style={{
-              padding: '2px 8px', borderRadius: 99, fontSize: 9, fontWeight: 700,
-              background: 'rgba(245,158,11,0.10)', color: '#f59e0b',
-              border: '1px solid rgba(245,158,11,0.20)',
-              letterSpacing: '0.03em',
-            }}>TVK · Coalition · TN Politics</span>
+              padding: '2px 8px', borderRadius: 99, fontSize: 9, fontWeight: 800,
+              background: 'rgba(239,68,68,0.15)', color: '#f87171',
+              border: '1px solid rgba(239,68,68,0.3)', letterSpacing: '0.03em',
+            }}>🌟 CM OATH · MAY 7</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {!loading && (
@@ -162,6 +160,26 @@ export default function LiveNowPanel() {
               <RefreshCw style={{ width: 10, height: 10, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
             </button>
           </div>
+        </div>
+
+        {/* Seat count context strip */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap',
+          marginBottom: 10, padding: '6px 10px', borderRadius: 8,
+          background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)',
+        }}>
+          <span style={{ fontSize: 10, fontWeight: 800, color: '#f59e0b' }}>TVK 108</span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>+</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)' }}>Congress 5</span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>+</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)' }}>PMK 4</span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>+</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)' }}>AIADMK splinter 35</span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>+</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)' }}>Left 4</span>
+          <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 99, background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.25)', whiteSpace: 'nowrap' }}>
+            ✓ 156 seats · Majority secured
+          </span>
         </div>
 
         {/* News list */}
