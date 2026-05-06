@@ -54,11 +54,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <Script
-          src="/t.js"
-          data-site="nammatamil.live"
-          strategy="lazyOnload"
-        />
         {/* Kill Vercel's built-in feedback widget — we have our own */}
         <Script id="kill-vercel-feedback" strategy="afterInteractive">{`
           (function(){
