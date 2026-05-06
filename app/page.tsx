@@ -10,42 +10,43 @@ export default function HomePage() {
     <div className="overflow-x-hidden">
 
       {/* ══ HERO ══════════════════════════════════════════════════════════════ */}
-      <div style={{ position: 'relative', borderBottom: '1px solid rgba(251,191,36,0.08)', minHeight: 280 }}>
+      <div style={{ position: 'relative', borderBottom: '1px solid rgba(245,158,11,0.08)', minHeight: 280 }}>
         <TVKHeroBg />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-          style={{ position: 'relative', zIndex: 1, paddingTop: 22, paddingBottom: 24 }}>
+          style={{ position: 'relative', zIndex: 1, paddingTop: 24, paddingBottom: 28 }}>
 
           {/* Site identity */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <div>
               <div style={{
                 fontSize: 'clamp(1.6rem,5vw,2.6rem)', fontWeight: 900, lineHeight: 1,
-                background: 'linear-gradient(135deg, #fbbf24 0%, #ffffff 60%, #fbbf24 100%)',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #ffffff 55%, #f59e0b 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                 letterSpacing: '-0.02em',
               }}>
                 NammaTamil
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 3, fontWeight: 600 }}>
-                Tamil · தமிழ் · Entertainment &amp; Politics
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.30)', marginTop: 4, fontWeight: 600, letterSpacing: '0.06em' }}>
+                TAMIL · தமிழ் · ENTERTAINMENT &amp; POLITICS
               </div>
             </div>
             <VisitorCounter />
           </div>
 
-          {/* ── Hero: LiveNow panel full-width, cricket compact below ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {/* Live now — TVK coalition/politics headlines — full width */}
+          {/* ── Hero: 2-col on md+, stacked on mobile ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,340px)', gap: 12, alignItems: 'start' }}
+            className="hero-grid">
+            {/* Left: Live headlines */}
             <LiveNowPanel />
 
-            {/* IPL standings — compact strip below */}
+            {/* Right: IPL standings */}
             <div style={{
-              borderRadius: 10,
-              background: 'rgba(10,2,18,0.7)',
-              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 12,
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
               overflow: 'hidden',
-              backdropFilter: 'blur(8px)',
+              backdropFilter: 'blur(12px)',
             }}>
               <CricketWidget compact />
             </div>

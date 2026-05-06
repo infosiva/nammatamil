@@ -14,37 +14,24 @@ export default function TVKHeroBg() {
         position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0,
       }}>
 
-        {/* ── BASE: deep dark page bg — the flag colours sit ON TOP as accents ── */}
+        {/* ── BASE: clean ultra-dark surface ── */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: '#07010f',
+          background: '#0a0a0f',
         }} />
 
-        {/* ── TVK FLAG STRIPE BANDS — subtle crimson/gold accents, left side only ── */}
-        {/* Top crimson band — only covers left half so photo stays clear */}
+        {/* ── Subtle left-side gold ambient glow — replaces heavy crimson bands ── */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: '45%',
-          height: '35%',
-          background: 'linear-gradient(180deg, rgba(139,0,0,0.45) 0%, rgba(139,0,0,0.08) 100%)',
-        }} />
-        {/* Gold centre stripe — left half only */}
-        <div style={{
-          position: 'absolute', top: '28%', left: 0, right: '50%',
-          height: '20%',
-          background: 'linear-gradient(180deg, rgba(255,193,7,0.18) 0%, rgba(255,193,7,0.26) 50%, rgba(255,193,7,0.18) 100%)',
-        }} />
-        {/* Bottom fade — full width but very subtle */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          height: '30%',
-          background: 'linear-gradient(0deg, rgba(139,0,0,0.30) 0%, rgba(139,0,0,0.04) 100%)',
+          position: 'absolute', top: 0, left: 0, right: '55%',
+          height: '100%',
+          background: 'linear-gradient(135deg, rgba(245,158,11,0.04) 0%, transparent 70%)',
         }} />
 
-        {/* ── GOLD SPOTLIGHT — top centre, like a stage light ── */}
+        {/* ── GOLD SPOTLIGHT — top centre, very faint ── */}
         <div style={{
           position: 'absolute', top: -200, left: '50%', transform: 'translateX(-50%)',
           width: 800, height: 800,
-          background: 'radial-gradient(ellipse, rgba(255,193,7,0.22) 0%, rgba(255,193,7,0.05) 35%, transparent 65%)',
+          background: 'radial-gradient(ellipse, rgba(245,158,11,0.10) 0%, rgba(245,158,11,0.03) 35%, transparent 65%)',
           borderRadius: '50%',
           animation: 'heroPulse 6s ease-in-out infinite',
         }} />
@@ -95,10 +82,10 @@ export default function TVKHeroBg() {
               filter: 'contrast(1.05) brightness(1.35) saturate(1.0)',
             }}
           />
-          {/* Gold-crimson tone overlay — ties photo to flag palette (kept very light) */}
+          {/* Very subtle gold tone overlay */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(160deg, rgba(139,0,0,0.08) 0%, rgba(255,193,7,0.04) 50%, transparent 80%)',
+            background: 'linear-gradient(160deg, rgba(245,158,11,0.04) 0%, transparent 60%)',
             mixBlendMode: 'normal',
           }} />
           {/* Right edge glow */}
@@ -108,21 +95,12 @@ export default function TVKHeroBg() {
           }} />
         </div>
 
-        {/* ── FLAG STRIPE LEFT ACCENT LINE — like the banner edge ── */}
+        {/* ── GOLD LEFT ACCENT LINE — slim brand marker ── */}
         <div style={{
           position: 'absolute', left: 0, top: 0, bottom: 0,
-          width: 4,
-          background: 'linear-gradient(180deg, #8B0000 0%, #FFC107 50%, #8B0000 100%)',
-          opacity: 0.6,
-        }} />
-
-        {/* ── CRIMSON GLOW from bottom-left ── */}
-        <div style={{
-          position: 'absolute', bottom: -100, left: -100,
-          width: 500, height: 500,
-          background: 'radial-gradient(ellipse, rgba(139,0,0,0.22) 0%, transparent 65%)',
-          borderRadius: '50%',
-          pointerEvents: 'none',
+          width: 3,
+          background: 'linear-gradient(180deg, transparent 0%, rgba(245,158,11,0.6) 40%, rgba(245,158,11,0.8) 60%, transparent 100%)',
+          opacity: 0.7,
         }} />
 
         {/* ── DIAGONAL GOLD STREAKS — very subtle cinematic scan lines ── */}
@@ -137,7 +115,7 @@ export default function TVKHeroBg() {
         {/* ── BOTTOM FADE to page bg ── */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 120,
-          background: 'linear-gradient(0deg, #07010f 0%, transparent 100%)',
+          background: 'linear-gradient(0deg, #0a0a0f 0%, transparent 100%)',
         }} />
 
       </div>
@@ -148,8 +126,8 @@ export default function TVKHeroBg() {
           50%       { opacity: 1;   transform: translateX(-50%) scale(1.1); }
         }
         @keyframes heroFigure {
-          0%, 100% { transform: translateY(0px);   filter: drop-shadow(0 0 50px rgba(255,193,7,0.25)) brightness(1.05); }
-          50%       { transform: translateY(-10px); filter: drop-shadow(0 0 80px rgba(255,193,7,0.40)) brightness(1.10); }
+          0%, 100% { transform: translateY(0px);   filter: drop-shadow(0 0 40px rgba(245,158,11,0.18)) brightness(1.05); }
+          50%       { transform: translateY(-10px); filter: drop-shadow(0 0 60px rgba(245,158,11,0.28)) brightness(1.10); }
         }
         @keyframes whistleFloat {
           0%, 100% { transform: translateY(-50%) rotate(-4deg); opacity: 0.07; }

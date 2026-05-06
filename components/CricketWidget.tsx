@@ -59,29 +59,29 @@ export default function CricketWidget({ compact = false }: { compact?: boolean }
   // ── Compact mode: shown in hero panel ─────────────────────────────────────
   if (compact) {
     return (
-      <div style={{ padding: '12px 14px 11px', paddingLeft: 16 }}>
+      <div style={{ padding: '14px 16px 12px' }}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 9 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
             <span style={{ fontSize: 13 }}>🏏</span>
-            <span style={{ fontWeight: 800, fontSize: 12, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.02em' }}>IPL 2026</span>
+            <span style={{ fontWeight: 900, fontSize: 11, color: 'rgba(255,255,255,0.88)', letterSpacing: '0.06em' }}>IPL 2026</span>
             {isLive && (
-              <span style={{ padding: '1px 7px', borderRadius: 99, fontSize: 9, fontWeight: 900, background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
+              <span style={{ padding: '2px 7px', borderRadius: 99, fontSize: 9, fontWeight: 800, background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.25)', letterSpacing: '0.04em' }}>
                 LIVE
               </span>
             )}
           </div>
           <a href="https://www.cricbuzz.com/cricket-series/9241/indian-premier-league-2026/points-table"
             target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textDecoration: 'none' }}>
+            style={{ fontSize: 9, color: 'rgba(255,255,255,0.28)', fontWeight: 700, textDecoration: 'none', letterSpacing: '0.02em' }}>
             Full table →
           </a>
         </div>
 
         {/* Live score / latest result */}
         {(data?.liveScore || data?.latestResult) && (
-          <div style={{ marginBottom: 9, padding: '5px 9px', borderRadius: 8, background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.15)' }}>
-            <p style={{ fontSize: 10, color: data?.liveScore ? '#86efac' : 'rgba(255,255,255,0.45)', margin: 0, fontWeight: 600, lineHeight: 1.4 }}>
+          <div style={{ marginBottom: 10, padding: '6px 10px', borderRadius: 8, background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.14)' }}>
+            <p style={{ fontSize: 10, color: data?.liveScore ? '#86efac' : 'rgba(255,255,255,0.40)', margin: 0, fontWeight: 600, lineHeight: 1.4 }}>
               {data?.liveScore ?? data?.latestResult}
             </p>
           </div>
@@ -90,31 +90,61 @@ export default function CricketWidget({ compact = false }: { compact?: boolean }
         {/* All teams */}
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            {[...Array(10)].map((_, i) => <div key={i} style={{ height: 22, borderRadius: 6, background: 'rgba(255,255,255,0.05)', animation: 'shimmer 1.5s infinite' }} />)}
+            {[...Array(10)].map((_, i) => <div key={i} style={{ height: 24, borderRadius: 6, background: 'rgba(255,255,255,0.05)', animation: 'shimmer 1.5s infinite' }} />)}
           </div>
         ) : standings.length === 0 ? (
           <div style={{ padding: '10px 0', textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
             Fetching live standings…
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Column labels */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '0 0 5px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 2 }}>
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)', width: 14 }}>#</span>
+              <span style={{ width: 24, flexShrink: 0 }} />
+              <span style={{ flex: 1, fontSize: 8, color: 'rgba(255,255,255,0.18)' }}>Team</span>
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)', width: 18, textAlign: 'center' }}>P</span>
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)', width: 36, textAlign: 'right' }}>NRR</span>
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)', width: 22, textAlign: 'right' }}>Pts</span>
+            </div>
             {standings.map((row, i) => (
-              <div key={row.short} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '3px 0' }}>
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', width: 12, textAlign: 'right' }}>{row.pos}</span>
-                <div style={{ width: 22, height: 22, borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#fff', background: row.color + 'cc', flexShrink: 0 }}>
+              <div key={row.short} style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '4px 0',
+                borderRadius: 6,
+                background: i < 4 ? `${row.color}09` : 'transparent',
+                position: 'relative',
+              }}>
+                {/* Team color left bar */}
+                {i < 4 && (
+                  <div style={{
+                    position: 'absolute', left: -4, top: '15%', bottom: '15%',
+                    width: 3, borderRadius: 99,
+                    background: row.color,
+                    opacity: 0.7,
+                  }} />
+                )}
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', width: 14, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.pos}</span>
+                {/* Team badge */}
+                <div style={{ width: 24, height: 24, borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#fff', background: row.color + 'cc', flexShrink: 0 }}>
                   {row.short.slice(0, 2)}
                 </div>
-                <span style={{ flex: 1, fontSize: 11, fontWeight: 700, color: i < 4 ? row.color : 'rgba(255,255,255,0.4)' }}>{row.short}</span>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', width: 16, textAlign: 'center' }}>{row.played}</span>
-                <span style={{ fontSize: 11, fontWeight: 900, color: row.color, width: 22, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.pts}</span>
+                <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: i < 4 ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.38)' }}>{row.short}</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', width: 18, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{row.played}</span>
+                <span style={{
+                  fontSize: 9, fontFamily: 'ui-monospace, monospace',
+                  width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums',
+                  color: parseFloat(row.nrr) >= 0 ? 'rgba(74,222,128,0.75)' : 'rgba(248,113,113,0.65)',
+                }}>{row.nrr}</span>
+                <span style={{ fontSize: 12, fontWeight: 900, color: i < 4 ? '#f59e0b' : 'rgba(255,255,255,0.35)', width: 22, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.pts}</span>
               </div>
             ))}
           </div>
         )}
 
-        <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.12)' }}>● Top 4 qualify · Pts</span>
-          {updatedAgo && <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>{updatedAgo}</span>}
+        <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 8 }}>
+          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.14)', letterSpacing: '0.02em' }}>● Top 4 qualify for playoffs</span>
+          {updatedAgo && <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.14)' }}>{updatedAgo}</span>}
         </div>
       </div>
     )
