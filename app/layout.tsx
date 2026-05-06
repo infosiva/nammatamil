@@ -6,7 +6,7 @@ import { SidebarAd } from '@/components/AdUnit'
 import Footer from '@/components/Footer'
 import TVKWidget from '@/components/TVKWidget'
 import TrendingTicker from '@/components/TrendingTicker'
-import TNElectionBanner from '@/components/TNElectionBanner'
+import IPLBanner from '@/components/IPLBanner'
 
 export const metadata: Metadata = {
   title: {
@@ -80,7 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col bg-site">
         <SidebarAd />
         <TVKWidget />
-        <TNElectionBanner />
+        <IPLBanner />
         <Header />
         <TrendingTicker />
         <main className="flex-1">{children}</main>
