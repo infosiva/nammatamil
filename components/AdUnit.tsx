@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface AdUnitProps {
   size?: 'banner' | 'rectangle'
@@ -7,9 +7,6 @@ interface AdUnitProps {
   network?: string
   format?: string
 }
-
-// ── Adsterra Social Bar — sticky bottom bar, injected once into body ─────────
-const ADSTERRA_SOCIAL_BAR = '63acc4552ee58ba7e10602221b112388'
 
 // ── OTT affiliate banners — rotate every 8s ───────────────────────────────────
 const OTT_AFFILIATES = [
@@ -47,21 +44,6 @@ const OTT_AFFILIATES = [
     cta: 'Start Free →',
   },
 ]
-
-// Social Bar — sticky bottom bar, injected once into body
-export function SocialBar() {
-  const loaded = useRef(false)
-  useEffect(() => {
-    if (loaded.current) return
-    loaded.current = true
-    const s = document.createElement('script')
-    s.async = true
-    s.setAttribute('data-cfasync', 'false')
-    s.src = `//pl29337006.profitablecpmratenetwork.com/63/ac/c4/${ADSTERRA_SOCIAL_BAR}.js`
-    document.body.appendChild(s)
-  }, [])
-  return null
-}
 
 // ── Sticky Sidebar Ad — desktop only, right side, does NOT block content ─────
 export function SidebarAd() {

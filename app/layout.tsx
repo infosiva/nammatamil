@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import Header from '@/components/Header'
-import { SocialBar, SidebarAd } from '@/components/AdUnit'
+import { SidebarAd } from '@/components/AdUnit'
 import Footer from '@/components/Footer'
 import TVKWidget from '@/components/TVKWidget'
 import TrendingTicker from '@/components/TrendingTicker'
@@ -83,7 +83,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         `}</Script>
       </head>
       <body className="min-h-screen flex flex-col bg-site">
-        <SocialBar />
         <SidebarAd />
         <TVKWidget />
         <TNElectionBanner />
