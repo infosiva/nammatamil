@@ -194,8 +194,8 @@ export default function Home() {
       {/* Noise overlay */}
       <div className="noise-overlay" aria-hidden="true" />
       {/* Ambient orbs */}
-      <div className="orb orb-1" style={{ background: 'radial-gradient(circle, rgba(217,119,6,0.15), transparent 70%)' }} aria-hidden="true" />
-      <div className="orb orb-2" style={{ background: 'radial-gradient(circle, rgba(251,191,36,0.10), transparent 70%)', animationDelay: '-6s' }} aria-hidden="true" />
+      <div className="liquid-blob liquid-blob-1" style={{ background: 'radial-gradient(circle, rgba(217,119,6,0.15), transparent 70%)' }} aria-hidden="true" />
+      <div className="liquid-blob liquid-blob-2" style={{ background: 'radial-gradient(circle, rgba(251,191,36,0.10), transparent 70%)', animationDelay: '-6s' }} aria-hidden="true" />
 
       {/* Travel Magazine nav */}
       <nav className="border-b border-amber-900/20 backdrop-blur-xl sticky top-0 z-50" style={{ background: 'rgba(8,6,4,0.85)' }}>
