@@ -51,7 +51,7 @@ function SectionHeader({ label, count, href, color }: { label: string; count?: n
 // ── Card grid — TMDB style: 3→4→5 cols ───────────────────────────────────────
 function CardGrid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
       {children}
     </div>
   )
@@ -119,7 +119,7 @@ function MoviesTab() {
   const visible = show ? filtered : filtered.slice(0, 9)
 
   if (loading) return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
       {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl shimmer" style={{ aspectRatio: '2/3' }} />)}
     </div>
   )
@@ -201,7 +201,7 @@ function SerialsTab() {
   const visible = show ? filtered : filtered.slice(0, 9)
 
   if (loading) return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
       {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl shimmer" style={{ aspectRatio: '2/3' }} />)}
     </div>
   )
@@ -274,7 +274,7 @@ function AlbumsTab() {
   const visible = show ? filtered : filtered.slice(0, 9)
 
   if (loading) return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-6">
       {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl shimmer" style={{ aspectRatio: '2/3' }} />)}
     </div>
   )
@@ -410,7 +410,7 @@ function LiveTab() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={featured.thumbnail} alt={featured.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="eager"
+              loading="lazy"
               onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
             <div className="absolute inset-0"
               style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 55%, transparent 100%)' }} />

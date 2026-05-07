@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @layer base {
   * { box-sizing: border-box; }
@@ -150,9 +149,9 @@ body::after {
 }
 
 @keyframes auroraDrift {
-  0%   { opacity: 1;    transform: scale(1)    translateY(0px); }
-  50%  { opacity: 0.75; transform: scale(1.04) translateY(-12px); }
-  100% { opacity: 1;    transform: scale(1.02) translateY(6px); }
+  0%   { opacity: 1;    transform: translateY(0px); }
+  50%  { opacity: 0.75; transform: translateY(-12px); }
+  100% { opacity: 1;    transform: translateY(6px); }
 }
 
 /* All page content above the grid */
