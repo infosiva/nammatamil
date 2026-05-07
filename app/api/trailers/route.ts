@@ -26,6 +26,23 @@ export interface Trailer {
 // ── YouTube Data API ──────────────────────────────────────────────────────────
 const YT_API_KEY = process.env.YOUTUBE_API_KEY ?? ''
 
+// ── Quota guard (search=100 units, videos=1 unit; daily free limit=10,000) ───
+const DAILY_BUDGET = 8000   // 2K headroom below free tier
+let _usedToday = 0
+let _resetDay  = new Date().toISOString().slice(0, 10)
+function todayStr() { return new Date().toISOString().slice(0, 10) }
+function checkAndCharge(units: number, endpoint: string): boolean {
+  const today = todayStr()
+  if (today !== _resetDay) { _usedToday = 0; _resetDay = today }
+  if (_usedToday + units > DAILY_BUDGET) {
+    console.warn(`[yt-nammatamil] Quota limit reached (${_usedToday}/${DAILY_BUDGET}) — skipping ${endpoint}`)
+    return false
+  }
+  _usedToday += units
+  console.log(`[yt-nammatamil] ${endpoint} -${units} units | used: ${_usedToday}/${DAILY_BUDGET}`)
+  return true
+}
+
 // Search queries to find trending Tamil trailers
 const YT_SEARCH_QUERIES = [
   'tamil trailer 2026 official',
@@ -50,6 +67,7 @@ interface YTVideoStats {
 
 async function fetchYouTubeSearch(query: string): Promise<YTSearchItem[]> {
   if (!YT_API_KEY) return []
+  if (!checkAndCharge(100, 'search')) return []
   try {
     const url = new URL('https://www.googleapis.com/youtube/v3/search')
     url.searchParams.set('part', 'snippet')
@@ -74,6 +92,7 @@ async function fetchYouTubeSearch(query: string): Promise<YTSearchItem[]> {
 
 async function fetchVideoStats(videoIds: string[]): Promise<Map<string, number>> {
   if (!YT_API_KEY || videoIds.length === 0) return new Map()
+  if (!checkAndCharge(1, 'videos')) return new Map()
   try {
     const url = new URL('https://www.googleapis.com/youtube/v3/videos')
     url.searchParams.set('part', 'statistics')
