@@ -1,24 +1,8 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import ShareCard from '@/components/ShareCard'
-
-function useRateLimit(key: string, limit: number) {
-  const getUsage = useCallback(() => {
-    if (typeof window === 'undefined') return { count: 0, date: '' }
-    try { return JSON.parse(localStorage.getItem(key) || '{"count":0,"date":""}') } catch { return { count: 0, date: '' } }
-  }, [key])
-  const today = new Date().toISOString().split('T')[0]
-  const usage = getUsage()
-  const count = usage.date === today ? usage.count : 0
-  const remaining = Math.max(0, limit - count)
-  const increment = useCallback(() => {
-    const d = new Date().toISOString().split('T')[0]
-    const u = getUsage()
-    const c = u.date === d ? u.count + 1 : 1
-    localStorage.setItem(key, JSON.stringify({ count: c, date: d }))
-  }, [key, getUsage])
-  return { remaining, increment, isLimited: remaining === 0 }
-}
+import { useGate } from '@/lib/shared/useGate'
+import RegisterGate from '@/lib/shared/RegisterGate'
 
 const INTERESTS = ['Food & Dining', 'Culture & History', 'Nature & Hiking', 'Art & Museums', 'Nightlife', 'Shopping', 'Adventure Sports', 'Photography']
 const BUDGETS = ['Budget', 'Moderate', 'Luxury']
@@ -154,7 +138,9 @@ const DESTINATION_CARDS = [
 ]
 
 export default function Home() {
-  const { remaining, increment, isLimited } = useRateLimit('wanderai-usage', 2)
+  const { count: gateCount, showGate, increment: gateIncrement, onRegistered, dismissGate, isRegistered } = useGate('wanderai', 2)
+  const remaining = Math.max(0, 2 - gateCount)
+  const isLimited = !isRegistered && gateCount >= 2
   const [destination, setDestination] = useState('')
   const [duration, setDuration] = useState(5)
   const [budget, setBudget] = useState('Moderate')
@@ -180,8 +166,9 @@ export default function Home() {
   }, [])
 
   async function generate() {
-    if (!destination || isLimited) return
-    increment()
+    if (!destination) return
+    const allowed = await gateIncrement()
+    if (!allowed) return
     setLoading(true)
     setApiError(null)
     setShowWeather(true)
@@ -205,6 +192,19 @@ export default function Home() {
   const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-sky-500/50 transition-all'
 
   return (
+    <>
+    {showGate && (
+      <RegisterGate
+        freeUsed={gateCount}
+        freeLimit={2}
+        freeFeature="itineraries"
+        lockedFeature="unlimited itineraries"
+        accentColor="#8b5cf6"
+        site="wanderai"
+        onSuccess={onRegistered}
+        onDismiss={dismissGate}
+      />
+    )}
     <main className="min-h-screen relative z-10 bg-gray-950">
       {/* Floating nav */}
       <nav className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between transition-all duration-300 ${navScrolled ? 'bg-gray-950/90 backdrop-blur-xl border-b border-white/5' : 'bg-transparent'}`}>
@@ -557,5 +557,6 @@ export default function Home() {
         </div>
       </section>
     </main>
+    </>
   )
 }
