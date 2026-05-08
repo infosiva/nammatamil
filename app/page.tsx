@@ -12,16 +12,24 @@ export default function HomePage() {
     <div className="overflow-x-hidden">
 
       {/* ══ HERO ════════════════════════════════════════════════════════════ */}
-      <section className="relative border-b border-white/[0.06]">
+      <section className="relative border-b border-white/[0.06] overflow-hidden">
         <TVKHeroBg />
+        {/* Depth grid + spotlight overlays */}
+        <div className="depth-grid" />
+        <div className="hero-spotlight" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-8">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10">
 
           {/* Identity row */}
           <div className="flex items-end justify-between mb-6">
             <div>
-              <h1 className="text-gradient font-black tracking-tight"
-                style={{ fontSize: 'clamp(1.6rem,4vw,2.2rem)', lineHeight: 1 }}>
+              {/* Live badge */}
+              <span className="pill-glass text-[10px] font-bold tracking-widest uppercase mb-3 inline-flex items-center gap-1.5">
+                <span className="live-ring" />
+                Live Now
+              </span>
+              <h1 className="text-iridescent font-black tracking-tight"
+                style={{ fontSize: 'clamp(1.8rem,5vw,2.8rem)', lineHeight: 1 }}>
                 NammaTamil
               </h1>
               <p className="text-white/30 text-[11px] font-semibold tracking-widest mt-1.5 uppercase">
@@ -34,17 +42,12 @@ export default function HomePage() {
           {/* 2-col hero grid */}
           <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-3 items-start hero-grid">
             <LiveNowPanel />
-            <div className="glass rounded-xl overflow-hidden">
+            <div className="glass-liquid rounded-xl overflow-hidden">
               <CricketWidget compact />
             </div>
           </div>
         </div>
       </section>
-
-      {/* ══ SINGLE NON-INTRUSIVE AD — below hero, above content ════════════ */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
-        <AdUnit size="banner" />
-      </div>
 
       {/* ══ MAIN CONTENT ════════════════════════════════════════════════════ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
@@ -63,6 +66,9 @@ export default function HomePage() {
           </div>
           <HomeTabLayout />
         </div>
+
+        {/* Ad — bottom of page after all content */}
+        <AdUnit size="banner" />
 
       </div>
 
