@@ -476,3 +476,7 @@ vercel-toolbar { display: none !important; }
   border-color: rgba(245,158,11,0.2);
   transform: translateY(-2px);
 }
+
+/* Magic UI — shimmer animation */
+@keyframes shimmer-slide { to { transform: translate(calc(100cqw - 100%), 0); } }
+.animate-shimmer-slide { animation: shimmer-slide var(--speed, 3s) ease-in-out infinite alternate; }

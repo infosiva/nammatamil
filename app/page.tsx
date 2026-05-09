@@ -6,6 +6,8 @@ import LiveNowPanel from '@/components/LiveNowPanel'
 import CricketWidget from '@/components/CricketWidget'
 import TVKWidget from '@/components/TVKWidget'
 import AdUnit from '@/components/AdUnit'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
+import { AnimatedList } from '@/components/magicui/animated-list'
 
 export default function HomePage() {
   return (
@@ -52,17 +54,30 @@ export default function HomePage() {
       {/* ══ MAIN CONTENT ════════════════════════════════════════════════════ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
 
-        {/* Tamil Media News */}
-        <TamilMediaNews skipFirst={5} />
+        {/* Tamil Media News — animated reveal */}
+        <AnimatedList delay={800}>
+          <TamilMediaNews skipFirst={5} />
+        </AnimatedList>
 
         {/* TV Schedule widget — contextual, only on home */}
         <TVKWidget />
 
         {/* Entertainment tabs */}
         <div>
-          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/[0.07]">
-            <span className="w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-400 to-red-600 shrink-0" />
-            <h2 className="font-extrabold text-base text-white/75 tracking-tight">Tamil Entertainment</h2>
+          <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-white/[0.07]">
+            <div className="flex items-center gap-3">
+              <span className="w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-400 to-red-600 shrink-0" />
+              <h2 className="font-extrabold text-base text-white/75 tracking-tight">Tamil Entertainment</h2>
+            </div>
+            <ShimmerButton
+              background="rgba(220,38,38,1)"
+              shimmerColor="#fbbf24"
+              shimmerDuration="2.5s"
+              borderRadius="8px"
+              className="text-xs font-bold tracking-wide px-4 py-2"
+            >
+              Explore All
+            </ShimmerButton>
           </div>
           <HomeTabLayout />
         </div>
