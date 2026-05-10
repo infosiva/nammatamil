@@ -37,7 +37,14 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // API routes — no caching by default
+      // News API — short CDN cache (5 min), stale-while-revalidate 30 min
+      {
+        source: '/api/tamil-media-news',
+        headers: [
+          { key: 'Cache-Control', value: 's-maxage=300, stale-while-revalidate=1800' },
+        ],
+      },
+      // Other API routes — no caching
       {
         source: '/api/:path*',
         headers: [
@@ -68,7 +75,21 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'img.youtube.com' },
       { protocol: 'https', hostname: 'i.ytimg.com' },
       { protocol: 'https', hostname: 'yt3.ggpht.com' },
+      // Tamil news sources
+      { protocol: 'https', hostname: '**.dinamalar.com' },
+      { protocol: 'https', hostname: '**.vikatan.com' },
+      { protocol: 'https', hostname: '**.maalaimalar.com' },
+      { protocol: 'https', hostname: '**.oneindia.com' },
+      { protocol: 'https', hostname: '**.puthiyathalaimurai.com' },
+      { protocol: 'https', hostname: '**.polimernews.com' },
+      { protocol: 'https', hostname: '**.kalaignarnews.com' },
+      { protocol: 'https', hostname: '**.sunnews.in' },
+      { protocol: 'https', hostname: '**.thanthitv.com' },
+      { protocol: 'https', hostname: '**.ndtv.com' },
+      { protocol: 'https', hostname: '**.indiatoday.in' },
+      { protocol: 'https', hostname: '**.thehindu.com' },
     ],
+    minimumCacheTTL: 3600, // cache optimised images for 1 hour
   },
 }
 

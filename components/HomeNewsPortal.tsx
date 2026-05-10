@@ -138,9 +138,15 @@ function HeroStory({ item }: { item: NewsItem }) {
       <div style={{ position: 'absolute', inset: 0 }}>
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <img src={item.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={e => {
+              const el = e.target as HTMLImageElement
+              el.style.display = 'none'
+              const parent = el.parentElement
+              if (parent) parent.style.background = 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(245,158,11,0.12))'
+            }} />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.1))' }} />
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(245,158,11,0.12))' }} />
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,16,0.97) 0%, rgba(5,5,16,0.6) 50%, rgba(5,5,16,0.1) 100%)' }} />
       </div>
@@ -186,9 +192,15 @@ function SecondaryStory({ item }: { item: NewsItem }) {
       <div style={{ position: 'absolute', inset: 0 }}>
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <img src={item.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={e => {
+              const el = e.target as HTMLImageElement
+              el.style.display = 'none'
+              const parent = el.parentElement
+              if (parent) parent.style.background = `linear-gradient(135deg, ${color}25, rgba(5,5,16,0.85))`
+            }} />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${color}18, rgba(5,5,16,0.8))` }} />
+          <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${color}25, rgba(5,5,16,0.85))` }} />
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,16,0.95) 0%, rgba(5,5,16,0.3) 60%, transparent 100%)' }} />
       </div>
@@ -235,12 +247,13 @@ function NewsCard({ item, rank }: { item: NewsItem; rank?: number }) {
           {rank}
         </div>
       )}
-      <div style={{ flexShrink: 0, width: 72, height: 54, borderRadius: 8, overflow: 'hidden', background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ flexShrink: 0, width: 72, height: 54, borderRadius: 8, overflow: 'hidden', background: `linear-gradient(135deg, ${color}20, rgba(255,255,255,0.03))`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <img src={item.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
         ) : (
-          <Newspaper style={{ width: 18, height: 18, color: 'rgba(255,255,255,0.1)' }} />
+          <Newspaper style={{ width: 18, height: 18, color: `${color}60` }} />
         )}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>

@@ -152,9 +152,49 @@ function timeAgo(dateStr: string): string {
 }
 
 function cleanHtml(s: string): string {
-  return s.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ').trim()
+  return s
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&[a-zA-Z]+;/g, ' ')
+    .trim()
+}
+
+// ── Fallback images by source (reliable, long-lived CDN images) ───────────────
+const SOURCE_FALLBACKS: Record<string, string> = {
+  'Dinamalar':           'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Dinamalar_logo.svg/320px-Dinamalar_logo.svg.png',
+  'Vikatan':             'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Vikatan_logo.svg/320px-Vikatan_logo.svg.png',
+  'The Hindu Tamil':     'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/The_Hindu_logo.svg/320px-The_Hindu_logo.svg.png',
+  'NDTV India':          'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/NDTV_logo.svg/320px-NDTV_logo.svg.png',
+}
+
+// ── Fallback images by category ────────────────────────────────────────────────
+const CATEGORY_FALLBACKS: Record<string, string[]> = {
+  tvk:      ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Vijay_at_CWC_2011.jpg/640px-Vijay_at_CWC_2011.jpg'],
+  politics: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Flag_of_Tamil_Nadu.svg/640px-Flag_of_Tamil_Nadu.svg.png',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Flag_of_India.svg/640px-Flag_of_India.svg.png',
+  ],
+  cinema: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Rajinikanth_at_Endhiran_audio_launch.jpg/640px-Rajinikanth_at_Endhiran_audio_launch.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Kamalhaasan_at_Viswaroopam_Press_Meet.jpg/640px-Kamalhaasan_at_Viswaroopam_Press_Meet.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Ajith_Kumar_at_Vedalam_audio_launch.jpg/640px-Ajith_Kumar_at_Vedalam_audio_launch.jpg',
+  ],
+  sports: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Chennai_Super_Kings_Logo.svg/640px-Chennai_Super_Kings_Logo.svg.png',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/MS_Dhoni.jpg/640px-MS_Dhoni.jpg',
+  ],
+  general: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Dinamalar_logo.svg/320px-Dinamalar_logo.svg.png',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Flag_of_Tamil_Eelam.svg/640px-Flag_of_Tamil_Eelam.svg.png',
+  ],
+}
+
+function fallbackImage(source: string, category: string, seed: number): string {
+  if (SOURCE_FALLBACKS[source]) return SOURCE_FALLBACKS[source]
+  const pool = CATEGORY_FALLBACKS[category] ?? CATEGORY_FALLBACKS.general
+  return pool[seed % pool.length]
 }
 
 interface RawItem {
@@ -283,17 +323,21 @@ export async function GET(req: NextRequest) {
   // Dedup, then take top 60
   const unique = dedup(sorted).slice(0, 60)
 
-  const news = unique.map(item => ({
-    title:      item.title,
-    link:       item.link,
-    source:     item.source,
-    sourceLogo: item.sourceLogo,
-    pubDate:    item.pubDate,
-    timeAgo:    timeAgo(item.pubDate),
-    desc:       item.desc,
-    imageUrl:   item.imageUrl,
-    category:   categorize(item.title, item.desc),
-  }))
+  const news = unique.map((item, idx) => {
+    const category = categorize(item.title, item.desc)
+    const imageUrl = item.imageUrl ?? fallbackImage(item.source, category, idx)
+    return {
+      title:      item.title,
+      link:       item.link,
+      source:     item.source,
+      sourceLogo: item.sourceLogo,
+      pubDate:    item.pubDate,
+      timeAgo:    timeAgo(item.pubDate),
+      desc:       item.desc,
+      imageUrl,
+      category,
+    }
+  })
 
   const data = { news, updatedAt: new Date().toISOString(), count: news.length }
   cache = { data, at: Date.now() }
