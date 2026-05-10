@@ -43,11 +43,14 @@ const FEEDS: Array<{ name: string; url: string; tamil: boolean; logoColor: strin
 ]
 
 // ── Category keywords ────────────────────────────────────────────────────────
-// TVK / Vijay keywords — items matching these get top priority score
+// TVK / Vijay election keywords — top priority (Vijay contesting TN 2026 election)
 const TVK_KW = [
   'tvk', 'tamilaga vettri kazhagam', 'thalapathy vijay', 'விஜய்', 'வெற்றி கழகம்',
-  'vijay party', 'vijay politics', 'tvk meeting', 'tvk conference',
-  'tvk news', 'கழக', 'தாளபதி', 'விஜய் கட்சி',
+  'vijay party', 'vijay politics', 'tvk meeting', 'tvk conference', 'tvk news',
+  'கழக', 'தாளபதி', 'விஜய் கட்சி', 'vijay cm', 'vijay election', 'vijay 2026',
+  'tvk 2026', 'vijay chief minister', 'thalapathy cm', 'விஜய் தேர்தல்',
+  'tvk rally', 'vijay rally', 'vijay manifesto', 'tvk manifesto',
+  'vijay கட்சி', 'நம்ம விஜய்', 'தாளபதி விஜய் அரசியல்',
 ]
 
 const POLITICS_KW = [

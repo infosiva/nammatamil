@@ -55,7 +55,7 @@ const SOURCE_COLORS: Record<string, string> = {
 
 const CATEGORIES = [
   { key: 'all',      label: 'All News',  icon: Radio,       color: '#f87171' },
-  { key: 'tvk',     label: 'TVK',       icon: Zap,         color: '#f59e0b', badge: 'HOT' },
+  { key: 'tvk',     label: 'TVK 2026',  icon: Zap,         color: '#f59e0b', badge: 'HOT' },
   { key: 'politics', label: 'Politics',  icon: Zap,         color: '#fbbf24' },
   { key: 'cinema',   label: 'Cinema',    icon: Film,        color: '#a78bfa' },
   { key: 'sports',   label: 'Sports',    icon: Trophy,      color: '#4ade80' },
