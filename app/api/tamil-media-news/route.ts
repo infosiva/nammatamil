@@ -22,28 +22,41 @@ import { rateLimit } from '@/lib/ratelimit'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-// ── RSS sources — Tamil-language FIRST (URLs verified 2026-05-05) ───────────
-const FEEDS: Array<{ name: string; url: string; tamil: boolean; logoColor: string }> = [
-  // ── PRIMARY: Tamil-language sources (verified working) ──
-  { name: 'Vikatan',             url: 'https://www.vikatan.com/feed',                             tamil: true,  logoColor: '#d97706' },
-  { name: 'Maalaimalar',         url: 'https://www.maalaimalar.com/feed',                         tamil: true,  logoColor: '#7c3aed' },
-  { name: 'Puthiya Thalaimurai', url: 'https://www.puthiyathalaimurai.com/feed/',                 tamil: true,  logoColor: '#dc2626' },
-  { name: 'OneIndia Tamil',      url: 'https://tamil.oneindia.com/rss/tamil-news-fb.xml',         tamil: true,  logoColor: '#0891b2' },
-  { name: 'Polimer News',        url: 'https://www.polimernews.com/feed/',                        tamil: true,  logoColor: '#16a34a' },
-  { name: 'Dinamalar',           url: 'https://www.dinamalar.com/rss.asp',                        tamil: true,  logoColor: '#e11d48' },
-  // ── SECONDARY: English sources covering TN ──
+// ── RSS sources — Tamil-language FIRST (URLs verified 2026-05-10) ───────────
+const FEEDS: Array<{ name: string; url: string; tamil: boolean; logoColor: string; tvk?: boolean }> = [
+  // ── TIER 1: TVK / Vijay politics (highest priority) ──
+  { name: 'NammaTVK',            url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCxxxxxxxxTVK',   tamil: true,  logoColor: '#f59e0b', tvk: true },
+  { name: 'Puthiya Thalaimurai', url: 'https://www.puthiyathalaimurai.com/feed/',                            tamil: true,  logoColor: '#dc2626', tvk: false },
+  { name: 'Polimer News',        url: 'https://www.polimernews.com/feed/',                                   tamil: true,  logoColor: '#16a34a', tvk: false },
+  // ── TIER 2: Primary Tamil news ──
+  { name: 'Vikatan',             url: 'https://www.vikatan.com/feed',                                        tamil: true,  logoColor: '#d97706' },
+  { name: 'Maalaimalar',         url: 'https://www.maalaimalar.com/feed',                                    tamil: true,  logoColor: '#7c3aed' },
+  { name: 'OneIndia Tamil',      url: 'https://tamil.oneindia.com/rss/tamil-news-fb.xml',                    tamil: true,  logoColor: '#0891b2' },
+  { name: 'Dinamalar',           url: 'https://www.dinamalar.com/rss.asp',                                   tamil: true,  logoColor: '#e11d48' },
+  { name: 'Kalaignar News',      url: 'https://kalaignarnews.com/feed/',                                     tamil: true,  logoColor: '#ef4444' },
+  { name: 'Sun News',            url: 'https://www.sunnews.in/feed/',                                        tamil: true,  logoColor: '#f59e0b' },
+  { name: 'Thanthi TV',          url: 'https://www.thanthitv.com/feed/',                                     tamil: true,  logoColor: '#f97316' },
+  // ── TIER 3: English sources covering TN ──
   { name: 'The Hindu Tamil',     url: 'https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss', tamil: false, logoColor: '#1d4ed8' },
-  { name: 'NDTV India',          url: 'https://feeds.feedburner.com/ndtvnews-south-mids',         tamil: false, logoColor: '#dc2626' },
-  { name: 'India Today',         url: 'https://www.indiatoday.in/rss/1206577',                    tamil: false, logoColor: '#d97706' },
+  { name: 'NDTV India',          url: 'https://feeds.feedburner.com/ndtvnews-south-mids',                    tamil: false, logoColor: '#dc2626' },
+  { name: 'India Today',         url: 'https://www.indiatoday.in/rss/1206577',                               tamil: false, logoColor: '#d97706' },
 ]
 
 // ── Category keywords ────────────────────────────────────────────────────────
+// TVK / Vijay keywords — items matching these get top priority score
+const TVK_KW = [
+  'tvk', 'tamilaga vettri kazhagam', 'thalapathy vijay', 'விஜய்', 'வெற்றி கழகம்',
+  'vijay party', 'vijay politics', 'tvk meeting', 'tvk conference',
+  'tvk news', 'கழக', 'தாளபதி', 'விஜய் கட்சி',
+]
+
 const POLITICS_KW = [
   'அரசியல்', 'கூட்டணி', 'ஆட்சி', 'முதலமைச்சர்', 'ராஜ்பவன்', 'தேர்தல்',
   'tvk', 'vijay', 'dmk', 'aiadmk', 'bjp', 'pmk', 'congress',
   'election', 'coalition', 'government', 'minister', 'chief minister',
   'assembly', 'parliament', 'vote', 'political', 'party', 'mla',
-  'governor', 'cm', 'பாஜக', 'திமுக', 'அதிமுக',
+  'governor', 'cm', 'பாஜக', 'திமுக', 'அதிமுக', 'ஸ்டாலின்', 'stalin',
+  'edappadi', 'palaniswami', 'annamalai', 'seeman', 'naam tamilar',
 ]
 
 const CINEMA_KW = [
@@ -74,8 +87,14 @@ const SPORTS_KW = [
   'batting', 'bowling', 'innings', 'over', 'run', 'boundary', 'six',
 ]
 
-function categorize(title: string, desc: string): 'politics' | 'cinema' | 'sports' | 'general' {
+function isTVK(title: string, desc: string): boolean {
   const text = (title + ' ' + desc).toLowerCase()
+  return TVK_KW.some(kw => text.includes(kw.toLowerCase()))
+}
+
+function categorize(title: string, desc: string): 'tvk' | 'politics' | 'cinema' | 'sports' | 'general' {
+  const text = (title + ' ' + desc).toLowerCase()
+  if (isTVK(title, desc)) return 'tvk'
   const politicsScore = POLITICS_KW.filter(kw => text.includes(kw.toLowerCase())).length
   const cinemaScore   = CINEMA_KW.filter(kw => text.includes(kw.toLowerCase())).length
   const sportsScore   = SPORTS_KW.filter(kw => text.includes(kw.toLowerCase())).length
@@ -144,9 +163,10 @@ interface RawItem {
   source: string
   sourceLogo: string
   tamilSource: boolean
+  tvkSource: boolean
 }
 
-function parseRSS(xml: string, source: string, logoColor: string, tamil: boolean): RawItem[] {
+function parseRSS(xml: string, source: string, logoColor: string, tamil: boolean, tvkSource = false): RawItem[] {
   const items: RawItem[] = []
   for (const [, block] of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
     const title = cleanHtml(
@@ -171,7 +191,7 @@ function parseRSS(xml: string, source: string, logoColor: string, tamil: boolean
 
     if (!title || title.length < 8) continue
 
-    items.push({ title, link, pubDate, desc, imageUrl, source, sourceLogo: logoColor, tamilSource: tamil })
+    items.push({ title, link, pubDate, desc, imageUrl, source, sourceLogo: logoColor, tamilSource: tamil, tvkSource })
   }
   return items
 }
@@ -184,12 +204,12 @@ const STALE_TTL   = 30 * 60 * 1000 // 30 min — serve stale rather than fail
 async function fetchFeed(feed: typeof FEEDS[0]): Promise<RawItem[]> {
   try {
     const res = await fetch(feed.url, {
-      signal: AbortSignal.timeout(3000), // reduced: 3s per feed
+      signal: AbortSignal.timeout(3000),
       headers: { 'User-Agent': 'NammaTamil RSS Reader/1.0' },
     })
     if (!res.ok) return []
     const xml = await res.text()
-    return parseRSS(xml, feed.name, feed.logoColor, feed.tamil)
+    return parseRSS(xml, feed.name, feed.logoColor, feed.tamil, !!feed.tvk)
   } catch { return [] }
 }
 
@@ -243,14 +263,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(staleCache.data, { headers: { 'X-Cache': 'STALE' } })
   }
 
-  // Sort: Tamil sources first (+30 boost), then by recency
+  // Sort: TVK first (+60), Tamil sources (+30), then by recency
   const now = Date.now()
   const sorted = allItems
     .map(item => {
       const age = now - (item.pubDate ? new Date(item.pubDate).getTime() : 0)
       const ageHours = Math.max(0, age / 3600000)
-      // Score: tamil bonus + recency (fresher = higher)
-      const score = (item.tamilSource ? 30 : 0) + Math.max(0, 72 - ageHours)
+      const tvkBonus    = isTVK(item.title, item.desc) ? 60 : 0
+      const tamilBonus  = item.tamilSource ? 30 : 0
+      const score = tvkBonus + tamilBonus + Math.max(0, 72 - ageHours)
       return { item, score }
     })
     .sort((a, b) => b.score - a.score)

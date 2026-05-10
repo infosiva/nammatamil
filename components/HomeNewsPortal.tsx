@@ -48,10 +48,14 @@ const SOURCE_COLORS: Record<string, string> = {
   'Polimer News':         '#16a34a',
   'NDTV India':           '#dc2626',
   'India Today':          '#d97706',
+  'NammaTVK':             '#f59e0b',
+  'Kalaignar News':       '#ef4444',
+  'Thanthi TV':           '#f97316',
 }
 
 const CATEGORIES = [
   { key: 'all',      label: 'All News',  icon: Radio,       color: '#f87171' },
+  { key: 'tvk',     label: 'TVK',       icon: Zap,         color: '#f59e0b', badge: 'HOT' },
   { key: 'politics', label: 'Politics',  icon: Zap,         color: '#fbbf24' },
   { key: 'cinema',   label: 'Cinema',    icon: Film,        color: '#a78bfa' },
   { key: 'sports',   label: 'Sports',    icon: Trophy,      color: '#4ade80' },
@@ -212,18 +216,18 @@ function NewsCard({ item, rank }: { item: NewsItem; rank?: number }) {
       style={{
         display: 'flex', gap: 12, textDecoration: 'none',
         borderRadius: 12, padding: '11px 12px',
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.06)',
+        background: 'rgba(255,255,255,0.05)',
+        border: '1px solid rgba(255,255,255,0.1)',
         transition: 'all 0.15s',
         alignItems: 'flex-start',
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
-        e.currentTarget.style.borderColor = `${color}30`
+        e.currentTarget.style.background = 'rgba(255,255,255,0.09)'
+        e.currentTarget.style.borderColor = `${color}40`
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.02)'
-        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
+        e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
       }}
     >
       {rank !== undefined && (
@@ -283,7 +287,7 @@ export default function HomeNewsPortal() {
   const [data, setData]           = useState<ApiResponse | null>(null)
   const [loading, setLoading]     = useState(true)
   const [refreshing, setRefresh]  = useState(false)
-  const [category, setCategory]   = useState<'all' | 'politics' | 'cinema' | 'sports'>('all')
+  const [category, setCategory]   = useState<'all' | 'tvk' | 'politics' | 'cinema' | 'sports'>('all')
   const [showMore, setShowMore]   = useState(false)
   const [secAgo, setSecAgo]       = useState(0)
 
@@ -309,7 +313,10 @@ export default function HomeNewsPortal() {
   }, [])
 
   const all = data?.news ?? []
-  const filtered = category === 'all' ? all : all.filter(n => n.category === category)
+  // TVK items: category=tvk OR title contains vijay/tvk keywords
+  const filtered = category === 'all' ? all
+    : category === 'tvk' ? all.filter(n => n.category === 'tvk' || (n.category === 'politics' && /tvk|vijay|தாளபதி|வெற்றி கழகம்/i.test(n.title + n.desc)))
+    : all.filter(n => n.category === category)
   const hero = filtered[0] ?? null
   const secondary = filtered.slice(1, 4)
   const listItems = showMore ? filtered.slice(4) : filtered.slice(4, 16)
@@ -318,13 +325,13 @@ export default function HomeNewsPortal() {
   const freshLabel = secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`
 
   return (
-    <div style={{ minHeight: '100vh', background: '#050510' }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a1a' }}>
 
       {/* ── LIVE TICKER ──────────────────────────────────────────────── */}
       {!loading && <NewsTicker items={all} />}
 
       {/* ── CATEGORY NAV ─────────────────────────────────────────────── */}
-      <div style={{ background: 'rgba(255,255,255,0.015)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.09)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 2, overflowX: 'auto', scrollbarWidth: 'none' }}>
             {CATEGORIES.map(cat => {
@@ -340,14 +347,21 @@ export default function HomeNewsPortal() {
                     padding: '10px 14px',
                     fontSize: 11, fontWeight: active ? 800 : 600,
                     color: active ? cat.color : 'rgba(255,255,255,0.4)',
-                    background: 'none', border: 'none', cursor: 'pointer',
+                    background: active && cat.key === 'tvk' ? 'rgba(245,158,11,0.06)' : 'none',
+                    border: 'none', cursor: 'pointer',
                     borderBottom: active ? `2px solid ${cat.color}` : '2px solid transparent',
                     transition: 'all 0.15s',
                     whiteSpace: 'nowrap',
+                    position: 'relative',
                   }}
                 >
                   <Icon style={{ width: 12, height: 12 }} />
                   {cat.label}
+                  {'badge' in cat && cat.badge && (
+                    <span style={{ fontSize: 7, fontWeight: 900, padding: '1px 4px', borderRadius: 4, background: '#ef4444', color: '#fff', letterSpacing: '0.05em' }}>
+                      {cat.badge}
+                    </span>
+                  )}
                 </button>
               )
             })}
@@ -454,7 +468,7 @@ export default function HomeNewsPortal() {
                       style={{
                         display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none',
                         padding: '10px 12px', borderRadius: 10,
-                        background: 'rgba(255,255,255,0.025)',
+                        background: 'rgba(255,255,255,0.05)',
                         border: '1px solid rgba(255,255,255,0.06)',
                         fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
                         transition: 'all 0.15s',
@@ -483,7 +497,7 @@ export default function HomeNewsPortal() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
                 <SectionLabel icon={Trophy} label="IPL Live" color="#4ade80" />
-                <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.025)' }}>
+                <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}>
                   <CricketWidget compact />
                 </div>
               </div>
