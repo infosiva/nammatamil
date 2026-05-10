@@ -131,7 +131,7 @@ function HeroStory({ item }: { item: NewsItem }) {
       href={goLink(item.link, 'hero')}
       target="_blank"
       rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 20, overflow: 'hidden', position: 'relative', aspectRatio: '16/9' }}
+      style={{ display: 'block', textDecoration: 'none', borderRadius: 20, overflow: 'hidden', position: 'relative', aspectRatio: '16/9', minHeight: 320 }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.01)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
     >
@@ -158,7 +158,7 @@ function HeroStory({ item }: { item: NewsItem }) {
             <Clock style={{ width: 9, height: 9 }} />{item.timeAgo}
           </span>
         </div>
-        <h2 style={{ fontSize: 'clamp(15px, 2.2vw, 20px)', fontWeight: 900, color: '#fff', lineHeight: 1.35, margin: 0, letterSpacing: '-0.01em' }}>
+        <h2 style={{ fontSize: 'clamp(18px, 2.8vw, 26px)', fontWeight: 900, color: '#fff', lineHeight: 1.3, margin: 0, letterSpacing: '-0.02em' }}>
           {item.title}
         </h2>
         {item.desc && (
@@ -355,7 +355,7 @@ export default function HomeNewsPortal() {
         }
         return (prev + 1) % heroPool.length
       })
-    }, 6000)
+    }, 10000)
     return () => { if (heroRotateRef.current) clearInterval(heroRotateRef.current) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [all.length, category])

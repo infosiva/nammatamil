@@ -197,12 +197,12 @@ export default function TrendingTicker() {
     setActive(0)
   }, [buildCalendarItem])
 
-  // Rotate items every 4 seconds
+  // Rotate items every 8 seconds
   useEffect(() => {
     if (items.length === 0) return
     timerRef.current = setInterval(() => {
       setActive(prev => (prev + 1) % items.length)
-    }, 4000)
+    }, 8000)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [items])
 

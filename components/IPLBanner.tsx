@@ -29,22 +29,6 @@ interface IPLData {
   source:     'live' | 'static'
 }
 
-// ── Completed matches (last 2 shown — hardcoded recent results) ───────────────
-const COMPLETED = [
-  {
-    id: 'c1', isoDate: '2026-05-04',
-    team1: 'MI', team2: 'LSG',
-    score1: '167/7 (20)', score2: '168/4 (18.4)',
-    result: 'LSG won by 6 wkts',
-  },
-  {
-    id: 'c2', isoDate: '2026-05-05',
-    team1: 'DC', team2: 'CSK',
-    score1: '194/4 (20)', score2: '191/7 (20)',
-    result: 'DC won by 3 runs',
-  },
-]
-
 // ── Team colours ─────────────────────────────────────────────────────────────
 const TEAM_COLOR: Record<string, string> = {
   PBKS: '#a855f7', RCB: '#ef4444', RR: '#ec4899', SRH: '#f97316',
@@ -117,9 +101,9 @@ export default function IPLBanner() {
   const fixtures  = data?.fixtures ?? []
   const standings = data?.standings ?? []
 
-  // Show last 2 completed + upcoming from today
-  const upcoming  = fixtures.filter(f => f.isoDate >= todayStr).slice(0, 7)
-  const displayed = [...COMPLETED.slice(-2), ...upcoming]
+  // Show upcoming matches from today (AI returns future fixtures only)
+  const upcoming  = fixtures.filter(f => f.isoDate >= todayStr).slice(0, 8)
+  const displayed = upcoming
 
   const nextMatch = upcoming[0]
 
@@ -183,7 +167,6 @@ export default function IPLBanner() {
         {tab === 'matches' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
             {displayed.map(m => {
-              const isCompleted = 'result' in m
               const isoDate     = m.isoDate
               const label       = getDateLabel(isoDate, todayStr, tomorrowStr)
               const isToday     = isoDate === todayStr
@@ -192,9 +175,10 @@ export default function IPLBanner() {
               const liveKey   = `${isoDate}_${m.team1}_${m.team2}`
               const liveData  = data?.liveScores?.[liveKey]
               const isLive    = liveData?.isLive ?? false
-              const score1    = liveData?.score1 ?? (isCompleted ? (m as typeof COMPLETED[0]).score1 : undefined)
-              const score2    = liveData?.score2 ?? (isCompleted ? (m as typeof COMPLETED[0]).score2 : undefined)
-              const result    = isCompleted ? (m as typeof COMPLETED[0]).result : liveData?.status
+              const score1    = liveData?.score1
+              const score2    = liveData?.score2
+              const result    = liveData?.status
+              const isCompleted = false // all fixtures from AI are upcoming
 
               const c1 = TEAM_COLOR[m.team1] ?? '#888'
               const c2 = TEAM_COLOR[m.team2] ?? '#888'
