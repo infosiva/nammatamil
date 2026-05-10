@@ -282,6 +282,19 @@ function SectionLabel({ icon: Icon, label, color, action, onAction }: { icon: Re
   )
 }
 
+// ── TVK static fallback (shown in hero when no live TVK news) ─────────────────
+const TVK_PROMO: NewsItem = {
+  title: 'Thalapathy Vijay — TVK கட்சி | Tamil Nadu CM Race 2026',
+  desc:  'வெற்றி கழகம் (TVK) தலைவர் விஜய், 2026 தமிழ்நாடு சட்டமன்ற தேர்தலில் ஆட்சி அமைக்க தயாராகிறார். Exit polls: TVK 98–120 seats.',
+  link:  'https://en.wikipedia.org/wiki/Tamilaga_Vettri_Kazhagam',
+  source: 'NammaTamil.tv',
+  sourceLogo: '',
+  pubDate: new Date().toISOString(),
+  timeAgo: 'pinned',
+  imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Vijay_at_CWC_2011.jpg/800px-Vijay_at_CWC_2011.jpg',
+  category: 'tvk',
+}
+
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function HomeNewsPortal() {
   const [data, setData]           = useState<ApiResponse | null>(null)
@@ -290,6 +303,9 @@ export default function HomeNewsPortal() {
   const [category, setCategory]   = useState<'all' | 'tvk' | 'politics' | 'cinema' | 'sports'>('all')
   const [showMore, setShowMore]   = useState(false)
   const [secAgo, setSecAgo]       = useState(0)
+  const [heroIdx, setHeroIdx]     = useState(0)
+  const heroRotateRef             = useRef<ReturnType<typeof setInterval> | null>(null)
+  const heroTickRef               = useRef(0) // count rotations to insert TVK slot
 
   const fetchNews = useCallback(async (manual = false) => {
     if (manual) setRefresh(true)
@@ -300,6 +316,7 @@ export default function HomeNewsPortal() {
       setData(json)
       setSecAgo(0)
       setShowMore(false)
+      setHeroIdx(0)
     } catch { /* keep stale */ }
     finally { setLoading(false); setRefresh(false) }
   }, [])
@@ -314,13 +331,40 @@ export default function HomeNewsPortal() {
 
   const all = data?.news ?? []
   // TVK items: category=tvk OR title contains vijay/tvk keywords
+  const tvkItems = all.filter(n => n.category === 'tvk' || (n.category === 'politics' && /tvk|vijay|தாளபதி|வெற்றி கழகம்/i.test(n.title + n.desc)))
   const filtered = category === 'all' ? all
-    : category === 'tvk' ? all.filter(n => n.category === 'tvk' || (n.category === 'politics' && /tvk|vijay|தாளபதி|வெற்றி கழகம்/i.test(n.title + n.desc)))
+    : category === 'tvk' ? tvkItems
     : all.filter(n => n.category === category)
-  const hero = filtered[0] ?? null
-  const secondary = filtered.slice(1, 4)
+
+  // Hero pool: top 5 filtered items for rotation
+  // Every 3rd rotation: force TVK story (or static promo if none)
+  const HERO_POOL_SIZE = 5
+  const heroPool = filtered.slice(0, HERO_POOL_SIZE)
+
+  // Start hero rotation after data loads
+  useEffect(() => {
+    if (heroPool.length <= 1) return
+    if (heroRotateRef.current) clearInterval(heroRotateRef.current)
+    heroRotateRef.current = setInterval(() => {
+      heroTickRef.current += 1
+      setHeroIdx(prev => {
+        // Every 3rd rotation snap to a TVK story
+        if (heroTickRef.current % 3 === 0 && tvkItems.length > 0) {
+          const tvkInPool = heroPool.findIndex(h => h.category === 'tvk' || /tvk|vijay/i.test(h.title))
+          if (tvkInPool >= 0) return tvkInPool
+        }
+        return (prev + 1) % heroPool.length
+      })
+    }, 6000)
+    return () => { if (heroRotateRef.current) clearInterval(heroRotateRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [all.length, category])
+
+  // Resolve active hero — fallback to TVK_PROMO if empty and in TVK tab
+  const activeHeroItem = heroPool[heroIdx] ?? heroPool[0] ?? (category === 'tvk' ? TVK_PROMO : null)
+  const secondary = filtered.filter((_, i) => i !== (heroPool[heroIdx] !== undefined ? heroIdx : 0)).slice(1, 4)
   const listItems = showMore ? filtered.slice(4) : filtered.slice(4, 16)
-  const trending = [...all].sort(() => Math.random() - 0.5).slice(0, 8) // randomise for "trending" feel
+  const trending = [...all].sort(() => Math.random() - 0.5).slice(0, 8)
 
   const freshLabel = secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`
 
@@ -397,9 +441,37 @@ export default function HomeNewsPortal() {
                   <Skeleton h={160} radius={14} />
                 </div>
               </>
-            ) : hero ? (
+            ) : activeHeroItem ? (
               <>
-                <HeroStory item={hero} />
+                {/* Hero rotation dots */}
+                {heroPool.length > 1 && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 5, marginBottom: 4 }}>
+                    {heroPool.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setHeroIdx(i)}
+                        style={{
+                          width: i === heroIdx ? 18 : 6, height: 6,
+                          borderRadius: 99,
+                          background: i === heroIdx ? (heroPool[i]?.category === 'tvk' ? '#f59e0b' : '#ef4444') : 'rgba(255,255,255,0.2)',
+                          border: 'none', cursor: 'pointer',
+                          transition: 'all 0.3s',
+                          padding: 0,
+                        }}
+                        aria-label={`Story ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+                {/* TVK badge on hero when showing TVK story */}
+                {(activeHeroItem.category === 'tvk' || /tvk|vijay/i.test(activeHeroItem.title)) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                    <span style={{ fontSize: 9, fontWeight: 900, padding: '3px 10px', borderRadius: 99, background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.35)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      ⚡ TVK 2026 | Thalapathy Vijay
+                    </span>
+                  </div>
+                )}
+                <div key={activeHeroItem.link} className="hero-fade"><HeroStory item={activeHeroItem} /></div>
                 {secondary.length > 0 && (
                   <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(secondary.length, 3)}, 1fr)`, gap: 10 }}>
                     {secondary.map((item, i) => <SecondaryStory key={i} item={item} />)}
@@ -531,6 +603,11 @@ export default function HomeNewsPortal() {
           0%   { background-position: -200% 0; }
           100% { background-position:  200% 0; }
         }
+        @keyframes heroFade {
+          0%   { opacity: 0; transform: scale(1.01); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        .hero-fade { animation: heroFade 0.5s ease-out; }
 
         /* Desktop: hero = 2 rows (big + 3-up) */
         @media (min-width: 768px) {
