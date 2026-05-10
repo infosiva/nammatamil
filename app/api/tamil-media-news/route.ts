@@ -176,14 +176,15 @@ function parseRSS(xml: string, source: string, logoColor: string, tamil: boolean
   return items
 }
 
-// ── In-memory cache ──────────────────────────────────────────────────────────
+// ── In-memory cache (fresh + stale) ─────────────────────────────────────────
 let cache: { data: object; at: number } | null = null
-const CACHE_TTL = 5 * 60 * 1000 // 5 min
+const CACHE_TTL   = 5 * 60 * 1000  // 5 min — serve fresh
+const STALE_TTL   = 30 * 60 * 1000 // 30 min — serve stale rather than fail
 
 async function fetchFeed(feed: typeof FEEDS[0]): Promise<RawItem[]> {
   try {
     const res = await fetch(feed.url, {
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(3000), // reduced: 3s per feed
       headers: { 'User-Agent': 'NammaTamil RSS Reader/1.0' },
     })
     if (!res.ok) return []
@@ -218,9 +219,29 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(cache.data, { headers: { 'X-Cache': 'HIT' } })
   }
 
-  // Fetch all feeds in parallel
-  const results = await Promise.allSettled(FEEDS.map(fetchFeed))
-  const allItems: RawItem[] = results.flatMap(r => r.status === 'fulfilled' ? r.value : [])
+  // Serve stale cache while revalidating (prevents 404 on cold starts)
+  const staleCache = cache && Date.now() - cache.at < STALE_TTL ? cache : null
+
+  // Fetch all feeds in parallel — use Promise.race with overall 8s guard
+  const fetchAll = Promise.allSettled(FEEDS.map(fetchFeed))
+  const timeout  = new Promise<typeof FEEDS[0][]>((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000))
+
+  let allItems: RawItem[] = []
+  try {
+    const results = await Promise.race([fetchAll, timeout]) as Awaited<typeof fetchAll>
+    allItems = results.flatMap(r => r.status === 'fulfilled' ? r.value : [])
+  } catch {
+    // All feeds timed out — serve stale if available
+    if (staleCache) {
+      return NextResponse.json(staleCache.data, { headers: { 'X-Cache': 'STALE' } })
+    }
+    return NextResponse.json({ news: [], updatedAt: new Date().toISOString(), count: 0 })
+  }
+
+  // If nothing came back, fall back to stale
+  if (allItems.length === 0 && staleCache) {
+    return NextResponse.json(staleCache.data, { headers: { 'X-Cache': 'STALE' } })
+  }
 
   // Sort: Tamil sources first (+30 boost), then by recency
   const now = Date.now()

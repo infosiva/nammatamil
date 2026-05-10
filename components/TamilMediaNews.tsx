@@ -163,7 +163,7 @@ export default function TamilMediaNews({ skipFirst = 0 }: { skipFirst?: number }
   // When "all" tab is active, skip the first N items (already shown in hero LiveNowPanel)
   const filteredRaw = activeTab === 'all' ? allNews : allNews.filter(n => n.category === activeTab)
   const filtered = activeTab === 'all' ? filteredRaw.slice(skipFirst) : filteredRaw
-  const visible = showAll ? filtered : filtered.slice(0, 8)
+  const visible = showAll ? filtered : filtered.slice(0, 12)
 
   const tabs: Array<{ key: typeof activeTab; label: string }> = [
     { key: 'all',      label: 'All' },
@@ -227,7 +227,7 @@ export default function TamilMediaNews({ skipFirst = 0 }: { skipFirst?: number }
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 8 }}>
             {visible.map((item, i) => <NewsCard key={`${item.link}-${i}`} item={item} />)}
           </div>
-          {filtered.length > 8 && (
+          {filtered.length > 12 && (
             <button onClick={() => setShowAll(p => !p)}
               style={{
                 width: '100%', marginTop: 10, padding: '10px',
@@ -235,7 +235,7 @@ export default function TamilMediaNews({ skipFirst = 0 }: { skipFirst?: number }
                 background: 'rgba(255,255,255,0.025)',
                 color: 'rgba(255,255,255,0.45)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
               }}>
-              {showAll ? '↑ Show less' : `↓ ${filtered.length - 8} more stories`}
+              {showAll ? '↑ Show less' : `↓ ${filtered.length - 12} more stories`}
             </button>
           )}
         </>

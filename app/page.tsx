@@ -1,90 +1,133 @@
 import HomeTabLayout from '@/components/HomeTabLayout'
 import TamilMediaNews from '@/components/TamilMediaNews'
 import VisitorCounter from '@/components/VisitorCounter'
-import TVKHeroBg from '@/components/TVKHeroBg'
-import LiveNowPanel from '@/components/LiveNowPanel'
 import CricketWidget from '@/components/CricketWidget'
-import TVKWidget from '@/components/TVKWidget'
 import AdUnit from '@/components/AdUnit'
-import { ShimmerButton } from '@/components/magicui/shimmer-button'
-import { AnimatedList } from '@/components/magicui/animated-list'
 
 export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
 
-      {/* ══ HERO ════════════════════════════════════════════════════════════ */}
-      <section className="relative border-b border-white/[0.06] overflow-hidden">
-        <TVKHeroBg />
-        {/* Depth grid + spotlight overlays */}
-        <div className="depth-grid" />
-        <div className="hero-spotlight" />
+      {/* ══ TOP BAR — identity + live stats ════════════════════════════════ */}
+      <div className="border-b border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span
+              className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full"
+              style={{
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.25)',
+                color: '#f87171',
+              }}
+            >
+              <span
+                style={{
+                  width: 5, height: 5, borderRadius: '50%',
+                  background: '#ef4444',
+                  boxShadow: '0 0 0 0 rgba(239,68,68,0.7)',
+                  animation: 'ping 1.5s ease-in-out infinite',
+                  display: 'inline-block',
+                }}
+              />
+              Live
+            </span>
+            <h1
+              className="font-black tracking-tight hidden sm:block"
+              style={{
+                fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+                background: 'linear-gradient(135deg, #fbbf24, #ef4444)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Tamil News · சமீபத்திய செய்திகள்
+            </h1>
+          </div>
+          <VisitorCounter />
+        </div>
+      </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10">
+      {/* ══ MAIN — 3-col editorial grid (news left | news right | sidebar) ══ */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
 
-          {/* Identity row */}
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              {/* Live badge */}
-              <span className="pill-glass text-[10px] font-bold tracking-widest uppercase mb-3 inline-flex items-center gap-1.5">
-                <span className="live-ring" />
-                Live Now
-              </span>
-              <h1 className="text-iridescent font-black tracking-tight"
-                style={{ fontSize: 'clamp(1.8rem,5vw,2.8rem)', lineHeight: 1 }}>
-                NammaTamil
-              </h1>
-              <p className="text-white/30 text-[11px] font-semibold tracking-widest mt-1.5 uppercase">
-                Tamil · தமிழ் · Entertainment &amp; Politics
-              </p>
-            </div>
-            <VisitorCounter />
+          {/* ── LEFT: News feed (full width on mobile, 2/3 on desktop) ── */}
+          <div className="min-w-0">
+            <TamilMediaNews skipFirst={0} />
           </div>
 
-          {/* 2-col hero grid */}
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-3 items-start hero-grid">
-            <LiveNowPanel />
-            <div className="glass-liquid rounded-xl overflow-hidden">
+          {/* ── RIGHT: Sidebar widgets ── */}
+          <div className="flex flex-col gap-5 lg:sticky lg:top-[72px]">
+
+            {/* Cricket / IPL live widget */}
+            <div
+              style={{
+                borderRadius: 16,
+                overflow: 'hidden',
+                border: '1px solid rgba(255,255,255,0.07)',
+                background: 'rgba(255,255,255,0.025)',
+              }}
+            >
+              <div
+                style={{
+                  padding: '10px 14px',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#4ade80', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  🏏 IPL Live
+                </span>
+              </div>
               <CricketWidget compact />
             </div>
+
+            {/* Ad unit */}
+            <AdUnit size="square" />
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* ══ MAIN CONTENT ════════════════════════════════════════════════════ */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
-
-        {/* Tamil Media News — animated reveal */}
-        <AnimatedList delay={800}>
-          <TamilMediaNews skipFirst={5} />
-        </AnimatedList>
-
-        {/* TV Schedule widget — contextual, only on home */}
-        <TVKWidget />
-
-        {/* Entertainment tabs */}
-        <div>
-          <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-white/[0.07]">
-            <div className="flex items-center gap-3">
-              <span className="w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-400 to-red-600 shrink-0" />
-              <h2 className="font-extrabold text-base text-white/75 tracking-tight">Tamil Entertainment</h2>
-            </div>
-            <ShimmerButton
-              background="rgba(220,38,38,1)"
-              shimmerColor="#fbbf24"
-              shimmerDuration="2.5s"
-              borderRadius="8px"
-              className="text-xs font-bold tracking-wide px-4 py-2"
+      {/* ══ DIVIDER — Entertainment section ════════════════════════════════ */}
+      <div className="border-t border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex items-center gap-3">
+            <span
+              className="w-0.5 h-5 rounded-full shrink-0"
+              style={{ background: 'linear-gradient(to bottom, #fbbf24, #ef4444)' }}
+            />
+            <h2
+              className="font-extrabold text-base tracking-tight"
+              style={{ color: 'rgba(255,255,255,0.7)' }}
             >
-              Explore All
-            </ShimmerButton>
+              Tamil Entertainment
+            </h2>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: 'rgba(255,255,255,0.25)',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Movies · Serials · Albums · OTT
+            </span>
           </div>
-          <HomeTabLayout />
         </div>
+      </div>
 
-        {/* Ad — bottom of page after all content */}
+      {/* ══ ENTERTAINMENT TABS ══════════════════════════════════════════════ */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+        <HomeTabLayout />
+      </div>
+
+      {/* ══ FOOTER AD ═══════════════════════════════════════════════════════ */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <AdUnit size="banner" />
-
       </div>
 
     </div>
