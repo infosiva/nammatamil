@@ -10,10 +10,10 @@ export const brand: BrandConfig = {
   name: 'RoamPlan',
   tagline: 'AI travel planner — personalised day-by-day itineraries for any destination.',
   icon: '✈️',
-  color: '#0ea5e9',
+  color: '#f97316',
   url: 'https://roamplan.app',
-  navLinks: [{ label: 'Plan trip', href: '/' }],
-  cta: { label: 'Plan free →', href: '/' },
+  navLinks: [{ label: 'Plan trip', href: '/' }, { label: 'Pricing', href: '#pricing' }],
+  cta: { label: 'Plan free →', href: '#planner' },
 }
 
 export const metadata: Metadata = {
