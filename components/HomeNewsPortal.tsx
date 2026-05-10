@@ -16,6 +16,7 @@ import { goLink } from '@/lib/goLink'
 import CricketWidget from '@/components/CricketWidget'
 import AdUnit from '@/components/AdUnit'
 import VisitorCounter from '@/components/VisitorCounter'
+import TVKSpotlight from '@/components/TVKSpotlight'
 
 interface NewsItem {
   title: string
@@ -592,6 +593,9 @@ export default function HomeNewsPortal() {
           </div>
         </div>
       </div>
+
+      {/* ── TVK DAILY SPOTLIGHT ───────────────────────────────────────── */}
+      <TVKSpotlight />
 
       {/* ── FOOTER AD ─────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
