@@ -501,7 +501,7 @@ export default function HomeNewsPortal() {
                   <CricketWidget compact />
                 </div>
               </div>
-              <AdUnit size="square" />
+              <AdUnit size="rectangle" />
             </div>
 
           </div>

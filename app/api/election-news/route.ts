@@ -17,7 +17,7 @@
  * Cache: 5 minutes — situation moves fast
  */
 import { NextRequest, NextResponse } from 'next/server'
-import { generateWithAI } from '@/lib/ai'
+import { aiChat } from '@/lib/ai'
 import { rateLimit } from '@/lib/ratelimit'
 
 export const dynamic = 'force-dynamic'
@@ -177,11 +177,7 @@ Respond ONLY with valid compact JSON — no markdown fences:
 }`
 
   try {
-    const raw = await generateWithAI(prompt, {
-      mode: 'fast', maxTokens: 600,
-      systemPrompt: 'Tamil Nadu political analyst. Return only valid compact JSON. Be specific and data-driven.',
-      noCache: true,
-    })
+    const raw = await aiChat([{ role: 'user', content: prompt }], 'Tamil Nadu political analyst. Return only valid compact JSON. Be specific and data-driven.', 600, 'fast')
     const cleaned = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
     const parsed = JSON.parse(cleaned) as CoalitionAnalysis
     // Sanity check likelihoods sum to ~100

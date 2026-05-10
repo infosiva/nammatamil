@@ -19,7 +19,7 @@
  *   This immediately overrides ALL scraping for any refresh.
  */
 import { NextResponse } from 'next/server'
-import { generateWithAI } from '@/lib/ai'
+import { aiChat } from '@/lib/ai'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -351,11 +351,7 @@ Respond ONLY with valid JSON — no markdown, no explanation:
 }`
 
   try {
-    const raw = await generateWithAI(prompt, {
-      mode: 'fast', maxTokens: 450,
-      systemPrompt: 'Tamil Nadu election analyst. Return only valid compact JSON.',
-      noCache: true,
-    })
+    const raw = await aiChat([{ role: 'user', content: prompt }], 'Tamil Nadu election analyst. Return only valid compact JSON.', 450, 'fast')
     const cleaned = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
     const parsed = JSON.parse(cleaned)
     // Sanity check — reject if all tallies are 0 and we have context

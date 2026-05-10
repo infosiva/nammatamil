@@ -35,7 +35,7 @@
  *   NVIDIA_API_KEY, NVIDIA_API_KEY_1, ...    (free at build.nvidia.com)
  *   KIMI_API_KEY, KIMI_API_KEY_1, ...        (free at platform.moonshot.cn)
  */
-import config from '@/vertical.config'
+const config = { aiSystemPrompt: 'You are a helpful Tamil news AI assistant.' }
 
 const _aiSystemPrompt = 'You are a helpful AI assistant.'
 

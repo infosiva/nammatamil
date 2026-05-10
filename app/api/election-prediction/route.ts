@@ -6,7 +6,7 @@
  * Cache: 1 hour (Groq is free, but we don't need more freshness than this)
  */
 import { NextResponse } from 'next/server'
-import { generateWithAI } from '@/lib/ai'
+import { aiChat } from '@/lib/ai'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0 // always fresh — client polls every 5 min
@@ -167,12 +167,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanation):
 }`
 
   try {
-    const raw = await generateWithAI(prompt, {
-      mode: 'fast', // Groq only — free + fast
-      maxTokens: 200,
-      systemPrompt: 'You are a political data analyst. Return only valid JSON, no markdown fences.',
-      noCache: true, // always fresh
-    })
+    const raw = await aiChat([{ role: 'user', content: prompt }], 'You are a political data analyst. Return only valid JSON, no markdown fences.', 200, 'fast')
     // Strip markdown fences if present
     const cleaned = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
     const parsed = JSON.parse(cleaned)
