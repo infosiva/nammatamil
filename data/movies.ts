@@ -161,6 +161,23 @@ export const movies: Movie[] = [
 
   // ── 2024 — Recent Blockbusters ────────────────────────────────────────
   {
+    id: 'm6b',
+    slug: 'goat-2024',
+    title: 'The Greatest of All Time (GOAT)',
+    year: 2024,
+    director: 'Venkat Prabhu',
+    cast: ['Vijay', 'Prashanth', 'Jayaram', 'Meenakshi Chaudhary', 'Sneha'],
+    genre: ['Action', 'Sci-Fi', 'Thriller'],
+    language: 'Tamil',
+    description: 'Thalapathy Vijay\'s farewell film before entering politics. A time-travel action thriller where Vijay plays dual roles — a retired special ops agent and his own son. Grand set pieces, emotional father-son arc, and Vijay at his charismatic best. Released on Disney+ Hotstar for Tamil New Year 2024. Vijay announced TVK party formation months after this release, making GOAT his cinematic swan song.',
+    streamingOn: ['Disney+ Hotstar'],
+    rating: 7.2,
+    gradient: 'from-yellow-600 via-amber-500 to-orange-500',
+    badge: 'Vijay\'s Final Film',
+    ottDate: '2024-09-05',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/goat-vijay-2024.jpg',
+  },
+  {
     id: 'm7',
     slug: 'amaran-2024',
     title: 'Amaran',
