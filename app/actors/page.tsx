@@ -1,13 +1,27 @@
 import { Users, Music, Film, Clapperboard } from 'lucide-react'
 import Link from 'next/link'
 import AdUnit from '@/components/AdUnit'
-import { actors } from '@/data/actors'
 import type { Metadata } from 'next'
 import clsx from 'clsx'
 
 export const metadata: Metadata = {
   title: 'Tamil Artists — Actors, Directors & Composers',
-  description: 'Profiles of Tamil cinema\'s greatest actors, directors, and music composers — Rajinikanth, Vijay, AR Rahman, Ilaiyaraaja, Mani Ratnam and more.',
+  description: 'Profiles of Tamil cinema\'s greatest actors, directors, and composers — Rajinikanth, Vijay, AR Rahman, Ilaiyaraaja, Mani Ratnam and more.',
+}
+
+export const revalidate = 86400 // 24 hours ISR
+
+interface Actor {
+  id: string
+  slug: string
+  name: string
+  tamilName?: string
+  type: 'actor' | 'actress' | 'director' | 'composer'
+  badge?: string
+  description: string
+  gradient: string
+  notableWorks: string[]
+  thumbnail?: string
 }
 
 const TYPE_CONFIG = {
@@ -17,7 +31,23 @@ const TYPE_CONFIG = {
   composer: { label: 'Composer', icon: Music,        color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
 }
 
-export default function ActorsPage() {
+async function getActors(): Promise<Actor[]> {
+  try {
+    const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://nammatamil.live'
+    const res = await fetch(`${base}/api/actors`, {
+      next: { revalidate: 86400 },
+    })
+    if (!res.ok) throw new Error(`actors API ${res.status}`)
+    const data = await res.json() as { actors: Actor[] }
+    return data.actors ?? []
+  } catch {
+    const { actors } = await import('@/data/actors')
+    return actors as Actor[]
+  }
+}
+
+export default async function ActorsPage() {
+  const actors = await getActors()
   const byType = {
     actors:    actors.filter(a => a.type === 'actor' || a.type === 'actress'),
     directors: actors.filter(a => a.type === 'director'),
@@ -40,9 +70,8 @@ export default function ActorsPage() {
 
       <AdUnit format="horizontal" className="mb-10 min-h-[90px]" />
 
-      {/* Actors & Actresses */}
       <section className="mb-16">
-        <h2 className="text-2xl font-bold text-white mb-6">Actors & Actresses</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">Actors &amp; Actresses</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {byType.actors.map((person) => <ArtistCard key={person.id} person={person} />)}
         </div>
@@ -50,7 +79,6 @@ export default function ActorsPage() {
 
       <AdUnit format="rectangle" className="mb-16 min-h-[250px]" />
 
-      {/* Directors */}
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-white mb-6">Directors</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -58,7 +86,6 @@ export default function ActorsPage() {
         </div>
       </section>
 
-      {/* Composers */}
       <section>
         <h2 className="text-2xl font-bold text-white mb-6">Music Composers</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -69,13 +96,12 @@ export default function ActorsPage() {
   )
 }
 
-function ArtistCard({ person }: { person: (typeof actors)[0] }) {
+function ArtistCard({ person }: { person: Actor }) {
   const cfg = TYPE_CONFIG[person.type]
   const Icon = cfg.icon
   return (
     <Link href={`/actors/${person.slug}`} className="group">
       <div className="glass rounded-2xl overflow-hidden border border-white/5 card-hover flex">
-        {/* Colour strip */}
         <div className={clsx('w-2 bg-gradient-to-b flex-shrink-0', person.gradient)} />
         <div className="p-5 flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 mb-3">

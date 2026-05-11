@@ -127,7 +127,7 @@ const CACHE_TTL = 2 * 60 * 1000
 export async function GET() {
   const now = Date.now()
   if (cache && now - cache.fetchedAt < CACHE_TTL) {
-    return NextResponse.json({ ...cache.data as object, cached: true }, { headers: { 'Cache-Control': 'no-store' } })
+    return NextResponse.json({ ...cache.data as object, cached: true }, { headers: { 'Cache-Control': 's-maxage=120, stale-while-revalidate=30' } })
   }
 
   const results = await Promise.allSettled(
@@ -197,5 +197,5 @@ export async function GET() {
   }
 
   cache = { data, fetchedAt: now }
-  return NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } })
+  return NextResponse.json(data, { headers: { 'Cache-Control': 's-maxage=120, stale-while-revalidate=30' } })
 }

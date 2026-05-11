@@ -1,7 +1,6 @@
 import { Tv2, Globe } from 'lucide-react'
 import ContentCard from '@/components/ContentCard'
 import AdUnit from '@/components/AdUnit'
-import { serials } from '@/data/serials'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -9,16 +8,45 @@ export const metadata: Metadata = {
   description: 'Complete list of Tamil serials from Sun TV, Vijay TV, Star Vijay, Zee Tamil — original Tamil and Tamil dubbed serials with cast, ratings, and episode details.',
 }
 
-const CHANNELS = ['All', 'Sun TV', 'Vijay TV', 'Star Vijay', 'Zee Tamil']
+export const revalidate = 21600 // 6 hours ISR
 
-export default function SerialsPage() {
+interface Serial {
+  id: string
+  slug: string
+  title: string
+  channel: string
+  language: string
+  originalLanguage?: string
+  status?: string
+  rating?: number
+  gradient: string
+  tags?: string[]
+  thumbnail?: string
+}
+
+async function getSerials(): Promise<Serial[]> {
+  try {
+    const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://nammatamil.live'
+    const res = await fetch(`${base}/api/serials`, {
+      next: { revalidate: 21600 },
+    })
+    if (!res.ok) throw new Error(`serials API ${res.status}`)
+    const data = await res.json() as { serials: Serial[] }
+    return data.serials ?? []
+  } catch {
+    const { serials } = await import('@/data/serials')
+    return serials as Serial[]
+  }
+}
+
+export default async function SerialsPage() {
+  const serials = await getSerials()
   const original = serials.filter(s => s.language === 'Tamil')
   const dubbed = serials.filter(s => s.language === 'Tamil Dubbed')
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-      {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 rounded-xl bg-gold-500/10 border border-gold-500/20">
@@ -33,7 +61,6 @@ export default function SerialsPage() {
 
       <AdUnit format="horizontal" className="mb-10 min-h-[90px]" />
 
-      {/* Original Tamil Serials */}
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-white mb-2">Original Tamil Serials</h2>
         <p className="text-muted text-sm mb-6">Produced in Tamil across all major channels</p>
@@ -58,7 +85,6 @@ export default function SerialsPage() {
 
       <AdUnit format="rectangle" className="mb-16 min-h-[250px]" />
 
-      {/* Tamil Dubbed Serials */}
       {dubbed.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-2">
@@ -72,7 +98,7 @@ export default function SerialsPage() {
                 key={s.id}
                 href={`/serials/${s.slug}`}
                 title={s.title}
-                subtitle={`${s.channel} · ${s.originalLanguage}`}
+                subtitle={`${s.channel}${s.originalLanguage ? ` · ${s.originalLanguage}` : ''}`}
                 gradient={s.gradient}
                 type="serial"
                 rating={s.rating}

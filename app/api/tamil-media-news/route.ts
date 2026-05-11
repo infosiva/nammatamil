@@ -20,7 +20,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { rateLimit } from '@/lib/ratelimit'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = 120 // 2 min Vercel CDN cache
 
 // ── RSS sources — Tamil-language FIRST (URLs verified 2026-05-10) ───────────
 const FEEDS: Array<{ name: string; url: string; tamil: boolean; logoColor: string; tvk?: boolean }> = [
@@ -344,7 +344,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json(data, {
     headers: {
-      'Cache-Control': 'no-store, max-age=0',
+      'Cache-Control': 's-maxage=120, stale-while-revalidate=30',
       'X-Sources': [...new Set(news.map(n => n.source))].join(', '),
     },
   })
