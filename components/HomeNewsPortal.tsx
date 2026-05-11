@@ -383,7 +383,7 @@ export default function HomeNewsPortal() {
   const freshLabel = secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a1a' }}>
+    <div style={{ minHeight: '100vh', background: 'transparent' }}>
 
       {/* ── LIVE TICKER ──────────────────────────────────────────────── */}
       {!loading && <NewsTicker items={all} />}

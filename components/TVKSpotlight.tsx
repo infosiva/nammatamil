@@ -5,52 +5,52 @@ import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { ArrowRight, Users, TrendingUp, Star, Zap, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
-// ── Slide data ────────────────────────────────────────────────────────────────
+// ── Slide data — post-election May 2026 reality ───────────────────────────────
 const SLIDES = [
   {
     id: 1,
-    tag: 'FIRST ELECTION',
+    tag: 'TVK WINS 2026',
     tagColor: '#fbbf24',
-    headline: 'தவகவின் முதல் தேர்தல்',
-    sub: "Thalapathy Vijay's Tamilaga Vettri Kazhagam enters Tamil Nadu politics for the first time in 2026",
-    stat: '1ST',
-    statLabel: 'Election ever',
+    headline: 'விஜய் முதலமைச்சர்!',
+    sub: 'Thalapathy Vijay's TVK wins Tamil Nadu 2026 assembly election. With Congress, PMK & AIADMK breakaway support, TVK crosses 118-seat majority to form government.',
+    stat: '108+',
+    statLabel: 'Seats won (coalition 145+)',
     bg: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1400&q=80&fit=crop',
     accent: '#fbbf24',
     icon: Star,
   },
   {
     id: 2,
-    tag: 'CROWD POWER',
+    tag: 'CM OATH',
     tagColor: '#f87171',
-    headline: 'கோடிக்கணக்கான ஆதரவு',
-    sub: 'Massive 1.2 crore+ members joined TVK within months — the fastest-growing political party in Tamil Nadu history',
-    stat: '1.2Cr+',
-    statLabel: 'Members nationwide',
+    headline: 'பதவியேற்பு விழா',
+    sub: 'Vijay sworn in as Tamil Nadu Chief Minister at Nehru Indoor Stadium, Chennai. Historic moment — TN's first non-DMK/AIADMK CM since 1977.',
+    stat: 'May 7',
+    statLabel: 'Oath ceremony date',
     bg: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=1400&q=80&fit=crop',
     accent: '#f87171',
     icon: Users,
   },
   {
     id: 3,
-    tag: 'RISING FORCE',
+    tag: '1.2CR MEMBERS',
     tagColor: '#34d399',
-    headline: 'புதிய அரசியல் சக்தி',
-    sub: 'AI-powered sentiment analysis places TVK at 18.7% vote share — poised to be a decisive kingmaker in TN 2026',
-    stat: '18.7%',
-    statLabel: 'Projected vote share',
+    headline: 'மக்கள் கட்சி TVK',
+    sub: 'Tamilaga Vettri Kazhagam — from launch to government in under 2 years. 1.2 crore+ members, historic mandate from Tamil Nadu voters.',
+    stat: '1.2Cr+',
+    statLabel: 'TVK party members',
     bg: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1400&q=80&fit=crop',
     accent: '#34d399',
     icon: TrendingUp,
   },
   {
     id: 4,
-    tag: 'YOUTH WAVE',
+    tag: 'NEXT CHAPTER',
     tagColor: '#a78bfa',
-    headline: 'இளைஞர்களின் குரல்',
-    sub: 'From blockbuster hero to political leader — millions of young voters are rallying behind Vijay\'s vision for Tamil Nadu',
-    stat: '62%',
-    statLabel: 'Youth supporter base',
+    headline: 'புதிய அரசு தமிழகம்',
+    sub: 'From Ghilli to governance — Vijay's journey from Tamil cinema's Thalapathy to Chief Minister of Tamil Nadu. A new era begins.',
+    stat: 'CM',
+    statLabel: 'Tamil Nadu Chief Minister',
     bg: 'https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=1400&q=80&fit=crop',
     accent: '#a78bfa',
     icon: Zap,
@@ -252,7 +252,7 @@ export default function TVKSpotlight() {
                     <Icon className="w-5 h-5" style={{ color: slide.accent }} />
                   </div>
                   <p className="font-black" style={{ fontSize: 'clamp(2.4rem, 7vw, 4rem)', color: slide.accent, lineHeight: 1 }}>
-                    {slide.id === 2
+                    {slide.id === 3
                       ? `${memberCount > 0 ? (memberCount / 100).toFixed(1) : '1.2'}Cr`
                       : slide.stat}
                   </p>
@@ -264,10 +264,10 @@ export default function TVKSpotlight() {
             {/* Mini progress bars for all stats */}
             <div className="w-full max-w-xs space-y-2">
               {[
-                { label: 'Member growth', value: 92, color: '#fbbf24' },
-                { label: 'Youth support',  value: 62, color: '#a78bfa' },
-                { label: 'Social buzz',    value: 78, color: '#34d399' },
-                { label: 'Vote estimate',  value: 19, color: '#f87171' },
+                { label: 'Seats won',      value: 61, color: '#fbbf24' },  // 108/177 = 61%
+                { label: 'Coalition',      value: 82, color: '#34d399' },  // 145+ seats
+                { label: 'Youth vote',     value: 74, color: '#a78bfa' },
+                { label: 'Vote share',     value: 38, color: '#f87171' },
               ].map((bar, i) => (
                 <div key={bar.label} className="flex items-center gap-2">
                   <span className="text-[10px] text-white/30 w-24 flex-shrink-0 text-right">{bar.label}</span>

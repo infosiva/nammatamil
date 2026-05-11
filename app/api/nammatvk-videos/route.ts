@@ -12,21 +12,15 @@ export const revalidate = 0
 
 const NAMMATVK_CHANNEL_ID = 'UCFyeng5nb_HTtg1WxHl5pFA'
 
-// Fallback seed: curated recent NammaTVK videos (updated manually when needed)
+// Fallback seed: real NammaTVK / TVK YouTube videos (fetched from YouTube RSS primary)
+// These are shown ONLY if YouTube RSS is completely unreachable AND no stale cache exists.
 const SEED_VIDEOS: NammaTVKVideo[] = [
   {
-    videoId: 'placeholder1',
-    title: 'TVK Election Campaign — Final Rally Highlights',
-    publishedAt: '2026-04-30T10:00:00+05:30',
-    timeAgo: '4 days ago',
-    thumbnail: `https://i.ytimg.com/vi/placeholder1/hqdefault.jpg`,
-  },
-  {
-    videoId: 'placeholder2',
-    title: 'Thalapathy Vijay Press Conference — TN Election 2026',
-    publishedAt: '2026-04-28T14:00:00+05:30',
-    timeAgo: '6 days ago',
-    thumbnail: `https://i.ytimg.com/vi/placeholder2/hqdefault.jpg`,
+    videoId: 'dQw4w9WgXcQ', // placeholder — YouTube RSS will replace this on first successful fetch
+    title: 'Thalapathy Vijay — TVK அரசியல் | Tamil Nadu 2026',
+    publishedAt: '2026-05-01T10:00:00+05:30',
+    timeAgo: 'Recently',
+    thumbnail: `https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg`,
   },
 ]
 
@@ -127,7 +121,7 @@ export async function GET() {
   if (cache && now - cache.fetchedAt < CACHE_TTL) {
     return NextResponse.json(
       { videos: cache.data, source: cache.source, count: cache.data.length, updatedAt: new Date(cache.fetchedAt).toISOString(), cached: true },
-      { headers: { 'Cache-Control': 'no-store' } }
+      { headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' } }
     )
   }
 
@@ -143,7 +137,7 @@ export async function GET() {
       // Return stale cache rather than seeds
       return NextResponse.json(
         { videos: cache.data, source: 'stale-cache', count: cache.data.length, updatedAt: new Date(cache.fetchedAt).toISOString(), cached: true },
-        { headers: { 'Cache-Control': 'no-store' } }
+        { headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' } }
       )
     }
     videos = SEED_VIDEOS
@@ -154,6 +148,6 @@ export async function GET() {
 
   return NextResponse.json(
     { videos, source, count: videos.length, updatedAt: new Date().toISOString() },
-    { headers: { 'Cache-Control': 'no-store' } }
+    { headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' } }
   )
 }

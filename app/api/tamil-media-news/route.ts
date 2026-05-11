@@ -25,7 +25,7 @@ export const revalidate = 120 // 2 min Vercel CDN cache
 // ── RSS sources — Tamil-language FIRST (URLs verified 2026-05-10) ───────────
 const FEEDS: Array<{ name: string; url: string; tamil: boolean; logoColor: string; tvk?: boolean }> = [
   // ── TIER 1: TVK / Vijay politics (highest priority) ──
-  { name: 'NammaTVK',            url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCxxxxxxxxTVK',   tamil: true,  logoColor: '#f59e0b', tvk: true },
+  { name: 'NammaTVK',            url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCFyeng5nb_HTtg1WxHl5pFA', tamil: true,  logoColor: '#f59e0b', tvk: true },
   { name: 'Puthiya Thalaimurai', url: 'https://www.puthiyathalaimurai.com/feed/',                            tamil: true,  logoColor: '#dc2626', tvk: false },
   { name: 'Polimer News',        url: 'https://www.polimernews.com/feed/',                                   tamil: true,  logoColor: '#16a34a', tvk: false },
   // ── TIER 2: Primary Tamil news ──

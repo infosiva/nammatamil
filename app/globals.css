@@ -8,7 +8,7 @@
   html { scroll-behavior: smooth; font-size: 16px; }
 
   body {
-    background-color: #050510;
+    background-color: #04040f;
     color: #e2e8f0;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -105,8 +105,8 @@
 }
 
 @layer utilities {
-  .bg-site   { background-color: #050510; }
-  .bg-card   { background-color: #0d0d1a; }
+  .bg-site   { background-color: #04040f; }
+  .bg-card   { background-color: #0a0a18; }
   .text-muted { color: rgba(148,163,184,0.7); }
   .border-subtle { border-color: rgba(255,255,255,0.07); }
 
@@ -115,25 +115,25 @@
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
-/* ── Site background — deep space with aurora ── */
+/* ── Site background — deep cinematic dark with gold/crimson glow ── */
 body {
-  background: #050510;
+  background: #04040f;
 }
 
-/* Aurora layer — slow drifting colour bands */
+/* Aurora layer — gold/amber warmth for Tamil cinema & TVK theme */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 120% 55% at 15% -10%, rgba(56,189,248,0.07) 0%, transparent 55%),
-    radial-gradient(ellipse 80%  50% at 85%  -5%, rgba(139,92,246,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse 60%  40% at 50%   5%, rgba(99,102,241,0.06) 0%, transparent 45%),
-    radial-gradient(ellipse 40%  60% at  5%  60%, rgba(56,189,248,0.04) 0%, transparent 50%),
-    radial-gradient(ellipse 40%  50% at 95%  70%, rgba(139,92,246,0.04) 0%, transparent 50%);
+    radial-gradient(ellipse 130% 60% at 10% -15%, rgba(245,158,11,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 90%  55% at 90%  -8%, rgba(220,38,38,0.05)  0%, transparent 50%),
+    radial-gradient(ellipse 70%  45% at 50%   0%, rgba(251,191,36,0.04) 0%, transparent 45%),
+    radial-gradient(ellipse 50%  65% at  0%  65%, rgba(245,158,11,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse 45%  55% at 100% 75%, rgba(220,38,38,0.03)  0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
-  animation: auroraDrift 18s ease-in-out infinite alternate;
+  animation: auroraDrift 22s ease-in-out infinite alternate;
 }
 
 /* Very fine noise grain over everything */
