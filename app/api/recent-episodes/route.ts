@@ -44,7 +44,7 @@ async function fetchChannelFeed(channelId: string, channelName: string, color: s
   const entryRegex = /<entry>([\s\S]*?)<\/entry>/g
   let match: RegExpExecArray | null
 
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+  const sevenDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000
 
   while ((match = entryRegex.exec(xml)) !== null) {
     const block = match[1]

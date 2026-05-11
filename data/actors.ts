@@ -33,10 +33,10 @@ export const actors: Actor[] = [
     tamilName: 'விஜய்',
     type: 'actor',
     born: 1974,
-    description: 'Thalapathy Vijay — actor turned politician. Tamil cinema\'s greatest mass star of his generation, Vijay retired from films after GOAT (2024) to enter politics full-time. He founded Tamilaga Vettri Kazhagam (TVK) in February 2024 and is contesting the 2026 TN Assembly elections with TVK projected to win 98–120 seats. His journey from dance-heavy masala blockbusters to a people\'s political movement is unprecedented in Tamil history.',
-    knownFor: ['Mass Action', 'Dance', 'Politics / TVK Chief'],
+    description: 'Thalapathy Vijay — actor turned Chief Minister. Tamil cinema\'s greatest mass star of his generation, Vijay retired from films after GOAT (2024) to enter politics full-time. He founded Tamilaga Vettri Kazhagam (TVK) in February 2024, led the party to a historic victory in the 2026 TN Assembly elections, and was sworn in as Tamil Nadu\'s Chief Minister on May 7, 2026 — the first non-DMK/AIADMK CM since 1977.',
+    knownFor: ['Mass Action', 'Dance', 'Chief Minister — Tamil Nadu'],
     gradient: 'from-blue-700 via-indigo-600 to-violet-500',
-    badge: 'Thalapathy / TVK Chief',
+    badge: 'Thalapathy / CM Tamil Nadu',
     notableWorks: ['Ghilli', 'Pokkiri', 'Thuppakki', 'Master', 'Leo', 'GOAT (Final Film — 2024)'],
   },
   {
