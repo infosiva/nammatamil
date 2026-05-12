@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     shortcut: '/favicon.svg',
     apple: '/favicon.svg',
   },
-  description: 'Tamil entertainment hub: serials, movies, music & more.',
+  description: 'Tamil serials, movies, dubbed films, and music albums — your complete Tamil entertainment hub for the diaspora worldwide.',
   keywords: [
     'Tamil serials', 'Tamil movies', 'Tamil dubbed movies',
     'Sun TV serials', 'Vijay TV serials', 'Tamil albums',
@@ -32,11 +32,20 @@ export const metadata: Metadata = {
     title: 'NammaTamil.tv — Tamil Entertainment Hub',
     description: 'Tamil serials, movies, dubbed films, and music albums — all in one place for the Tamil diaspora worldwide.',
     locale: 'ta_IN',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'NammaTamil.tv — Tamil Entertainment Hub',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'NammaTamil.tv — Tamil Entertainment Hub',
     description: 'Your complete Tamil entertainment universe — movies, serials, OTT, cricket and more.',
+    images: ['/opengraph-image'],
   },
   robots: { index: true, follow: true },
 }
@@ -47,11 +56,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ta-IN">
       <head>
-        {/* Fonts — preconnect first, then non-blocking stylesheet */}
+        {/* Fonts — preconnect first, then non-blocking load via media trick */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" />
+        {/* Load font as print first (non-blocking), then swap to all on load */}
+        <link
+          rel="preload"
+          as="style"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+          media="print"
+          // @ts-expect-error onload is valid for link elements
+          onLoad="this.media='all'"
+        />
+        <noscript>
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+          />
+        </noscript>
         <Script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
