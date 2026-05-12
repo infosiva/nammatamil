@@ -184,6 +184,7 @@ export default function Home() {
   const [isPro, setIsPro] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const formRef = useRef<HTMLDivElement>(null)
+  const resultsRef = useRef<HTMLDivElement>(null)
 
   // Check Pro status + ?upgraded=1 param
   useEffect(() => {
@@ -233,6 +234,7 @@ export default function Home() {
         setApiError(data.error || 'Something went wrong. Please try again.')
       } else {
         setItinerary(data.itinerary)
+        setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
       }
     } catch {
       setApiError('Network error. Please check your connection and try again.')
@@ -577,7 +579,7 @@ export default function Home() {
       </div>
 
       {/* ── RESULTS ────────────────────────────────────────────────────── */}
-      <div className="max-w-4xl mx-auto px-6 pb-24">
+      <div ref={resultsRef} className="max-w-4xl mx-auto px-6 pb-24">
         {apiError && (
           <div className="rounded-2xl border border-red-500/30 p-6 text-center mb-8"
             style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)' }}>
@@ -612,6 +614,11 @@ export default function Home() {
                     className="px-3 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white transition-all flex items-center gap-1.5"
                     style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}>
                     🖨️ Print
+                  </button>
+                  <button onClick={() => { setItinerary(null); setApiError(null); setShowWeather(false); formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+                    className="px-3 py-2 rounded-xl text-xs font-medium text-orange-300/80 hover:text-orange-300 transition-all flex items-center gap-1.5"
+                    style={{ border: '1px solid rgba(249,115,22,0.25)', background: 'rgba(249,115,22,0.08)' }}>
+                    ✈️ Plan another trip
                   </button>
                 </div>
               </div>
@@ -858,7 +865,7 @@ export default function Home() {
             </p>
             <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full text-orange-300 text-xs font-bold uppercase tracking-widest"
               style={{ background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.25)' }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" /> Pro feature · Available Q3 2025
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" /> Pro feature · Coming 2026
             </div>
           </div>
         </div>
