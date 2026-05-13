@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     shortcut: '/favicon.svg',
     apple: '/favicon.svg',
   },
-  description: 'Tamil serials, movies, dubbed films, and music albums — your complete Tamil entertainment hub for the diaspora worldwide.',
+  description: 'Discover Tamil serials, movies, dubbed films, and music albums on NammaTamil.tv — your ultimate hub for Tamil entertainment worldwide.',
   keywords: [
     'Tamil serials', 'Tamil movies', 'Tamil dubbed movies',
     'Sun TV serials', 'Vijay TV serials', 'Tamil albums',
