@@ -449,7 +449,7 @@ export default function HomeNewsPortal() {
             {loading ? (
               <>
                 <Skeleton h={280} radius={20} />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
                   <Skeleton h={160} radius={14} />
                   <Skeleton h={160} radius={14} />
                   <Skeleton h={160} radius={14} />
@@ -487,7 +487,7 @@ export default function HomeNewsPortal() {
                 )}
                 <div key={activeHeroItem.link} className="hero-fade"><HeroStory item={activeHeroItem} /></div>
                 {secondary.length > 0 && (
-                  <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(secondary.length, 3)}, 1fr)`, gap: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
                     {secondary.map((item, i) => <SecondaryStory key={i} item={item} />)}
                   </div>
                 )}
