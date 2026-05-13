@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import TrendingTicker from '@/components/TrendingTicker'
 import ChatBot from '@/components/ChatBot'
 import FeedbackWidget from '@/components/FeedbackWidget'
+import CookieConsent from "../components/CookieConsent";
 
 export const metadata: Metadata = {
   title: {
@@ -117,6 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer />
         <ChatBot />
         <FeedbackWidget />
+      <CookieConsent />
       </body>
     </html>
   )
