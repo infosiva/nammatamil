@@ -324,7 +324,7 @@ export default function HomeNewsPortal() {
   const fetchNews = useCallback(async (manual = false) => {
     if (manual) setRefresh(true)
     try {
-      const res = await fetch('/api/tamil-media-news', { cache: 'no-store', signal: AbortSignal.timeout(14000) })
+      const res = await fetch('/api/tamil-media-news', { cache: 'no-store', signal: AbortSignal.timeout(8000) })
       if (!res.ok) return
       const json: ApiResponse = await res.json()
       setData(json)
