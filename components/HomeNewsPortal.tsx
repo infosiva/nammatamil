@@ -551,7 +551,24 @@ export default function HomeNewsPortal() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {loading
                   ? Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} h={72} radius={12} />)
-                  : listItems.map((item, i) => <NewsCard key={i} item={item} />)
+                  : listItems.map((item, i) => (
+                    <>
+                      <NewsCard key={i} item={item} />
+                      {/* AdSense in-feed: after every 6th card — highest RPM position for news */}
+                      {(i + 1) % 6 === 0 && (
+                        <div key={`ad-${i}`} style={{ margin: '4px 0' }}>
+                          <ins
+                            className="adsbygoogle"
+                            style={{ display: 'block' }}
+                            data-ad-format="fluid"
+                            data-ad-layout-key="-fb+5w+4e-db+86"
+                            data-ad-client="ca-pub-4237294630161176"
+                            data-ad-slot="auto"
+                          />
+                        </div>
+                      )}
+                    </>
+                  ))
                 }
               </div>
               {!loading && filtered.length > 20 && (

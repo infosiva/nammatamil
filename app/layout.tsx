@@ -107,6 +107,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+        {/* Push AdSense for dynamically injected ins tags */}
+        <Script id="adsense-init" strategy="afterInteractive">{`
+          (function(){
+            try {
+              (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch(e){}
+          })();
+        `}</Script>
         {/* Kill Vercel's built-in feedback widget — we have our own */}
         <Script id="kill-vercel-feedback" strategy="afterInteractive">{`
           (function(){
