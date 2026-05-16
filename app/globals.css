@@ -485,3 +485,28 @@ vercel-toolbar { display: none !important; }
 /* Magic UI — shimmer animation */
 @keyframes shimmer-slide { to { transform: translate(calc(100cqw - 100%), 0); } }
 .animate-shimmer-slide { animation: shimmer-slide var(--speed, 3s) ease-in-out infinite alternate; }
+
+/* ── Mobile viewport overflow fix ── */
+html {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+  position: relative;
+}
+img, video, iframe, embed, object {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  overflow-x: auto;
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+* { -webkit-tap-highlight-color: transparent; }
+@media (max-width: 768px) {
+  html, body { overflow-x: hidden !important; }
+}
