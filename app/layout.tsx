@@ -57,6 +57,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ta-IN">
       <head>
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            --nt-red: #c0392b;
+            --nt-gold: #d4a017;
+            --nt-dark: #0d0508;
+            --nt-surface: #180b0e;
+            --nt-surface-2: #221014;
+            --nt-border: rgba(192,57,43,0.18);
+            --nt-text: #f5ede0;
+            --nt-text-2: rgba(220,190,170,0.65);
+          }
+          html, body { background: #0d0508 !important; }
+          /* Breaking news banner */
+          .breaking-banner { background: linear-gradient(90deg,#c0392b,#e74c3c) !important; }
+          /* Category pills stronger */
+          .cat-pill-cinema { background: rgba(139,92,246,0.15) !important; color: #a78bfa !important; }
+          .cat-pill-sports { background: rgba(52,211,153,0.12) !important; color: #34d399 !important; }
+          .cat-pill-politics { background: rgba(251,191,36,0.12) !important; color: #fbbf24 !important; }
+          /* Editorial grid card border on hover */
+          .news-card:hover { border-color: rgba(192,57,43,0.4) !important; }
+          /* Stronger headline font */
+          h1, h2, h3, .headline { font-family: 'Newsreader', 'Times New Roman', serif !important; }
+          /* Live badge pulse */
+          .live-badge { animation: livePulse 1.5s ease-in-out infinite; }
+          @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+        `}} />
         {/* Fonts — Newsreader (headings) + Roboto (body), non-blocking */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
