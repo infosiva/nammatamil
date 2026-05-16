@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   RefreshCw, ExternalLink, Newspaper, Search, X,
   TrendingUp, Tv2, Film, Music, Play, Trophy, Radio,
@@ -17,6 +18,9 @@ import CricketWidget from '@/components/CricketWidget'
 import AdUnit from '@/components/AdUnit'
 import VisitorCounter from '@/components/VisitorCounter'
 import TVKSpotlight from '@/components/TVKSpotlight'
+import CinemaReviewStrip from '@/components/CinemaReviewStrip'
+
+const ease = [0.23, 1, 0.32, 1] as const
 
 interface NewsItem {
   title: string
@@ -108,7 +112,7 @@ function NewsTicker({ items }: { items: NewsItem[] }) {
             fontSize: 11,
             fontWeight: 600,
             color: 'rgba(255,255,255,0.75)',
-            animation: 'marquee 60s linear infinite',
+            animation: 'marquee 120s linear infinite',
             paddingLeft: 24,
           }}
         >
@@ -132,14 +136,14 @@ function HeroStory({ item }: { item: NewsItem }) {
       href={goLink(item.link, 'hero')}
       target="_blank"
       rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 20, overflow: 'hidden', position: 'relative', aspectRatio: '16/9', minHeight: 320 }}
+      style={{ display: 'block', textDecoration: 'none', borderRadius: 20, overflow: 'hidden', position: 'relative', height: 300, maxHeight: 340 }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.01)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
     >
       <div style={{ position: 'absolute', inset: 0 }}>
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          <img src={item.imageUrl} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             onError={e => {
               const el = e.target as HTMLImageElement
               el.style.display = 'none'
@@ -193,7 +197,7 @@ function SecondaryStory({ item }: { item: NewsItem }) {
       <div style={{ position: 'absolute', inset: 0 }}>
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          <img src={item.imageUrl} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             onError={e => {
               const el = e.target as HTMLImageElement
               el.style.display = 'none'
@@ -222,25 +226,19 @@ function SecondaryStory({ item }: { item: NewsItem }) {
 function NewsCard({ item, rank }: { item: NewsItem; rank?: number }) {
   const color = SOURCE_COLORS[item.source] ?? '#6b7280'
   return (
-    <a
+    <motion.a
       href={goLink(item.link, 'news-list')}
       target="_blank"
       rel="noopener noreferrer"
+      whileHover={{ backgroundColor: 'rgba(255,255,255,0.09)', x: 2 }}
+      whileTap={{ scale: 0.99 }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
       style={{
         display: 'flex', gap: 12, textDecoration: 'none',
         borderRadius: 12, padding: '11px 12px',
         background: 'rgba(255,255,255,0.05)',
         border: '1px solid rgba(255,255,255,0.1)',
-        transition: 'all 0.15s',
         alignItems: 'flex-start',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.09)'
-        e.currentTarget.style.borderColor = `${color}40`
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
       }}
     >
       {rank !== undefined && (
@@ -251,7 +249,7 @@ function NewsCard({ item, rank }: { item: NewsItem; rank?: number }) {
       <div style={{ flexShrink: 0, width: 72, height: 54, borderRadius: 8, overflow: 'hidden', background: `linear-gradient(135deg, ${color}20, rgba(255,255,255,0.03))`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          <img src={item.imageUrl} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
         ) : (
           <Newspaper style={{ width: 18, height: 18, color: `${color}60` }} />
@@ -271,7 +269,7 @@ function NewsCard({ item, rank }: { item: NewsItem; rank?: number }) {
           <ExternalLink style={{ width: 9, height: 9, color: 'rgba(255,255,255,0.1)', marginLeft: 'auto' }} />
         </div>
       </div>
-    </a>
+    </motion.a>
   )
 }
 
@@ -448,11 +446,11 @@ export default function HomeNewsPortal() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: 12 }} className="hero-grid">
             {loading ? (
               <>
-                <Skeleton h={280} radius={20} />
+                <Skeleton h={300} radius={20} />
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
-                  <Skeleton h={160} radius={14} />
-                  <Skeleton h={160} radius={14} />
-                  <Skeleton h={160} radius={14} />
+                  <Skeleton h={120} radius={14} />
+                  <Skeleton h={120} radius={14} />
+                  <Skeleton h={120} radius={14} />
                 </div>
               </>
             ) : activeHeroItem ? (
@@ -493,6 +491,11 @@ export default function HomeNewsPortal() {
                 )}
               </>
             ) : null}
+          </div>
+
+          {/* ── CINEMA REVIEW STRIP ──────────────────────────────────── */}
+          <div style={{ marginBottom: 24 }}>
+            <CinemaReviewStrip />
           </div>
 
           {/* ── 3-COL: news feed | trending | sidebar ─────────────────── */}

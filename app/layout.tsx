@@ -57,20 +57,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ta-IN">
       <head>
-        {/* Fonts — preconnect first, then non-blocking load via media trick */}
+        {/* Fonts — Newsreader (headings) + Roboto (body), non-blocking */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        {/* Load font as print first (non-blocking), then swap to all on load */}
-        <link
-          rel="preload"
-          as="style"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&family=Roboto:wght@300;400;500;700&display=swap"
           media="print"
           // @ts-expect-error onload is valid for link elements
           onLoad="this.media='all'"
@@ -79,7 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* eslint-disable-next-line @next/next/no-page-custom-font */}
           <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&family=Roboto:wght@300;400;500;700&display=swap"
           />
         </noscript>
         <Script

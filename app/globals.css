@@ -11,10 +11,14 @@
   body {
     background-color: #04040f;
     color: #e2e8f0;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Roboto', 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     font-size: 1rem;
     line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Newsreader', Georgia, serif;
   }
 
   ::-webkit-scrollbar { width: 4px; height: 4px; }
