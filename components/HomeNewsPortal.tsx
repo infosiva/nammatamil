@@ -190,7 +190,7 @@ function SecondaryStory({ item }: { item: NewsItem }) {
       href={goLink(item.link, 'secondary')}
       target="_blank"
       rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 14, overflow: 'hidden', position: 'relative', aspectRatio: '4/3', transition: 'transform 0.2s' }}
+      style={{ display: 'block', textDecoration: 'none', borderRadius: 12, overflow: 'hidden', position: 'relative', height: 130, transition: 'transform 0.2s' }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
     >
@@ -222,45 +222,71 @@ function SecondaryStory({ item }: { item: NewsItem }) {
   )
 }
 
-// ── News list card ─────────────────────────────────────────────────────────────
+// ── News list card (compact) ───────────────────────────────────────────────────
 function NewsCard({ item, rank }: { item: NewsItem; rank?: number }) {
   const color = SOURCE_COLORS[item.source] ?? '#6b7280'
+
+  // Trending rank-only view — no image, ultra compact
+  if (rank !== undefined) {
+    return (
+      <motion.a
+        href={goLink(item.link, 'trending')}
+        target="_blank"
+        rel="noopener noreferrer"
+        whileHover={{ x: 3 }}
+        whileTap={{ scale: 0.99 }}
+        transition={{ duration: 0.12 }}
+        style={{
+          display: 'flex', gap: 10, textDecoration: 'none',
+          padding: '7px 0', alignItems: 'flex-start',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+        }}
+      >
+        <span style={{ flexShrink: 0, width: 18, fontSize: 11, fontWeight: 900, color: rank <= 3 ? '#f59e0b' : 'rgba(255,255,255,0.18)', textAlign: 'right', paddingTop: 1 }}>
+          {rank}
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: '#e4e4e7', lineHeight: 1.35, margin: '0 0 3px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {item.title}
+          </p>
+          <span style={{ fontSize: 9, fontWeight: 700, color, opacity: 0.8 }}>{item.source}</span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', marginLeft: 6 }}>{item.timeAgo}</span>
+        </div>
+      </motion.a>
+    )
+  }
+
   return (
     <motion.a
       href={goLink(item.link, 'news-list')}
       target="_blank"
       rel="noopener noreferrer"
-      whileHover={{ backgroundColor: 'rgba(255,255,255,0.09)', x: 2 }}
+      whileHover={{ backgroundColor: 'rgba(255,255,255,0.08)', x: 2 }}
       whileTap={{ scale: 0.99 }}
-      transition={{ duration: 0.15, ease: 'easeOut' }}
+      transition={{ duration: 0.13, ease: 'easeOut' }}
       style={{
-        display: 'flex', gap: 12, textDecoration: 'none',
-        borderRadius: 12, padding: '11px 12px',
-        background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,255,255,0.1)',
+        display: 'flex', gap: 10, textDecoration: 'none',
+        borderRadius: 10, padding: '9px 10px',
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.08)',
         alignItems: 'flex-start',
       }}
     >
-      {rank !== undefined && (
-        <div style={{ flexShrink: 0, width: 20, height: 20, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          {rank}
-        </div>
-      )}
-      <div style={{ flexShrink: 0, width: 72, height: 54, borderRadius: 8, overflow: 'hidden', background: `linear-gradient(135deg, ${color}20, rgba(255,255,255,0.03))`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ flexShrink: 0, width: 64, height: 48, borderRadius: 7, overflow: 'hidden', background: `linear-gradient(135deg, ${color}20, rgba(255,255,255,0.02))`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.imageUrl} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
         ) : (
-          <Newspaper style={{ width: 18, height: 18, color: `${color}60` }} />
+          <Newspaper style={{ width: 16, height: 16, color: `${color}60` }} />
         )}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: '#f4f4f5', lineHeight: 1.4, margin: '0 0 5px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <p style={{ fontSize: 11.5, fontWeight: 700, color: '#f4f4f5', lineHeight: 1.35, margin: '0 0 4px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {item.title}
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 6px', borderRadius: 99, background: `${color}18`, color, border: `1px solid ${color}28` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 99, background: `${color}18`, color, border: `1px solid ${color}25` }}>
             {item.source}
           </span>
           <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -321,6 +347,18 @@ export default function HomeNewsPortal() {
 
   const fetchNews = useCallback(async (manual = false) => {
     if (manual) setRefresh(true)
+    else {
+      // serve from sessionStorage if fresh (< 3 min)
+      try {
+        const cached = sessionStorage.getItem('nt_news')
+        if (cached) {
+          const { data: d, at } = JSON.parse(cached)
+          if (Date.now() - at < 3 * 60 * 1000) {
+            setData(d); setLoading(false); return
+          }
+        }
+      } catch { /* ignore */ }
+    }
     try {
       const res = await fetch('/api/tamil-media-news', { cache: 'no-store', signal: AbortSignal.timeout(8000) })
       if (!res.ok) return
@@ -329,6 +367,7 @@ export default function HomeNewsPortal() {
       setSecAgo(0)
       setShowMore(false)
       setHeroIdx(0)
+      try { sessionStorage.setItem('nt_news', JSON.stringify({ data: json, at: Date.now() })) } catch { /* ignore */ }
     } catch { /* keep stale */ }
     finally { setLoading(false); setRefresh(false) }
   }, [])
@@ -439,7 +478,7 @@ export default function HomeNewsPortal() {
       </div>
 
       {/* ── MAIN CONTENT ─────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 24 }}>
 
           {/* ── HERO GRID ─────────────────────────────────────────────── */}
@@ -485,8 +524,8 @@ export default function HomeNewsPortal() {
                 )}
                 <div key={activeHeroItem.link} className="hero-fade"><HeroStory item={activeHeroItem} /></div>
                 {secondary.length > 0 && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
-                    {secondary.map((item, i) => <SecondaryStory key={i} item={item} />)}
+                  <div className="secondary-col" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {secondary.slice(0, 3).map((item, i) => <SecondaryStory key={i} item={item} />)}
                   </div>
                 )}
               </>
@@ -494,7 +533,7 @@ export default function HomeNewsPortal() {
           </div>
 
           {/* ── CINEMA REVIEW STRIP ──────────────────────────────────── */}
-          <div style={{ marginBottom: 24 }}>
+          <div style={{ marginBottom: 16 }}>
             <CinemaReviewStrip />
           </div>
 
@@ -533,63 +572,55 @@ export default function HomeNewsPortal() {
               )}
             </div>
 
-            {/* ── MIDDLE: trending + entertainment nav ─────────────── */}
+            {/* ── MIDDLE: trending ──────────────────────────────────── */}
             <div>
-              <SectionLabel icon={TrendingUp} label="Trending" color="#fbbf24" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <SectionLabel icon={TrendingUp} label="Trending Now" color="#fbbf24" />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {loading
-                  ? Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} h={56} radius={10} />)
-                  : trending.map((item, i) => <NewsCard key={i} item={item} rank={i + 1} />)
+                  ? Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} h={44} radius={6} />)
+                  : trending.slice(0, 10).map((item, i) => <NewsCard key={i} item={item} rank={i + 1} />)
                 }
-              </div>
-
-              {/* Quick nav to entertainment */}
-              <div style={{ marginTop: 20 }}>
-                <SectionLabel icon={Tv2} label="Entertainment" color="#a78bfa" />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-                  {[
-                    { href: '/serials',   label: 'Serials',   icon: Tv2,   color: '#f97316' },
-                    { href: '/movies',    label: 'Movies',    icon: Film,  color: '#60a5fa' },
-                    { href: '/albums',    label: 'Albums',    icon: Music, color: '#f472b6' },
-                    { href: '/ott-plans', label: 'OTT',       icon: Play,  color: '#a78bfa' },
-                  ].map(({ href, label, icon: Icon, color }) => (
-                    <Link key={href} href={href}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none',
-                        padding: '10px 12px', borderRadius: 10,
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.06)',
-                        fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
-                        transition: 'all 0.15s',
-                      }}
-                      onMouseEnter={e => {
-                        (e.currentTarget as HTMLElement).style.background = `${color}10`
-                        ;(e.currentTarget as HTMLElement).style.borderColor = `${color}30`
-                        ;(e.currentTarget as HTMLElement).style.color = color
-                      }}
-                      onMouseLeave={e => {
-                        (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.025)'
-                        ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)'
-                        ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)'
-                      }}
-                    >
-                      <Icon style={{ width: 14, height: 14, color, flexShrink: 0 }} />
-                      {label}
-                      <ChevronRight style={{ width: 11, height: 11, marginLeft: 'auto', opacity: 0.4 }} />
-                    </Link>
-                  ))}
-                </div>
               </div>
             </div>
 
-            {/* ── RIGHT: cricket + ad ───────────────────────────────── */}
+            {/* ── RIGHT: OTT platforms + cricket + ad ──────────────── */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* OTT platforms — clear, clickable, labeled */}
+              <div>
+                <SectionLabel icon={Play} label="Watch Now — OTT" color="#a78bfa" />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6 }}>
+                  {[
+                    { href: '/ott-plans', label: 'Netflix',         short: 'N', color: '#e50914', sub: 'Tamil originals' },
+                    { href: '/ott-plans', label: 'Prime Video',      short: '▶', color: '#00a8e0', sub: 'Latest releases' },
+                    { href: '/ott-plans', label: 'Disney+ Hotstar',  short: '★', color: '#0073e6', sub: 'Star Vijay live' },
+                    { href: '/ott-plans', label: 'ZEE5',             short: 'Z', color: '#8b5cf6', sub: 'Serials & shows' },
+                  ].map(({ href, label, short, color, sub }) => (
+                    <motion.div key={label} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} transition={{ duration: 0.15 }}>
+                      <Link href={href} style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', padding: '10px 10px', borderRadius: 10, background: `${color}10`, border: `1px solid ${color}30` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
+                          <span style={{ width: 22, height: 22, borderRadius: 6, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{short}</span>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: '#f4f4f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+                        </div>
+                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', paddingLeft: 29 }}>{sub}</span>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+                <Link href="/movies" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, marginTop: 8, textDecoration: 'none', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', padding: '6px 0', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <Film style={{ width: 10, height: 10 }} /> All Tamil movies
+                  <Tv2 style={{ width: 10, height: 10, marginLeft: 4 }} /> All serials
+                </Link>
+              </div>
+
+              {/* Cricket */}
               <div>
                 <SectionLabel icon={Trophy} label="IPL Live" color="#4ade80" />
-                <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
                   <CricketWidget compact />
                 </div>
               </div>
+
               <AdUnit size="rectangle" />
             </div>
 
@@ -629,22 +660,46 @@ export default function HomeNewsPortal() {
         }
         .hero-fade { animation: heroFade 0.5s ease-out; }
 
-        /* Desktop: hero = 2 rows (big + 3-up) */
-        @media (min-width: 768px) {
+        /* Desktop: hero left 2/3 + secondary col right */
+        @media (min-width: 900px) {
           .hero-grid {
-            grid-template-columns: 1fr !important;
+            display: grid !important;
+            grid-template-columns: 1fr 260px !important;
+            align-items: start;
+            gap: 10px !important;
+          }
+          /* secondary-col stacks vertically beside hero */
+          .secondary-col {
+            display: flex !important;
+            flex-direction: column !important;
+          }
+          .secondary-col > a {
+            aspect-ratio: 16/9 !important;
+            height: auto !important;
+          }
+        }
+        /* Mobile: secondary wraps below hero in a row */
+        @media (max-width: 899px) {
+          .secondary-col {
+            flex-direction: row !important;
+            overflow-x: auto !important;
+            scrollbar-width: none !important;
+          }
+          .secondary-col > a {
+            flex-shrink: 0 !important;
+            width: 140px !important;
           }
         }
 
         /* Desktop: 3-col layout */
         @media (min-width: 1024px) {
           .three-col {
-            grid-template-columns: 1fr 340px 300px !important;
+            grid-template-columns: 1fr 300px 260px !important;
           }
         }
         @media (min-width: 768px) and (max-width: 1023px) {
           .three-col {
-            grid-template-columns: 1fr 280px !important;
+            grid-template-columns: 1fr 240px !important;
           }
         }
       `}</style>
