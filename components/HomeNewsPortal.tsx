@@ -220,10 +220,10 @@ function NewsRow({ item, idx }: { item: NewsItem; idx: number }) {
   const c = SRC[item.source] ?? '#6b7280'
   const [imgFailed, setImgFailed] = useState(false)
   return (
-    <motion.a
+    <a
       href={goLink(item.link, 'news-list')} target="_blank" rel="noopener noreferrer"
-      whileHover={{ backgroundColor: 'rgba(255,255,255,0.045)', x: 2 }} transition={{ duration: 0.1 }}
-      style={{ display: 'flex', gap: 12, textDecoration: 'none', borderRadius: 11, padding: '10px 11px', background: 'rgba(255,255,255,0.025)', border: `1px solid ${T.border}`, alignItems: 'flex-start', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+      className="news-row-link"
+      style={{ display: 'flex', gap: 12, textDecoration: 'none', borderRadius: 11, padding: '10px 11px', background: 'rgba(255,255,255,0.025)', border: `1px solid ${T.border}`, alignItems: 'flex-start', transition: 'background 0.12s ease' }}
     >
       {/* Left: rank + text */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -253,7 +253,7 @@ function NewsRow({ item, idx }: { item: NewsItem; idx: number }) {
             </div>
         }
       </div>
-    </motion.a>
+    </a>
   )
 }
 
@@ -261,9 +261,8 @@ function NewsRow({ item, idx }: { item: NewsItem; idx: number }) {
 function TrendRow({ item, rank }: { item: NewsItem; rank: number }) {
   const c = SRC[item.source] ?? '#6b7280'
   return (
-    <motion.a
+    <a
       href={goLink(item.link, 'trending')} target="_blank" rel="noopener noreferrer"
-      whileHover={{ x: 3 }} transition={{ duration: 0.1 }}
       style={{ display: 'flex', gap: 10, textDecoration: 'none', padding: '8px 0', borderBottom: `1px solid ${T.border}`, alignItems: 'flex-start' }}
     >
       <span style={{ flexShrink: 0, fontSize: 13, fontWeight: 900, color: rank <= 3 ? T.gold : 'rgba(255,255,255,0.12)', width: 20, textAlign: 'right', paddingTop: 1, fontFamily: "'Newsreader', Georgia, serif" }}>{rank}</span>
@@ -274,7 +273,7 @@ function TrendRow({ item, rank }: { item: NewsItem; rank: number }) {
           <span style={{ fontSize: 9, color: T.muted }}>{item.timeAgo}</span>
         </div>
       </div>
-    </motion.a>
+    </a>
   )
 }
 
@@ -288,7 +287,7 @@ function CinemaCard({ movie }: { movie: (typeof CINEMA)[0] }) {
   const hasThumbnail = movie.thumbnail && !imgFailed && !movie.thumbnail.includes('default.jpg') && !movie.thumbnail.includes('goat-vijay')
 
   return (
-    <motion.div whileHover={{ y: -4, boxShadow: `0 12px 32px rgba(0,0,0,0.6)` }} transition={{ duration: 0.18 }}>
+    <div className="cinema-card-wrap">
       <Link href={`/movies/${movie.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
         <div style={{ borderRadius: 11, overflow: 'hidden', background: T.surface, border: `1px solid ${T.border}` }}>
           <div style={{ aspectRatio: '2/3', position: 'relative', overflow: 'hidden' }}>
@@ -325,14 +324,14 @@ function CinemaCard({ movie }: { movie: (typeof CINEMA)[0] }) {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   )
 }
 
 // ── OTT tile ─────────────────────────────────────────────────────────────
 function OttTile({ href, label, icon, color, sub }: { href: string; label: string; icon: string; color: string; sub: string }) {
   return (
-    <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} transition={{ duration: 0.14 }}>
+    <div className="ott-tile-wrap">
       <Link href={href} style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', padding: '11px 12px', borderRadius: 11, background: `${color}0c`, border: `1px solid ${color}28`, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: 0, right: 0, width: 44, height: 44, background: `${color}10`, borderRadius: '0 11px 0 44px' }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 4 }}>
@@ -341,7 +340,7 @@ function OttTile({ href, label, icon, color, sub }: { href: string; label: strin
         </div>
         <span style={{ fontSize: 9, color: T.muted, paddingLeft: 35, lineHeight: 1.3 }}>{sub}</span>
       </Link>
-    </motion.div>
+    </div>
   )
 }
 
@@ -534,7 +533,7 @@ export default function HomeNewsPortal() {
 
             {/* Trending sidebar — desktop only */}
             <div className="trend-aside" style={{ display: 'none' }}>
-              <div style={{ background: T.surface, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 14px 10px', position: 'sticky', top: 100 }}>
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 14px 10px', position: 'sticky', top: 100 }}>
                 <SH label="Trending Now" color={T.gold} icon={TrendingUp} />
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   {loading
@@ -549,22 +548,20 @@ export default function HomeNewsPortal() {
           {/* ═══════════════════════════════════════════════════════════════
               CINEMA — horizontal scroll on mobile, grid on desktop
               ═══════════════════════════════════════════════════════════════ */}
-          <div style={{ background: T.surface, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 16, padding: '16px 16px 18px', marginBottom: 16 }}>
+          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: '16px 16px 18px', marginBottom: 16 }}>
             <SH label="Cinema Reviews" color={T.purple} href="/movies" sub="Tamil releases 2025–2026" icon={Film} />
             {/* Desktop grid */}
             <div className="cinema-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-              {CINEMA.map((movie, i) => (
-                <motion.div key={movie.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.035, duration: 0.26 }}>
-                  <CinemaCard movie={movie} />
-                </motion.div>
+              {CINEMA.map((movie) => (
+                <CinemaCard key={movie.id} movie={movie} />
               ))}
             </div>
             {/* Mobile horizontal scroll strip */}
             <div className="cinema-scroll" style={{ display: 'none', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
-              {CINEMA.map((movie, i) => (
-                <motion.div key={movie.id} style={{ flexShrink: 0, width: 110 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}>
+              {CINEMA.map((movie) => (
+                <div key={movie.id} style={{ flexShrink: 0, width: 110 }}>
                   <CinemaCard movie={movie} />
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -572,7 +569,7 @@ export default function HomeNewsPortal() {
           {/* ═══════════════════════════════════════════════════════════════
               OTT PLATFORMS
               ═══════════════════════════════════════════════════════════════ */}
-          <div style={{ background: T.surface, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 16, padding: '16px 16px 18px', marginBottom: 16 }}>
+          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: '16px 16px 18px', marginBottom: 16 }}>
             <SH label="Watch on OTT" color={T.blue} href="/ott-plans" sub="Stream Tamil content anywhere" icon={Tv2} />
             <div className="ott-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 9, marginBottom: 10 }}>
               {OTT_PLATFORMS.map(p => <OttTile key={p.label} {...p} />)}
@@ -594,7 +591,7 @@ export default function HomeNewsPortal() {
 
             {/* News list */}
             <div>
-              <div style={{ background: T.surface, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 14, padding: '16px 14px' }}>
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: '16px 14px' }}>
                 <SH label={category === 'all' ? 'Latest News' : CATS.find(c => c.key === category)?.label ?? 'News'} color={T.red} icon={Newspaper} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {loading
@@ -622,14 +619,14 @@ export default function HomeNewsPortal() {
 
             {/* Sidebar */}
             <div className="sidebar-col" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ background: T.surface, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 12px' }}>
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 12px' }}>
                 <SH label="IPL 2025 Live" color={T.green} sub="Live scores & updates" />
                 <div style={{ borderRadius: 9, overflow: 'hidden', border: `1px solid ${T.border}` }}>
                   <CricketWidget compact />
                 </div>
               </div>
               <div className="trend-mobile">
-                <div style={{ background: T.surface, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 12px' }}>
+                <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 12px' }}>
                   <SH label="Trending Now" color={T.gold} icon={TrendingUp} />
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     {loading
@@ -694,6 +691,14 @@ export default function HomeNewsPortal() {
           @media (min-width: 960px) {
             .lower-grid { grid-template-columns: 1fr 300px !important; align-items: start; }
           }
+
+          /* ── CSS hover replacements (no Framer overhead) ─── */
+          .cinema-card-wrap { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+          .cinema-card-wrap:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.6); }
+          .ott-tile-wrap { transition: transform 0.14s ease; }
+          .ott-tile-wrap:hover { transform: scale(1.03) translateY(-2px); }
+          .ott-tile-wrap:active { transform: scale(0.97); }
+          .news-row-link:hover { background: rgba(255,255,255,0.045) !important; }
 
           /* ── Mobile tweaks ────────────────────────────────── */
           @media (max-width: 360px) {

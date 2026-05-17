@@ -164,9 +164,30 @@ function cleanHtml(s: string): string {
     .trim()
 }
 
-// No external fallback images — return null so UI shows gradient placeholder
-function fallbackImage(_source: string, _category: string, _seed: number): string | null {
-  return null
+// Category/source-aware fallback images (Wikipedia + public domain)
+const FALLBACK_BY_CATEGORY: Record<string, string[]> = {
+  cinema: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Tamil_cine.jpg/800px-Tamil_cine.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Kollywood.jpg/800px-Kollywood.jpg',
+  ],
+  sports: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/CSK_logo.png/800px-CSK_logo.png',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/CricketBall.jpg/800px-CricketBall.jpg',
+  ],
+  politics: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Flag_of_Tamil_Nadu.svg/800px-Flag_of_Tamil_Nadu.svg.png',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Tamil_Nadu_Legislative_Assembly.jpg/800px-Tamil_Nadu_Legislative_Assembly.jpg',
+  ],
+}
+const FALLBACK_DEFAULT = [
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Tamil_Nadu_state_Highway_Network_Map.jpg/800px-Tamil_Nadu_state_Highway_Network_Map.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Tamil_country.jpg/800px-Tamil_country.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Tamil_language_inscription.jpg/800px-Tamil_language_inscription.jpg',
+]
+
+function fallbackImage(_source: string, category: string, seed: number): string | null {
+  const pool = FALLBACK_BY_CATEGORY[category] ?? FALLBACK_DEFAULT
+  return pool[seed % pool.length]
 }
 
 interface RawItem {
