@@ -85,7 +85,7 @@ const OTT_C: Record<string, string> = {
   'Disney+ Hotstar': '#0073e6', 'ZEE5': '#8b5cf6', 'YouTube': '#ff0000',
 }
 const CINEMA = movies
-  .filter(m => m.language === 'Tamil' && m.year >= 2025)
+  .filter(m => m.language === 'Tamil' && m.year >= 2024)
   .sort((a, b) => {
     const ar = a.ottDate && a.ottDate !== 'Coming Soon' ? 1 : 0
     const br = b.ottDate && b.ottDate !== 'Coming Soon' ? 1 : 0
@@ -306,10 +306,12 @@ function CinemaCard({ movie }: { movie: (typeof CINEMA)[0] }) {
               </div>
             )}
             {/* Rating pill */}
-            <div style={{ position: 'absolute', top: 7, left: 7, display: 'flex', alignItems: 'center', gap: 3, background: 'rgba(0,0,0,0.85)', borderRadius: 6, padding: '3px 7px', backdropFilter: 'blur(8px)' }}>
-              <Star style={{ width: 8, height: 8, color: rc, fill: rc }} />
-              <span style={{ fontSize: 9.5, fontWeight: 900, color: rc }}>{movie.rating.toFixed(1)}</span>
-            </div>
+            {movie.rating > 0 && (
+              <div style={{ position: 'absolute', top: 7, left: 7, display: 'flex', alignItems: 'center', gap: 3, background: 'rgba(0,0,0,0.85)', borderRadius: 6, padding: '3px 7px', backdropFilter: 'blur(8px)' }}>
+                <Star style={{ width: 8, height: 8, color: rc, fill: rc }} />
+                <span style={{ fontSize: 9.5, fontWeight: 900, color: rc }}>{movie.rating.toFixed(1)}</span>
+              </div>
+            )}
             {/* OTT badge */}
             {isOtt && ottColor && (
               <div style={{ position: 'absolute', top: 7, right: 7, fontSize: 7.5, fontWeight: 900, padding: '2px 6px', borderRadius: 4, background: `${ottColor}22`, color: ottColor, border: `1px solid ${ottColor}45`, maxWidth: 58, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

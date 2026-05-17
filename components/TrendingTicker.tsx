@@ -173,7 +173,7 @@ export default function TrendingTicker() {
 
     // Fetch general news headlines (fallback)
     try {
-      const r = await fetch('/api/news', { cache: 'no-store', signal: AbortSignal.timeout(4000) })
+      const r = await fetch('/api/tamil-media-news', { cache: 'no-store', signal: AbortSignal.timeout(4000) })
       if (r.ok) {
         const d = await r.json()
         const headlines = (d.articles ?? d.news ?? []).slice(0, 2)
