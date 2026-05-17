@@ -15,13 +15,13 @@ import VisitorCounter from '@/components/VisitorCounter'
 import TVKSpotlight from '@/components/TVKSpotlight'
 import { movies } from '@/data/movies'
 
-// ── Design tokens (navy editorial, like Variant B) ─────────────────────
+// ── Design tokens (SpeakIQ-grade dark glass, Tamil brand palette) ──────
 const T = {
-  bg:       '#04040f',
-  surface:  '#0c0c1e',
-  surface2: '#12122a',
+  bg:       '#060616',
+  surface:  'rgba(255,255,255,0.035)',
+  surface2: 'rgba(255,255,255,0.055)',
   border:   'rgba(255,255,255,0.08)',
-  border2:  'rgba(255,255,255,0.12)',
+  border2:  'rgba(255,255,255,0.13)',
   text:     '#f1f0ff',
   muted:    'rgba(255,255,255,0.38)',
   gold:     '#f59e0b',
@@ -161,7 +161,7 @@ function HeroCard({ item, height = 240 }: { item: NewsItem; height?: number }) {
             <Clock style={{ width: 9, height: 9 }} />{item.timeAgo}
           </span>
         </div>
-        <h2 style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'clamp(16px, 2.2vw, 22px)', fontWeight: 800, color: '#fff', lineHeight: 1.22, margin: 0, letterSpacing: '-0.02em', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>
+        <h2 className="text-iridescent" style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'clamp(16px, 2.2vw, 22px)', fontWeight: 800, lineHeight: 1.22, margin: 0, letterSpacing: '-0.02em', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
           {item.title}
         </h2>
       </div>
@@ -203,7 +203,7 @@ function NewsRow({ item }: { item: NewsItem }) {
     <motion.a
       href={goLink(item.link, 'news-list')} target="_blank" rel="noopener noreferrer"
       whileHover={{ backgroundColor: 'rgba(255,255,255,0.05)' }} transition={{ duration: 0.12 }}
-      style={{ display: 'flex', gap: 10, textDecoration: 'none', borderRadius: 10, padding: '9px 10px', background: T.surface, border: `1px solid ${T.border}`, alignItems: 'flex-start' }}
+      style={{ display: 'flex', gap: 10, textDecoration: 'none', borderRadius: 10, padding: '9px 10px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${T.border}`, alignItems: 'flex-start', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
     >
       {item.imageUrl && (
         <div style={{ flexShrink: 0, width: 68, height: 52, borderRadius: 8, overflow: 'hidden', background: `${c}18` }}>
@@ -398,24 +398,44 @@ export default function HomeNewsPortal() {
   const freshLabel = secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`
 
   return (
-    <div style={{ minHeight: '100vh', background: 'transparent', color: T.text }}>
+    <div style={{ minHeight: '100vh', background: T.bg, color: T.text, position: 'relative', isolation: 'isolate' }}>
+
+      {/* ── DOT GRID BACKGROUND ────────────────────────────────────── */}
+      <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px)',
+        backgroundSize: '28px 28px' }} />
+
+      {/* ── RADIAL GRADIENT BLOBS (Tamil brand: gold + crimson + amber) ── */}
+      <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+        background: [
+          'radial-gradient(ellipse 80% 60% at 15% 25%, rgba(245,158,11,0.22) 0%, transparent 60%)',
+          'radial-gradient(ellipse 65% 50% at 85% 75%, rgba(239,68,68,0.16) 0%, transparent 55%)',
+          'radial-gradient(ellipse 55% 40% at 55% 8%,  rgba(251,146,60,0.14) 0%, transparent 50%)',
+        ].join(', ') }} />
+
+      {/* ── VIGNETTE EDGE FADE ─────────────────────────────────────── */}
+      <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+        background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(6,6,22,0.7) 100%)' }} />
+
+      {/* ── All content above fixed layers ────────────────────────── */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* ── TICKER ─────────────────────────────────────────────────── */}
       {!loading && <Ticker items={all} />}
 
       {/* ── CATEGORY NAV ───────────────────────────────────────────── */}
-      <div style={{ background: 'rgba(12,12,30,0.96)', borderBottom: `1px solid ${T.border}`, position: 'sticky', top: 56, zIndex: 40, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+      <div style={{ background: 'rgba(6,6,22,0.88)', borderBottom: `1px solid ${T.border}`, position: 'sticky', top: 56, zIndex: 40, backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', gap: 2 }}>
+          <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', gap: 4, padding: '8px 0' }}>
             {CATS.map(cat => {
               const active = category === cat.key
               const Ic = cat.icon
               return (
                 <button key={cat.key}
                   onClick={() => { setCat(cat.key as typeof category); setShowMore(false) }}
-                  style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, padding: '12px 16px', fontSize: 12, fontWeight: active ? 800 : 500, color: active ? cat.color : 'rgba(255,255,255,0.45)', background: 'none', border: 'none', cursor: 'pointer', borderBottom: active ? `2px solid ${cat.color}` : '2px solid transparent', transition: 'all 0.15s', whiteSpace: 'nowrap', letterSpacing: active ? '-0.01em' : '0' }}
+                  style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5, padding: '5px 14px', fontSize: 11, fontWeight: active ? 800 : 500, color: active ? cat.color : 'rgba(255,255,255,0.45)', background: active ? `${cat.color}18` : 'rgba(255,255,255,0.04)', border: active ? `1px solid ${cat.color}45` : '1px solid rgba(255,255,255,0.08)', borderRadius: 9999, cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap', letterSpacing: active ? '-0.01em' : '0' }}
                 >
-                  <Ic style={{ width: 12, height: 12 }} />
+                  <Ic style={{ width: 11, height: 11 }} />
                   {cat.label}
                   {'badge' in cat && cat.badge && (
                     <span style={{ fontSize: 8, fontWeight: 900, padding: '1px 5px', borderRadius: 3, background: T.red, color: '#fff', letterSpacing: '0.04em' }}>{cat.badge}</span>
@@ -472,7 +492,7 @@ export default function HomeNewsPortal() {
 
           {/* ── TRENDING sidebar (desktop only) ─────────────────────── */}
           <div className="trend-aside" style={{ display: 'none' }}>
-            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '14px 14px 8px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.035)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 12, padding: '14px 14px 8px' }}>
               <SH label="Trending Now" color={T.gold} />
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {loading
@@ -487,7 +507,7 @@ export default function HomeNewsPortal() {
         {/* ═══════════════════════════════════════════════════════════
             CINEMA SECTION — full-width poster grid
             ═══════════════════════════════════════════════════════════ */}
-        <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 14px 16px', marginBottom: 16 }}>
+        <div style={{ background: 'rgba(255,255,255,0.035)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 14px 16px', marginBottom: 16 }}>
           <SH label="Cinema Reviews" color={T.purple} href="/movies" sub="Tamil releases 2025–2026" />
           <div className="cinema-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
             {CINEMA.map((movie, i) => (
@@ -501,16 +521,16 @@ export default function HomeNewsPortal() {
         {/* ═══════════════════════════════════════════════════════════
             WATCH ON OTT — full-width with 6 platform tiles
             ═══════════════════════════════════════════════════════════ */}
-        <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 14px 16px', marginBottom: 16 }}>
+        <div style={{ background: 'rgba(255,255,255,0.035)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 14, padding: '14px 14px 16px', marginBottom: 16 }}>
           <SH label="Watch on OTT" color="#00a8e0" href="/ott-plans" sub="Stream Tamil content" />
           <div className="ott-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 10 }}>
             {OTT_PLATFORMS.map(p => <OttTile key={p.label} {...p} />)}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            <Link href="/movies" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, textDecoration: 'none', fontSize: 11, fontWeight: 700, color: T.muted, padding: '8px 0', borderRadius: 8, background: T.surface2, border: `1px solid ${T.border}` }}>
+            <Link href="/movies" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, textDecoration: 'none', fontSize: 11, fontWeight: 700, color: T.muted, padding: '8px 0', borderRadius: 8, background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: `1px solid ${T.border2}` }}>
               <Film style={{ width: 11, height: 11 }} /> Browse Tamil Movies
             </Link>
-            <Link href="/serials" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, textDecoration: 'none', fontSize: 11, fontWeight: 700, color: T.muted, padding: '8px 0', borderRadius: 8, background: T.surface2, border: `1px solid ${T.border}` }}>
+            <Link href="/serials" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, textDecoration: 'none', fontSize: 11, fontWeight: 700, color: T.muted, padding: '8px 0', borderRadius: 8, background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: `1px solid ${T.border2}` }}>
               <Tv2 style={{ width: 11, height: 11 }} /> Browse Tamil Serials
             </Link>
           </div>
@@ -523,7 +543,7 @@ export default function HomeNewsPortal() {
 
           {/* News list */}
           <div>
-            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '14px 12px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.035)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 12, padding: '14px 12px' }}>
               <SH label={category === 'all' ? 'Latest News' : CATS.find(c => c.key === category)?.label ?? 'News'} color={T.red} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {loading
@@ -542,7 +562,7 @@ export default function HomeNewsPortal() {
               </div>
               {!loading && filtered.length > 18 && (
                 <button onClick={() => setShowMore(s => !s)}
-                  style={{ marginTop: 12, width: '100%', padding: '10px 0', borderRadius: 8, background: T.surface2, border: `1px solid ${T.border}`, color: T.muted, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ marginTop: 12, width: '100%', padding: '10px 0', borderRadius: 8, background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: `1px solid ${T.border2}`, color: T.muted, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                   {showMore ? 'Show Less' : `Load ${filtered.length - 18} More Stories`}
                 </button>
               )}
@@ -553,7 +573,7 @@ export default function HomeNewsPortal() {
           <div className="sidebar-col" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
             {/* IPL widget */}
-            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '14px 12px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.035)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 12, padding: '14px 12px' }}>
               <SH label="IPL 2025 Live" color={T.green} sub="Live scores & updates" />
               <div style={{ borderRadius: 8, overflow: 'hidden', border: `1px solid ${T.border}` }}>
                 <CricketWidget compact />
@@ -562,7 +582,7 @@ export default function HomeNewsPortal() {
 
             {/* Trending on mobile */}
             <div className="trend-mobile">
-              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '14px 12px' }}>
+              <div style={{ background: 'rgba(255,255,255,0.035)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1px solid ${T.border}`, borderRadius: 12, padding: '14px 12px' }}>
                 <SH label="Trending Now" color={T.gold} />
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   {loading
@@ -637,6 +657,7 @@ export default function HomeNewsPortal() {
           .nt-main-pad { padding-left: 12px !important; padding-right: 12px !important; }
         }
       `}</style>
+      </div>{/* end z-index:1 content wrapper */}
     </div>
   )
 }

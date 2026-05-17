@@ -120,47 +120,49 @@
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
-/* ── Site background — deep cinematic dark with gold/crimson glow ── */
+/* ── Site background — deep dark, SpeakIQ-style ── */
 body {
-  background: #04040f;
+  background: #060616;
 }
 
-/* Aurora layer — gold/amber warmth for Tamil cinema & TVK theme */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 130% 60% at 10% -15%, rgba(245,158,11,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 90%  55% at 90%  -8%, rgba(220,38,38,0.05)  0%, transparent 50%),
-    radial-gradient(ellipse 70%  45% at 50%   0%, rgba(251,191,36,0.04) 0%, transparent 45%),
-    radial-gradient(ellipse 50%  65% at  0%  65%, rgba(245,158,11,0.03) 0%, transparent 50%),
-    radial-gradient(ellipse 45%  55% at 100% 75%, rgba(220,38,38,0.03)  0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-  animation: auroraDrift 22s ease-in-out infinite alternate;
-}
-
-/* Very fine noise grain over everything */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
-  background-size: 256px 256px;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.6;
-}
-
-@keyframes auroraDrift {
-  0%   { opacity: 1;    transform: translateY(0px); }
-  50%  { opacity: 0.75; transform: translateY(-12px); }
-  100% { opacity: 1;    transform: translateY(6px); }
-}
-
-/* All page content above the grid */
+/* All page content above the fixed layers */
 body > * { position: relative; z-index: 1; }
+
+/* ── Iridescent / gradient text (SpeakIQ style) ── */
+.text-iridescent {
+  background: linear-gradient(135deg, #fbbf24 0%, #f97316 30%, #ef4444 60%, #fbbf24 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: iridescent 4s linear infinite;
+}
+
+@keyframes iridescent {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ── Glass card — stronger blur, SpeakIQ grade ── */
+.glass-card {
+  background: rgba(255,255,255,0.035);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+}
+
+/* ── Source badge pill ── */
+.source-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
 /* ── Hero 2-column grid — stack on mobile ── */
 .hero-grid {
