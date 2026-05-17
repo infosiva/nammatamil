@@ -43,8 +43,11 @@ interface NewsItem {
 }
 interface ApiResponse { news: NewsItem[]; updatedAt: string; count: number }
 
-const REFRESH_MS = 6 * 60 * 1000
-const CACHE_TTL  = 3 * 60 * 1000
+const REFRESH_MS    = 6 * 60 * 1000
+const CACHE_TTL     = 5 * 60 * 1000   // 5min sessionStorage TTL
+const LS_CACHE_TTL  = 30 * 60 * 1000  // 30min localStorage TTL (survives reload)
+const LS_KEY        = 'nt_news_ls_v1'
+const SS_KEY        = 'nt_news_v3'
 const SPORTS_KW  = ['cricket','ipl','csk','dhoni','match','விளையாட்டு','கிரிக்கெட்','rcb','kkr']
 
 const SRC: Record<string, string> = {
@@ -134,24 +137,25 @@ function SH({ label, color, href, sub }: { label: string; color: string; href?: 
   )
 }
 
-// ── Hero news card (large, image bg) ──────────────────────────────────
-function HeroCard({ item, height = 240 }: { item: NewsItem; height?: number }) {
+// ── Hero news card (aspect-ratio based, no fixed height) ──────────────
+function HeroCard({ item }: { item: NewsItem }) {
   const c = SRC[item.source] ?? '#6b7280'
+  const [imgFailed, setImgFailed] = useState(false)
   return (
     <a href={goLink(item.link, 'hero')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 14, overflow: 'hidden', position: 'relative', height, transition: 'transform 0.22s' }}
+      style={{ display: 'block', textDecoration: 'none', borderRadius: 14, overflow: 'hidden', position: 'relative', aspectRatio: '16/9', transition: 'transform 0.22s' }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.01)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
     >
       <div style={{ position: 'absolute', inset: 0 }}>
-        {item.imageUrl
+        {item.imageUrl && !imgFailed
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={item.imageUrl} alt={item.title} loading="eager" fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${c}35, ${T.surface})` }} />
+          ? <img src={item.imageUrl} alt={item.title} loading="eager" fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgFailed(true)} />
+          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${c}45 0%, rgba(6,6,22,0.95) 60%, ${T.bg} 100%)` }} />
         }
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,0.98) 0%, rgba(4,4,15,0.6) 45%, rgba(4,4,15,0.1) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,0.98) 0%, rgba(4,4,15,0.55) 45%, rgba(4,4,15,0.05) 100%)' }} />
       </div>
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '18px 18px 16px' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px 18px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
           <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 4, background: `${c}30`, color: c, border: `1px solid ${c}50`, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{item.source}</span>
           {item.category !== 'all' && item.category !== 'politics' && (
@@ -161,7 +165,7 @@ function HeroCard({ item, height = 240 }: { item: NewsItem; height?: number }) {
             <Clock style={{ width: 9, height: 9 }} />{item.timeAgo}
           </span>
         </div>
-        <h2 className="text-iridescent" style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'clamp(16px, 2.2vw, 22px)', fontWeight: 800, lineHeight: 1.22, margin: 0, letterSpacing: '-0.02em', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
+        <h2 className="text-iridescent" style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'clamp(16px, 2.4vw, 24px)', fontWeight: 800, lineHeight: 1.22, margin: 0, letterSpacing: '-0.02em', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
           {item.title}
         </h2>
       </div>
@@ -169,26 +173,27 @@ function HeroCard({ item, height = 240 }: { item: NewsItem; height?: number }) {
   )
 }
 
-// ── Compact secondary card ─────────────────────────────────────────────
+// ── Compact secondary card (aspect-ratio based) ────────────────────────
 function SecCard({ item }: { item: NewsItem }) {
   const c = SRC[item.source] ?? '#6b7280'
+  const [imgFailed, setImgFailed] = useState(false)
   return (
     <a href={goLink(item.link, 'secondary')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 11, overflow: 'hidden', position: 'relative', height: 130, transition: 'transform 0.18s' }}
+      style={{ display: 'block', textDecoration: 'none', borderRadius: 11, overflow: 'hidden', position: 'relative', aspectRatio: '16/9', transition: 'transform 0.18s' }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
     >
       <div style={{ position: 'absolute', inset: 0 }}>
-        {item.imageUrl
+        {item.imageUrl && !imgFailed
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${c}30, ${T.surface})` }} />
+          ? <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgFailed(true)} />
+          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${c}40 0%, rgba(6,6,22,0.9) 70%)` }} />
         }
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,0.97) 0%, rgba(4,4,15,0.3) 55%, transparent 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,0.97) 0%, rgba(4,4,15,0.25) 55%, transparent 100%)' }} />
       </div>
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '11px 12px' }}>
-        <span style={{ fontSize: 9, fontWeight: 700, color: c, display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.source}</span>
-        <p style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.3, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 1px 8px rgba(0,0,0,0.9)' }}>
+        <span style={{ fontSize: 9, fontWeight: 700, color: c, display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.source}</span>
+        <p style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 12, fontWeight: 700, color: '#fff', lineHeight: 1.3, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 1px 8px rgba(0,0,0,0.9)' }}>
           {item.title}
         </p>
       </div>
@@ -257,31 +262,39 @@ function CinemaCard({ movie }: { movie: (typeof CINEMA)[0] }) {
   const platform = movie.streamingOn?.[0]
   const ottColor = platform ? (OTT_C[platform] ?? '#6b7280') : null
   const isOtt = movie.ottDate && movie.ottDate !== 'Coming Soon'
+  const [imgFailed, setImgFailed] = useState(false)
+  const hasThumbnail = movie.thumbnail && !imgFailed && !movie.thumbnail.includes('default.jpg') && !movie.thumbnail.includes('goat-vijay')
 
   return (
     <motion.div whileHover={{ y: -3, boxShadow: '0 8px 28px rgba(0,0,0,0.5)' }} transition={{ duration: 0.18 }}>
       <Link href={`/movies/${movie.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
         <div style={{ borderRadius: 10, overflow: 'hidden', background: T.surface, border: `1px solid ${T.border}` }}>
           {/* Poster */}
-          <div style={{ aspectRatio: '2/3', background: `linear-gradient(160deg, ${rc}28 0%, ${T.surface} 60%, ${T.bg} 100%)`, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ aspectRatio: '2/3', position: 'relative', overflow: 'hidden' }}>
+            {hasThumbnail ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={movie.thumbnail} alt={movie.title} loading="lazy" decoding="async"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                onError={() => setImgFailed(true)} />
+            ) : (
+              <div style={{ width: '100%', height: '100%', background: `linear-gradient(160deg, ${rc}40 0%, rgba(6,6,22,0.9) 55%, ${T.bg} 100%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <Play style={{ width: 22, height: 22, color: `${rc}60` }} />
+                <span style={{ fontSize: 8, color: `${rc}60`, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{movie.genre?.[0]}</span>
+              </div>
+            )}
             {/* Rating pill */}
-            <div style={{ position: 'absolute', top: 6, left: 6, display: 'flex', alignItems: 'center', gap: 2, background: 'rgba(0,0,0,0.8)', borderRadius: 5, padding: '3px 6px', backdropFilter: 'blur(4px)' }}>
+            <div style={{ position: 'absolute', top: 6, left: 6, display: 'flex', alignItems: 'center', gap: 2, background: 'rgba(0,0,0,0.82)', borderRadius: 5, padding: '3px 6px', backdropFilter: 'blur(6px)' }}>
               <Star style={{ width: 8, height: 8, color: rc, fill: rc }} />
               <span style={{ fontSize: 9, fontWeight: 900, color: rc }}>{movie.rating.toFixed(1)}</span>
             </div>
             {/* OTT badge */}
             {isOtt && ottColor && (
-              <div style={{ position: 'absolute', top: 6, right: 6, fontSize: 7, fontWeight: 900, padding: '2px 5px', borderRadius: 3, background: `${ottColor}22`, color: ottColor, border: `1px solid ${ottColor}45`, maxWidth: 54, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{ position: 'absolute', top: 6, right: 6, fontSize: 7, fontWeight: 900, padding: '2px 5px', borderRadius: 3, background: `${ottColor}25`, color: ottColor, border: `1px solid ${ottColor}50`, maxWidth: 54, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {platform}
               </div>
             )}
-            {/* Genre center icon */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <Play style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.18)' }} />
-              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.05em' }}>{movie.genre?.[0]}</span>
-            </div>
-            {/* Year bottom right */}
-            <span style={{ position: 'absolute', bottom: 5, right: 6, fontSize: 8, color: 'rgba(255,255,255,0.18)' }}>{movie.year}</span>
+            {/* Year */}
+            <span style={{ position: 'absolute', bottom: 5, right: 6, fontSize: 8, color: 'rgba(255,255,255,0.22)', background: 'rgba(0,0,0,0.5)', borderRadius: 3, padding: '1px 4px' }}>{movie.year}</span>
           </div>
           {/* Info */}
           <div style={{ padding: '7px 8px 9px' }}>
@@ -338,22 +351,37 @@ export default function HomeNewsPortal() {
   const heroTimer               = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const fetchNews = useCallback(async (manual = false) => {
-    if (manual) setRefresh(true)
-    else {
+    if (manual) {
+      setRefresh(true)
+    } else {
+      // 1. Try sessionStorage (fastest — same tab, 5min TTL)
       try {
-        const cached = sessionStorage.getItem('nt_news_v3')
-        if (cached) {
-          const { d, at } = JSON.parse(cached)
+        const ss = sessionStorage.getItem(SS_KEY)
+        if (ss) {
+          const { d, at } = JSON.parse(ss)
           if (Date.now() - at < CACHE_TTL) { setData(d); setLoading(false); return }
+        }
+      } catch { /* ignore */ }
+      // 2. Try localStorage (persists across reloads, 30min TTL) — show immediately, then refresh bg
+      try {
+        const ls = localStorage.getItem(LS_KEY)
+        if (ls) {
+          const { d, at } = JSON.parse(ls)
+          if (Date.now() - at < LS_CACHE_TTL) {
+            setData(d); setLoading(false)
+            // Stale-while-revalidate: still fetch fresh in background
+          }
         }
       } catch { /* ignore */ }
     }
     try {
-      const res = await fetch('/api/tamil-media-news', { cache: 'no-store', signal: AbortSignal.timeout(8000) })
+      const res = await fetch('/api/tamil-media-news', { cache: 'no-store', signal: AbortSignal.timeout(12000) })
       if (!res.ok) return
       const json: ApiResponse = await res.json()
       setData(json); setSecAgo(0); setShowMore(false); setHeroIdx(0)
-      try { sessionStorage.setItem('nt_news_v3', JSON.stringify({ d: json, at: Date.now() })) } catch { /* ignore */ }
+      const payload = JSON.stringify({ d: json, at: Date.now() })
+      try { sessionStorage.setItem(SS_KEY, payload) } catch { /* ignore */ }
+      try { localStorage.setItem(LS_KEY, payload) } catch { /* ignore */ }
     } catch { /* keep stale */ }
     finally { setLoading(false); setRefresh(false) }
   }, [])
@@ -394,7 +422,9 @@ export default function HomeNewsPortal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [all.length, category])
 
-  const listItems  = showMore ? filtered.slice(3) : filtered.slice(3, 18)
+  // Start list from index 1 (hero takes [0], sec cards take [1,2] when 3+ items, or show all when few)
+  const listStart  = filtered.length >= 3 ? 3 : filtered.length >= 1 ? 1 : 0
+  const listItems  = showMore ? filtered.slice(listStart) : filtered.slice(listStart, listStart + 18)
   const freshLabel = secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`
 
   return (
@@ -480,7 +510,7 @@ export default function HomeNewsPortal() {
                 )}
                 <AnimatePresence mode="wait">
                   <motion.div key={heroItem.link} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
-                    <HeroCard item={heroItem} height={195} />
+                    <HeroCard item={heroItem} />
                   </motion.div>
                 </AnimatePresence>
                 <div className="sec-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -560,10 +590,10 @@ export default function HomeNewsPortal() {
                   ))
                 }
               </div>
-              {!loading && filtered.length > 18 && (
+              {!loading && filtered.length > listStart + 18 && (
                 <button onClick={() => setShowMore(s => !s)}
                   style={{ marginTop: 12, width: '100%', padding: '10px 0', borderRadius: 8, background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: `1px solid ${T.border2}`, color: T.muted, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                  {showMore ? 'Show Less' : `Load ${filtered.length - 18} More Stories`}
+                  {showMore ? 'Show Less' : `Load ${filtered.length - listStart - 18} More Stories`}
                 </button>
               )}
             </div>
@@ -613,7 +643,7 @@ export default function HomeNewsPortal() {
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
         @keyframes shimmer { 0%{opacity:0.5} 50%{opacity:0.85} 100%{opacity:0.5} }
 
-        /* ── DESKTOP top section: hero + trending ─────────────────── */
+        /* ── DESKTOP: hero + trending sidebar ─────────────────── */
         @media (min-width: 960px) {
           .top-section { grid-template-columns: 1fr 300px !important; align-items: start; }
           .trend-aside { display: block !important; }
@@ -627,7 +657,7 @@ export default function HomeNewsPortal() {
         @media (min-width: 640px) and (max-width: 959px) {
           .cinema-grid { grid-template-columns: repeat(5, 1fr) !important; }
         }
-        @media (max-width: 480px) {
+        @media (max-width: 639px) {
           .cinema-grid { grid-template-columns: repeat(3, 1fr) !important; }
         }
 
@@ -638,7 +668,7 @@ export default function HomeNewsPortal() {
         @media (min-width: 640px) and (max-width: 959px) {
           .ott-grid { grid-template-columns: repeat(3, 1fr) !important; }
         }
-        @media (max-width: 480px) {
+        @media (max-width: 639px) {
           .ott-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
 
@@ -647,14 +677,25 @@ export default function HomeNewsPortal() {
           .lower-grid { grid-template-columns: 1fr 300px !important; align-items: start; }
         }
 
-        /* ── Mobile: sec cards keep 1fr 1fr unless very small ──────── */
-        @media (max-width: 380px) {
+        /* ── Mobile: sec cards stacked on tiny screens ──────── */
+        @media (max-width: 360px) {
           .sec-row { grid-template-columns: 1fr !important; }
+        }
+
+        /* ── Mobile: hero aspect-ratio override for very wide phones ── */
+        @media (max-width: 639px) {
+          .hero-card-wrap { aspect-ratio: 16/9; }
+          .sec-card-wrap  { aspect-ratio: 16/9; }
         }
 
         /* ── Mobile: compact paddings ─────────────────────────── */
         @media (max-width: 480px) {
           .nt-main-pad { padding-left: 12px !important; padding-right: 12px !important; }
+        }
+
+        /* ── News list image: fixed thumb on mobile ─────────────── */
+        @media (max-width: 480px) {
+          .news-row-thumb { width: 58px !important; height: 44px !important; }
         }
       `}</style>
       </div>{/* end z-index:1 content wrapper */}
