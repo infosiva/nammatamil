@@ -5,7 +5,7 @@
  * Layout: ticker → category nav → hero grid → 3-col (feed | trending | sidebar) → entertainment
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -136,7 +136,7 @@ function HeroStory({ item }: { item: NewsItem }) {
       href={goLink(item.link, 'hero')}
       target="_blank"
       rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 20, overflow: 'hidden', position: 'relative', height: 300, maxHeight: 340 }}
+      style={{ display: 'block', textDecoration: 'none', borderRadius: 16, overflow: 'hidden', position: 'relative', height: 220, maxHeight: 240 }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.01)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
     >
@@ -169,11 +169,11 @@ function HeroStory({ item }: { item: NewsItem }) {
             <Clock style={{ width: 9, height: 9 }} />{item.timeAgo}
           </span>
         </div>
-        <h2 style={{ fontSize: 'clamp(18px, 2.8vw, 26px)', fontWeight: 900, color: '#fff', lineHeight: 1.3, margin: 0, letterSpacing: '-0.02em' }}>
+        <h2 style={{ fontSize: 'clamp(15px, 2.2vw, 20px)', fontWeight: 900, color: '#fff', lineHeight: 1.3, margin: 0, letterSpacing: '-0.02em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {item.title}
         </h2>
         {item.desc && (
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, margin: '8px 0 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4, margin: '5px 0 0', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {item.desc}
           </p>
         )}
@@ -383,9 +383,18 @@ export default function HomeNewsPortal() {
   const all = data?.news ?? []
   // TVK items: category=tvk OR title contains vijay/tvk keywords
   const tvkItems = all.filter(n => n.category === 'tvk' || (n.category === 'politics' && /tvk|vijay|தாளபதி|வெற்றி கழகம்/i.test(n.title + n.desc)))
+  const sportsKw = ['cricket','ipl','csk','dhoni','match','விளையாட்டு','கிரிக்கெட்']
   const filtered = category === 'all' ? all
     : category === 'tvk' ? tvkItems
-    : all.filter(n => n.category === category)
+    : category === 'sports'
+      ? (() => {
+          const tagged = all.filter(n => n.category === 'sports')
+          if (tagged.length >= 4) return tagged
+          // Fallback: keyword search across all articles
+          const extra = all.filter(n => sportsKw.some(kw => (n.title + n.desc).toLowerCase().includes(kw)) && n.category !== 'sports')
+          return [...tagged, ...extra]
+        })()
+      : all.filter(n => n.category === category)
 
   // Hero pool: top 5 filtered items for rotation
   // Every 3rd rotation: force TVK story (or static promo if none)
@@ -415,7 +424,8 @@ export default function HomeNewsPortal() {
   const activeHeroItem = heroPool[heroIdx] ?? heroPool[0] ?? (category === 'tvk' ? TVK_PROMO : null)
   const secondary = filtered.filter((_, i) => i !== (heroPool[heroIdx] !== undefined ? heroIdx : 0)).slice(1, 4)
   const listItems = showMore ? filtered.slice(4) : filtered.slice(4, 16)
-  const trending = [...all].sort(() => Math.random() - 0.5).slice(0, 8)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const trending = useMemo(() => [...all].sort(() => Math.random() - 0.5).slice(0, 10), [data])
 
   const freshLabel = secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`
 
@@ -478,8 +488,8 @@ export default function HomeNewsPortal() {
       </div>
 
       {/* ── MAIN CONTENT ─────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 24 }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
 
           {/* ── HERO GRID ─────────────────────────────────────────────── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: 12 }} className="hero-grid">

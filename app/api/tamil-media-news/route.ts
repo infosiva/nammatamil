@@ -40,6 +40,9 @@ const FEEDS: Array<{ name: string; url: string; tamil: boolean; logoColor: strin
   { name: 'The Hindu Tamil',     url: 'https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss', tamil: false, logoColor: '#1d4ed8' },
   { name: 'NDTV India',          url: 'https://feeds.feedburner.com/ndtvnews-south-mids',                    tamil: false, logoColor: '#dc2626' },
   { name: 'India Today',         url: 'https://www.indiatoday.in/rss/1206577',                               tamil: false, logoColor: '#d97706' },
+  // ── TIER 4: Sports / IPL ──
+  { name: 'CricBuzz',            url: 'https://www.cricbuzz.com/rss/cricket-news',                           tamil: false, logoColor: '#16a34a' },
+  { name: 'ESPN Cricinfo',       url: 'https://www.espncricinfo.com/rss/content/story/feeds/0.xml',           tamil: false, logoColor: '#e11d48' },
 ]
 
 // ── Category keywords ────────────────────────────────────────────────────────
