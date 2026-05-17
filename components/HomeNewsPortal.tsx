@@ -98,13 +98,13 @@ function Ticker({ items }: { items: NewsItem[] }) {
   if (!items.length) return null
   const heads = items.slice(0, 12).map(n => n.title)
   return (
-    <div style={{ background: 'rgba(239,68,68,0.06)', borderBottom: `1px solid rgba(239,68,68,0.1)`, overflow: 'hidden', display: 'flex', alignItems: 'center', height: 28 }}>
-      <div style={{ flexShrink: 0, padding: '0 14px', height: '100%', display: 'flex', alignItems: 'center', gap: 6, background: T.red, fontSize: 9, fontWeight: 900, color: '#fff', letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#fff', display: 'inline-block', animation: 'ping 1.5s ease-in-out infinite' }} />
-        LIVE
+    <div style={{ background: 'rgba(239,68,68,0.07)', borderBottom: `1px solid rgba(239,68,68,0.12)`, overflow: 'hidden', display: 'flex', alignItems: 'center', height: 30 }}>
+      <div style={{ flexShrink: 0, padding: '0 16px', height: '100%', display: 'flex', alignItems: 'center', gap: 7, background: T.red, fontSize: 9, fontWeight: 900, color: '#fff', letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', display: 'inline-block', animation: 'ping 1.5s ease-in-out infinite' }} />
+        <span className="nt-live-text">LIVE</span>
       </div>
       <div style={{ flex: 1, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', gap: 40, whiteSpace: 'nowrap', fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.65)', animation: 'marquee 110s linear infinite', paddingLeft: 20 }}>
+        <div style={{ display: 'flex', gap: 48, whiteSpace: 'nowrap', fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.7)', animation: 'marquee 120s linear infinite', paddingLeft: 24 }}>
           {[...heads, ...heads].map((h, i) => (
             <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
               <span style={{ color: T.red, fontSize: 8 }}>●</span>{h}
@@ -135,33 +135,33 @@ function SH({ label, color, href, sub }: { label: string; color: string; href?: 
 }
 
 // ── Hero news card (large, image bg) ──────────────────────────────────
-function HeroCard({ item, height = 200 }: { item: NewsItem; height?: number }) {
+function HeroCard({ item, height = 240 }: { item: NewsItem; height?: number }) {
   const c = SRC[item.source] ?? '#6b7280'
   return (
     <a href={goLink(item.link, 'hero')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 12, overflow: 'hidden', position: 'relative', height, transition: 'transform 0.22s' }}
+      style={{ display: 'block', textDecoration: 'none', borderRadius: 14, overflow: 'hidden', position: 'relative', height, transition: 'transform 0.22s' }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.01)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
     >
       <div style={{ position: 'absolute', inset: 0 }}>
         {item.imageUrl
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={item.imageUrl} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          ? <img src={item.imageUrl} alt={item.title} loading="eager" fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
           : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${c}35, ${T.surface})` }} />
         }
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,0.97) 0%, rgba(4,4,15,0.5) 55%, transparent 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,0.98) 0%, rgba(4,4,15,0.6) 45%, rgba(4,4,15,0.1) 100%)' }} />
       </div>
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7 }}>
-          <span style={{ fontSize: 8, fontWeight: 800, padding: '2px 7px', borderRadius: 3, background: `${c}25`, color: c, border: `1px solid ${c}40`, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{item.source}</span>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '18px 18px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
+          <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 4, background: `${c}30`, color: c, border: `1px solid ${c}50`, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{item.source}</span>
           {item.category !== 'all' && item.category !== 'politics' && (
-            <span style={{ fontSize: 8, fontWeight: 700, padding: '2px 6px', borderRadius: 3, background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.category}</span>
+            <span style={{ fontSize: 9, fontWeight: 700, padding: '3px 7px', borderRadius: 4, background: 'rgba(239,68,68,0.18)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.category}</span>
           )}
-          <span style={{ fontSize: 9, color: T.muted, display: 'flex', alignItems: 'center', gap: 2, marginLeft: 'auto' }}>
-            <Clock style={{ width: 8, height: 8 }} />{item.timeAgo}
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
+            <Clock style={{ width: 9, height: 9 }} />{item.timeAgo}
           </span>
         </div>
-        <h2 style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'clamp(14px, 1.9vw, 19px)', fontWeight: 700, color: '#fff', lineHeight: 1.25, margin: 0, letterSpacing: '-0.01em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <h2 style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'clamp(16px, 2.2vw, 22px)', fontWeight: 800, color: '#fff', lineHeight: 1.22, margin: 0, letterSpacing: '-0.02em', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>
           {item.title}
         </h2>
       </div>
@@ -174,21 +174,21 @@ function SecCard({ item }: { item: NewsItem }) {
   const c = SRC[item.source] ?? '#6b7280'
   return (
     <a href={goLink(item.link, 'secondary')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 10, overflow: 'hidden', position: 'relative', height: 115, transition: 'transform 0.18s' }}
+      style={{ display: 'block', textDecoration: 'none', borderRadius: 11, overflow: 'hidden', position: 'relative', height: 130, transition: 'transform 0.18s' }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
     >
       <div style={{ position: 'absolute', inset: 0 }}>
         {item.imageUrl
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={item.imageUrl} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          ? <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
           : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${c}30, ${T.surface})` }} />
         }
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,0.95) 0%, rgba(4,4,15,0.25) 60%, transparent 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,0.97) 0%, rgba(4,4,15,0.3) 55%, transparent 100%)' }} />
       </div>
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '10px 11px' }}>
-        <span style={{ fontSize: 8, fontWeight: 700, color: c, display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.source}</span>
-        <p style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 12, fontWeight: 700, color: '#fff', lineHeight: 1.3, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '11px 12px' }}>
+        <span style={{ fontSize: 9, fontWeight: 700, color: c, display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.source}</span>
+        <p style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.3, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 1px 8px rgba(0,0,0,0.9)' }}>
           {item.title}
         </p>
       </div>
@@ -206,9 +206,9 @@ function NewsRow({ item }: { item: NewsItem }) {
       style={{ display: 'flex', gap: 10, textDecoration: 'none', borderRadius: 10, padding: '9px 10px', background: T.surface, border: `1px solid ${T.border}`, alignItems: 'flex-start' }}
     >
       {item.imageUrl && (
-        <div style={{ flexShrink: 0, width: 62, height: 46, borderRadius: 7, overflow: 'hidden', background: `${c}18` }}>
+        <div style={{ flexShrink: 0, width: 68, height: 52, borderRadius: 8, overflow: 'hidden', background: `${c}18` }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.imageUrl} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <img src={item.imageUrl} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
         </div>
       )}
       {!item.imageUrl && (
@@ -404,38 +404,38 @@ export default function HomeNewsPortal() {
       {!loading && <Ticker items={all} />}
 
       {/* ── CATEGORY NAV ───────────────────────────────────────────── */}
-      <div style={{ background: T.surface, borderBottom: `1px solid ${T.border}`, position: 'sticky', top: 0, zIndex: 50, backdropFilter: 'blur(12px)' }}>
+      <div style={{ background: 'rgba(12,12,30,0.96)', borderBottom: `1px solid ${T.border}`, position: 'sticky', top: 56, zIndex: 40, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', gap: 2 }}>
             {CATS.map(cat => {
               const active = category === cat.key
               const Ic = cat.icon
               return (
                 <button key={cat.key}
                   onClick={() => { setCat(cat.key as typeof category); setShowMore(false) }}
-                  style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5, padding: '10px 14px', fontSize: 11, fontWeight: active ? 800 : 500, color: active ? cat.color : T.muted, background: 'none', border: 'none', cursor: 'pointer', borderBottom: active ? `2px solid ${cat.color}` : '2px solid transparent', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                  style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, padding: '12px 16px', fontSize: 12, fontWeight: active ? 800 : 500, color: active ? cat.color : 'rgba(255,255,255,0.45)', background: 'none', border: 'none', cursor: 'pointer', borderBottom: active ? `2px solid ${cat.color}` : '2px solid transparent', transition: 'all 0.15s', whiteSpace: 'nowrap', letterSpacing: active ? '-0.01em' : '0' }}
                 >
-                  <Ic style={{ width: 11, height: 11 }} />
+                  <Ic style={{ width: 12, height: 12 }} />
                   {cat.label}
                   {'badge' in cat && cat.badge && (
-                    <span style={{ fontSize: 7, fontWeight: 900, padding: '1px 4px', borderRadius: 3, background: T.red, color: '#fff' }}>{cat.badge}</span>
+                    <span style={{ fontSize: 8, fontWeight: 900, padding: '1px 5px', borderRadius: 3, background: T.red, color: '#fff', letterSpacing: '0.04em' }}>{cat.badge}</span>
                   )}
                 </button>
               )
             })}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, padding: '8px 0' }}>
-            <span style={{ fontSize: 9, color: T.muted, whiteSpace: 'nowrap' }}>{refreshing ? 'Refreshing…' : freshLabel}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, padding: '10px 0' }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', whiteSpace: 'nowrap' }}>{refreshing ? 'Refreshing…' : freshLabel}</span>
             <button onClick={() => fetchNews(true)} disabled={refreshing}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.muted, padding: 3, lineHeight: 0 }}>
-              <RefreshCw style={{ width: 10, height: 10, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.28)', padding: 3, lineHeight: 0 }}>
+              <RefreshCw style={{ width: 11, height: 11, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
             </button>
             <VisitorCounter />
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 nt-main-pad">
 
         {/* ═══════════════════════════════════════════════════════════
             TOP SECTION: hero (left) + trending sidebar (right)
@@ -591,11 +591,11 @@ export default function HomeNewsPortal() {
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes ping { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes shimmer { 0%{opacity:0.6} 50%{opacity:1} 100%{opacity:0.6} }
+        @keyframes shimmer { 0%{opacity:0.5} 50%{opacity:0.85} 100%{opacity:0.5} }
 
         /* ── DESKTOP top section: hero + trending ─────────────────── */
         @media (min-width: 960px) {
-          .top-section { grid-template-columns: 1fr 280px !important; align-items: start; }
+          .top-section { grid-template-columns: 1fr 300px !important; align-items: start; }
           .trend-aside { display: block !important; }
           .trend-mobile { display: none !important; }
         }
@@ -605,7 +605,10 @@ export default function HomeNewsPortal() {
           .cinema-grid { grid-template-columns: repeat(8, 1fr) !important; }
         }
         @media (min-width: 640px) and (max-width: 959px) {
-          .cinema-grid { grid-template-columns: repeat(6, 1fr) !important; }
+          .cinema-grid { grid-template-columns: repeat(5, 1fr) !important; }
+        }
+        @media (max-width: 480px) {
+          .cinema-grid { grid-template-columns: repeat(3, 1fr) !important; }
         }
 
         /* ── OTT grid: 6-col on desktop ──────────────────────────── */
@@ -615,15 +618,23 @@ export default function HomeNewsPortal() {
         @media (min-width: 640px) and (max-width: 959px) {
           .ott-grid { grid-template-columns: repeat(3, 1fr) !important; }
         }
+        @media (max-width: 480px) {
+          .ott-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
 
         /* ── Lower 2-col on desktop ───────────────────────────────── */
         @media (min-width: 960px) {
-          .lower-grid { grid-template-columns: 1fr 280px !important; align-items: start; }
+          .lower-grid { grid-template-columns: 1fr 300px !important; align-items: start; }
         }
 
-        /* ── Mobile: secondary cards stack ───────────────────────── */
-        @media (max-width: 480px) {
+        /* ── Mobile: sec cards keep 1fr 1fr unless very small ──────── */
+        @media (max-width: 380px) {
           .sec-row { grid-template-columns: 1fr !important; }
+        }
+
+        /* ── Mobile: compact paddings ─────────────────────────── */
+        @media (max-width: 480px) {
+          .nt-main-pad { padding-left: 12px !important; padding-right: 12px !important; }
         }
       `}</style>
     </div>
