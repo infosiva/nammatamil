@@ -174,17 +174,44 @@ const TN_HELPLINES = [
   { name: 'Arasu Cable', number: '044-28592020', desc: 'TN Arasu cable TV complaints', color: '#2e7d32' },
   { name: 'Road Accidents (1033)', number: '1033', desc: 'Highway accident, breakdown', color: '#f57f17' },
 ]
-const FESTIVALS: Array<{ month: number; day: number; name: string; tamil: string; color: string }> = [
-  { month: 1,  day: 14, name: 'Thai Pongal',         tamil: 'தை பொங்கல்',         color: '#fbbf24' },
-  { month: 4,  day: 13, name: 'Tamil New Year',       tamil: 'தமிழ் புத்தாண்டு',  color: '#f59e0b' },
-  { month: 5,  day: 1,  name: 'Labour Day',           tamil: 'தொழிலாளர் தினம்',   color: '#ef4444' },
-  { month: 5,  day: 18, name: 'தமிழீழ நினைவு நாள்', tamil: 'Eelam Remembrance',   color: '#f97316' },
-  { month: 6,  day: 21, name: 'Vaikasi Visakam',      tamil: 'வைகாசி விசாகம்',    color: '#10b981' },
-  { month: 7,  day: 17, name: 'Aadi Perukku',         tamil: 'ஆடி பெருக்கு',      color: '#06b6d4' },
-  { month: 8,  day: 15, name: 'Independence Day',     tamil: 'சுதந்திர தினம்',    color: '#f97316' },
-  { month: 9,  day: 2,  name: 'Ganesh Chaturthi',     tamil: 'விநாயகர் சதுர்த்தி',color: '#fb923c' },
-  { month: 11, day: 1,  name: 'Karthigai Deepam',     tamil: 'கார்த்திகை தீபம்',  color: '#fbbf24' },
-  { month: 12, day: 25, name: 'Christmas',            tamil: 'கிறிஸ்மஸ்',         color: '#34d399' },
+const FESTIVALS: Array<{ month: number; day: number; name: string; tamil: string; color: string; deity?: string }> = [
+  { month: 1,  day: 14, name: 'Thai Pongal',         tamil: 'தை பொங்கல்',           color: '#fbbf24', deity: 'சூரியன்' },
+  { month: 1,  day: 15, name: 'Mattu Pongal',        tamil: 'மாட்டு பொங்கல்',       color: '#f59e0b', deity: 'நந்தி' },
+  { month: 1,  day: 16, name: 'Kaanum Pongal',       tamil: 'காணும் பொங்கல்',       color: '#fb923c' },
+  { month: 2,  day: 14, name: 'Thai Amavasai',       tamil: 'தை அமாவாசை',           color: '#8b5cf6', deity: 'முன்னோர்கள்' },
+  { month: 3,  day: 8,  name: 'Maha Shivratri',      tamil: 'மகா சிவராத்திரி',      color: '#6366f1', deity: 'சிவன்' },
+  { month: 3,  day: 25, name: 'Panguni Uthiram',     tamil: 'பங்குனி உத்திரம்',    color: '#ec4899', deity: 'முருகன்·ஆண்டாள்' },
+  { month: 4,  day: 13, name: 'Tamil New Year',      tamil: 'தமிழ் புத்தாண்டு',    color: '#f59e0b' },
+  { month: 4,  day: 14, name: 'Chithirai Brahmotsavam', tamil: 'சித்திரை பிரம்மோத்சவம்', color: '#e11d48', deity: 'மீனாட்சி' },
+  { month: 5,  day: 1,  name: 'Labour Day',          tamil: 'தொழிலாளர் தினம்',     color: '#ef4444' },
+  { month: 5,  day: 18, name: 'தமிழீழ நினைவு நாள்', tamil: 'Eelam Remembrance',    color: '#f97316' },
+  { month: 6,  day: 3,  name: 'Vaikasi Brahmotsavam',tamil: 'வைகாசி பிரம்மோத்சவம்',color: '#0ea5e9', deity: 'திருவேங்கடம்' },
+  { month: 6,  day: 21, name: 'Vaikasi Visakam',     tamil: 'வைகாசி விசாகம்',      color: '#10b981', deity: 'முருகன்' },
+  { month: 7,  day: 3,  name: 'Adi Amavasai',        tamil: 'ஆடி அமாவாசை',         color: '#8b5cf6', deity: 'முன்னோர்கள்' },
+  { month: 7,  day: 17, name: 'Aadi Perukku',        tamil: 'ஆடி பெருக்கு',        color: '#06b6d4', deity: 'காவிரி·ஆதி சக்தி' },
+  { month: 7,  day: 26, name: 'Aadi Pooram',         tamil: 'ஆடி பூரம்',           color: '#ec4899', deity: 'மாரியம்மன்' },
+  { month: 8,  day: 15, name: 'Independence Day',    tamil: 'சுதந்திர தினம்',      color: '#f97316' },
+  { month: 8,  day: 26, name: 'Krishna Jayanthi',    tamil: 'கிருஷ்ண ஜயந்தி',     color: '#7c3aed', deity: 'கண்ணன்' },
+  { month: 9,  day: 2,  name: 'Ganesh Chaturthi',    tamil: 'விநாயகர் சதுர்த்தி', color: '#fb923c', deity: 'விநாயகர்' },
+  { month: 10, day: 2,  name: 'Gandhi Jayanthi',     tamil: 'காந்தி ஜயந்தி',      color: '#34d399' },
+  { month: 10, day: 10, name: 'Navratri Begins',     tamil: 'நவராத்திரி',          color: '#e879f9', deity: 'துர்கை·சரஸ்வதி·லக்ஷ்மி' },
+  { month: 10, day: 19, name: 'Vijaya Dasami',       tamil: 'விஜயதசமி·அயுத பூஜை', color: '#f59e0b', deity: 'சரஸ்வதி' },
+  { month: 10, day: 24, name: 'Deepavali',           tamil: 'தீபாவளி',             color: '#fbbf24', deity: 'லக்ஷ்மி' },
+  { month: 11, day: 1,  name: 'Karthigai Deepam',   tamil: 'கார்த்திகை தீபம்',    color: '#fde68a', deity: 'சிவன்·முருகன்' },
+  { month: 11, day: 5,  name: 'Skanda Sashti',      tamil: 'ஸ்கந்த சஷ்டி',       color: '#10b981', deity: 'முருகன்' },
+  { month: 12, day: 3,  name: 'Arudra Darshan',     tamil: 'ஆருத்ரா தரிசனம்',    color: '#6366f1', deity: 'நடராஜர்' },
+  { month: 12, day: 25, name: 'Christmas',          tamil: 'கிறிஸ்மஸ்',           color: '#34d399' },
+  { month: 12, day: 31, name: 'Vaikunta Ekadasi',   tamil: 'வைகுண்ட ஏகாதசி',     color: '#0ea5e9', deity: 'திருமால்' },
+]
+
+// ── Famous Tamil Nadu temples ─────────────────────────────────────────────────
+const KOVILS = [
+  { name: 'Meenakshi Amman', tamil: 'மீனாட்சி அம்மன்', city: 'Madurai', deity: 'மீனாட்சி · சுந்தரேஸ்வரர்', morning: '5:00 – 12:30', evening: '4:00 – 10:00', color: '#e11d48', famous: 'Largest temple complex in Tamil Nadu · 14 gopurams' },
+  { name: 'Brihadeeswarar',   tamil: 'பிரகதீஸ்வரர்', city: 'Thanjavur', deity: 'சிவன்',               morning: '6:00 – 12:00', evening: '4:00 – 8:30',  color: '#6366f1', famous: 'UNESCO World Heritage · Chola architecture masterpiece' },
+  { name: 'Murugan Palani',   tamil: 'தண்டாயுதபாணி', city: 'Palani',   deity: 'முருகன்',            morning: '5:00 – 12:00', evening: '4:00 – 9:00',  color: '#10b981', famous: '2nd of 6 Arupadai Veedu · Kavadi pilgrimage site' },
+  { name: 'Tirupati Balaji',  tamil: 'திருவேங்கடம்', city: 'Tirupati', deity: 'திருமால்',           morning: '3:00 – 1:30',  evening: '3:00 – 11:30', color: '#f59e0b', famous: 'Richest temple in the world · 50,000+ pilgrims/day' },
+  { name: 'Rameshwaram',      tamil: 'ராமேஸ்வரம்',  city: 'Rameswaram',deity: 'ராமநாதேஸ்வரர்',   morning: '5:00 – 1:00',  evening: '3:00 – 9:00',  color: '#0ea5e9', famous: '22 theerthams · Jyotirlinga · Ramanathamy Corridor' },
+  { name: 'Murugan Thiruchendur', tamil: 'திருச்செந்தூர்', city: 'Tiruchendur', deity: 'முருகன்', morning: '5:30 – 12:30', evening: '4:00 – 9:00',  color: '#06b6d4', famous: 'Only Arupadai Veedu on the sea coast' },
 ]
 
 function getTamilDate() {
@@ -266,10 +293,11 @@ const TABS = [
 ]
 
 const NEWS_CATS = [
-  { key: 'all',      label: 'அனைத்தும்',   icon: Radio,   color: ACCENT.primary },
-  { key: 'politics', label: 'அரசியல்',    icon: Flame,   color: '#f97316' },
-  { key: 'cinema',   label: 'சினிமா',     icon: Film,    color: T.purple  },
-  { key: 'sports',   label: 'விளையாட்டு', icon: Trophy,  color: T.green   },
+  { key: 'all',      label: 'அனைத்தும்',   icon: Radio,       color: ACCENT.primary },
+  { key: 'politics', label: 'அரசியல்',    icon: Flame,       color: '#f97316' },
+  { key: 'cinema',   label: 'சினிமா',     icon: Film,        color: T.purple  },
+  { key: 'religion', label: 'கோவில்',     icon: Star,        color: '#e11d48' },
+  { key: 'sports',   label: 'விளையாட்டு', icon: Trophy,      color: T.green   },
 ]
 
 // ── Animation variants ────────────────────────────────────────────────────────
@@ -655,7 +683,7 @@ function SerialCard({ serial }: { serial: typeof serials[0] }) {
 }
 
 // ── Tamil Calendar Panel ──────────────────────────────────────────────────────
-function CalendarPanel() {
+function CalendarPanel({ all }: { all: NewsItem[] }) {
   const td = useMemo(() => getTamilDate(), [])
   const greg = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
   const monthInfo = TAMIL_MONTH_INFO[td.tamilMonthEn] ?? null
@@ -678,6 +706,11 @@ function CalendarPanel() {
     .slice(0, 8)
 
   const EN_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+
+  const TEMPLE_KW = ['கோவில்', 'temple', 'kovil', 'tiruvallur', 'tirupati', 'meenakshi', 'murugan', 'amman', 'அம்மன்', 'ஆலயம்', 'pooja', 'பூஜை', 'thiruvaiyaru', 'brahmotsavam', 'abishekam', 'abhishekam', 'vigraham', 'rameswaram', 'chidambaram', 'sri ranganathar', 'srirangam', 'palani', 'karthigai', 'deepam', 'navratri', 'நவராத்திரி', 'vinayakar', 'விநாயகர்', 'sivarathri', 'vaikasi', 'panguni', 'aadi', 'ஆடி']
+  const templeNews = useMemo(() => all.filter(n =>
+    TEMPLE_KW.some(kw => (n.title + n.desc).toLowerCase().includes(kw))
+  ).slice(0, 5), [all])
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }} className="nt-cal-g">
@@ -768,6 +801,46 @@ function CalendarPanel() {
           </div>
         ))}
       </div>
+
+      {/* Tamil Nadu Kovils — Famous Temples */}
+      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 16 }}>
+        <SH label="கோவில்கள்" color='#e11d48' icon={Star} sub="Famous Tamil Nadu temples · Pooja timings (IST)" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+          {/* Live temple news from RSS feeds */}
+          {templeNews.length > 0 && (
+            <div style={{ marginBottom: 10, padding: '10px 12px', borderRadius: 10, background: `#e11d4808`, border: `1px solid #e11d4820` }}>
+              <p style={{ margin: '0 0 8px', fontSize: 9.5, fontWeight: 800, color: '#e11d48', textTransform: 'uppercase', letterSpacing: '0.08em' }}>கோவில் செய்திகள் · Live Temple News</p>
+              {templeNews.map((n, i) => (
+                <a key={i} href={goLink(n.link, 'temple')} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: '6px 0', borderBottom: i < templeNews.length - 1 ? `1px solid ${T.border}` : 'none', textDecoration: 'none' }}>
+                  <Rss style={{ width: 10, height: 10, color: '#e11d48', flexShrink: 0, marginTop: 2 }} />
+                  <p style={{ margin: 0, fontSize: 11, color: T.text, lineHeight: 1.45, fontFamily: /[஀-௿]/.test(n.title) ? "'Noto Serif Tamil', serif" : 'inherit' }}>{n.title}</p>
+                </a>
+              ))}
+            </div>
+          )}
+          {KOVILS.map((k, i) => (
+            <div key={i} style={{ padding: '11px 12px', borderRadius: 10, background: `${k.color}08`, border: `1px solid ${k.color}20`, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <div style={{ flexShrink: 0, width: 44, height: 44, borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: `${k.color}15`, border: `1px solid ${k.color}30` }}>
+                <span style={{ fontSize: 18, lineHeight: 1 }}>🛕</span>
+                <span style={{ fontSize: 7, color: k.color, fontWeight: 800, marginTop: 2 }}>{k.city.slice(0, 6)}</span>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 3 }}>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 900, color: T.text }}>{k.name}</p>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: k.color, padding: '1px 6px', borderRadius: 4, background: `${k.color}15` }}>{k.city}</span>
+                </div>
+                <p style={{ margin: '0 0 4px', fontSize: 10.5, color: T.muted, fontFamily: "'Noto Serif Tamil', serif" }}>{k.tamil} · {k.deity}</p>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 9, color: T.sub, background: `${T.green}12`, padding: '2px 7px', borderRadius: 4, border: `1px solid ${T.green}20` }}>🌅 {k.morning}</span>
+                  <span style={{ fontSize: 9, color: T.sub, background: `${T.gold}10`, padding: '2px 7px', borderRadius: 4, border: `1px solid ${T.gold}20` }}>🌆 {k.evening}</span>
+                </div>
+                <p style={{ margin: '5px 0 0', fontSize: 9.5, color: T.dim, lineHeight: 1.4 }}>{k.famous}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   )
 }
@@ -1328,7 +1401,7 @@ export default function HomeNewsPortal() {
             {tab === 'news'     && <NewsTab all={all} loading={loading} />}
             {tab === 'cinema'   && <CinemaTab cinemaNews={cinemaNews} />}
             {tab === 'serials'  && <SerialsTab />}
-            {tab === 'calendar' && <CalendarPanel />}
+            {tab === 'calendar' && <CalendarPanel all={all} />}
             {tab === 'tvk'      && <TVKTab all={all} loading={loading} />}
           </motion.div>
         </AnimatePresence>

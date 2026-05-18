@@ -102,6 +102,22 @@ const SPORTS_KW = [
   'test match', 'odi', 't20', 'world cup cricket', 'ipl 2025',
 ]
 
+const RELIGION_KW = [
+  // Tamil — Hindu religious keywords
+  'கோவில்', 'ஆலயம்', 'அர்ச்சனை', 'பூஜை', 'திருவிழா', 'உத்சவம்',
+  'தீபம்', 'பிரம்மோத்சவம்', 'கும்பாபிஷேகம்', 'ஆகமம்',
+  'முருகன்', 'அம்மன்', 'சிவன்', 'விஷ்ணு', 'திருமால்', 'பிள்ளையார்',
+  'விநாயகர்', 'மீனாட்சி', 'ராமர்', 'கிருஷ்ணர்', 'நடராஜர்',
+  'திருப்பதி', 'ராமேஸ்வரம்', 'சிதம்பரம்', 'திருச்செந்தூர்', 'பழனி',
+  'ஆடி', 'கார்த்திகை', 'பங்குனி', 'வைகாசி', 'மாசி', 'சித்திரை',
+  // English — temple/religion keywords
+  'temple', 'kovil', 'brahmotsavam', 'deepam', 'karthigai',
+  'navratri', 'diwali', 'deepavali', 'pongal', 'shivaratri',
+  'vaikasi visakam', 'panguni', 'aadi perukku', 'aadi pooram',
+  'tirupati', 'rameswaram', 'chidambaram', 'palani', 'thiruchendur',
+  'kumbabishekam', 'abhishekam', 'archana', 'pooja',
+]
+
 // Celebrity/gossip terms that should ALWAYS override sports classification
 const CINEMA_OVERRIDE_KW = [
   'நடிகை', 'நடிகர்', 'காதல்', 'திருமணம்', 'ஸ்ரீலீலா', 'ரஷ்மிகா',
@@ -120,7 +136,7 @@ function isTVK(title: string, desc: string): boolean {
   return TVK_KW.some(kw => text.includes(kw.toLowerCase()))
 }
 
-function categorize(title: string, desc: string): 'tvk' | 'politics' | 'cinema' | 'sports' | 'general' {
+function categorize(title: string, desc: string): 'tvk' | 'politics' | 'cinema' | 'sports' | 'religion' | 'general' {
   const text = (title + ' ' + desc).toLowerCase()
   if (isTVK(title, desc)) return 'tvk'
 
@@ -128,16 +144,19 @@ function categorize(title: string, desc: string): 'tvk' | 'politics' | 'cinema' 
   // even if they mention a sport or player name in passing
   const hasCinemaOverride = CINEMA_OVERRIDE_KW.some(kw => text.includes(kw.toLowerCase()))
 
-  const politicsScore = POLITICS_KW.filter(kw => text.includes(kw.toLowerCase())).length
-  const cinemaScore   = (CINEMA_KW.filter(kw => text.includes(kw.toLowerCase())).length) +
-                        (hasCinemaOverride ? 10 : 0)  // boost cinema score on override
-  const sportsScore   = SPORTS_KW.filter(kw => text.includes(kw.toLowerCase())).length
+  const politicsScore  = POLITICS_KW.filter(kw => text.includes(kw.toLowerCase())).length
+  const cinemaScore    = (CINEMA_KW.filter(kw => text.includes(kw.toLowerCase())).length) +
+                         (hasCinemaOverride ? 10 : 0)
+  const sportsScore    = SPORTS_KW.filter(kw => text.includes(kw.toLowerCase())).length
+  const religionScore  = RELIGION_KW.filter(kw => text.includes(kw.toLowerCase())).length
 
-  const max = Math.max(politicsScore, cinemaScore, sportsScore)
+  const max = Math.max(politicsScore, cinemaScore, sportsScore, religionScore)
   if (max === 0) return 'general'
+  if (religionScore === max && religionScore >= 2) return 'religion'
   if (politicsScore === max) return 'politics'
   if (cinemaScore   === max) return 'cinema'
-  return 'sports'
+  if (sportsScore   === max) return 'sports'
+  return 'general'
 }
 
 function extractImage(block: string): string | null {
