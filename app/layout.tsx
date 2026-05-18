@@ -77,19 +77,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           .cat-pill-politics { background: rgba(251,191,36,0.12) !important; color: #fbbf24 !important; }
           /* Editorial grid card border on hover */
           .news-card:hover { border-color: rgba(192,57,43,0.4) !important; }
-          /* Stronger headline font */
-          h1, h2, h3, .headline { font-family: 'Newsreader', 'Times New Roman', serif !important; }
+          /* Noto Serif Tamil for all headlines — authentic Tamil rendering */
+          h1, h2, h3, .headline { font-family: 'Noto Serif Tamil', 'Noto Serif', Georgia, serif !important; }
           /* Live badge pulse */
           .live-badge { animation: livePulse 1.5s ease-in-out infinite; }
           @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
         `}} />
-        {/* Fonts — Newsreader (headings) + Roboto (body), non-blocking */}
+        {/* Fonts — Noto Serif Tamil (headlines) + Inter (UI chrome) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&family=Roboto:wght@300;400;500;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,700;0,800;1,700&family=Noto+Serif+Tamil:wght@700;800&family=Inter:wght@400;500;600;700;800;900&display=swap"
           media="print"
           // @ts-expect-error onload is valid for link elements
           onLoad="this.media='all'"
@@ -98,7 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* eslint-disable-next-line @next/next/no-page-custom-font */}
           <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&family=Roboto:wght@300;400;500;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,700;0,800;1,700&family=Noto+Serif+Tamil:wght@700;800&family=Inter:wght@400;500;600;700;800;900&display=swap"
           />
         </noscript>
         <Script

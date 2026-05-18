@@ -19,8 +19,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { rateLimit } from '@/lib/ratelimit'
 
+// force-dynamic: each request fetches fresh RSS (no static cache at build time)
+// Cache-Control header on the response handles CDN caching (s-maxage=120)
+// Do NOT set both force-dynamic and revalidate — they conflict in Next.js App Router
 export const dynamic = 'force-dynamic'
-export const revalidate = 120 // 2 min Vercel CDN cache
 
 // ── RSS sources — Tamil-language FIRST (URLs verified 2026-05-10) ───────────
 const FEEDS: Array<{ name: string; url: string; tamil: boolean; logoColor: string; tvk?: boolean }> = [
@@ -164,30 +166,10 @@ function cleanHtml(s: string): string {
     .trim()
 }
 
-// Category/source-aware fallback images (Wikipedia + public domain)
-const FALLBACK_BY_CATEGORY: Record<string, string[]> = {
-  cinema: [
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Tamil_cine.jpg/800px-Tamil_cine.jpg',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Kollywood.jpg/800px-Kollywood.jpg',
-  ],
-  sports: [
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/CSK_logo.png/800px-CSK_logo.png',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/CricketBall.jpg/800px-CricketBall.jpg',
-  ],
-  politics: [
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Flag_of_Tamil_Nadu.svg/800px-Flag_of_Tamil_Nadu.svg.png',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Tamil_Nadu_Legislative_Assembly.jpg/800px-Tamil_Nadu_Legislative_Assembly.jpg',
-  ],
-}
-const FALLBACK_DEFAULT = [
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Tamil_Nadu_state_Highway_Network_Map.jpg/800px-Tamil_Nadu_state_Highway_Network_Map.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Tamil_country.jpg/800px-Tamil_country.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Tamil_language_inscription.jpg/800px-Tamil_language_inscription.jpg',
-]
-
-function fallbackImage(_source: string, category: string, seed: number): string | null {
-  const pool = FALLBACK_BY_CATEGORY[category] ?? FALLBACK_DEFAULT
-  return pool[seed % pool.length]
+// Return null when no RSS image found — client renders a source-colored gradient fallback
+// (Wikipedia images were irrelevant and often slow/blocked)
+function fallbackImage(_source: string, _category: string, _seed: number): string | null {
+  return null
 }
 
 interface RawItem {
