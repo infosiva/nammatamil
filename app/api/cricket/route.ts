@@ -310,6 +310,31 @@ type ResponseData = {
 let cache: { data: ResponseData; fetchedAt: number } | null = null
 const CACHE_TTL = 5 * 60 * 1000
 
+// ── Known IPL 2026 schedule (upcoming fixtures) ───────────────────────────────
+// Updated: May 18, 2026. Remove as matches get played.
+const SCHEDULE: Array<{ team1: string; team2: string; isoDate: string; venue: string }> = [
+  { team1: 'CSK', team2: 'SRH', isoDate: '2026-05-18T19:30:00+05:30', venue: 'MA Chidambaram Stadium, Chennai' },
+  { team1: 'MI',  team2: 'KKR', isoDate: '2026-05-19T19:30:00+05:30', venue: 'Wankhede Stadium, Mumbai' },
+  { team1: 'GT',  team2: 'RR',  isoDate: '2026-05-20T19:30:00+05:30', venue: 'Narendra Modi Stadium, Ahmedabad' },
+]
+
+function getScheduledNextMatch(): MatchInfo | null {
+  const now = Date.now()
+  for (const m of SCHEDULE) {
+    const matchTime = new Date(m.isoDate).getTime()
+    if (matchTime > now - 4 * 3600_000) { // show until 4h after start
+      const diffMs = matchTime - now
+      let dateLabel = ''
+      if (diffMs < 0)          dateLabel = 'Live / In Progress'
+      else if (diffMs < 3600_000)  dateLabel = `In ${Math.round(diffMs / 60000)}m`
+      else if (diffMs < 86400_000) dateLabel = `Today, ${new Date(m.isoDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}`
+      else                         dateLabel = new Date(m.isoDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })
+      return { team1: m.team1, team2: m.team2, venue: m.venue, dateLabel }
+    }
+  }
+  return null
+}
+
 async function buildResponse(): Promise<ResponseData> {
   const [standingsRaw, rssItems] = await Promise.all([
     fetchLiveStandings(),
@@ -317,7 +342,10 @@ async function buildResponse(): Promise<ResponseData> {
   ])
 
   const standings = standingsRaw ?? STATIC_STANDINGS
-  const { lastMatch, nextMatch, liveMatch, headlines } = extractMatchInfo(rssItems)
+  const { lastMatch, nextMatch: rssNext, liveMatch, headlines } = extractMatchInfo(rssItems)
+
+  // Prefer RSS-derived next match; fall back to hardcoded schedule
+  const nextMatch = rssNext ?? getScheduledNextMatch()
 
   // Win probability for next match (or live match)
   const matchForProb = nextMatch ?? liveMatch

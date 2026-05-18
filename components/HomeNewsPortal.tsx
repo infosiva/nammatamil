@@ -1090,7 +1090,7 @@ function IPLTab({ all }: { all: NewsItem[] }) {
 }
 
 // ── Tab: Cinema ───────────────────────────────────────────────────────────────
-function CinemaTab({ cinemaNews, allCinema }: { cinemaNews: NewsItem[]; allCinema: CinemaMovie[] }) {
+function CinemaTab({ cinemaNews, allCinema, theatrical }: { cinemaNews: NewsItem[]; allCinema: CinemaMovie[]; theatrical?: CinemaMovie[] }) {
   const comingSoon = allCinema.filter(m => m.ottDate === 'Coming Soon')
   const nowOTT     = allCinema.filter(m => m.ottDate && m.ottDate !== 'Coming Soon' && freshOtt(m.ottDate))
   const topRated   = [...allCinema].sort((a, b) => b.rating - a.rating).slice(0, 16)
@@ -1103,6 +1103,21 @@ function CinemaTab({ cinemaNews, allCinema }: { cinemaNews: NewsItem[]; allCinem
 
   return (
     <motion.div variants={fadeIn} initial="hidden" animate="visible">
+
+      {/* Now in Theatres — TMDB live theatrical releases */}
+      {theatrical && theatrical.length > 0 && (
+        <div style={{ marginBottom: 16, background: `linear-gradient(135deg, rgba(220,38,38,0.08) 0%, ${T.card} 60%)`, border: '1px solid rgba(220,38,38,0.2)', borderRadius: 10, padding: 14 }}>
+          <SH label="Now in Theatres" color='#ef4444' icon={Film} sub="Latest Tamil releases" />
+          <div style={{ display: 'flex', gap: 9, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
+            {theatrical.map((m, i) => (
+              <div key={m.id ?? i} style={{ flexShrink: 0, width: 110, position: 'relative' }}>
+                <div style={{ position: 'absolute', top: 6, left: 6, zIndex: 2, background: '#ef4444', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 5px', borderRadius: 4, letterSpacing: '0.05em', textTransform: 'uppercase' }}>In Cinemas</div>
+                <CinemaCard movie={m} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Celebrity gossip */}
       {celebNews.length > 0 && (
@@ -1362,14 +1377,16 @@ export default function HomeNewsPortal() {
   const [tab, setTab]            = useState('news')
   const [secAgo, setSecAgo]      = useState(0)
   const [showHelplines, setShowHelplines] = useState(false)
-  const [liveMovies, setLiveMovies] = useState<CinemaMovie[]>([])
+  const [liveMovies, setLiveMovies]           = useState<CinemaMovie[]>([])
+  const [theatricalMovies, setTheatricalMovies] = useState<CinemaMovie[]>([])
 
   // Fetch live Tamil OTT data from TMDB (via /api/ott)
   useEffect(() => {
     fetch('/api/ott', { cache: 'no-store', signal: AbortSignal.timeout(8000) })
       .then(r => r.ok ? r.json() : null)
-      .then((json: { movies?: CinemaMovie[] } | null) => {
+      .then((json: { movies?: CinemaMovie[]; theatrical?: CinemaMovie[] } | null) => {
         if (json?.movies && json.movies.length >= 4) setLiveMovies(json.movies)
+        if (json?.theatrical && json.theatrical.length > 0) setTheatricalMovies(json.theatrical)
       })
       .catch(() => { /* keep static fallback */ })
   }, [])
@@ -1466,7 +1483,7 @@ export default function HomeNewsPortal() {
             {tab === 'news'     && <NewsTab all={all} loading={loading} cinemaGrid={cinemaGrid} />}
             {tab === 'ipl'      && <IPLTab all={all} />}
             {tab === 'tvk'      && <TVKTab all={all} loading={loading} />}
-            {tab === 'cinema'   && <CinemaTab cinemaNews={cinemaNews} allCinema={allCinema} />}
+            {tab === 'cinema'   && <CinemaTab cinemaNews={cinemaNews} allCinema={allCinema} theatrical={theatricalMovies} />}
             {tab === 'serials'  && <SerialsTab />}
             {tab === 'calendar' && <CalendarPanel all={all} />}
           </motion.div>

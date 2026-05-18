@@ -168,87 +168,83 @@ const STATIC_OTT: OTTMovie[] = [
   },
 ]
 
-// ── Fetch real data from TMDB discover + watch providers ─────────────────────
-async function fetchFromTMDB(): Promise<OTTMovie[]> {
+type TMDBMovie = {
+  id: number; title: string; release_date: string
+  vote_average: number; overview: string; poster_path: string | null
+  genre_ids: number[]
+}
+
+function toOTTMovie(m: TMDBMovie, streamingOn: string[], idx: number): OTTMovie {
+  const year = parseInt(m.release_date?.split('-')[0] ?? '2025')
+  return {
+    id: `tmdb-${m.id}`,
+    slug: slugify(m.title, year),
+    title: m.title,
+    year,
+    director: '', cast: [], genre: [],
+    language: 'Tamil',
+    description: m.overview,
+    streamingOn,
+    ottDate: m.release_date,
+    rating: Math.round(m.vote_average * 10) / 10,
+    gradient: GRADIENTS[idx % GRADIENTS.length],
+    thumbnail: m.poster_path ? `${IMG_BASE}${m.poster_path}` : undefined,
+    tamilRelevanceScore: 9,
+  }
+}
+
+// ── Fetch Tamil movies currently on OTT (Netflix, Prime, Hotstar etc) ─────────
+async function fetchOTTMovies(): Promise<OTTMovie[]> {
   if (!TMDB_KEY) return []
-
   try {
-    // Fetch Tamil movies on OTT (with_watch_providers=IN)
     const url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_KEY}&with_original_language=ta&watch_region=IN&with_watch_monetization_types=flatrate&sort_by=release_date.desc&primary_release_date.gte=2024-06-01&vote_count.gte=5&page=1`
-
     const res = await fetch(url, { signal: AbortSignal.timeout(6000) })
     if (!res.ok) return []
+    const data = await res.json() as { results: TMDBMovie[] }
 
-    const data = await res.json() as {
-      results: {
-        id: number; title: string; release_date: string
-        vote_average: number; overview: string; poster_path: string | null
-        genre_ids: number[]
-      }[]
-    }
-
-    // For each movie, fetch watch providers
     const movies: OTTMovie[] = []
     await Promise.allSettled(
       data.results.slice(0, 15).map(async (m) => {
         try {
-          const wpRes = await fetch(
-            `${TMDB_BASE}/movie/${m.id}/watch/providers?api_key=${TMDB_KEY}`,
-            { signal: AbortSignal.timeout(4000) }
-          )
+          const wpRes = await fetch(`${TMDB_BASE}/movie/${m.id}/watch/providers?api_key=${TMDB_KEY}`, { signal: AbortSignal.timeout(4000) })
           if (!wpRes.ok) return
           const wp = await wpRes.json() as { results?: { IN?: { flatrate?: { provider_id: number; provider_name: string }[] } } }
           const providers = wp.results?.IN?.flatrate ?? []
-          const streamingOn = providers
-            .map(p => PROVIDER_MAP[p.provider_id] ?? p.provider_name)
-            .filter(Boolean)
-
-          if (streamingOn.length === 0) return // skip if not on a known platform
-
-          const year = parseInt(m.release_date?.split('-')[0] ?? '2024')
-          movies.push({
-            id: `tmdb-${m.id}`,
-            slug: slugify(m.title, year),
-            title: m.title,
-            year,
-            director: '', cast: [], genre: [],
-            language: 'Tamil',
-            description: m.overview,
-            streamingOn,
-            ottDate: m.release_date,
-            rating: Math.round(m.vote_average * 10) / 10,
-            gradient: GRADIENTS[movies.length % GRADIENTS.length],
-            thumbnail: m.poster_path ? `${IMG_BASE}${m.poster_path}` : undefined,
-            tamilRelevanceScore: 9,
-          })
+          const streamingOn = providers.map(p => PROVIDER_MAP[p.provider_id] ?? p.provider_name).filter(Boolean)
+          if (streamingOn.length === 0) return
+          movies.push(toOTTMovie(m, streamingOn, movies.length))
         } catch { /* skip */ }
       })
     )
-
     return movies
-  } catch {
-    return []
-  }
+  } catch { return [] }
+}
+
+// ── Fetch Tamil theatrical releases (last 45 days) ────────────────────────────
+async function fetchTheatricalMovies(): Promise<OTTMovie[]> {
+  if (!TMDB_KEY) return []
+  try {
+    const today = new Date()
+    const from = new Date(today)
+    from.setDate(from.getDate() - 45)
+    const fmt = (d: Date) => d.toISOString().split('T')[0]
+    const url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_KEY}&with_original_language=ta&sort_by=release_date.desc&primary_release_date.gte=${fmt(from)}&primary_release_date.lte=${fmt(today)}&vote_count.gte=1&page=1&region=IN`
+    const res = await fetch(url, { signal: AbortSignal.timeout(6000) })
+    if (!res.ok) return []
+    const data = await res.json() as { results: TMDBMovie[] }
+    return data.results.slice(0, 10).map((m, i) => toOTTMovie(m, [], i))
+  } catch { return [] }
 }
 
 export async function GET() {
-  let movies: OTTMovie[] = []
-  let source = 'static'
+  const [ottMovies, theatrical] = await Promise.all([
+    TMDB_KEY ? fetchOTTMovies() : Promise.resolve([]),
+    TMDB_KEY ? fetchTheatricalMovies() : Promise.resolve([]),
+  ])
 
-  if (TMDB_KEY) {
-    const live = await fetchFromTMDB()
-    if (live.length >= 4) {
-      movies = live
-      source = 'tmdb'
-    }
-  }
+  const movies = ottMovies.length >= 4 ? ottMovies : STATIC_OTT
+  const source = ottMovies.length >= 4 ? 'tmdb' : 'static'
 
-  if (movies.length < 4) {
-    movies = STATIC_OTT
-    source = 'static'
-  }
-
-  // Sort by ottDate desc (newest first), Coming Soon last
   movies.sort((a, b) => {
     if (a.ottDate === 'Coming Soon') return 1
     if (b.ottDate === 'Coming Soon') return -1
@@ -256,7 +252,7 @@ export async function GET() {
   })
 
   return NextResponse.json(
-    { source, count: movies.length, movies },
-    { headers: { 'Cache-Control': 'public, s-maxage=7200, stale-while-revalidate=1800' } }
+    { source, count: movies.length, movies, theatrical },
+    { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=900' } }
   )
 }
