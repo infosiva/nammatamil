@@ -937,7 +937,7 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
                     <HeroCard item={heroItem} idx={heroIdx} />
                   </motion.div>
                 </AnimatePresence>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div className="nt-tiles-wrap" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   {filtered.slice(1, 3).map((it, i) => <StoryTile key={i} item={it} idx={i} />)}
                 </div>
               </>
@@ -1568,11 +1568,14 @@ export default function HomeNewsPortal() {
           /* Cinema card grid 2-col on mobile */
           .nt-cm-grid-mobile { display: grid; grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
           /* Hero fixed height on mobile */
-          .nt-hero-card { height: 185px !important; }
+          .nt-hero-card { height: 165px !important; }
           /* Serial channel: show only first 3, hide rest */
           .nt-serial-ch > *:nth-child(n+4) { display: none; }
-          /* Story tile: shorten image on mobile so 2 tiles don't dominate */
-          .nt-tile-img { aspect-ratio: 4/3 !important; }
+          /* Story tiles on mobile: hide images, single col compact text rows */
+          .nt-tiles-wrap { grid-template-columns: 1fr !important; gap: 0 !important; }
+          .nt-tile-img { display: none !important; }
+          .nt-tile { flex-direction: row !important; align-items: center; gap: 10px; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.02); border-radius: 0 !important; }
+          .nt-tile p { font-size: 12px !important; -webkit-line-clamp: 2 !important; margin: 0 !important; }
           /* Sub-tabs: tighter padding on mobile */
           .nt-sub-tabs > button { padding: 4px 9px !important; font-size: 10.5px !important; }
           /* News row: slightly tighter row padding */
