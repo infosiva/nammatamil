@@ -25,7 +25,7 @@ import { motion, AnimatePresence, useInView } from 'framer-motion'
 import {
   RefreshCw, Newspaper, TrendingUp, Tv2, Film, Play, Trophy,
   Radio, Clock, Flame, Zap, Star, ChevronRight, ArrowUpRight,
-  CalendarDays, Sun, Music, Users, Rss,
+  CalendarDays, Sun, Music, Users, Rss, Phone, X, ExternalLink,
 } from 'lucide-react'
 import { goLink } from '@/lib/goLink'
 import CricketWidget from '@/components/CricketWidget'
@@ -34,6 +34,7 @@ import VisitorCounter from '@/components/VisitorCounter'
 import TVKSpotlight from '@/components/TVKSpotlight'
 import { movies } from '@/data/movies'
 import { serials } from '@/data/serials'
+import { albums } from '@/data/albums'
 
 // ── Daily accent palette ──────────────────────────────────────────────────────
 function getDayAccent() {
@@ -104,7 +105,75 @@ const TAMIL_MONTH_EN = [
   'Chittirai','Vaikasi','Aani','Aadi','Aavani','Purattasi',
   'Aippasi','Karthigai','Margazhi','Thai','Maasi','Panguni',
 ]
+const TAMIL_MONTH_INFO: Record<string, { deity: string; significance: string; season: string; color: string }> = {
+  'Chittirai': { deity: 'விஷ்ணு', significance: 'Tamil New Year · Chithirai Brahmotsavam at Madurai Meenakshi', season: 'Spring (Vasantham)', color: '#f59e0b' },
+  'Vaikasi':   { deity: 'முருகன்', significance: 'Vaikasi Visakam — Lord Murugan\'s star birthday · Brahmotsavam season', season: 'Late Spring', color: '#10b981' },
+  'Aani':      { deity: 'சிவன்', significance: 'Aani Thirumanjanam · Aadi Pooram approaching · Monsoon onset (NE)', season: 'Early Monsoon', color: '#06b6d4' },
+  'Aadi':      { deity: 'ஆதி சக்தி', significance: 'Aadi Perukku · Aadi Amavasai · Kaveri floods · Amman temples festivals', season: 'Monsoon (Aadi Mazhai)', color: '#8b5cf6' },
+  'Aavani':    { deity: 'கிருஷ்ணன்', significance: 'Aavani Avittam (Upakarma) · Gokulashtami · Vinayagar Chaturthi', season: 'Post-Monsoon', color: '#f97316' },
+  'Purattasi': { deity: 'விஷ்ணு', significance: 'Purattasi Sanikazhimai — Vishnu worship every Saturday · Navarathri', season: 'Autumn (Karthigai starts)', color: '#ef4444' },
+  'Aippasi':   { deity: 'லட்சுமி', significance: 'Deepavali season · Skanda Sashti · Karthigai Deepam approaches', season: 'Cool/Dry season starts', color: '#f59e0b' },
+  'Karthigai': { deity: 'முருகன் + சிவன்', significance: 'Karthigai Deepam — lamps lit everywhere · Skanda Sashti fasting', season: 'Cool & Dry', color: '#fbbf24' },
+  'Margazhi':  { deity: 'திருமால்', significance: 'Thiruvembavai · Thiruppavai · Kolam season · Carnatic music season', season: 'Winter (Hemantha)', color: '#a78bfa' },
+  'Thai':      { deity: 'சூர்யன்', significance: 'Thai Pongal (harvest) · Thai Poosam · Aadi Pooram for diaspora', season: 'Winter Solstice / Harvest', color: '#fbbf24' },
+  'Maasi':     { deity: 'யமன்', significance: 'Maasi Magam — ancestors · Mahasivarathri · Teppotsavam (float festival)', season: 'Late Winter/Spring', color: '#6366f1' },
+  'Panguni':   { deity: 'முருகன்', significance: 'Panguni Uthiram · Brahmotsavam · Spring festivals at Tiruchendur', season: 'Spring begins', color: '#ec4899' },
+}
+
+// Rahu Kalam & Yamagandam by day (Mon–Sun) — IST slots
+const RAHU_KALAM: Record<number, string> = {
+  0: '16:30–18:00', // Sun
+  1: '07:30–09:00', // Mon
+  2: '15:00–16:30', // Tue
+  3: '12:00–13:30', // Wed
+  4: '13:30–15:00', // Thu
+  5: '10:30–12:00', // Fri
+  6: '09:00–10:30', // Sat
+}
+const YAMAGANDAM: Record<number, string> = {
+  0: '12:00–13:30',
+  1: '10:30–12:00',
+  2: '09:00–10:30',
+  3: '07:30–09:00',
+  4: '06:00–07:30',
+  5: '15:00–16:30',
+  6: '13:30–15:00',
+}
+const NALLA_NERAM: Record<number, string> = {
+  0: '06:30–07:30', // Sun
+  1: '06:00–07:30', // Mon
+  2: '06:00–07:30', // Tue
+  3: '07:30–09:00', // Wed
+  4: '06:00–07:30', // Thu
+  5: '06:00–07:30', // Fri
+  6: '06:00–07:30', // Sat
+}
+
 const TAMIL_DAYS = ['ஞாயிறு','திங்கள்','செவ்வாய்','புதன்','வியாழன்','வெள்ளி','சனி']
+const NAKSHATRA_CYCLE = [
+  'அசுவினி','பரணி','கார்த்திகை','ரோகிணி','மிருகசீர்ஷம்','திருவாதிரை',
+  'புனர்பூசம்','பூசம்','ஆயில்யம்','மகம்','பூரம்','உத்திரம்',
+  'அஸ்தம்','சித்திரை','சுவாதி','விசாகம்','அனுஷம்','கேட்டை',
+  'மூலம்','பூராடம்','உத்திராடம்','திருவோணம்','அவிட்டம்','சதயம்',
+  'பூரட்டாதி','உத்திரட்டாதி','ரேவதி',
+]
+function getTodayNakshatra() {
+  const start = new Date('2000-01-01').getTime()
+  const daysSince = Math.floor((Date.now() - start) / 86400000)
+  return NAKSHATRA_CYCLE[daysSince % 27]
+}
+
+// TN Govt helplines
+const TN_HELPLINES = [
+  { name: 'Chief Minister Helpline', number: '1100', desc: 'Grievances, welfare schemes', color: '#e53935' },
+  { name: 'Police Emergency', number: '100', desc: 'Crime, emergency response', color: '#1565c0' },
+  { name: 'Ambulance (108)', number: '108', desc: '24/7 free ambulance service', color: '#c62828' },
+  { name: 'Fire & Rescue', number: '101', desc: 'Fire emergency, rescue ops', color: '#e65100' },
+  { name: 'Child Helpline', number: '1098', desc: 'CHILDLINE — child abuse, missing', color: '#6a1b9a' },
+  { name: 'Women Helpline', number: '181', desc: 'Violence, harassment, safety', color: '#880e4f' },
+  { name: 'Arasu Cable', number: '044-28592020', desc: 'TN Arasu cable TV complaints', color: '#2e7d32' },
+  { name: 'Road Accidents (1033)', number: '1033', desc: 'Highway accident, breakdown', color: '#f57f17' },
+]
 const FESTIVALS: Array<{ month: number; day: number; name: string; tamil: string; color: string }> = [
   { month: 1,  day: 14, name: 'Thai Pongal',         tamil: 'தை பொங்கல்',         color: '#fbbf24' },
   { month: 4,  day: 13, name: 'Tamil New Year',       tamil: 'தமிழ் புத்தாண்டு',  color: '#f59e0b' },
@@ -429,6 +498,76 @@ function Sk({ h = 50, r = 6, mb = 0 }: { h?: number; r?: number; mb?: number }) 
   return <div style={{ height: h, borderRadius: r, background: 'rgba(255,255,255,0.045)', animation: 'nt-shimmer 1.8s ease-in-out infinite', marginBottom: mb, flexShrink: 0 }} />
 }
 
+// ── TN Helplines modal ────────────────────────────────────────────────────────
+function TNHelplinesModal({ onClose }: { onClose: () => void }) {
+  return (
+    <AnimatePresence>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: '0 0 0 0' }}
+        onClick={onClose}>
+        <motion.div initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+          style={{ width: '100%', maxWidth: 560, background: T.card, borderRadius: '16px 16px 0 0', border: `1px solid ${T.border2}`, borderBottom: 'none', padding: '20px 18px 28px', maxHeight: '85vh', overflowY: 'auto' }}
+          onClick={e => e.stopPropagation()}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 9, background: '#e5393512', border: '1px solid #e5393530', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Phone style={{ width: 16, height: 16, color: '#ef4444' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 900, color: T.text }}>Tamil Nadu Helplines</p>
+              <p style={{ margin: 0, fontSize: 10.5, color: T.muted }}>Government emergency numbers — free to call 24/7</p>
+            </div>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.muted, padding: 4 }}>
+              <X style={{ width: 16, height: 16 }} />
+            </button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9 }}>
+            {TN_HELPLINES.map((h, i) => (
+              <a key={i} href={`tel:${h.number}`}
+                style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '11px 13px', borderRadius: 10, background: `${h.color}0e`, border: `1px solid ${h.color}28`, textDecoration: 'none', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: h.color, letterSpacing: '-0.02em', lineHeight: 1 }}>{h.number}</span>
+                  <ExternalLink style={{ width: 10, height: 10, color: h.color, opacity: 0.6, flexShrink: 0 }} />
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 800, color: T.text, lineHeight: 1.2 }}>{h.name}</span>
+                <span style={{ fontSize: 9.5, color: T.muted, lineHeight: 1.3 }}>{h.desc}</span>
+              </a>
+            ))}
+          </div>
+          <p style={{ margin: '14px 0 0', textAlign: 'center', fontSize: 9.5, color: T.dim }}>Tap any number to call directly · Free from any mobile</p>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+// ── Tamil Songs / Album strip ─────────────────────────────────────────────────
+function MusicStrip() {
+  const recent = albums.filter(a => a.year >= 2025).slice(0, 8)
+  if (!recent.length) return null
+  return (
+    <div style={{ background: `linear-gradient(135deg, ${T.purple}0a 0%, ${T.card} 60%)`, border: `1px solid ${T.purple}1a`, borderRadius: 10, padding: '12px 14px 14px', marginBottom: 14 }}>
+      <SH label="Tamil Songs" color={T.purple} href="/albums" icon={Music} sub="Latest 2025 albums" />
+      <div style={{ display: 'flex', gap: 9, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
+        {recent.map((a, i) => (
+          <Link key={a.id} href={`/albums/${a.slug}`} style={{ textDecoration: 'none', flexShrink: 0, width: 100 }}>
+            <div style={{ borderRadius: 8, overflow: 'hidden', background: T.raised, border: `1px solid ${T.border}` }}>
+              <div style={{ height: 100, background: `linear-gradient(135deg, ${['#7c3aed','#e53935','#0288d1','#2e7d32','#f59e0b','#dc2626','#c62828','#6a1b9a'][i % 8]}50 0%, #1a1a2e 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Music style={{ width: 24, height: 24, color: 'rgba(255,255,255,0.4)' }} />
+              </div>
+              <div style={{ padding: '5px 7px 7px' }}>
+                <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: T.text, lineHeight: 1.25, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontFamily: "'Noto Serif Tamil', 'Noto Serif', Georgia, serif" }}>{a.title}</p>
+                <p style={{ margin: 0, fontSize: 8.5, color: T.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.artist}</p>
+                {a.badge && <span style={{ display: 'inline-block', marginTop: 3, fontSize: 7, fontWeight: 900, padding: '1px 5px', borderRadius: 3, background: `${T.purple}28`, color: T.purple }}>{a.badge}</span>}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── Cinema poster card ────────────────────────────────────────────────────────
 function CinemaCard({ movie, wide }: { movie: typeof ALL_CINEMA[0]; wide?: boolean }) {
   const [err, setErr] = useState(false)
@@ -519,8 +658,13 @@ function SerialCard({ serial }: { serial: typeof serials[0] }) {
 function CalendarPanel() {
   const td = useMemo(() => getTamilDate(), [])
   const greg = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const monthInfo = TAMIL_MONTH_INFO[td.tamilMonthEn] ?? null
+  const nakshatra = useMemo(() => getTodayNakshatra(), [])
+  const dayIdx = new Date().getDay()
+  const rahuKalam = RAHU_KALAM[dayIdx]
+  const yamagandam = YAMAGANDAM[dayIdx]
+  const nallaNeram = NALLA_NERAM[dayIdx]
 
-  // Upcoming festivals (next 90 days)
   const now = new Date()
   const upcoming = FESTIVALS
     .map(f => {
@@ -533,49 +677,92 @@ function CalendarPanel() {
     .sort((a, b) => a.diff - b.diff)
     .slice(0, 8)
 
+  const EN_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }} className="nt-cal-g">
+
       {/* Today card */}
-      <div style={{ background: `linear-gradient(135deg, ${T.gold}10 0%, ${T.card} 55%)`, border: `1px solid ${T.gold}28`, borderRadius: 12, padding: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <div style={{ width: 52, height: 52, borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: `${T.gold}18`, border: `1px solid ${T.gold}35`, flexShrink: 0 }}>
-            <span style={{ fontSize: 24, fontWeight: 900, color: T.gold, lineHeight: 1 }}>{td.day}</span>
-            <span style={{ fontSize: 8, color: T.muted, fontWeight: 700, letterSpacing: '0.05em' }}>{TAMIL_DAYS[td.weekdayIdx]?.slice(0, 4)}</span>
+      <div style={{ background: `linear-gradient(135deg, ${monthInfo?.color ?? T.gold}12 0%, ${T.card} 60%)`, border: `1px solid ${monthInfo?.color ?? T.gold}28`, borderRadius: 12, padding: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+          <div style={{ width: 58, height: 58, borderRadius: 14, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: `${monthInfo?.color ?? T.gold}18`, border: `1px solid ${monthInfo?.color ?? T.gold}35`, flexShrink: 0 }}>
+            <span style={{ fontSize: 26, fontWeight: 900, color: monthInfo?.color ?? T.gold, lineHeight: 1 }}>{td.day}</span>
+            <span style={{ fontSize: 8, color: T.muted, fontWeight: 700, letterSpacing: '0.04em', fontFamily: "'Noto Serif Tamil', serif" }}>{TAMIL_DAYS[td.weekdayIdx]?.slice(0, 4)}</span>
           </div>
           <div>
-            <p style={{ margin: '0 0 2px', fontSize: 22, fontWeight: 900, color: T.text, fontFamily: "'Noto Serif Tamil', serif", lineHeight: 1 }}>{td.tamilMonth}</p>
-            <p style={{ margin: '0 0 1px', fontSize: 11, color: T.muted }}>{td.tamilMonthEn} · {greg}</p>
+            <p style={{ margin: '0 0 2px', fontSize: 24, fontWeight: 900, color: T.text, fontFamily: "'Noto Serif Tamil', serif", lineHeight: 1 }}>{td.tamilMonth}</p>
+            <p style={{ margin: '0 0 1px', fontSize: 11.5, color: T.muted }}>{td.tamilMonthEn} · {greg}</p>
             <p style={{ margin: 0, fontSize: 10, color: T.dim }}>Tamil Year {td.tamilYear}</p>
           </div>
         </div>
-        <div style={{ padding: '8px 12px', borderRadius: 8, background: T.raised, border: `1px solid ${T.border}` }}>
-          <span style={{ fontSize: 14, fontWeight: 900, color: T.text, fontFamily: "'Noto Serif Tamil', serif" }}>{TAMIL_DAYS[td.weekdayIdx]}</span>
-          <span style={{ fontSize: 10, color: T.muted, marginLeft: 8 }}>({['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][td.weekdayIdx]})</span>
+
+        {/* Day + Nakshatra row */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+          <div style={{ padding: '8px 12px', borderRadius: 8, background: T.raised, border: `1px solid ${T.border}` }}>
+            <p style={{ margin: '0 0 2px', fontSize: 9, color: T.muted, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>இன்று</p>
+            <span style={{ fontSize: 13, fontWeight: 900, color: T.text, fontFamily: "'Noto Serif Tamil', serif" }}>{TAMIL_DAYS[td.weekdayIdx]}</span>
+            <span style={{ fontSize: 9, color: T.dim, marginLeft: 6 }}>({EN_DAYS[td.weekdayIdx]})</span>
+          </div>
+          <div style={{ padding: '8px 12px', borderRadius: 8, background: T.raised, border: `1px solid ${T.purple}28` }}>
+            <p style={{ margin: '0 0 2px', fontSize: 9, color: T.muted, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>நட்சத்திரம்</p>
+            <span style={{ fontSize: 13, fontWeight: 900, color: T.purple, fontFamily: "'Noto Serif Tamil', serif" }}>{nakshatra}</span>
+          </div>
         </div>
+
+        {/* Month significance */}
+        {monthInfo && (
+          <div style={{ padding: '10px 12px', borderRadius: 8, background: `${monthInfo.color}0d`, border: `1px solid ${monthInfo.color}22`, marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+              <span style={{ fontSize: 9, fontWeight: 800, color: monthInfo.color, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{monthInfo.season}</span>
+              <span style={{ fontSize: 9, color: T.dim }}>·</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: T.muted }}>தெய்வம்: <span style={{ color: monthInfo.color, fontFamily: "'Noto Serif Tamil', serif" }}>{monthInfo.deity}</span></span>
+            </div>
+            <p style={{ margin: 0, fontSize: 11, color: T.sub, lineHeight: 1.5 }}>{monthInfo.significance}</p>
+          </div>
+        )}
+
+        {/* Festival today */}
         {td.festival && (
-          <div style={{ marginTop: 10, padding: '10px 12px', borderRadius: 8, background: `${td.festival.color}12`, border: `1px solid ${td.festival.color}30`, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ padding: '10px 12px', borderRadius: 8, background: `${td.festival.color}12`, border: `1px solid ${td.festival.color}30`, display: 'flex', alignItems: 'center', gap: 10 }}>
             <Star style={{ width: 14, height: 14, color: td.festival.color, flexShrink: 0 }} />
             <div>
               <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 900, color: td.festival.color }}>{td.festival.name}</p>
-              <p style={{ margin: 0, fontSize: 10, color: T.muted }}>{td.festival.tamil}</p>
+              <p style={{ margin: 0, fontSize: 10, color: T.muted, fontFamily: "'Noto Serif Tamil', serif" }}>{td.festival.tamil}</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Upcoming festivals */}
+      {/* Panchangam — auspicious timings */}
       <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 16 }}>
+        <SH label="பஞ்சாங்கம்" color='#f59e0b' icon={Sun} sub="Today's auspicious timings (IST)" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
+          <div style={{ padding: '10px 10px', borderRadius: 8, background: `${T.green}10`, border: `1px solid ${T.green}25`, textAlign: 'center' }}>
+            <p style={{ margin: '0 0 4px', fontSize: 8.5, fontWeight: 800, color: T.green, textTransform: 'uppercase', letterSpacing: '0.06em' }}>நல்ல நேரம்</p>
+            <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: T.text }}>{nallaNeram}</p>
+          </div>
+          <div style={{ padding: '10px 10px', borderRadius: 8, background: `${T.red}10`, border: `1px solid ${T.red}25`, textAlign: 'center' }}>
+            <p style={{ margin: '0 0 4px', fontSize: 8.5, fontWeight: 800, color: T.red, textTransform: 'uppercase', letterSpacing: '0.06em' }}>ராகு காலம்</p>
+            <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: T.text }}>{rahuKalam}</p>
+          </div>
+          <div style={{ padding: '10px 10px', borderRadius: 8, background: `${T.purple}10`, border: `1px solid ${T.purple}25`, textAlign: 'center' }}>
+            <p style={{ margin: '0 0 4px', fontSize: 8.5, fontWeight: 800, color: T.purple, textTransform: 'uppercase', letterSpacing: '0.06em' }}>யமகண்டம்</p>
+            <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: T.text }}>{yamagandam}</p>
+          </div>
+        </div>
+
+        {/* Upcoming festivals */}
         <SH label="Upcoming Festivals" color={T.gold} icon={Star} />
         {upcoming.map((f, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < upcoming.length - 1 ? `1px solid ${T.border}` : 'none' }}>
-            <div style={{ flexShrink: 0, width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${f.color}15`, border: `1px solid ${f.color}30` }}>
-              <span style={{ fontSize: 9, fontWeight: 900, color: f.color }}>{f.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+            <div style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${f.color}15`, border: `1px solid ${f.color}30` }}>
+              <span style={{ fontSize: 9, fontWeight: 900, color: f.color, textAlign: 'center', lineHeight: 1.2 }}>{f.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ margin: '0 0 2px', fontSize: 12, fontWeight: 800, color: T.text }}>{f.name}</p>
               <p style={{ margin: 0, fontSize: 10, color: T.muted, fontFamily: "'Noto Serif Tamil', serif" }}>{f.tamil}</p>
             </div>
-            <span style={{ flexShrink: 0, fontSize: 9.5, fontWeight: 800, padding: '2px 7px', borderRadius: 99, background: `${f.color}15`, color: f.color }}>
+            <span style={{ flexShrink: 0, fontSize: 9.5, fontWeight: 800, padding: '2px 8px', borderRadius: 99, background: `${f.color}15`, color: f.color }}>
               {f.diff === 0 ? 'Today' : f.diff === 1 ? 'Tomorrow' : `${f.diff}d`}
             </span>
           </div>
@@ -691,6 +878,9 @@ function NewsTab({ all, loading }: { all: NewsItem[]; loading: boolean }) {
         </div>
       </div>
 
+      {/* Music strip */}
+      <MusicStrip />
+
       {/* Main feed + sidebar */}
       <div className="nt-low" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
         <div>
@@ -743,13 +933,66 @@ function NewsTab({ all, loading }: { all: NewsItem[]; loading: boolean }) {
 }
 
 // ── Tab: Cinema ───────────────────────────────────────────────────────────────
-function CinemaTab() {
+function CinemaTab({ cinemaNews }: { cinemaNews: NewsItem[] }) {
   const comingSoon = ALL_CINEMA.filter(m => m.ottDate === 'Coming Soon')
   const nowOTT     = ALL_CINEMA.filter(m => m.ottDate && m.ottDate !== 'Coming Soon' && freshOtt(m.ottDate))
   const topRated   = [...ALL_CINEMA].sort((a, b) => b.rating - a.rating).slice(0, 16)
 
+  // Celebrity gossip / trending people from news feed
+  const GOSSIP_KW = ['ravi mohan', 'gayathrie', 'divorce', 'romance', 'wedding', 'காதல்', 'திருமணம்', 'விவாகரத்து', 'breakup', 'anirudh', 'sai pallavi', 'nayanthara', 'trisha', 'samantha']
+  const celebNews = cinemaNews.filter(n =>
+    GOSSIP_KW.some(kw => (n.title + n.desc).toLowerCase().includes(kw))
+  ).slice(0, 6)
+
   return (
     <motion.div variants={fadeIn} initial="hidden" animate="visible">
+
+      {/* Vijay / TVK Cinema spotlight */}
+      <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(239,68,68,0.06) 50%, #111118 100%)', border: '1px solid rgba(245,158,11,0.24)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Zap style={{ width: 18, height: 18, color: T.gold }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ margin: '0 0 2px', fontSize: 14, fontWeight: 900, color: T.text }}>Vijay × TVK</p>
+            <p style={{ margin: 0, fontSize: 10.5, color: T.muted }}>Thalapathy turns politician · TN CM Race 2026</p>
+          </div>
+          <span style={{ fontSize: 7.5, fontWeight: 900, padding: '2px 7px', borderRadius: 3, background: T.red, color: '#fff' }}>HOT</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {[
+            { label: 'Party Founded', value: 'Feb 2024', icon: '🗓' },
+            { label: 'Party Name', value: 'TVK', icon: '⚡' },
+            { label: 'TN Election', value: '2026 Goal', icon: '🗳' },
+            { label: 'Members', value: '10 Lakh+', icon: '👥' },
+          ].map((s, i) => (
+            <div key={i} style={{ padding: '9px 11px', borderRadius: 8, background: `${T.gold}08`, border: `1px solid ${T.gold}18`, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 16 }}>{s.icon}</span>
+              <div>
+                <p style={{ margin: 0, fontSize: 11, fontWeight: 900, color: T.gold }}>{s.value}</p>
+                <p style={{ margin: 0, fontSize: 9, color: T.muted }}>{s.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 10, padding: '9px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.28)', border: `1px solid ${T.border}` }}>
+          <p style={{ margin: 0, fontSize: 11, color: T.sub, lineHeight: 1.6 }}>
+            After his final film <strong style={{ color: T.text }}>GOAT (2024)</strong>, Thalapathy Vijay officially launched <strong style={{ color: T.gold }}>Tamilaga Vettri Kazhagam (TVK)</strong>. With party conferences drawing lakhs and a clear 2026 election agenda, he&apos;s pivoting from cinema to CM race — making him Tamil Nadu&apos;s most talked-about political wildcard.
+          </p>
+        </div>
+      </div>
+
+      {/* Music strip */}
+      <MusicStrip />
+
+      {/* Celebrity gossip */}
+      {celebNews.length > 0 && (
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 14px', marginBottom: 16 }}>
+          <SH label="Trending Celebs" color='#ec4899' icon={Users} sub="Latest gossip & news" />
+          {celebNews.map((item, i) => <NewsRow key={i} item={item} idx={i} />)}
+        </div>
+      )}
+
       {/* Coming soon */}
       {comingSoon.length > 0 && (
         <div style={{ marginBottom: 16 }}>
@@ -781,17 +1024,103 @@ function CinemaTab() {
   )
 }
 
+// ── On-air utils ──────────────────────────────────────────────────────────────
+function getISTMinutes() {
+  const now = new Date()
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000
+  const ist = new Date(utc + 5.5 * 3600000)
+  return ist.getHours() * 60 + ist.getMinutes()
+}
+function timeToMin(t: string) {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
+}
+function isOnAir(serial: typeof serials[0]) {
+  if (!serial.airTime) return false
+  const now = getISTMinutes()
+  const start = timeToMin(serial.airTime)
+  return now >= start && now <= start + 30
+}
+function minutesUntil(t: string) {
+  return timeToMin(t) - getISTMinutes()
+}
+
 // ── Tab: Serials ──────────────────────────────────────────────────────────────
 function SerialsTab() {
+  const [nowMin, setNowMin] = useState(getISTMinutes())
+  useEffect(() => {
+    const t = setInterval(() => setNowMin(getISTMinutes()), 30000)
+    return () => clearInterval(t)
+  }, [])
+
   const ongoing  = serials.filter(s => s.status === 'Ongoing' && s.language === 'Tamil')
   const channels = [...new Set(ongoing.map(s => s.channel))].sort()
+  const CC: Record<string, string> = { 'Sun TV': '#f59e0b', 'Vijay TV': '#3b82f6', 'Zee Tamil': '#9333ea', 'Colors Tamil': '#ef4444', 'Kalaignar TV': '#dc2626', 'Star Vijay': '#2563eb' }
+
+  // On-air right now
+  const onNow = ongoing.filter(s => {
+    if (!s.airTime) return false
+    const start = timeToMin(s.airTime)
+    return nowMin >= start && nowMin <= start + 30
+  })
+
+  // Coming up in next 90 min
+  const comingUp = ongoing.filter(s => {
+    if (!s.airTime) return false
+    const diff = timeToMin(s.airTime) - nowMin
+    return diff > 0 && diff <= 90
+  }).sort((a, b) => timeToMin(a.airTime!) - timeToMin(b.airTime!))
 
   return (
     <motion.div variants={fadeIn} initial="hidden" animate="visible">
+
+      {/* On Now banner */}
+      {onNow.length > 0 && (
+        <div style={{ marginBottom: 14, background: `linear-gradient(135deg, ${T.red}12 0%, ${T.card} 55%)`, border: `1px solid ${T.red}28`, borderRadius: 10, padding: '12px 14px' }}>
+          <SH label="இப்போது ஒளிபரப்பு" color={T.red} icon={Radio} sub="On Air Now (IST)" />
+          {onNow.map(s => {
+            const c = CC[s.channel] ?? T.teal
+            return (
+              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderBottom: `1px solid ${T.border}` }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: T.red, flexShrink: 0, animation: 'nt-ping 1.4s ease-in-out infinite' }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: T.text, fontFamily: "'Noto Serif Tamil', 'Noto Serif', serif", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</p>
+                </div>
+                <span style={{ fontSize: 8.5, fontWeight: 800, padding: '2px 7px', borderRadius: 3, background: c, color: '#fff', flexShrink: 0 }}>{s.channel}</span>
+                <span style={{ fontSize: 9, color: T.red, fontWeight: 800, flexShrink: 0 }}>{s.airTime} IST</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Coming up */}
+      {comingUp.length > 0 && (
+        <div style={{ marginBottom: 14, background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 14px' }}>
+          <SH label="Coming Up" color={T.teal} icon={Clock} sub="Next 90 minutes" />
+          {comingUp.slice(0, 6).map(s => {
+            const c = CC[s.channel] ?? T.teal
+            const diff = timeToMin(s.airTime!) - nowMin
+            return (
+              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: `1px solid ${T.border}` }}>
+                <span style={{ flexShrink: 0, fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 3, background: `${T.teal}1a`, color: T.teal, border: `1px solid ${T.teal}30`, whiteSpace: 'nowrap' }}>
+                  {diff}m
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 12.5, fontWeight: 700, color: T.text, fontFamily: "'Noto Serif Tamil', 'Noto Serif', serif", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</p>
+                </div>
+                <span style={{ fontSize: 8.5, fontWeight: 800, padding: '2px 6px', borderRadius: 3, background: c, color: '#fff', flexShrink: 0 }}>{s.channel}</span>
+                <span style={{ fontSize: 9, color: T.muted, flexShrink: 0 }}>{s.airTime}</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Channel chips */}
       <div style={{ marginBottom: 10, display: 'flex', gap: 5, overflowX: 'auto', scrollbarWidth: 'none' }}>
         {channels.map(ch => {
-          const cc: Record<string, string> = { 'Sun TV': '#f59e0b', 'Vijay TV': '#3b82f6', 'Zee Tamil': '#9333ea', 'Colors Tamil': '#ef4444', 'Kalaignar TV': '#dc2626' }
-          const c = cc[ch] ?? T.teal
+          const c = CC[ch] ?? T.teal
           return (
             <div key={ch} style={{ flexShrink: 0, padding: '4px 12px', borderRadius: 99, background: `${c}18`, border: `1px solid ${c}30`, fontSize: 10.5, fontWeight: 800, color: c, whiteSpace: 'nowrap' }}>{ch}</div>
           )
@@ -801,12 +1130,18 @@ function SerialsTab() {
       {channels.map(ch => {
         const chSerials = ongoing.filter(s => s.channel === ch)
         if (!chSerials.length) return null
-        const cc: Record<string, string> = { 'Sun TV': '#f59e0b', 'Vijay TV': '#3b82f6', 'Zee Tamil': '#9333ea', 'Colors Tamil': '#ef4444', 'Kalaignar TV': '#dc2626' }
-        const c = cc[ch] ?? T.teal
+        const c = CC[ch] ?? T.teal
         return (
           <div key={ch} style={{ marginBottom: 14, background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 14px' }}>
             <SH label={ch} color={c} icon={Tv2} sub={`${chSerials.length} ongoing`} />
-            {chSerials.map(s => <SerialCard key={s.id} serial={s} />)}
+            {chSerials.map(s => (
+              <div key={s.id} style={{ position: 'relative' }}>
+                {s.airTime && nowMin >= timeToMin(s.airTime) && nowMin <= timeToMin(s.airTime) + 30 && (
+                  <div style={{ position: 'absolute', right: 0, top: 14, fontSize: 8, fontWeight: 900, padding: '2px 6px', borderRadius: 3, background: T.red, color: '#fff', zIndex: 2 }}>ON AIR</div>
+                )}
+                <SerialCard serial={s} />
+              </div>
+            ))}
           </div>
         )
       })}
@@ -875,6 +1210,7 @@ export default function HomeNewsPortal() {
   const [refreshing, setRefresh] = useState(false)
   const [tab, setTab]            = useState('news')
   const [secAgo, setSecAgo]      = useState(0)
+  const [showHelplines, setShowHelplines] = useState(false)
 
   const fetchNews = useCallback(async (manual = false) => {
     if (manual) setRefresh(true)
@@ -906,12 +1242,16 @@ export default function HomeNewsPortal() {
   const sourceCount = useMemo(() => new Set(all.map(n => n.source)).size, [all])
   const tamilDate = useMemo(() => getTamilDate(), [])
   const freshLabel = secAgo < 60 ? `${secAgo}s` : `${Math.floor(secAgo / 60)}m`
+  const cinemaNews = useMemo(() => all.filter(n => n.category === 'cinema'), [all])
 
   // Featured movie for spotlight banner
   const featuredMovie = CINEMA_GRID[0]
 
   return (
     <div style={{ minHeight: '100vh', background: T.bg, color: T.text }}>
+
+      {/* ── TN HELPLINES MODAL ──────────────────────────────────────────── */}
+      {showHelplines && <TNHelplinesModal onClose={() => setShowHelplines(false)} />}
 
       {/* ── BREAKING TICKER ─────────────────────────────────────────────── */}
       {!loading && <Ticker items={all} />}
@@ -936,7 +1276,12 @@ export default function HomeNewsPortal() {
               )
             })}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, paddingLeft: 8 }}>
+            <button onClick={() => setShowHelplines(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 5, background: '#ef444412', border: '1px solid #ef444428', cursor: 'pointer', lineHeight: 0 }}>
+              <Phone style={{ width: 9, height: 9, color: '#ef4444' }} />
+              <span style={{ fontSize: 9, fontWeight: 800, color: '#ef4444' }}>TN Help</span>
+            </button>
             <span style={{ fontSize: 9.5, color: T.dim }}>{refreshing ? '…' : freshLabel}</span>
             <button onClick={() => fetchNews(true)} disabled={refreshing}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.dim, padding: 3, lineHeight: 0 }}>
@@ -981,7 +1326,7 @@ export default function HomeNewsPortal() {
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
             {tab === 'news'     && <NewsTab all={all} loading={loading} />}
-            {tab === 'cinema'   && <CinemaTab />}
+            {tab === 'cinema'   && <CinemaTab cinemaNews={cinemaNews} />}
             {tab === 'serials'  && <SerialsTab />}
             {tab === 'calendar' && <CalendarPanel />}
             {tab === 'tvk'      && <TVKTab all={all} loading={loading} />}

@@ -16,6 +16,10 @@ export interface Serial {
   gradient: string
   /** Optional poster/thumbnail image URL */
   thumbnail?: string
+  /** Air time in IST — "HH:MM" 24h format, Mon–Fri unless noted */
+  airTime?: string
+  /** Days aired: 1=Mon … 7=Sun. Omit = Mon–Fri */
+  airDays?: number[]
 }
 
 export const serials: Serial[] = [
@@ -35,6 +39,8 @@ export const serials: Serial[] = [
     rating: 8.1,
     gradient: 'from-yellow-600 via-amber-500 to-orange-400',
     thumbnail: '/api/serial-thumb?title=Naam+Iruvar+Oru+Kudumbu&channel=Sun+TV',
+    airTime: '20:00',
+    airDays: [1,2,3,4,5,6,7],
   },
   {
     id: 's17',
@@ -51,6 +57,8 @@ export const serials: Serial[] = [
     rating: 7.8,
     gradient: 'from-blue-600 via-sky-500 to-cyan-400',
     thumbnail: '/api/serial-thumb?title=Kana+Kaanum+Kaalangal+2&channel=Vijay+TV',
+    airTime: '19:30',
+    airDays: [1,2,3,4,5,6,7],
   },
   {
     id: 's18',
@@ -67,6 +75,8 @@ export const serials: Serial[] = [
     rating: 8.3,
     gradient: 'from-green-600 via-emerald-500 to-teal-400',
     thumbnail: '/api/serial-thumb?title=Kolangal+2&channel=Sun+TV',
+    airTime: '21:00',
+    airDays: [1,2,3,4,5,6,7],
   },
   {
     id: 's19',
@@ -83,6 +93,8 @@ export const serials: Serial[] = [
     rating: 7.9,
     gradient: 'from-pink-600 via-rose-500 to-red-400',
     thumbnail: '/api/serial-thumb?title=Valli+Thirumanam&channel=Vijay+TV',
+    airTime: '20:30',
+    airDays: [1,2,3,4,5,6,7],
   },
   // ── Tamil Original Serials ──────────────────────────────────────────
   {
@@ -101,6 +113,8 @@ export const serials: Serial[] = [
     rating: 7.9,
     gradient: 'from-violet-600 via-purple-500 to-fuchsia-400',
     thumbnail: '/api/serial-thumb?title=Bharathi+Kannamma&channel=Vijay+TV',
+    airTime: '21:30',
+    airDays: [1,2,3,4,5,6,7],
   },
   {
     id: 's5',
@@ -168,6 +182,8 @@ export const serials: Serial[] = [
     rating: 7.6,
     gradient: 'from-rose-600 via-red-500 to-orange-400',
     thumbnail: '/api/serial-thumb?title=Roja&channel=Sun+TV',
+    airTime: '19:00',
+    airDays: [1,2,3,4,5,6,7],
   },
   {
     id: 's9',
@@ -184,6 +200,8 @@ export const serials: Serial[] = [
     rating: 8.2,
     gradient: 'from-amber-600 via-orange-500 to-red-400',
     thumbnail: '/api/serial-thumb?title=Annamalai&channel=Sun+TV',
+    airTime: '20:30',
+    airDays: [1,2,3,4,5,6,7],
   },
   {
     id: 's10',

@@ -73,6 +73,7 @@ const CINEMA_KW = [
   'படம்', 'படத்தில்', 'படத்தின்', 'கோலிவுட்', 'தமிழ் படம்',
   'ஓடிடி', 'வெளியீடு', 'இயக்குனர்', 'தயாரிப்பு', 'விழா',
   'நடித்த', 'நடிக்கிறார்', 'ரிலீஸ்', 'தியேட்டர்', 'போஸ்டர்',
+  'பாடல்', 'இசையமைப்பாளர்', 'ஆல்பம்',
   // English
   'movie', 'film', 'actor', 'actress', 'director', 'cinema', 'trailer',
   'release', 'ott', 'serial', 'series', 'tv show', 'music', 'song',
@@ -81,18 +82,37 @@ const CINEMA_KW = [
   'samantha', 'pooja hegde', 'rashmika', 'atlee', 'shankar', 'lokesh',
   'box office', 'first look', 'teaser', 'audio launch', 'album',
   'vijay tv', 'sun tv', 'zee tamil', 'star vijay', 'kalaignar tv',
+  // Trending people (celebrities & gossip — 2025)
+  'ravi mohan', 'ravimohaan', 'gayathrie', 'gayathrie shankar',
+  'vijay sethupathi', 'fahadh faasil', 'karthi', 'jayam ravi',
+  'anirudh', 'yuvan', 'harris jayaraj', 'imman', 'sid sriram',
+  'malavika mohanan', 'sai pallavi', 'keerthy suresh', 'aishwarya rajesh',
+  'prashanth', 'arulnithi', 'silambarasan', 'simbu', 'str',
 ]
 
 const SPORTS_KW = [
-  // Tamil
+  // Tamil — specific sports terms only (avoid ambiguous words like வீரர் = hero/player)
   'விளையாட்டு', 'கிரிக்கெட்', 'கால்பந்து', 'டென்னிஸ்', 'ஹாக்கி',
-  'வீரர்', 'வெற்றி', 'தோல்வி', 'போட்டி', 'டூர்னமென்ட்',
-  // English
-  'cricket', 'ipl', 'football', 'sports', 'match', 'tournament',
-  'championship', 'player', 'team', 'score', 'wicket', 'goal',
-  'chennai super kings', 'csk', 'ms dhoni', 'rohit', 'virat',
-  'fifa', 'olympics', 'kabaddi', 'badminton', 'tennis', 'hockey',
-  'batting', 'bowling', 'innings', 'over', 'run', 'boundary', 'six',
+  'போட்டி', 'டூர்னமென்ட்', 'தொடர்', 'ஓட்டப்பந்தயம்',
+  // English — strong sports signals only
+  'ipl', 'football', 'sports news', 'cricket match', 'cricket score',
+  'tournament', 'championship', 'wicket', 'batting', 'bowling',
+  'innings', 'boundary', 'chennai super kings', 'csk', 'ms dhoni',
+  'fifa', 'olympics', 'kabaddi', 'badminton', 'hockey league',
+  'test match', 'odi', 't20', 'world cup cricket', 'ipl 2025',
+]
+
+// Celebrity/gossip terms that should ALWAYS override sports classification
+const CINEMA_OVERRIDE_KW = [
+  'நடிகை', 'நடிகர்', 'காதல்', 'திருமணம்', 'ஸ்ரீலீலா', 'ரஷ்மிகா',
+  'நயன்தாரா', 'சமந்தா', 'கீர்த்தி', 'தமன்னா', 'அனுஷ்கா', 'பூஜா',
+  'actress', 'gossip', 'romance', 'dating', 'love', 'wedding', 'marriage',
+  'sreeleela', 'rashmika', 'nayanthara', 'samantha', 'trisha', 'kajal',
+  'pooja hegde', 'tamannaah', 'keerthi suresh', 'anushka shetty',
+  'item song', 'item number', 'heroine', 'hero heroine',
+  // Trending 2025 celeb gossip
+  'ravi mohan', 'gayathrie', 'divorce', 'separation', 'விவாகரத்து',
+  'breakup', 'relationship', 'couple', 'girlfriend', 'boyfriend',
 ]
 
 function isTVK(title: string, desc: string): boolean {
@@ -103,9 +123,16 @@ function isTVK(title: string, desc: string): boolean {
 function categorize(title: string, desc: string): 'tvk' | 'politics' | 'cinema' | 'sports' | 'general' {
   const text = (title + ' ' + desc).toLowerCase()
   if (isTVK(title, desc)) return 'tvk'
+
+  // Cinema override: celebrity gossip/romance articles should never be classified as sports
+  // even if they mention a sport or player name in passing
+  const hasCinemaOverride = CINEMA_OVERRIDE_KW.some(kw => text.includes(kw.toLowerCase()))
+
   const politicsScore = POLITICS_KW.filter(kw => text.includes(kw.toLowerCase())).length
-  const cinemaScore   = CINEMA_KW.filter(kw => text.includes(kw.toLowerCase())).length
+  const cinemaScore   = (CINEMA_KW.filter(kw => text.includes(kw.toLowerCase())).length) +
+                        (hasCinemaOverride ? 10 : 0)  // boost cinema score on override
   const sportsScore   = SPORTS_KW.filter(kw => text.includes(kw.toLowerCase())).length
+
   const max = Math.max(politicsScore, cinemaScore, sportsScore)
   if (max === 0) return 'general'
   if (politicsScore === max) return 'politics'
