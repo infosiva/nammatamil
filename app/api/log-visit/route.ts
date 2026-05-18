@@ -1,44 +1,32 @@
 /**
- * /api/log-visit — logs page visit stats to VPS
- *
- * Called client-side (fire-and-forget) on every page load.
- * Posts to VPS site-watchdog stats endpoint.
- * No personal data — just timestamp, page, country hint from headers.
+ * /api/log-visit — forwards page visits to tracker-api on VPS port 3098
+ * tracker-api stores in SQLite — query via GET /stats?key=sitestats2025
  */
 import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic  = 'force-dynamic'
 export const revalidate = 0
 
-const VPS_HOST    = '31.97.56.148'
-const VPS_PORT    = 3099
-const VPS_ENDPOINT = `http://${VPS_HOST}:${VPS_PORT}/api/stats/nammatamil`
+const TRACKER = 'http://31.97.56.148:3098/track'
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as { page?: string; ref?: string }
-    const country = req.headers.get('x-vercel-ip-country') ?? 'unknown'
-    const city    = req.headers.get('x-vercel-ip-city') ?? ''
-    const ua      = req.headers.get('user-agent') ?? ''
-
-    const payload = {
-      site:    'nammatamil.live',
-      page:    String(body?.page ?? '/').slice(0, 200),
-      ref:     String(body?.ref ?? '').slice(0, 200),
-      country,
-      city:    city.slice(0, 60),
-      ua:      ua.slice(0, 120),
-      ts:      Date.now(),
+    const body = await req.json() as { page?: string; ref?: string; session_id?: string }
+    const ua = req.headers.get('user-agent') ?? ''
+    if (/bot|crawler|spider|slurp|facebookexternalhit/i.test(ua)) {
+      return NextResponse.json({ ok: true })
     }
-
-    // Fire-and-forget to VPS — don't block the response
-    fetch(VPS_ENDPOINT, {
+    fetch(TRACKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        site:       'nammatamil.live',
+        path:       String(body?.page ?? '/').slice(0, 200),
+        referrer:   String(body?.ref ?? '').slice(0, 200),
+        session_id: body?.session_id ?? null,
+      }),
       signal: AbortSignal.timeout(2000),
-    }).catch(() => { /* VPS offline is fine */ })
-
+    }).catch(() => {})
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store' } })
   } catch {
     return NextResponse.json({ ok: false }, { status: 400 })

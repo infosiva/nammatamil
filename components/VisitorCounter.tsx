@@ -16,11 +16,15 @@ export default function VisitorCounter() {
   const [data, setData] = useState<VisitorData | null>(null)
 
   useEffect(() => {
-    // Log visit to VPS (fire-and-forget)
+    // Stable session ID for this browser tab
+    let sid = sessionStorage.getItem('nt_sid')
+    if (!sid) { sid = Math.random().toString(36).slice(2); sessionStorage.setItem('nt_sid', sid) }
+
+    // Log visit to tracker-api via Vercel proxy
     fetch('/api/log-visit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ page: window.location.pathname, ref: document.referrer }),
+      body: JSON.stringify({ page: window.location.pathname, ref: document.referrer, session_id: sid }),
     }).catch(() => {})
 
     const hit = async () => {
