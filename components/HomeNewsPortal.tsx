@@ -1105,41 +1105,6 @@ function CinemaTab({ cinemaNews, allCinema }: { cinemaNews: NewsItem[]; allCinem
   return (
     <motion.div variants={fadeIn} initial="hidden" animate="visible">
 
-      {/* Vijay / TVK Cinema spotlight */}
-      <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(239,68,68,0.06) 50%, #111118 100%)', border: '1px solid rgba(245,158,11,0.24)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Zap style={{ width: 18, height: 18, color: T.gold }} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <p style={{ margin: '0 0 2px', fontSize: 14, fontWeight: 900, color: T.text }}>Vijay × TVK</p>
-            <p style={{ margin: 0, fontSize: 10.5, color: T.muted }}>Thalapathy turns politician · TN CM Race 2026</p>
-          </div>
-          <span style={{ fontSize: 7.5, fontWeight: 900, padding: '2px 7px', borderRadius: 3, background: T.red, color: '#fff' }}>HOT</span>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          {[
-            { label: 'Party Founded', value: 'Feb 2024', icon: '🗓' },
-            { label: 'Party Name', value: 'TVK', icon: '⚡' },
-            { label: 'TN Election', value: '2026 Goal', icon: '🗳' },
-            { label: 'Members', value: '10 Lakh+', icon: '👥' },
-          ].map((s, i) => (
-            <div key={i} style={{ padding: '9px 11px', borderRadius: 8, background: `${T.gold}08`, border: `1px solid ${T.gold}18`, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 16 }}>{s.icon}</span>
-              <div>
-                <p style={{ margin: 0, fontSize: 11, fontWeight: 900, color: T.gold }}>{s.value}</p>
-                <p style={{ margin: 0, fontSize: 9, color: T.muted }}>{s.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div style={{ marginTop: 10, padding: '9px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.28)', border: `1px solid ${T.border}` }}>
-          <p style={{ margin: 0, fontSize: 11, color: T.sub, lineHeight: 1.6 }}>
-            After his final film <strong style={{ color: T.text }}>GOAT (2024)</strong>, Thalapathy Vijay officially launched <strong style={{ color: T.gold }}>Tamilaga Vettri Kazhagam (TVK)</strong>. With party conferences drawing lakhs and a clear 2026 election agenda, he&apos;s pivoting from cinema to CM race — making him Tamil Nadu&apos;s most talked-about political wildcard.
-          </p>
-        </div>
-      </div>
-
       {/* Music strip */}
       <MusicStrip />
 
@@ -1448,9 +1413,6 @@ export default function HomeNewsPortal() {
   const freshLabel = secAgo < 60 ? `${secAgo}s` : `${Math.floor(secAgo / 60)}m`
   const cinemaNews = useMemo(() => all.filter(n => n.category === 'cinema'), [all])
 
-  // Featured movie — prefer one with a verified thumbnail
-  const featuredMovie = cinemaGrid.find(m => hasThumb(m)) ?? cinemaGrid[0]
-
   return (
     <div style={{ minHeight: '100vh', background: T.bg, color: T.text }}>
 
@@ -1499,33 +1461,6 @@ export default function HomeNewsPortal() {
       <StatBar newsCount={all.length} sourceCount={sourceCount} tamilDate={tamilDate} festival={tamilDate.festival} />
 
       <div className="nt-w nt-vpad">
-
-        {/* ── Featured movie banner ─────────────────────────────────────── */}
-        {featuredMovie && tab === 'news' && (
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }} style={{ marginBottom: 14 }}>
-            <Link href={`/movies/${featuredMovie.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
-              <div className="nt-feat" style={{ background: `linear-gradient(135deg, rgba(0,0,0,0.72) 0%, ${T.card} 55%)`, border: `1px solid ${T.border2}`, borderRadius: 10, padding: '10px 13px', display: 'flex', alignItems: 'center', gap: 11, position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 50% 80% at 0% 50%, ${rc(featuredMovie.rating)}0e 0%, transparent 65%)`, pointerEvents: 'none' }} />
-                <div style={{ flexShrink: 0, width: 44, height: 66, borderRadius: 5, overflow: 'hidden', border: `1px solid ${T.border2}`, background: `linear-gradient(160deg, ${rc(featuredMovie.rating)}40 0%, #1a1a2e 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {hasThumb(featuredMovie)
-                    // eslint-disable-next-line @next/next/no-img-element
-                    ? <img src={featuredMovie.thumbnail} alt={featuredMovie.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                    : <Film style={{ width: 16, height: 16, color: `${rc(featuredMovie.rating)}80` }} />
-                  }
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                    <span style={{ fontSize: 8, fontWeight: 900, padding: '2px 7px', borderRadius: 3, background: T.accent, color: '#fff', letterSpacing: '0.06em' }}>{featuredMovie.badge ?? 'NEW RELEASE'}</span>
-                    <span style={{ fontSize: 8.5, color: T.gold, fontWeight: 800 }}>★ {featuredMovie.rating.toFixed(1)}</span>
-                  </div>
-                  <p style={{ margin: '0 0 2px', fontSize: 13.5, fontWeight: 800, color: T.text, fontFamily: "'Noto Serif Tamil', 'Noto Serif', Georgia, serif", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{featuredMovie.title}</p>
-                  <p style={{ margin: 0, fontSize: 10.5, color: T.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{featuredMovie.cast?.slice(0, 3).join(' · ')}</p>
-                </div>
-                <ArrowUpRight style={{ width: 13, height: 13, color: T.dim, flexShrink: 0 }} />
-              </div>
-            </Link>
-          </motion.div>
-        )}
 
         {/* ── TAB CONTENT ─────────────────────────────────────────────── */}
         <AnimatePresence mode="wait">
