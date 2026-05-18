@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  RefreshCw, ExternalLink, Newspaper,
+  RefreshCw, Newspaper,
   TrendingUp, Tv2, Film, Play, Trophy, Radio,
   Clock, Flame, Zap, Star, ChevronRight, ChevronLeft,
 } from 'lucide-react'
@@ -15,26 +15,24 @@ import VisitorCounter from '@/components/VisitorCounter'
 import TVKSpotlight from '@/components/TVKSpotlight'
 import { movies } from '@/data/movies'
 
-// ── Design tokens ────────────────────────────────────────────────────────────
+// ── Design tokens — Vikatan editorial dark ───────────────────────────────────
 const T = {
-  bg:       '#04040f',
-  bg2:      '#090920',
-  bg3:      '#0e0e28',
-  surface:  'rgba(255,255,255,0.035)',
-  surface2: 'rgba(255,255,255,0.065)',
-  border:   'rgba(255,255,255,0.07)',
-  border2:  'rgba(255,255,255,0.12)',
-  text:     '#f2f0ff',
-  sub:      'rgba(255,255,255,0.55)',
-  muted:    'rgba(255,255,255,0.36)',
-  dim:      'rgba(255,255,255,0.18)',
-  gold:     '#f59e0b',
-  red:      '#ef4444',
-  crimson:  '#dc2626',
-  purple:   '#a78bfa',
-  green:    '#4ade80',
-  blue:     '#60a5fa',
-  teal:     '#2dd4bf',
+  bg:      '#0a0a0a',       // near-black, not purple
+  bg2:     '#111111',
+  bg3:     '#1a1a1a',
+  card:    '#141414',
+  border:  'rgba(255,255,255,0.08)',
+  border2: 'rgba(255,255,255,0.14)',
+  text:    '#f0f0f0',
+  sub:     'rgba(255,255,255,0.58)',
+  muted:   'rgba(255,255,255,0.36)',
+  dim:     'rgba(255,255,255,0.16)',
+  red:     '#e53935',       // Vikatan red
+  gold:    '#f5a623',       // TVK gold
+  purple:  '#9c6fe4',       // cinema
+  green:   '#43a047',       // sports/live
+  blue:    '#2979ff',       // English sources
+  orange:  '#fb8c00',       // Thanthi / politics
 }
 
 interface NewsItem {
@@ -53,34 +51,41 @@ interface ApiResponse { news: NewsItem[]; updatedAt: string; count: number }
 const REFRESH_MS   = 6 * 60 * 1000
 const CACHE_TTL    = 5 * 60 * 1000
 const LS_CACHE_TTL = 30 * 60 * 1000
-const LS_KEY       = 'nt_news_ls_v2'
-const SS_KEY       = 'nt_news_v4'
+const LS_KEY       = 'nt_news_ls_v3'
+const SS_KEY       = 'nt_news_v5'
 const SPORTS_KW    = ['cricket','ipl','csk','dhoni','match','விளையாட்டு','கிரிக்கெட்','rcb','kkr']
 
+// Source → accent color
 const SRC: Record<string, string> = {
-  'Dinamalar':           '#e11d48', 'Maalaimalar':         '#7c3aed',
-  'OneIndia Tamil':      '#0891b2', 'The Hindu Tamil':     '#1d4ed8',
-  'Vikatan':             '#d97706', 'Puthiya Thalaimurai': '#dc2626',
-  'Sun News':            '#f59e0b', 'Polimer News':        '#16a34a',
-  'NammaTVK':            '#f59e0b', 'Kalaignar News':      '#ef4444',
-  'Thanthi TV':          '#f97316', 'NDTV India':          '#dc2626',
+  'Dinamalar':           '#e53935',
+  'Maalaimalar':         '#9c6fe4',
+  'OneIndia Tamil':      '#0288d1',
+  'The Hindu Tamil':     '#1565c0',
+  'Vikatan':             '#e65100',
+  'Puthiya Thalaimurai': '#c62828',
+  'Sun News':            '#f5a623',
+  'Polimer News':        '#2e7d32',
+  'NammaTVK':            '#f5a623',
+  'Kalaignar News':      '#b71c1c',
+  'Thanthi TV':          '#e65100',
+  'NDTV India':          '#b71c1c',
 }
 
 const CATS = [
-  { key: 'all',      label: 'அனைத்தும்',  icon: Radio,   color: T.crimson },
-  { key: 'tvk',     label: 'TVK 2026',  icon: Zap,     color: T.gold,   badge: 'LIVE' },
-  { key: 'politics', label: 'அரசியல்',   icon: Flame,   color: '#fbbf24' },
-  { key: 'cinema',   label: 'சினிமா',    icon: Film,    color: T.purple },
-  { key: 'sports',   label: 'விளையாட்டு', icon: Trophy,  color: T.green },
+  { key: 'all',      label: 'அனைத்தும்',   icon: Radio,   color: T.red },
+  { key: 'tvk',      label: 'TVK 2026',    icon: Zap,     color: T.gold,   badge: 'LIVE' },
+  { key: 'politics', label: 'அரசியல்',     icon: Flame,   color: T.orange },
+  { key: 'cinema',   label: 'சினிமா',      icon: Film,    color: T.purple },
+  { key: 'sports',   label: 'விளையாட்டு',  icon: Trophy,  color: T.green },
 ]
 
 const OTT_PLATFORMS = [
-  { href: '/ott-plans', label: 'Netflix',     icon: 'N', color: '#e50914', sub: 'Tamil Originals' },
-  { href: '/ott-plans', label: 'Prime Video', icon: '▶', color: '#00a8e0', sub: 'New Releases' },
-  { href: '/ott-plans', label: 'Disney+',     icon: '★', color: '#0073e6', sub: 'Star Vijay Live' },
-  { href: '/ott-plans', label: 'ZEE5',        icon: 'Z', color: '#8b5cf6', sub: 'Serials & Shows' },
-  { href: '/ott-plans', label: 'SunNXT',      icon: '☀', color: '#f59e0b', sub: 'Sun TV Originals' },
-  { href: '/ott-plans', label: 'YouTube',     icon: '▷', color: '#ff0000', sub: 'Free Tamil Movies' },
+  { href: '/ott-plans', label: 'Netflix',    icon: 'N', color: '#e50914', sub: 'Tamil Originals' },
+  { href: '/ott-plans', label: 'Prime',      icon: '▶', color: '#00a8e0', sub: 'New Releases' },
+  { href: '/ott-plans', label: 'Disney+',    icon: '★', color: '#0073e6', sub: 'Star Vijay' },
+  { href: '/ott-plans', label: 'ZEE5',       icon: 'Z', color: '#8b5cf6', sub: 'Serials' },
+  { href: '/ott-plans', label: 'SunNXT',     icon: '☀', color: '#f5a623', sub: 'Sun TV' },
+  { href: '/ott-plans', label: 'YouTube',    icon: '▷', color: '#ff0000', sub: 'Free Movies' },
 ]
 
 const OTT_C: Record<string, string> = {
@@ -97,39 +102,27 @@ const CINEMA = movies
     if (b.year !== a.year) return b.year - a.year
     return b.rating - a.rating
   })
-  .slice(0, 10)
+  .slice(0, 12)
 
-function ratingColor(r: number) {
-  if (r >= 8) return '#4ade80'; if (r >= 7) return '#fbbf24'; if (r >= 6) return '#fb923c'; return '#f87171'
+function rc(r: number) {
+  if (r >= 8) return '#43a047'; if (r >= 7) return '#f5a623'; if (r >= 6) return '#fb8c00'; return '#e53935'
 }
 
-function catColor(cat: string): string {
-  switch (cat) {
-    case 'tvk':      return T.gold
-    case 'politics': return '#fbbf24'
-    case 'cinema':   return T.purple
-    case 'sports':   return T.green
-    default:         return T.teal
-  }
-}
-
-// ── Rolling Ticker ────────────────────────────────────────────────────────────
+// ── Ticker ────────────────────────────────────────────────────────────────────
 function Ticker({ items }: { items: NewsItem[] }) {
   if (!items.length) return null
-  const heads = items.slice(0, 14).map(n => n.title)
+  const heads = items.slice(0, 16).map(n => n.title)
   return (
-    <div style={{ background: 'rgba(220,38,38,0.07)', borderBottom: `1px solid rgba(220,38,38,0.14)`, overflow: 'hidden', display: 'flex', alignItems: 'center', height: 34 }}>
-      <div style={{ flexShrink: 0, padding: '0 16px', height: '100%', display: 'flex', alignItems: 'center', gap: 7, background: T.crimson, fontSize: 9, fontWeight: 900, color: '#fff', letterSpacing: '0.16em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', display: 'inline-block', animation: 'ping 1.5s ease-in-out infinite' }} />
+    <div style={{ background: T.red, overflow: 'hidden', display: 'flex', alignItems: 'center', height: 30, flexShrink: 0 }}>
+      <div style={{ flexShrink: 0, padding: '0 14px', height: '100%', display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(0,0,0,0.25)', fontSize: 9, fontWeight: 900, color: '#fff', letterSpacing: '0.18em', whiteSpace: 'nowrap' }}>
+        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#fff', display: 'inline-block', animation: 'ping 1.5s ease-in-out infinite' }} />
         LIVE
       </div>
       <div style={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 48, background: `linear-gradient(to right, ${T.bg}, transparent)`, zIndex: 2, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 48, background: `linear-gradient(to left, ${T.bg}, transparent)`, zIndex: 2, pointerEvents: 'none' }} />
-        <div style={{ display: 'flex', gap: 56, whiteSpace: 'nowrap', fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.6)', animation: 'marquee 130s linear infinite', paddingLeft: 28 }}>
+        <div style={{ display: 'flex', gap: 44, whiteSpace: 'nowrap', fontSize: 11.5, fontWeight: 500, color: 'rgba(255,255,255,0.92)', animation: 'marquee 120s linear infinite', paddingLeft: 20 }}>
           {[...heads, ...heads].map((h, i) => (
-            <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
-              <span style={{ color: T.crimson, fontSize: 6 }}>◆</span>{h}
+            <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 5, opacity: 0.7 }}>●</span>{h}
             </span>
           ))}
         </div>
@@ -138,67 +131,59 @@ function Ticker({ items }: { items: NewsItem[] }) {
   )
 }
 
-// ── Section heading ───────────────────────────────────────────────────────────
-function SH({ label, color, href, sub, icon: Icon }: { label: string; color: string; href?: string; sub?: string; icon?: React.ElementType }) {
+// ── Section head — Vikatan red bar style ──────────────────────────────────────
+function SH({ label, color = T.red, href, icon: Icon }: { label: string; color?: string; href?: string; icon?: React.ElementType }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-      <div style={{ width: 3, height: 22, background: `linear-gradient(to bottom, ${color}, ${color}55)`, borderRadius: 2, marginRight: 12, flexShrink: 0 }} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          {Icon && <Icon style={{ width: 13, height: 13, color }} />}
-          <span style={{ fontSize: 13, fontWeight: 900, color: T.text, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{label}</span>
-        </div>
-        {sub && <div style={{ fontSize: 10, color: T.muted, marginTop: 2 }}>{sub}</div>}
-      </div>
+    <div style={{ display: 'flex', alignItems: 'center', borderBottom: `2px solid ${color}`, paddingBottom: 8, marginBottom: 12 }}>
+      {Icon && <Icon style={{ width: 11, height: 11, color, marginRight: 5, flexShrink: 0 }} />}
+      <span style={{ fontSize: 11, fontWeight: 900, color, letterSpacing: '0.1em', textTransform: 'uppercase', flex: 1 }}>{label}</span>
       {href && (
-        <Link href={href} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none', fontSize: 11, fontWeight: 700, color, opacity: 0.7, whiteSpace: 'nowrap' }}>
-          View all <ChevronRight style={{ width: 11, height: 11 }} />
+        <Link href={href} style={{ fontSize: 10, color: T.muted, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 2 }}>
+          More <ChevronRight style={{ width: 9, height: 9 }} />
         </Link>
       )}
     </div>
   )
 }
 
-// ── Category badge ────────────────────────────────────────────────────────────
-function CatBadge({ cat }: { cat: string }) {
-  if (!cat || cat === 'general') return null
-  const c = catColor(cat)
-  const labels: Record<string, string> = { tvk: 'TVK', politics: 'அரசியல்', cinema: 'சினிமா', sports: 'SPORTS' }
+// ── Source pill ───────────────────────────────────────────────────────────────
+function SourcePill({ source }: { source: string }) {
+  const c = SRC[source] ?? '#666'
   return (
-    <span style={{ fontSize: 8.5, fontWeight: 900, padding: '2px 7px', borderRadius: 4, background: `${c}1a`, color: c, border: `1px solid ${c}35`, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
-      {labels[cat] ?? cat}
+    <span style={{ fontSize: 9, fontWeight: 800, padding: '1.5px 6px', borderRadius: 3, background: c, color: '#fff', letterSpacing: '0.04em', whiteSpace: 'nowrap', flexShrink: 0 }}>
+      {source.slice(0, 10)}
     </span>
   )
 }
 
-// ── Hero card ─────────────────────────────────────────────────────────────────
+// ── Hero — 16:9 full-bleed editorial ──────────────────────────────────────────
 function HeroCard({ item }: { item: NewsItem }) {
-  const c = SRC[item.source] ?? '#6b7280'
-  const [imgFailed, setImgFailed] = useState(false)
+  const c = SRC[item.source] ?? '#555'
+  const [err, setErr] = useState(false)
   return (
     <a href={goLink(item.link, 'hero')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 18, overflow: 'hidden', position: 'relative', aspectRatio: '16/9' }}
-      className="hero-card"
+      style={{ display: 'block', textDecoration: 'none', position: 'relative', aspectRatio: '16/9', overflow: 'hidden', borderRadius: 6 }}
+      className="nt-hero"
     >
-      <div style={{ position: 'absolute', inset: 0 }}>
-        {item.imageUrl && !imgFailed
-          // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={item.imageUrl} alt={item.title} loading="eager" fetchPriority="high" decoding="async"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgFailed(true)} />
-          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${c}55 0%, ${T.bg2} 45%, ${T.bg} 100%)` }} />
-        }
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,1) 0%, rgba(4,4,15,0.72) 35%, rgba(4,4,15,0.08) 72%, transparent 100%)' }} />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 80, background: 'linear-gradient(to bottom, rgba(4,4,15,0.45), transparent)' }} />
-      </div>
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 22px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 7, marginBottom: 11 }}>
-          <span style={{ fontSize: 9.5, fontWeight: 900, padding: '3px 10px', borderRadius: 5, background: c, color: '#fff', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{item.source}</span>
-          <CatBadge cat={item.category} />
-          <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
-            <Clock style={{ width: 9, height: 9 }} />{item.timeAgo}
+      {item.imageUrl && !err
+        // eslint-disable-next-line @next/next/no-img-element
+        ? <img src={item.imageUrl} alt={item.title} loading="eager" fetchPriority="high" decoding="async"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setErr(true)} />
+        : <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${c}60 0%, #111 60%)` }} />
+      }
+      {/* Scrim */}
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,0.06) 75%)' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 14px 12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 7 }}>
+          <SourcePill source={item.source} />
+          {item.category !== 'general' && item.category !== 'all' && (
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{item.category}</span>
+          )}
+          <span style={{ fontSize: 9.5, color: 'rgba(255,255,255,0.4)', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Clock style={{ width: 8, height: 8 }} />{item.timeAgo}
           </span>
         </div>
-        <h2 style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'clamp(18px, 3vw, 28px)', fontWeight: 800, lineHeight: 1.2, margin: 0, letterSpacing: '-0.02em', color: '#fff', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 2px 20px rgba(0,0,0,0.7)' }}>
+        <h2 style={{ margin: 0, fontSize: 'clamp(15px, 3.2vw, 22px)', fontWeight: 800, lineHeight: 1.22, color: '#fff', fontFamily: "'Noto Serif', Georgia, serif", display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', letterSpacing: '-0.01em' }}>
           {item.title}
         </h2>
       </div>
@@ -206,70 +191,68 @@ function HeroCard({ item }: { item: NewsItem }) {
   )
 }
 
-// ── Secondary card ────────────────────────────────────────────────────────────
-function SecCard({ item }: { item: NewsItem }) {
-  const c = SRC[item.source] ?? '#6b7280'
-  const [imgFailed, setImgFailed] = useState(false)
+// ── Small card — for secondary top stories ────────────────────────────────────
+function SmCard({ item }: { item: NewsItem }) {
+  const c = SRC[item.source] ?? '#555'
+  const [err, setErr] = useState(false)
   return (
     <a href={goLink(item.link, 'secondary')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', borderRadius: 13, overflow: 'hidden', position: 'relative', aspectRatio: '16/9' }}
-      className="sec-card"
+      style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', gap: 0 }}
+      className="nt-smcard"
     >
-      <div style={{ position: 'absolute', inset: 0 }}>
-        {item.imageUrl && !imgFailed
+      <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden', borderRadius: 5, marginBottom: 7 }}>
+        {item.imageUrl && !err
           // eslint-disable-next-line @next/next/no-img-element
           ? <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgFailed(true)} />
-          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${c}40 0%, ${T.bg2} 65%, ${T.bg} 100%)` }} />
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setErr(true)} />
+          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${c}50 0%, #111 60%)` }} />
         }
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(4,4,15,0.97) 0%, rgba(4,4,15,0.3) 55%, transparent 100%)' }} />
-      </div>
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-          <span style={{ fontSize: 8.5, fontWeight: 900, color: c, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{item.source}</span>
-          <CatBadge cat={item.category} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%)' }} />
+        <div style={{ position: 'absolute', bottom: 5, left: 6 }}>
+          <SourcePill source={item.source} />
         </div>
-        <p style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.3, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 1px 12px rgba(0,0,0,0.9)' }}>
-          {item.title}
-        </p>
       </div>
+      <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: T.text, lineHeight: 1.35, fontFamily: "'Noto Serif', Georgia, serif", display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        {item.title}
+      </p>
+      <span style={{ fontSize: 9.5, color: T.muted, marginTop: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Clock style={{ width: 7, height: 7 }} />{item.timeAgo}
+      </span>
     </a>
   )
 }
 
-// ── News row — larger mobile-optimised ───────────────────────────────────────
+// ── News row — Dinamalar list style ───────────────────────────────────────────
 function NewsRow({ item, idx }: { item: NewsItem; idx: number }) {
-  const c = SRC[item.source] ?? '#6b7280'
-  const [imgFailed, setImgFailed] = useState(false)
+  const c = SRC[item.source] ?? '#555'
+  const [err, setErr] = useState(false)
+  const hot = idx < 3
   return (
-    <a
-      href={goLink(item.link, 'news-list')} target="_blank" rel="noopener noreferrer"
-      className="news-row-link"
-      style={{ display: 'flex', gap: 13, textDecoration: 'none', borderRadius: 12, padding: '12px 13px', background: 'rgba(255,255,255,0.022)', border: `1px solid ${T.border}`, alignItems: 'flex-start' }}
+    <a href={goLink(item.link, 'news-list')} target="_blank" rel="noopener noreferrer"
+      className="nt-row"
+      style={{ display: 'flex', alignItems: 'flex-start', gap: 9, textDecoration: 'none', padding: '8px 0', borderBottom: `1px solid ${T.border}` }}
     >
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-        <span style={{ flexShrink: 0, fontSize: 13, fontWeight: 900, color: idx < 3 ? T.gold : T.dim, minWidth: 20, textAlign: 'right', paddingTop: 2, fontFamily: "'Newsreader', Georgia, serif" }}>{idx + 1}</span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 14, fontWeight: 650, color: T.text, lineHeight: 1.4, margin: '0 0 7px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-            {item.title}
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-            <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: `${c}16`, color: c, border: `1px solid ${c}26` }}>{item.source}</span>
-            <CatBadge cat={item.category} />
-            <span style={{ fontSize: 10, color: T.muted, display: 'flex', alignItems: 'center', gap: 2, marginLeft: 'auto' }}>
-              <Clock style={{ width: 8, height: 8 }} />{item.timeAgo}
-            </span>
-          </div>
+      {/* rank */}
+      <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 900, color: hot ? T.red : T.dim, width: 16, paddingTop: 1, fontFamily: 'Georgia, serif', textAlign: 'right' }}>{idx + 1}</span>
+      {/* text block */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ margin: '0 0 4px', fontSize: 12.5, fontWeight: 650, color: T.text, lineHeight: 1.36, fontFamily: "'Noto Serif', Georgia, serif", display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {item.title}
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 8.5, fontWeight: 700, color: c }}>{item.source}</span>
+          <span style={{ fontSize: 9, color: T.muted, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Clock style={{ width: 7, height: 7 }} />{item.timeAgo}
+          </span>
         </div>
       </div>
-      <div className="news-thumb" style={{ flexShrink: 0, width: 84, height: 64, borderRadius: 10, overflow: 'hidden', background: `${c}12`, position: 'relative' }}>
-        {item.imageUrl && !imgFailed
+      {/* thumb */}
+      <div style={{ flexShrink: 0, width: 66, height: 50, borderRadius: 4, overflow: 'hidden', background: `${c}18` }}>
+        {item.imageUrl && !err
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={item.imageUrl} alt="" loading="lazy" decoding="async"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              onError={() => setImgFailed(true)} />
+          ? <img src={item.imageUrl} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setErr(true)} />
           : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Newspaper style={{ width: 18, height: 18, color: `${c}45` }} />
+              <Newspaper style={{ width: 14, height: 14, color: `${c}50` }} />
             </div>
         }
       </div>
@@ -279,65 +262,57 @@ function NewsRow({ item, idx }: { item: NewsItem; idx: number }) {
 
 // ── Trending row ──────────────────────────────────────────────────────────────
 function TrendRow({ item, rank }: { item: NewsItem; rank: number }) {
-  const c = SRC[item.source] ?? '#6b7280'
+  const c = SRC[item.source] ?? '#555'
   return (
     <a href={goLink(item.link, 'trending')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'flex', gap: 11, textDecoration: 'none', padding: '10px 0', borderBottom: `1px solid ${T.border}`, alignItems: 'flex-start' }}
+      className="nt-trow"
+      style={{ display: 'flex', gap: 8, textDecoration: 'none', padding: '7px 0', borderBottom: `1px solid ${T.border}`, alignItems: 'flex-start' }}
     >
-      <span style={{ flexShrink: 0, fontSize: 14, fontWeight: 900, color: rank <= 3 ? T.gold : 'rgba(255,255,255,0.1)', width: 22, textAlign: 'right', paddingTop: 1, fontFamily: "'Newsreader', Georgia, serif" }}>{rank}</span>
+      <span style={{ flexShrink: 0, fontSize: 13, fontWeight: 900, color: rank <= 3 ? T.red : T.dim, width: 18, textAlign: 'right', fontFamily: 'Georgia, serif' }}>{rank}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,0.8)', lineHeight: 1.35, margin: '0 0 4px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.title}</p>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-          <span style={{ fontSize: 9, fontWeight: 700, color: c, opacity: 0.85 }}>{item.source}</span>
-          <span style={{ fontSize: 9, color: T.muted }}>{item.timeAgo}</span>
-        </div>
+        <p style={{ fontSize: 11.5, fontWeight: 600, color: T.sub, lineHeight: 1.33, margin: '0 0 3px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.title}</p>
+        <span style={{ fontSize: 9, color: c, fontWeight: 700 }}>{item.source}</span>
       </div>
     </a>
   )
 }
 
-// ── Cinema card ───────────────────────────────────────────────────────────────
+// ── Cinema poster card ────────────────────────────────────────────────────────
 function CinemaCard({ movie }: { movie: (typeof CINEMA)[0] }) {
-  const rc = ratingColor(movie.rating)
+  const ratingC = rc(movie.rating)
   const platform = movie.streamingOn?.[0]
-  const ottColor = platform ? (OTT_C[platform] ?? '#6b7280') : null
+  const ottColor = platform ? (OTT_C[platform] ?? '#555') : null
   const isOtt = movie.ottDate && movie.ottDate !== 'Coming Soon'
-  const [imgFailed, setImgFailed] = useState(false)
-  const hasThumbnail = movie.thumbnail && !imgFailed && !movie.thumbnail.includes('default.jpg') && !movie.thumbnail.includes('goat-vijay')
-
+  const [err, setErr] = useState(false)
+  const hasThumb = movie.thumbnail && !err && !movie.thumbnail.includes('default.jpg') && !movie.thumbnail.includes('goat-vijay')
   return (
-    <div className="cinema-card-wrap">
+    <div className="nt-ccard">
       <Link href={`/movies/${movie.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
-        <div style={{ borderRadius: 12, overflow: 'hidden', background: T.surface, border: `1px solid ${T.border}` }}>
+        <div style={{ borderRadius: 5, overflow: 'hidden', background: T.card, border: `1px solid ${T.border}` }}>
           <div style={{ aspectRatio: '2/3', position: 'relative', overflow: 'hidden' }}>
-            {hasThumbnail ? (
+            {hasThumb
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={movie.thumbnail} alt={movie.title} loading="lazy" decoding="async"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                onError={() => setImgFailed(true)} />
-            ) : (
-              <div style={{ width: '100%', height: '100%', background: `linear-gradient(160deg, ${rc}40 0%, ${T.bg2} 55%, ${T.bg} 100%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: `${rc}18`, border: `1px solid ${rc}35`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Play style={{ width: 16, height: 16, color: `${rc}80` }} />
+              ? <img src={movie.thumbnail} alt={movie.title} loading="lazy" decoding="async"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  onError={() => setErr(true)} />
+              : <div style={{ width: '100%', height: '100%', background: `linear-gradient(160deg, ${ratingC}35 0%, ${T.bg2} 55%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Play style={{ width: 18, height: 18, color: `${ratingC}60` }} />
                 </div>
-                <span style={{ fontSize: 8, color: `${rc}70`, letterSpacing: '0.07em', textTransform: 'uppercase' }}>{movie.genre?.[0]}</span>
-              </div>
-            )}
+            }
             {movie.rating > 0 && (
-              <div style={{ position: 'absolute', top: 7, left: 7, display: 'flex', alignItems: 'center', gap: 3, background: 'rgba(0,0,0,0.82)', borderRadius: 6, padding: '3px 7px' }}>
-                <Star style={{ width: 8, height: 8, color: rc, fill: rc }} />
-                <span style={{ fontSize: 9.5, fontWeight: 900, color: rc }}>{movie.rating.toFixed(1)}</span>
+              <div style={{ position: 'absolute', top: 4, left: 4, display: 'flex', alignItems: 'center', gap: 2, background: 'rgba(0,0,0,0.85)', borderRadius: 3, padding: '2px 5px' }}>
+                <Star style={{ width: 7, height: 7, color: ratingC, fill: ratingC }} />
+                <span style={{ fontSize: 8.5, fontWeight: 900, color: ratingC }}>{movie.rating.toFixed(1)}</span>
               </div>
             )}
             {isOtt && ottColor && (
-              <div style={{ position: 'absolute', top: 7, right: 7, fontSize: 7.5, fontWeight: 900, padding: '2px 6px', borderRadius: 4, background: `${ottColor}22`, color: ottColor, border: `1px solid ${ottColor}45`, maxWidth: 58, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{ position: 'absolute', top: 4, right: 4, fontSize: 7, fontWeight: 900, padding: '2px 5px', borderRadius: 3, background: ottColor, color: '#fff', maxWidth: 50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {platform}
               </div>
             )}
           </div>
-          <div style={{ padding: '8px 9px 10px' }}>
-            <p style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 11, fontWeight: 700, color: T.text, lineHeight: 1.3, margin: '0 0 3px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{movie.title}</p>
-            <p style={{ fontSize: 8.5, color: T.muted, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{movie.cast?.slice(0, 1).join(', ')}</p>
+          <div style={{ padding: '5px 7px 7px' }}>
+            <p style={{ fontSize: 10, fontWeight: 700, color: T.text, lineHeight: 1.28, margin: '0 0 2px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontFamily: "'Noto Serif', Georgia, serif" }}>{movie.title}</p>
           </div>
         </div>
       </Link>
@@ -348,29 +323,29 @@ function CinemaCard({ movie }: { movie: (typeof CINEMA)[0] }) {
 // ── OTT tile ──────────────────────────────────────────────────────────────────
 function OttTile({ href, label, icon, color, sub }: { href: string; label: string; icon: string; color: string; sub: string }) {
   return (
-    <div className="ott-tile-wrap">
-      <Link href={href} style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', padding: '13px 14px', borderRadius: 13, background: `${color}0a`, border: `1px solid ${color}25`, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 0, right: 0, width: 50, height: 50, background: `${color}0e`, borderRadius: '0 13px 0 50px' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
-          <div style={{ width: 30, height: 30, borderRadius: 8, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{icon}</div>
-          <span style={{ fontSize: 12, fontWeight: 800, color: T.text }}>{label}</span>
+    <div className="nt-ott">
+      <Link href={href} style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', padding: '8px 10px', borderRadius: 6, background: T.card, border: `1px solid ${T.border}` }}>
+        <div style={{ width: 26, height: 26, borderRadius: 5, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{icon}</div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</div>
+          <div style={{ fontSize: 9, color: T.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub}</div>
         </div>
-        <span style={{ fontSize: 9.5, color: T.muted, paddingLeft: 40, lineHeight: 1.3 }}>{sub}</span>
       </Link>
     </div>
   )
 }
 
-function Skel({ h = 60, radius = 10 }: { h?: number; radius?: number }) {
-  return <div style={{ height: h, borderRadius: radius, background: 'rgba(255,255,255,0.035)', animation: 'shimmer 1.8s ease-in-out infinite' }} />
+function Skel({ h = 50, r = 5 }: { h?: number; r?: number }) {
+  return <div style={{ height: h, borderRadius: r, background: 'rgba(255,255,255,0.05)', animation: 'shimmer 1.6s ease-in-out infinite' }} />
 }
 
 const TVK_PROMO: NewsItem = {
   title: 'Thalapathy Vijay — TVK கட்சி | Tamil Nadu CM Race 2026',
-  desc: 'வெற்றி கழகம் தலைவர் விஜய், 2026 தமிழ்நாடு சட்டமன்ற தேர்தலில் ஆட்சி அமைக்க தயாராகிறார்.',
+  desc: '',
   link: 'https://en.wikipedia.org/wiki/Tamilaga_Vettri_Kazhagam',
   source: 'NammaTamil.tv', sourceLogo: '', pubDate: new Date().toISOString(),
-  timeAgo: 'pinned', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Vijay_at_CWC_2011.jpg/800px-Vijay_at_CWC_2011.jpg',
+  timeAgo: 'pinned',
+  imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Vijay_at_CWC_2011.jpg/800px-Vijay_at_CWC_2011.jpg',
   category: 'tvk',
 }
 
@@ -386,22 +361,15 @@ export default function HomeNewsPortal() {
   const heroTimer                = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const fetchNews = useCallback(async (manual = false) => {
-    if (manual) {
-      setRefresh(true)
-    } else {
+    if (manual) { setRefresh(true) }
+    else {
       try {
         const ss = sessionStorage.getItem(SS_KEY)
-        if (ss) {
-          const { d, at } = JSON.parse(ss)
-          if (Date.now() - at < CACHE_TTL) { setData(d); setLoading(false); return }
-        }
+        if (ss) { const { d, at } = JSON.parse(ss); if (Date.now() - at < CACHE_TTL) { setData(d); setLoading(false); return } }
       } catch { /* ignore */ }
       try {
         const ls = localStorage.getItem(LS_KEY)
-        if (ls) {
-          const { d, at } = JSON.parse(ls)
-          if (Date.now() - at < LS_CACHE_TTL) { setData(d); setLoading(false) }
-        }
+        if (ls) { const { d, at } = JSON.parse(ls); if (Date.now() - at < LS_CACHE_TTL) { setData(d); setLoading(false) } }
       } catch { /* ignore */ }
     }
     try {
@@ -409,9 +377,9 @@ export default function HomeNewsPortal() {
       if (!res.ok) return
       const json: ApiResponse = await res.json()
       setData(json); setSecAgo(0); setShowMore(false); setHeroIdx(0)
-      const payload = JSON.stringify({ d: json, at: Date.now() })
-      try { sessionStorage.setItem(SS_KEY, payload) } catch { /* ignore */ }
-      try { localStorage.setItem(LS_KEY, payload) } catch { /* ignore */ }
+      const p = JSON.stringify({ d: json, at: Date.now() })
+      try { sessionStorage.setItem(SS_KEY, p) } catch { /* ignore */ }
+      try { localStorage.setItem(LS_KEY, p) } catch { /* ignore */ }
     } catch { /* keep stale */ }
     finally { setLoading(false); setRefresh(false) }
   }, [])
@@ -433,8 +401,7 @@ export default function HomeNewsPortal() {
     if (category === 'sports') {
       const tagged = all.filter(n => n.category === 'sports')
       if (tagged.length >= 4) return tagged
-      const extra = all.filter(n => SPORTS_KW.some(kw => (n.title + n.desc).toLowerCase().includes(kw)) && n.category !== 'sports')
-      return [...tagged, ...extra]
+      return [...tagged, ...all.filter(n => SPORTS_KW.some(kw => (n.title + n.desc).toLowerCase().includes(kw)) && n.category !== 'sports')]
     }
     return all.filter(n => n.category === category)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -453,111 +420,97 @@ export default function HomeNewsPortal() {
   }, [all.length, category])
 
   const listStart = filtered.length >= 3 ? 3 : filtered.length >= 1 ? 1 : 0
-  const listItems = showMore ? filtered.slice(listStart) : filtered.slice(listStart, listStart + 18)
-  const freshLabel = secAgo < 60 ? `${secAgo}s ago` : `${Math.floor(secAgo / 60)}m ago`
+  const listItems = showMore ? filtered.slice(listStart) : filtered.slice(listStart, listStart + 20)
+  const freshLabel = secAgo < 60 ? `${secAgo}s` : `${Math.floor(secAgo / 60)}m ago`
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, color: T.text, position: 'relative', isolation: 'isolate' }}>
-
-      {/* ── Subtle dot grid ──────────────────────────────────────────────────── */}
-      <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)',
-        backgroundSize: '36px 36px' }} />
-
-      {/* ── Brand glow blobs ─────────────────────────────────────────────────── */}
-      <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: [
-          'radial-gradient(ellipse 60% 40% at 8% 15%, rgba(245,158,11,0.14) 0%, transparent 55%)',
-          'radial-gradient(ellipse 50% 40% at 92% 85%, rgba(220,38,38,0.10) 0%, transparent 50%)',
-          'radial-gradient(ellipse 40% 30% at 65% 0%,  rgba(167,139,250,0.07) 0%, transparent 45%)',
-        ].join(', ') }} />
+    <div style={{ minHeight: '100vh', background: T.bg, color: T.text }}>
 
       <div style={{ position: 'relative', zIndex: 1 }}>
 
-        {/* ── Ticker ───────────────────────────────────────────────────────────── */}
+        {/* ── TICKER ─────────────────────────────────────────────────────────── */}
         {!loading && <Ticker items={all} />}
 
-        {/* ── Category nav ─────────────────────────────────────────────────────── */}
-        <div style={{ background: 'rgba(4,4,15,0.94)', borderBottom: `1px solid ${T.border}`, position: 'sticky', top: 56, zIndex: 40, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', gap: 5, padding: '10px 0' }}>
+        {/* ── CATEGORY NAV ───────────────────────────────────────────────────── */}
+        <div style={{ background: T.bg2, borderBottom: `1px solid ${T.border}`, position: 'sticky', top: 56, zIndex: 40 }}>
+          <div className="nt-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 2, padding: '8px 0' }}>
               {CATS.map(cat => {
                 const active = category === cat.key
                 const Ic = cat.icon
                 return (
                   <button key={cat.key}
                     onClick={() => { setCat(cat.key as typeof category); setShowMore(false) }}
-                    style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', fontSize: 12, fontWeight: active ? 800 : 500, color: active ? cat.color : 'rgba(255,255,255,0.38)', background: active ? `${cat.color}1a` : 'rgba(255,255,255,0.025)', border: active ? `1px solid ${cat.color}40` : '1px solid rgba(255,255,255,0.06)', borderRadius: 9999, cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: active ? `0 0 16px ${cat.color}20` : 'none', transition: 'background 0.12s, color 0.12s, border-color 0.12s' }}
+                    style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5, padding: '5px 13px', fontSize: 11.5, fontWeight: active ? 800 : 500, color: active ? '#fff' : T.muted, background: active ? cat.color : 'transparent', border: active ? 'none' : `1px solid ${T.border}`, borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.1s, color 0.1s' }}
                   >
-                    <Ic style={{ width: 12, height: 12 }} />
+                    <Ic style={{ width: 10, height: 10 }} />
                     {cat.label}
                     {'badge' in cat && cat.badge && (
-                      <span style={{ fontSize: 8, fontWeight: 900, padding: '1px 5px', borderRadius: 3, background: T.red, color: '#fff', letterSpacing: '0.05em' }}>{cat.badge}</span>
+                      <span style={{ fontSize: 7.5, fontWeight: 900, padding: '1px 4px', borderRadius: 2, background: 'rgba(255,255,255,0.22)', color: '#fff' }}>{cat.badge}</span>
                     )}
                   </button>
                 )
               })}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexShrink: 0, padding: '10px 0' }}>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.22)', whiteSpace: 'nowrap' }}>{refreshing ? 'Refreshing…' : freshLabel}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
+              <span style={{ fontSize: 9.5, color: T.dim }}>{refreshing ? '…' : freshLabel}</span>
               <button onClick={() => fetchNews(true)} disabled={refreshing}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.22)', padding: 3, lineHeight: 0 }}>
-                <RefreshCw style={{ width: 11, height: 11, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.dim, padding: 3, lineHeight: 0 }}>
+                <RefreshCw style={{ width: 10, height: 10, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
               </button>
               <VisitorCounter />
             </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto nt-pad">
+        <div className="nt-wrap nt-v">
 
           {/* ════════════════════════════════════════════════════════════════════
-              TOP GRID — hero left · trending sidebar right
+              MAIN LAYOUT: hero+sec left · trending right
               ════════════════════════════════════════════════════════════════════ */}
-          <div className="top-section" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16, marginBottom: 18 }}>
+          <div className="nt-top" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14, marginBottom: 16 }}>
 
-            {/* Hero + 2 secondary cards */}
+            {/* Left: hero + 4 secondary cards */}
             <div>
               {loading ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                  <Skel h={240} radius={18} />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9 }}>
-                    <Skel h={130} radius={13} /><Skel h={130} radius={13} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <Skel h={200} r={6} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <Skel h={100} /><Skel h={100} /><Skel h={100} /><Skel h={100} />
                   </div>
                 </div>
               ) : heroItem ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                  {/* Dot indicators */}
+                <div>
+                  {/* Dot nav */}
                   {heroPool.length > 1 && (
-                    <div style={{ display: 'flex', gap: 5, justifyContent: 'flex-end', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', marginBottom: 5 }}>
                       {heroPool.map((_, i) => (
                         <button key={i} onClick={() => setHeroIdx(i)}
-                          style={{ width: i === heroIdx ? 22 : 5, height: 4, borderRadius: 99, background: i === heroIdx ? T.crimson : 'rgba(255,255,255,0.14)', border: 'none', cursor: 'pointer', padding: 0, transition: 'width 0.3s ease, background 0.3s ease' }} />
+                          style={{ width: i === heroIdx ? 18 : 4, height: 3, borderRadius: 99, background: i === heroIdx ? T.red : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', padding: 0, transition: 'width 0.25s ease' }} />
                       ))}
                     </div>
                   )}
                   <AnimatePresence mode="wait">
-                    <motion.div key={heroItem.link} initial={{ opacity: 0, scale: 0.99 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
+                    <motion.div key={heroItem.link} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28 }}>
                       <HeroCard item={heroItem} />
                     </motion.div>
                   </AnimatePresence>
-                  <div className="sec-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9 }}>
-                    {filtered.slice(1, 3).map((it, i) => <SecCard key={i} item={it} />)}
+                  {/* 2×2 secondary grid */}
+                  <div className="nt-sec" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
+                    {filtered.slice(1, 5).map((it, i) => <SmCard key={i} item={it} />)}
                   </div>
                 </div>
               ) : null}
             </div>
 
-            {/* Trending sidebar — desktop */}
-            <div className="trend-aside" style={{ display: 'none' }}>
-              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: '16px 15px 12px', position: 'sticky', top: 106 }}>
+            {/* Right: trending (desktop) */}
+            <div className="nt-tend" style={{ display: 'none' }}>
+              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: '12px 12px 8px', position: 'sticky', top: 106 }}>
                 <SH label="Trending" color={T.gold} icon={TrendingUp} />
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {loading
-                    ? Array.from({ length: 8 }).map((_, i) => <Skel key={i} h={46} radius={5} />)
-                    : trending.slice(0, 10).map((it, i) => <TrendRow key={i} item={it} rank={i + 1} />)
-                  }
-                </div>
+                {loading
+                  ? Array.from({ length: 8 }).map((_, i) => <Skel key={i} h={42} r={3} />)
+                  : trending.slice(0, 10).map((it, i) => <TrendRow key={i} item={it} rank={i + 1} />)
+                }
               </div>
             </div>
           </div>
@@ -565,16 +518,14 @@ export default function HomeNewsPortal() {
           {/* ════════════════════════════════════════════════════════════════════
               CINEMA STRIP
               ════════════════════════════════════════════════════════════════════ */}
-          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 18, padding: '18px 18px 20px', marginBottom: 18 }}>
-            <SH label="Cinema" color={T.purple} href="/movies" sub="Tamil releases 2024–2026" icon={Film} />
-            <div className="cinema-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-              {CINEMA.map((movie) => <CinemaCard key={movie.id} movie={movie} />)}
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: '12px 12px 14px', marginBottom: 14 }}>
+            <SH label="சினிமா" color={T.purple} href="/movies" icon={Film} />
+            <div className="nt-cm-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+              {CINEMA.map(m => <CinemaCard key={m.id} movie={m} />)}
             </div>
-            <div className="cinema-scroll" style={{ display: 'none', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
-              {CINEMA.map((movie) => (
-                <div key={movie.id} style={{ flexShrink: 0, width: 110 }}>
-                  <CinemaCard movie={movie} />
-                </div>
+            <div className="nt-cm-scroll" style={{ display: 'none', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 2 }}>
+              {CINEMA.map(m => (
+                <div key={m.id} style={{ flexShrink: 0, width: 90 }}><CinemaCard movie={m} /></div>
               ))}
             </div>
           </div>
@@ -582,17 +533,17 @@ export default function HomeNewsPortal() {
           {/* ════════════════════════════════════════════════════════════════════
               OTT PLATFORMS
               ════════════════════════════════════════════════════════════════════ */}
-          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 18, padding: '18px 18px 20px', marginBottom: 18 }}>
-            <SH label="Watch on OTT" color={T.blue} href="/ott-plans" sub="Stream Tamil content anywhere" icon={Tv2} />
-            <div className="ott-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 12 }}>
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: '12px 12px 14px', marginBottom: 14 }}>
+            <SH label="OTT Platforms" color={T.blue} href="/ott-plans" icon={Tv2} />
+            <div className="nt-ott-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 7 }}>
               {OTT_PLATFORMS.map(p => <OttTile key={p.label} {...p} />)}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9 }}>
-              <Link href="/movies" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: T.muted, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,0.035)', border: `1px solid ${T.border2}` }}>
-                <Film style={{ width: 12, height: 12 }} /> Tamil Movies
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, marginTop: 8 }}>
+              <Link href="/movies" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, textDecoration: 'none', fontSize: 11, fontWeight: 700, color: T.muted, padding: '8px 0', borderRadius: 5, background: T.bg3, border: `1px solid ${T.border2}` }}>
+                <Film style={{ width: 10, height: 10 }} /> Tamil Movies
               </Link>
-              <Link href="/serials" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: T.muted, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,0.035)', border: `1px solid ${T.border2}` }}>
-                <Tv2 style={{ width: 12, height: 12 }} /> Tamil Serials
+              <Link href="/serials" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, textDecoration: 'none', fontSize: 11, fontWeight: 700, color: T.muted, padding: '8px 0', borderRadius: 5, background: T.bg3, border: `1px solid ${T.border2}` }}>
+                <Tv2 style={{ width: 10, height: 10 }} /> Tamil Serials
               </Link>
             </div>
           </div>
@@ -600,115 +551,116 @@ export default function HomeNewsPortal() {
           {/* ════════════════════════════════════════════════════════════════════
               NEWS FEED + SIDEBAR
               ════════════════════════════════════════════════════════════════════ */}
-          <div className="lower-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
+          <div className="nt-low" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
 
             {/* News list */}
             <div>
-              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: '18px 16px' }}>
+              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: '12px 12px 10px' }}>
                 <SH label={category === 'all' ? 'Latest News' : CATS.find(c => c.key === category)?.label ?? 'News'} color={T.red} icon={Newspaper} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {loading
-                    ? Array.from({ length: 8 }).map((_, i) => <Skel key={i} h={78} />)
-                    : listItems.map((item, i) => (
-                      <div key={i}>
-                        <NewsRow item={item} idx={i} />
-                        {(i + 1) % 6 === 0 && (
-                          <ins className="adsbygoogle" style={{ display: 'block' }}
-                            data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86"
-                            data-ad-client="ca-pub-4237294630161176" data-ad-slot="auto" />
-                        )}
-                      </div>
-                    ))
-                  }
-                </div>
-                {!loading && filtered.length > listStart + 18 && (
+                {loading
+                  ? Array.from({ length: 8 }).map((_, i) => <Skel key={i} h={58} r={3} />)
+                  : listItems.map((item, i) => (
+                    <div key={i}>
+                      <NewsRow item={item} idx={i} />
+                      {(i + 1) % 6 === 0 && (
+                        <ins className="adsbygoogle" style={{ display: 'block' }}
+                          data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86"
+                          data-ad-client="ca-pub-4237294630161176" data-ad-slot="auto" />
+                      )}
+                    </div>
+                  ))
+                }
+                {!loading && filtered.length > listStart + 20 && (
                   <button onClick={() => setShowMore(s => !s)}
-                    style={{ marginTop: 16, width: '100%', padding: '12px 0', borderRadius: 11, background: 'rgba(255,255,255,0.04)', border: `1px solid ${T.border2}`, color: T.muted, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
-                    {showMore ? <><ChevronLeft style={{ width: 13, height: 13 }} /> Show Less</> : <>{`Load ${filtered.length - listStart - 18} More`} <ChevronRight style={{ width: 13, height: 13 }} /></>}
+                    style={{ marginTop: 10, width: '100%', padding: '9px 0', borderRadius: 5, background: T.bg3, border: `1px solid ${T.border2}`, color: T.muted, fontSize: 11.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                    {showMore
+                      ? <><ChevronLeft style={{ width: 11, height: 11 }} /> Show less</>
+                      : <>Load more <ChevronRight style={{ width: 11, height: 11 }} /></>}
                   </button>
                 )}
               </div>
             </div>
 
             {/* Sidebar */}
-            <div className="sidebar-col" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: '16px 14px' }}>
-                <SH label="IPL 2025 Live" color={T.green} sub="Live scores & updates" />
-                <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}` }}>
+            <div className="nt-side" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Cricket */}
+              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: '12px 10px' }}>
+                <SH label="IPL Live" color={T.green} />
+                <div style={{ borderRadius: 5, overflow: 'hidden', border: `1px solid ${T.border}` }}>
                   <CricketWidget compact />
                 </div>
               </div>
-              <div className="trend-mobile">
-                <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: '16px 14px' }}>
+              {/* Trending mobile */}
+              <div className="nt-tend-m">
+                <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: '12px 10px' }}>
                   <SH label="Trending" color={T.gold} icon={TrendingUp} />
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    {loading
-                      ? Array.from({ length: 6 }).map((_, i) => <Skel key={i} h={46} radius={5} />)
-                      : trending.slice(0, 8).map((it, i) => <TrendRow key={i} item={it} rank={i + 1} />)
-                    }
-                  </div>
+                  {loading
+                    ? Array.from({ length: 5 }).map((_, i) => <Skel key={i} h={40} r={3} />)
+                    : trending.slice(0, 7).map((it, i) => <TrendRow key={i} item={it} rank={i + 1} />)
+                  }
                 </div>
               </div>
               <AdUnit size="rectangle" />
             </div>
-
           </div>
-        </div>
+
+        </div>{/* nt-wrap */}
 
         <TVKSpotlight />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+        <div className="nt-wrap" style={{ paddingBottom: 24 }}>
           <AdUnit size="banner" />
         </div>
 
         <style>{`
-          @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-          @keyframes ping    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.6)} }
+          @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+          @keyframes ping    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
           @keyframes spin    { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-          @keyframes shimmer { 0%{opacity:0.35} 50%{opacity:0.7} 100%{opacity:0.35} }
+          @keyframes shimmer { 0%{opacity:0.35} 50%{opacity:0.65} 100%{opacity:0.35} }
 
-          /* ── Padding ─────────────────────────────────── */
-          .nt-pad { padding: 18px 16px; }
-          @media (min-width: 640px) { .nt-pad { padding: 22px 24px; } }
-          @media (min-width: 1024px) { .nt-pad { padding: 24px 32px; } }
+          /* ── Wrapper padding ───────────────── */
+          .nt-wrap { max-width: 1280px; margin: 0 auto; padding-left: 14px; padding-right: 14px; }
+          @media(min-width:640px) { .nt-wrap { padding-left: 20px; padding-right: 20px; } }
+          @media(min-width:1024px) { .nt-wrap { padding-left: 28px; padding-right: 28px; } }
+          .nt-v { padding-top: 14px; padding-bottom: 8px; }
 
-          /* ── Desktop 2-col top section ───────────────── */
-          @media (min-width: 960px) {
-            .top-section { grid-template-columns: 1fr 300px !important; align-items: start; }
-            .trend-aside  { display: block !important; }
-            .trend-mobile { display: none !important; }
+          /* ── Top section sidebar ──────────── */
+          @media(min-width:960px) {
+            .nt-top  { grid-template-columns: 1fr 260px !important; align-items: start; }
+            .nt-tend { display: block !important; }
+            .nt-tend-m { display: none !important; }
           }
 
-          /* ── Cinema ──────────────────────────────────── */
-          @media (min-width: 960px)  { .cinema-grid { grid-template-columns: repeat(10, 1fr) !important; } .cinema-scroll { display: none !important; } }
-          @media (min-width: 640px) and (max-width: 959px) { .cinema-grid { grid-template-columns: repeat(5, 1fr) !important; } .cinema-scroll { display: none !important; } }
-          @media (max-width: 639px)  { .cinema-grid { display: none !important; } .cinema-scroll { display: flex !important; } }
-
-          /* ── OTT ─────────────────────────────────────── */
-          @media (min-width: 960px)  { .ott-grid { grid-template-columns: repeat(6, 1fr) !important; } }
-          @media (min-width: 640px) and (max-width: 959px) { .ott-grid { grid-template-columns: repeat(3, 1fr) !important; } }
-
-          /* ── Lower grid ──────────────────────────────── */
-          @media (min-width: 960px) { .lower-grid { grid-template-columns: 1fr 300px !important; align-items: start; } }
-
-          /* ── Card hovers ─────────────────────────────── */
-          .hero-card { transition: transform 0.22s cubic-bezier(.23,1,.32,1); }
-          .hero-card:hover { transform: scale(1.008); }
-          .sec-card  { transition: transform 0.18s cubic-bezier(.23,1,.32,1); }
-          .sec-card:hover  { transform: scale(1.018); }
-          .cinema-card-wrap { transition: transform 0.18s ease, box-shadow 0.18s ease; }
-          .cinema-card-wrap:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.6); }
-          .ott-tile-wrap { transition: transform 0.14s ease; }
-          .ott-tile-wrap:hover  { transform: scale(1.025) translateY(-2px); }
-          .ott-tile-wrap:active { transform: scale(0.97); }
-          .news-row-link { transition: background 0.12s ease; }
-          .news-row-link:hover { background: rgba(255,255,255,0.042) !important; }
-
-          /* ── Narrow mobile tweaks ────────────────────── */
-          @media (max-width: 380px) {
-            .sec-row { grid-template-columns: 1fr !important; }
-            .news-thumb { width: 68px !important; height: 52px !important; }
+          /* ── Secondary grid: 4 on desktop, 2 on mobile ── */
+          @media(max-width:400px) {
+            .nt-sec { grid-template-columns: 1fr 1fr !important; }
           }
+
+          /* ── Cinema ───────────────────────── */
+          @media(min-width:960px)  { .nt-cm-grid { grid-template-columns: repeat(12,1fr) !important; } .nt-cm-scroll { display:none !important; } }
+          @media(min-width:600px) and (max-width:959px) { .nt-cm-grid { grid-template-columns: repeat(6,1fr) !important; } .nt-cm-scroll { display:none !important; } }
+          @media(max-width:599px)  { .nt-cm-grid { display:none !important; } .nt-cm-scroll { display:flex !important; } }
+
+          /* ── OTT ──────────────────────────── */
+          @media(min-width:960px)  { .nt-ott-grid { grid-template-columns: repeat(6,1fr) !important; } }
+          @media(min-width:600px) and (max-width:959px) { .nt-ott-grid { grid-template-columns: repeat(3,1fr) !important; } }
+
+          /* ── Lower grid ───────────────────── */
+          @media(min-width:960px) { .nt-low { grid-template-columns: 1fr 260px !important; align-items: start; } }
+
+          /* ── Hover states ─────────────────── */
+          .nt-hero  { transition: opacity 0.18s ease; }
+          .nt-hero:hover { opacity: 0.92; }
+          .nt-smcard { transition: opacity 0.15s ease; }
+          .nt-smcard:hover { opacity: 0.8; }
+          .nt-row   { transition: background 0.1s; }
+          .nt-row:hover { background: rgba(255,255,255,0.03); }
+          .nt-trow  { transition: background 0.1s; }
+          .nt-trow:hover { background: rgba(255,255,255,0.03); }
+          .nt-ccard { transition: transform 0.15s ease; }
+          .nt-ccard:hover { transform: translateY(-3px); }
+          .nt-ott   { transition: opacity 0.12s; }
+          .nt-ott:hover { opacity: 0.8; }
         `}</style>
       </div>
     </div>
