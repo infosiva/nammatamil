@@ -316,12 +316,19 @@ export async function GET(req: NextRequest) {
   // Dedup, then take top 60
   const unique = dedup(sorted).slice(0, 60)
 
-  const IMG_PROXY = 'https://api.nammatamil.live/img-proxy?url='
+  const VPS_PROXY = 'http://31.97.56.148:3096/img-proxy?url='
 
   const news = unique.map((item, idx) => {
     const category = categorize(item.title, item.desc)
     const rawImg = item.imageUrl ?? fallbackImage(item.source, category, idx)
-    const imageUrl = rawImg ? IMG_PROXY + encodeURIComponent(rawImg) : rawImg
+    // Return original URL directly — browser loads from CDN with no mixed-content risk.
+    // Fire-and-forget warm the VPS cache in background (server-side fetch, no HTTPS needed).
+    if (rawImg) {
+      fetch(VPS_PROXY + encodeURIComponent(rawImg), {
+        signal: AbortSignal.timeout(6000),
+        headers: { 'User-Agent': 'NammaTamil-Warmer/1.0' },
+      }).catch(() => {/* VPS unreachable — ignore */})
+    }
     return {
       title:      item.title,
       link:       item.link,
@@ -330,7 +337,7 @@ export async function GET(req: NextRequest) {
       pubDate:    item.pubDate,
       timeAgo:    timeAgo(item.pubDate),
       desc:       item.desc,
-      imageUrl,
+      imageUrl:   rawImg,
       category,
     }
   })
