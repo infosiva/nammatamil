@@ -86,16 +86,25 @@ const OTT_C: Record<string, string> = {
   'Disney+ Hotstar': '#0073e6', 'ZEE5': '#8b5cf6', 'YouTube': '#ff0000',
 }
 
-// Fresh: Coming Soon + OTT releases from last ~8 weeks, fallback to 2025+
-const _8W = new Date(Date.now() - 56 * 24 * 60 * 60 * 1000)
+// Cinema: only show movies with real thumbnails
+// Coming Soon = show only if has thumbnail; OTT released = last 10 weeks; else 2025+
+const _10W = new Date(Date.now() - 70 * 24 * 60 * 60 * 1000)
+function _hasThumb(m: { thumbnail?: string }) {
+  return !!(m.thumbnail && !m.thumbnail.includes('default.jpg') && !m.thumbnail.includes('goat-vijay'))
+}
 function _freshOtt(d?: string) {
   if (!d) return false
   if (d === 'Coming Soon') return true
-  try { return new Date(d) >= _8W } catch { return false }
+  try { return new Date(d) >= _10W } catch { return false }
 }
 const CINEMA = movies
-  .filter(m => m.language === 'Tamil' && (_freshOtt(m.ottDate) || m.year >= 2025))
+  .filter(m =>
+    m.language === 'Tamil' &&
+    _hasThumb(m) &&                          // must have poster image
+    (_freshOtt(m.ottDate) || m.year >= 2025) // recent or this year
+  )
   .sort((a, b) => {
+    // Coming Soon with thumbnail first, then recent OTT, then rating
     const as = a.ottDate === 'Coming Soon' ? 2 : _freshOtt(a.ottDate) ? 1 : 0
     const bs = b.ottDate === 'Coming Soon' ? 2 : _freshOtt(b.ottDate) ? 1 : 0
     if (bs !== as) return bs - as
@@ -294,7 +303,7 @@ function CinemaCard({ movie }: { movie: (typeof CINEMA)[0] }) {
   const ottColor = platform ? (OTT_C[platform] ?? '#555') : null
   const isOtt = movie.ottDate && movie.ottDate !== 'Coming Soon'
   const [err, setErr] = useState(false)
-  const hasThumb = movie.thumbnail && !err && !movie.thumbnail.includes('default.jpg') && !movie.thumbnail.includes('goat-vijay')
+  const hasThumb = !err && _hasThumb(movie)
   return (
     <div className="nt-ccard">
       <Link href={`/movies/${movie.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
@@ -407,7 +416,15 @@ export default function HomeNewsPortal() {
   }, [all.length, category])
 
   const trending = useMemo(() => [...all].sort(() => Math.random() - 0.5).slice(0, 10), [data])
-  const heroPool = filtered.slice(0, 5)
+
+  // Hero pool: prefer items with real (non-Wikipedia-generic) images
+  const WIKI_GENERIC = ['Tamil_country', 'Tamil_Nadu_state', 'Tamil_language_inscription', 'Flag_of_Tamil_Nadu', 'Tamil_Nadu_Legislative']
+  const heroPool = useMemo(() => {
+    const withReal = filtered.filter(n => n.imageUrl && !WIKI_GENERIC.some(g => n.imageUrl!.includes(g)))
+    return (withReal.length >= 2 ? withReal : filtered).slice(0, 5)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered.length, category])
+
   const heroItem = heroPool[heroIdx] ?? heroPool[0] ?? (category === 'tvk' ? TVK_PROMO : null)
 
   useEffect(() => {
@@ -526,7 +543,7 @@ export default function HomeNewsPortal() {
               CINEMA — cinema-tinted section
               ══════════════════════════════════════════════════════════════════ */}
           <div style={{ background: `linear-gradient(135deg, rgba(109,40,217,0.12) 0%, ${T.bg2} 60%)`, border: `1px solid rgba(109,40,217,0.2)`, borderRadius: 12, padding: '14px 14px 16px', marginBottom: 16 }}>
-            <SH label="சினிமா" color={T.purple} href="/movies" icon={Film} sub="Tamil releases 2024–2026" />
+            <SH label="சினிமா" color={T.purple} href="/movies" icon={Film} sub="Latest Tamil releases" />
             <div className="nt-cm-g" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
               {CINEMA.map(m => <CinemaCard key={m.id} movie={m} />)}
             </div>
