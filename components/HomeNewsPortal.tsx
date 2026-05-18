@@ -295,10 +295,11 @@ const TVK_PROMO: NewsItem = {
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 const TABS = [
   { key: 'news',     label: 'செய்திகள்',  labelEn: 'News',     icon: Newspaper, color: ACCENT.primary },
+  { key: 'ipl',      label: 'IPL 2025',   labelEn: 'IPL',      icon: Trophy,    color: T.green, badge: 'LIVE' },
+  { key: 'tvk',      label: 'விஜய் 1st',  labelEn: 'TVK',      icon: Zap,       color: '#f59e0b', badge: 'HOT' },
   { key: 'cinema',   label: 'சினிமா',     labelEn: 'Cinema',   icon: Film,      color: T.purple       },
   { key: 'serials',  label: 'சீரியல்கள்', labelEn: 'Serials',  icon: Tv2,       color: T.teal         },
   { key: 'calendar', label: 'பஞ்சாங்கம்', labelEn: 'Calendar', icon: CalendarDays, color: T.gold      },
-  { key: 'tvk',      label: 'TVK 2026',   labelEn: 'TVK',      icon: Zap,       color: '#f59e0b', badge: 'LIVE' },
 ]
 
 const NEWS_CATS = [
@@ -949,19 +950,18 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
         </div>
       </div>
 
-      {/* Cinema strip */}
-      <div style={{ background: `linear-gradient(135deg, ${T.purple}10 0%, ${T.card} 60%)`, border: `1px solid ${T.purple}20`, borderRadius: 10, padding: '12px 12px 14px', marginBottom: 14 }}>
-        <SH label="சினிமா" color={T.purple} href="/movies" icon={Film} sub="Latest Tamil releases" />
-        <div className="nt-cm-g" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 7 }}>
-          {cinemaGrid.slice(0, 10).map(m => <CinemaCard key={m.id} movie={m} />)}
+      {/* IPL Live strip — prominent above news feed */}
+      <div style={{ background: `linear-gradient(135deg, ${T.green}12 0%, ${T.card} 60%)`, border: `1px solid ${T.green}25`, borderRadius: 10, padding: '10px 12px 12px', marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <SH label="IPL Live" color={T.green} icon={Trophy} />
+          <button onClick={() => {/* parent sets tab */}} style={{ fontSize: 10, fontWeight: 700, color: T.green, background: `${T.green}18`, border: `1px solid ${T.green}30`, borderRadius: 5, padding: '3px 9px', cursor: 'pointer' }}>
+            Full scoreboard →
+          </button>
         </div>
-        <div className="nt-cm-s" style={{ display: 'none', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
-          {cinemaGrid.slice(0, 8).map(m => <div key={m.id} style={{ flexShrink: 0, width: 88 }}><CinemaCard movie={m} /></div>)}
+        <div style={{ borderRadius: 7, overflow: 'hidden', border: `1px solid ${T.border}` }}>
+          <CricketWidget compact />
         </div>
       </div>
-
-      {/* Music strip */}
-      <MusicStrip />
 
       {/* Main feed + sidebar */}
       <div className="nt-low" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
@@ -995,12 +995,6 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
           </div>
         </div>
         <div className="nt-side" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 12px' }}>
-            <SH label="IPL Live" color={T.green} />
-            <div style={{ borderRadius: 7, overflow: 'hidden', border: `1px solid ${T.border}` }}>
-              <CricketWidget compact />
-            </div>
-          </div>
           <div className="nt-tend-m">
             <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 12px' }}>
               <SH label="Trending" color={T.gold} icon={TrendingUp} />
@@ -1010,7 +1004,73 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
           <AdUnit size="rectangle" />
         </div>
       </div>
+
+      {/* Cinema strip — below news feed */}
+      <div style={{ background: `linear-gradient(135deg, ${T.purple}10 0%, ${T.card} 60%)`, border: `1px solid ${T.purple}20`, borderRadius: 10, padding: '12px 12px 14px', marginTop: 14, marginBottom: 14 }}>
+        <SH label="சினிமா" color={T.purple} href="/movies" icon={Film} sub="Latest Tamil releases" />
+        <div className="nt-cm-g" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 7 }}>
+          {cinemaGrid.slice(0, 10).map(m => <CinemaCard key={m.id} movie={m} />)}
+        </div>
+        <div className="nt-cm-s" style={{ display: 'none', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
+          {cinemaGrid.slice(0, 8).map(m => <div key={m.id} style={{ flexShrink: 0, width: 88 }}><CinemaCard movie={m} /></div>)}
+        </div>
+      </div>
+
+      {/* Music strip */}
+      <MusicStrip />
     </div>
+  )
+}
+
+// ── Tab: IPL ──────────────────────────────────────────────────────────────────
+function IPLTab({ all }: { all: NewsItem[] }) {
+  const iplNews = useMemo(() => {
+    const kw = ['ipl','csk','mi ', 'rcb','kkr','srh','dc ','pbks','rr ','lsg','gt ','cricket','dhoni','virat','rohit','match','wicket','run','over','innings']
+    return all.filter(n => kw.some(k => (n.title + (n.desc ?? '')).toLowerCase().includes(k))).slice(0, 20)
+  }, [all])
+
+  return (
+    <motion.div variants={fadeIn} initial="hidden" animate="visible">
+      {/* Full cricket widget */}
+      <div style={{ background: `linear-gradient(135deg, ${T.green}12 0%, ${T.card} 70%)`, border: `1px solid ${T.green}25`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
+        <SH label="IPL 2025 — Live Scores & Standings" color={T.green} icon={Trophy} />
+        <CricketWidget />
+      </div>
+
+      {/* IPL news feed */}
+      {iplNews.length > 0 && (
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, overflow: 'hidden', marginBottom: 14 }}>
+          <div style={{ padding: '12px 12px 0' }}>
+            <SH label="IPL செய்திகள்" color={T.green} icon={Newspaper} sub="Latest match updates" />
+          </div>
+          <motion.div variants={stagger} initial="hidden" animate="visible" style={{ padding: '0 0 4px' }}>
+            {iplNews.map((item, i) => <NewsRow key={item.link + i} item={item} idx={i} />)}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Where to watch */}
+      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
+        <SH label="IPL எங்கே பார்க்கலாம்?" color={T.gold} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 10 }}>
+          {[
+            { name: 'JioCinema', label: 'Free with ads', color: '#8b5cf6', url: 'https://www.jiocinema.com' },
+            { name: 'Hotstar', label: '₹299/mo · Mobile', color: '#1d4ed8', url: 'https://www.hotstar.com' },
+            { name: 'Star Sports', label: 'Cable / DTH TV', color: '#ef4444', url: 'https://www.startv.com' },
+            { name: 'Airtel Xstream', label: 'With Airtel plan', color: '#f97316', url: 'https://www.airtel.in/xstream' },
+          ].map(w => (
+            <a key={w.name} href={w.url} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 11px', borderRadius: 8, background: `${w.color}14`, border: `1px solid ${w.color}28`, textDecoration: 'none' }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: w.color, flexShrink: 0 }} />
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{w.name}</div>
+                <div style={{ fontSize: 10, color: T.muted }}>{w.label}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </motion.div>
   )
 }
 
@@ -1263,6 +1323,36 @@ function TVKTab({ all, loading }: { all: NewsItem[]; loading: boolean }) {
         <span style={{ marginLeft: 'auto', flexShrink: 0, fontSize: 8, fontWeight: 900, padding: '3px 7px', borderRadius: 4, background: T.red, color: '#fff', animation: 'nt-ping-bg 2s ease-in-out infinite' }}>LIVE</span>
       </div>
 
+      {/* TVK Direct Contact Panel */}
+      <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(99,102,241,0.06) 100%)', border: '1px solid rgba(245,158,11,0.28)', borderRadius: 10, padding: '13px 14px', marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 11 }}>
+          <Phone style={{ width: 14, height: 14, color: T.gold, flexShrink: 0 }} />
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 900, color: T.text }}>TVK — நேரடியாக தொடர்பு கொள்ளுங்கள்</p>
+          <span style={{ marginLeft: 'auto', fontSize: 8, fontWeight: 900, padding: '2px 7px', borderRadius: 4, background: T.gold, color: '#000' }}>NEW</span>
+        </div>
+        <p style={{ margin: '0 0 11px', fontSize: 10.5, color: T.muted, lineHeight: 1.5 }}>
+          முதல்வர் விஜய் தலைமையிலான TVK — மக்கள் நேரடியாக புகார்கள் மற்றும் கோரிக்கைகளை சமர்ப்பிக்கலாம்.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {[
+            { label: 'TVK புகார் போர்டல்', labelEn: 'Submit grievance online', color: '#f59e0b', url: 'https://tvkparty.in', icon: '📝' },
+            { label: 'TVK WhatsApp', labelEn: 'District-level contact', color: '#25d366', url: 'https://wa.me/919444400044', icon: '💬' },
+            { label: 'TVK Twitter / X', labelEn: 'Direct tweet to TVK', color: '#1d9bf0', url: 'https://twitter.com/tvkoffl', icon: '𝕏' },
+            { label: 'CM Helpline 1100', labelEn: 'TN Govt grievance line', color: '#ef4444', url: 'tel:1100', icon: '📞' },
+          ].map(c => (
+            <a key={c.label} href={c.url} target={c.url.startsWith('tel') ? '_self' : '_blank'} rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '10px 11px', borderRadius: 9, background: `${c.color}10`, border: `1px solid ${c.color}25`, textDecoration: 'none' }}>
+              <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{c.icon}</span>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: T.text, lineHeight: 1.3, fontFamily: "'Noto Serif Tamil', 'Noto Serif', Georgia, serif" }}>{c.label}</div>
+                <div style={{ fontSize: 9.5, color: T.muted, marginTop: 1 }}>{c.labelEn}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+        <p style={{ margin: '10px 0 0', fontSize: 9, color: T.dim, textAlign: 'center' }}>TVK அரசு அதிகாரப்பூர்வ தொடர்பு வழிகள் — நேரடி பதில் கிடைக்கும்</p>
+      </div>
+
       {loading ? (
         <><Sk h={200} r={10} mb={12} />{Array.from({ length: 6 }).map((_, i) => <Sk key={i} h={62} r={4} mb={7} />)}</>
       ) : (
@@ -1425,16 +1515,17 @@ export default function HomeNewsPortal() {
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
             {tab === 'news'     && <NewsTab all={all} loading={loading} cinemaGrid={cinemaGrid} />}
+            {tab === 'ipl'      && <IPLTab all={all} />}
+            {tab === 'tvk'      && <TVKTab all={all} loading={loading} />}
             {tab === 'cinema'   && <CinemaTab cinemaNews={cinemaNews} allCinema={allCinema} />}
             {tab === 'serials'  && <SerialsTab />}
             {tab === 'calendar' && <CalendarPanel all={all} />}
-            {tab === 'tvk'      && <TVKTab all={all} loading={loading} />}
           </motion.div>
         </AnimatePresence>
 
       </div>
 
-      {tab !== 'tvk' && <TVKSpotlight />}
+      {tab !== 'tvk' && tab !== 'ipl' && <TVKSpotlight />}
 
       <div className="nt-w" style={{ paddingBottom: 24 }}>
         <AdUnit size="banner" />
