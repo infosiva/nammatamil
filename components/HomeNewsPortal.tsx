@@ -1006,7 +1006,7 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
               <span style={{ marginLeft: 'auto', fontSize: 8, fontWeight: 900, padding: '2px 6px', borderRadius: 4, background: '#f59e0b', color: '#000' }}>HOT</span>
             </div>
             <p style={{ margin: '0 0 10px', fontSize: 12.5, fontWeight: 700, color: T.sub, lineHeight: 1.4, fontFamily: "'Noto Serif Tamil', serif" }}>
-              Thalapathy Vijay — TN CM Race 2026. TVK-வின் சமீபத்திய செய்திகள்.
+              {(all.find(n => n.category === 'tvk') ?? TVK_PROMO).title.slice(0, 80)}
             </p>
             <button
               onClick={() => {

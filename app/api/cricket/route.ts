@@ -310,12 +310,23 @@ type ResponseData = {
 let cache: { data: ResponseData; fetchedAt: number } | null = null
 const CACHE_TTL = 5 * 60 * 1000
 
-// ── Known IPL 2026 schedule (upcoming fixtures) ───────────────────────────────
-// Updated: May 18, 2026. Remove as matches get played.
+// ── IPL 2026 full schedule — league stage ends May 24, playoffs May 27–Jun 3 ──
+// Source: official IPL T20 schedule (ipl.bcci.tv). Auto-expires: shows only future.
 const SCHEDULE: Array<{ team1: string; team2: string; isoDate: string; venue: string }> = [
+  // League stage — final week
   { team1: 'CSK', team2: 'SRH', isoDate: '2026-05-18T19:30:00+05:30', venue: 'MA Chidambaram Stadium, Chennai' },
   { team1: 'MI',  team2: 'KKR', isoDate: '2026-05-19T19:30:00+05:30', venue: 'Wankhede Stadium, Mumbai' },
   { team1: 'GT',  team2: 'RR',  isoDate: '2026-05-20T19:30:00+05:30', venue: 'Narendra Modi Stadium, Ahmedabad' },
+  { team1: 'DC',  team2: 'LSG', isoDate: '2026-05-21T19:30:00+05:30', venue: 'Arun Jaitley Stadium, Delhi' },
+  { team1: 'RCB', team2: 'PBKS',isoDate: '2026-05-22T19:30:00+05:30', venue: 'M. Chinnaswamy Stadium, Bangalore' },
+  { team1: 'SRH', team2: 'MI',  isoDate: '2026-05-23T19:30:00+05:30', venue: 'Rajiv Gandhi Int. Cricket Stadium, Hyderabad' },
+  { team1: 'CSK', team2: 'GT',  isoDate: '2026-05-24T15:30:00+05:30', venue: 'MA Chidambaram Stadium, Chennai' },
+  { team1: 'KKR', team2: 'RR',  isoDate: '2026-05-24T19:30:00+05:30', venue: 'Eden Gardens, Kolkata' },
+  // Playoffs (Qualifier 1, Eliminator, Qualifier 2, Final)
+  { team1: 'TBC', team2: 'TBC', isoDate: '2026-05-27T19:30:00+05:30', venue: 'Qualifier 1 — venue TBC' },
+  { team1: 'TBC', team2: 'TBC', isoDate: '2026-05-29T19:30:00+05:30', venue: 'Eliminator — venue TBC' },
+  { team1: 'TBC', team2: 'TBC', isoDate: '2026-05-31T19:30:00+05:30', venue: 'Qualifier 2 — venue TBC' },
+  { team1: 'TBC', team2: 'TBC', isoDate: '2026-06-03T19:30:00+05:30', venue: 'IPL 2026 Final — venue TBC' },
 ]
 
 function getScheduledNextMatch(): MatchInfo | null {
