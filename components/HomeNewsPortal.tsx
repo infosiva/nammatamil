@@ -230,10 +230,10 @@ function getTamilDate() {
   }
 }
 
-// ── Cinema data — only real posters ──────────────────────────────────────────
+// ── Cinema data ───────────────────────────────────────────────────────────────
 const _10W = new Date(Date.now() - 70 * 24 * 60 * 60 * 1000)
 function hasThumb(m: { thumbnail?: string }) {
-  return !!(m.thumbnail && !m.thumbnail.includes('default.jpg') && !m.thumbnail.includes('goat-vijay'))
+  return !!(m.thumbnail && m.thumbnail !== 'undefined' && !m.thumbnail.includes('default.jpg') && !m.thumbnail.includes('goat-vijay'))
 }
 function freshOtt(d?: string) {
   if (!d) return false
@@ -242,7 +242,7 @@ function freshOtt(d?: string) {
 }
 
 const CINEMA_GRID = movies
-  .filter(m => m.language === 'Tamil' && hasThumb(m) && (freshOtt(m.ottDate) || m.year >= 2025))
+  .filter(m => m.language === 'Tamil' && (freshOtt(m.ottDate) || m.year >= 2025))
   .sort((a, b) => {
     const as = a.ottDate === 'Coming Soon' ? 2 : freshOtt(a.ottDate) ? 1 : 0
     const bs = b.ottDate === 'Coming Soon' ? 2 : freshOtt(b.ottDate) ? 1 : 0
@@ -279,7 +279,7 @@ const TVK_PROMO: NewsItem = {
   desc: '', link: 'https://en.wikipedia.org/wiki/Tamilaga_Vettri_Kazhagam',
   source: 'NammaTamil.tv', sourceLogo: '', pubDate: new Date().toISOString(),
   timeAgo: 'pinned',
-  imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Vijay_at_CWC_2011.jpg/800px-Vijay_at_CWC_2011.jpg',
+  imageUrl: null,
   category: 'tvk',
 }
 
@@ -1317,8 +1317,8 @@ export default function HomeNewsPortal() {
   const freshLabel = secAgo < 60 ? `${secAgo}s` : `${Math.floor(secAgo / 60)}m`
   const cinemaNews = useMemo(() => all.filter(n => n.category === 'cinema'), [all])
 
-  // Featured movie for spotlight banner
-  const featuredMovie = CINEMA_GRID[0]
+  // Featured movie — prefer one with a verified thumbnail
+  const featuredMovie = CINEMA_GRID.find(m => hasThumb(m)) ?? CINEMA_GRID[0]
 
   return (
     <div style={{ minHeight: '100vh', background: T.bg, color: T.text }}>
@@ -1375,12 +1375,13 @@ export default function HomeNewsPortal() {
             <Link href={`/movies/${featuredMovie.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
               <div className="nt-feat" style={{ background: `linear-gradient(135deg, rgba(0,0,0,0.72) 0%, ${T.card} 55%)`, border: `1px solid ${T.border2}`, borderRadius: 10, padding: '10px 13px', display: 'flex', alignItems: 'center', gap: 11, position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 50% 80% at 0% 50%, ${rc(featuredMovie.rating)}0e 0%, transparent 65%)`, pointerEvents: 'none' }} />
-                {featuredMovie.thumbnail && (
-                  <div style={{ flexShrink: 0, width: 44, height: 66, borderRadius: 5, overflow: 'hidden', border: `1px solid ${T.border2}` }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={featuredMovie.thumbnail} alt={featuredMovie.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                  </div>
-                )}
+                <div style={{ flexShrink: 0, width: 44, height: 66, borderRadius: 5, overflow: 'hidden', border: `1px solid ${T.border2}`, background: `linear-gradient(160deg, ${rc(featuredMovie.rating)}40 0%, #1a1a2e 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {hasThumb(featuredMovie)
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={featuredMovie.thumbnail} alt={featuredMovie.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                    : <Film style={{ width: 16, height: 16, color: `${rc(featuredMovie.rating)}80` }} />
+                  }
+                </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                     <span style={{ fontSize: 8, fontWeight: 900, padding: '2px 7px', borderRadius: 3, background: T.accent, color: '#fff', letterSpacing: '0.06em' }}>{featuredMovie.badge ?? 'NEW RELEASE'}</span>

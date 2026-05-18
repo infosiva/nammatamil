@@ -53,7 +53,7 @@ export const movies: Movie[] = [
     gradient: 'from-slate-800 via-gray-700 to-zinc-600',
     badge: 'AK Mass Hit',
     ottDate: '2025-03-28',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/aJCtkxLLzkk1pnEyGjKHQkECOop.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm51',
@@ -70,7 +70,7 @@ export const movies: Movie[] = [
     gradient: 'from-gray-900 via-slate-800 to-gray-700',
     badge: 'New 2025',
     ottDate: '2025-05-16',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/kTOheVmqSBgFQMExfDpYqiPyFNn.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm52',
@@ -88,7 +88,7 @@ export const movies: Movie[] = [
     gradient: 'from-amber-900 via-orange-800 to-red-700',
     badge: 'Epic Mythological',
     ottDate: '2025-06-27',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/8ANkBzHEMKzCNl3Y3TLnkAqIqJp.jpg',
+    thumbnail: undefined,
   },
   // ── 2025 — New Releases (May–June) ───────────────────────────────────
   {
@@ -106,7 +106,7 @@ export const movies: Movie[] = [
     gradient: 'from-gray-900 via-slate-800 to-gray-700',
     badge: '2025 Thriller',
     ottDate: '2025-05-09',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/karuppu2025.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm61',
@@ -123,7 +123,7 @@ export const movies: Movie[] = [
     gradient: 'from-yellow-800 via-amber-700 to-orange-600',
     badge: 'New 2025',
     ottDate: '2025-05-02',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/luckyMan2025.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm62',
@@ -140,7 +140,7 @@ export const movies: Movie[] = [
     gradient: 'from-blue-900 via-indigo-800 to-blue-700',
     badge: 'Emotional Drama',
     ottDate: '2025-04-25',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/father2025Tamil.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm63',
@@ -157,7 +157,7 @@ export const movies: Movie[] = [
     gradient: 'from-green-800 via-emerald-700 to-teal-600',
     badge: 'Summer 2025',
     ottDate: '2025-05-30',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/sorgame2025.jpg',
+    thumbnail: undefined,
   },
   // ── 2025 — Recent OTT Releases ────────────────────────────────────────
   {
@@ -175,7 +175,7 @@ export const movies: Movie[] = [
     gradient: 'from-red-900 via-red-800 to-amber-700',
     badge: 'Critics\' Pick',
     ottDate: '2025-03-07',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/5SB1RhEBLGPcaEhT99jXDKe5fBh.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm2',
@@ -279,7 +279,7 @@ export const movies: Movie[] = [
     gradient: 'from-amber-900 via-stone-800 to-brown-700',
     badge: 'Period Epic',
     ottDate: '2024-01-12',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/5pRdMmFGp0ULFKtLNJXHwDBLmqH.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm34',
@@ -296,7 +296,7 @@ export const movies: Movie[] = [
     gradient: 'from-gray-900 via-slate-800 to-purple-900',
     badge: 'Horror Hit',
     ottDate: '2024-09-06',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/7dUMI0qB4iGO3yMkOZbHMuFSHOp.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm35',
@@ -331,7 +331,7 @@ export const movies: Movie[] = [
     gradient: 'from-yellow-600 via-amber-500 to-orange-500',
     badge: 'Vijay\'s Final Film',
     ottDate: '2024-09-05',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/jR3fVFN9NNEfWbxFpGRbX4Ah5GH.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm7',
@@ -365,7 +365,7 @@ export const movies: Movie[] = [
     gradient: 'from-purple-800 via-violet-700 to-indigo-600',
     badge: 'Mind-Bender',
     ottDate: '2024-07-12',
-    thumbnail: 'https://image.tmdb.org/t/p/w500/kNtSBVtDvvjGe1aaKmMO6SNDX7r.jpg',
+    thumbnail: undefined,
   },
   {
     id: 'm9',
