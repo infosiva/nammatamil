@@ -316,9 +316,12 @@ export async function GET(req: NextRequest) {
   // Dedup, then take top 60
   const unique = dedup(sorted).slice(0, 60)
 
+  const IMG_PROXY = 'http://31.97.56.148:3096/img-proxy?url='
+
   const news = unique.map((item, idx) => {
     const category = categorize(item.title, item.desc)
-    const imageUrl = item.imageUrl ?? fallbackImage(item.source, category, idx)
+    const rawImg = item.imageUrl ?? fallbackImage(item.source, category, idx)
+    const imageUrl = rawImg ? IMG_PROXY + encodeURIComponent(rawImg) : rawImg
     return {
       title:      item.title,
       link:       item.link,
