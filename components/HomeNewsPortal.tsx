@@ -457,7 +457,7 @@ function StoryTile({ item, idx }: { item: NewsItem; idx: number }) {
   return (
     <a href={goLink(item.link, 'story')} target="_blank" rel="noopener noreferrer"
       style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none' }} className="nt-tile">
-      <div style={{ position: 'relative', borderRadius: 7, overflow: 'hidden', marginBottom: 7, aspectRatio: '16/9' }}>
+      <div style={{ position: 'relative', borderRadius: 7, overflow: 'hidden', marginBottom: 7, aspectRatio: '16/9' }} className="nt-tile-img">
         {item.imageUrl && !err
           // eslint-disable-next-line @next/next/no-img-element
           ? <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setErr(true)} />
@@ -892,14 +892,14 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
   }, [heroPool.length])
 
   const listStart = filtered.length >= 3 ? 3 : 1
-  const PAGE = 12
+  const PAGE = 10
   const [page, setPage] = useState(1)
   const listItems = filtered.slice(listStart, listStart + PAGE * page)
 
   return (
     <div>
       {/* News category sub-tabs */}
-      <div style={{ display: 'flex', gap: 3, padding: '4px 0', overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 10 }}>
+      <div style={{ display: 'flex', gap: 3, padding: '4px 0', overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 10 }} className="nt-sub-tabs">
         {NEWS_CATS.map(cat => {
           const active = newsCat === cat.key
           const Ic = cat.icon
@@ -1152,6 +1152,9 @@ function CinemaTab({ cinemaNews, allCinema, theatrical }: { cinemaNews: NewsItem
         <SH label="Top Rated" color={T.gold} href="/movies" icon={Star} />
         <div className="nt-cm-g" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 9 }}>
           {topRated.map(m => <CinemaCard key={m.id} movie={m} />)}
+        </div>
+        <div className="nt-cm-s" style={{ display: 'none', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
+          {topRated.map(m => <div key={m.id} style={{ flexShrink: 0, width: 90 }}><CinemaCard movie={m} /></div>)}
         </div>
       </div>
     </motion.div>
@@ -1568,6 +1571,16 @@ export default function HomeNewsPortal() {
           .nt-hero-card { height: 185px !important; }
           /* Serial channel: show only first 3, hide rest */
           .nt-serial-ch > *:nth-child(n+4) { display: none; }
+          /* Story tile: shorten image on mobile so 2 tiles don't dominate */
+          .nt-tile-img { aspect-ratio: 4/3 !important; }
+          /* Sub-tabs: tighter padding on mobile */
+          .nt-sub-tabs > button { padding: 4px 9px !important; font-size: 10.5px !important; }
+          /* News row: slightly tighter row padding */
+          .nt-row { padding-top: 8px !important; padding-bottom: 8px !important; }
+          /* Section header: less bottom margin */
+          .nt-section-mb { margin-bottom: 8px !important; }
+          /* Stat bar: single line, hide time on very small */
+          .nt-stat-bar > div:last-child > span:first-child { display: none; }
         }
 
         /* Hero zoom */
