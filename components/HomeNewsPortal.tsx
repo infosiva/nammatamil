@@ -231,7 +231,7 @@ function getTamilDate() {
 }
 
 // ── Cinema data ───────────────────────────────────────────────────────────────
-const _10W = new Date(Date.now() - 70 * 24 * 60 * 60 * 1000)
+const _10W = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
 function hasThumb(m: { thumbnail?: string }) {
   return !!(m.thumbnail && m.thumbnail !== 'undefined' && !m.thumbnail.includes('default.jpg') && !m.thumbnail.includes('goat-vijay'))
 }
@@ -241,7 +241,16 @@ function freshOtt(d?: string) {
   try { return new Date(d) >= _10W } catch { return false }
 }
 
-const CINEMA_GRID = movies
+// Shared cinema movie type — compatible with both static movies.ts and /api/ott response
+interface CinemaMovie {
+  id: string; slug: string; title: string; year: number
+  cast?: string[]; genre?: string[]; language: string
+  streamingOn?: string[]; ottDate?: string
+  rating: number; thumbnail?: string; badge?: string
+}
+
+// Static fallback grids (used until live data loads)
+const STATIC_CINEMA_GRID: CinemaMovie[] = movies
   .filter(m => m.language === 'Tamil' && (freshOtt(m.ottDate) || m.year >= 2025))
   .sort((a, b) => {
     const as = a.ottDate === 'Coming Soon' ? 2 : freshOtt(a.ottDate) ? 1 : 0
@@ -251,7 +260,7 @@ const CINEMA_GRID = movies
   })
   .slice(0, 20)
 
-const ALL_CINEMA = movies
+const STATIC_ALL_CINEMA: CinemaMovie[] = movies
   .filter(m => m.language === 'Tamil')
   .sort((a, b) => b.rating - a.rating)
   .slice(0, 40)
@@ -597,7 +606,7 @@ function MusicStrip() {
 }
 
 // ── Cinema poster card ────────────────────────────────────────────────────────
-function CinemaCard({ movie, wide }: { movie: typeof ALL_CINEMA[0]; wide?: boolean }) {
+function CinemaCard({ movie, wide }: { movie: CinemaMovie; wide?: boolean }) {
   const [err, setErr] = useState(false)
   const has = !err && hasThumb(movie)
   const rating = rc(movie.rating)
@@ -850,7 +859,7 @@ function CalendarPanel({ all }: { all: NewsItem[] }) {
 // ════════════════════════════════════════════════════════════════════════════
 
 // ── Tab: News ─────────────────────────────────────────────────────────────────
-function NewsTab({ all, loading }: { all: NewsItem[]; loading: boolean }) {
+function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boolean; cinemaGrid: CinemaMovie[] }) {
   const [newsCat, setNewsCat] = useState('all')
   const [showMore, setShowMore] = useState(false)
   const [heroIdx, setHeroIdx] = useState(0)
@@ -944,10 +953,10 @@ function NewsTab({ all, loading }: { all: NewsItem[]; loading: boolean }) {
       <div style={{ background: `linear-gradient(135deg, ${T.purple}10 0%, ${T.card} 60%)`, border: `1px solid ${T.purple}20`, borderRadius: 10, padding: '12px 12px 14px', marginBottom: 14 }}>
         <SH label="சினிமா" color={T.purple} href="/movies" icon={Film} sub="Latest Tamil releases" />
         <div className="nt-cm-g" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 7 }}>
-          {CINEMA_GRID.slice(0, 10).map(m => <CinemaCard key={m.id} movie={m} />)}
+          {cinemaGrid.slice(0, 10).map(m => <CinemaCard key={m.id} movie={m} />)}
         </div>
         <div className="nt-cm-s" style={{ display: 'none', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
-          {CINEMA_GRID.slice(0, 8).map(m => <div key={m.id} style={{ flexShrink: 0, width: 88 }}><CinemaCard movie={m} /></div>)}
+          {cinemaGrid.slice(0, 8).map(m => <div key={m.id} style={{ flexShrink: 0, width: 88 }}><CinemaCard movie={m} /></div>)}
         </div>
       </div>
 
@@ -1006,10 +1015,10 @@ function NewsTab({ all, loading }: { all: NewsItem[]; loading: boolean }) {
 }
 
 // ── Tab: Cinema ───────────────────────────────────────────────────────────────
-function CinemaTab({ cinemaNews }: { cinemaNews: NewsItem[] }) {
-  const comingSoon = ALL_CINEMA.filter(m => m.ottDate === 'Coming Soon')
-  const nowOTT     = ALL_CINEMA.filter(m => m.ottDate && m.ottDate !== 'Coming Soon' && freshOtt(m.ottDate))
-  const topRated   = [...ALL_CINEMA].sort((a, b) => b.rating - a.rating).slice(0, 16)
+function CinemaTab({ cinemaNews, allCinema }: { cinemaNews: NewsItem[]; allCinema: CinemaMovie[] }) {
+  const comingSoon = allCinema.filter(m => m.ottDate === 'Coming Soon')
+  const nowOTT     = allCinema.filter(m => m.ottDate && m.ottDate !== 'Coming Soon' && freshOtt(m.ottDate))
+  const topRated   = [...allCinema].sort((a, b) => b.rating - a.rating).slice(0, 16)
 
   // Celebrity gossip / trending people from news feed
   const GOSSIP_KW = ['ravi mohan', 'gayathrie', 'divorce', 'romance', 'wedding', 'காதல்', 'திருமணம்', 'விவாகரத்து', 'breakup', 'anirudh', 'sai pallavi', 'nayanthara', 'trisha', 'samantha']
@@ -1284,6 +1293,22 @@ export default function HomeNewsPortal() {
   const [tab, setTab]            = useState('news')
   const [secAgo, setSecAgo]      = useState(0)
   const [showHelplines, setShowHelplines] = useState(false)
+  const [liveMovies, setLiveMovies] = useState<CinemaMovie[]>([])
+
+  // Fetch live Tamil OTT data from TMDB (via /api/ott)
+  useEffect(() => {
+    fetch('/api/ott', { cache: 'no-store', signal: AbortSignal.timeout(8000) })
+      .then(r => r.ok ? r.json() : null)
+      .then((json: { movies?: CinemaMovie[] } | null) => {
+        if (json?.movies && json.movies.length >= 4) setLiveMovies(json.movies)
+      })
+      .catch(() => { /* keep static fallback */ })
+  }, [])
+
+  const cinemaGrid = liveMovies.length >= 4
+    ? liveMovies.filter(m => freshOtt(m.ottDate) || m.ottDate === 'Coming Soon' || (m.year ?? 0) >= 2025).slice(0, 20)
+    : STATIC_CINEMA_GRID
+  const allCinema = liveMovies.length >= 4 ? liveMovies : STATIC_ALL_CINEMA
 
   const fetchNews = useCallback(async (manual = false) => {
     if (manual) setRefresh(true)
@@ -1318,7 +1343,7 @@ export default function HomeNewsPortal() {
   const cinemaNews = useMemo(() => all.filter(n => n.category === 'cinema'), [all])
 
   // Featured movie — prefer one with a verified thumbnail
-  const featuredMovie = CINEMA_GRID.find(m => hasThumb(m)) ?? CINEMA_GRID[0]
+  const featuredMovie = cinemaGrid.find(m => hasThumb(m)) ?? cinemaGrid[0]
 
   return (
     <div style={{ minHeight: '100vh', background: T.bg, color: T.text }}>
@@ -1399,8 +1424,8 @@ export default function HomeNewsPortal() {
         {/* ── TAB CONTENT ─────────────────────────────────────────────── */}
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
-            {tab === 'news'     && <NewsTab all={all} loading={loading} />}
-            {tab === 'cinema'   && <CinemaTab cinemaNews={cinemaNews} />}
+            {tab === 'news'     && <NewsTab all={all} loading={loading} cinemaGrid={cinemaGrid} />}
+            {tab === 'cinema'   && <CinemaTab cinemaNews={cinemaNews} allCinema={allCinema} />}
             {tab === 'serials'  && <SerialsTab />}
             {tab === 'calendar' && <CalendarPanel all={all} />}
             {tab === 'tvk'      && <TVKTab all={all} loading={loading} />}
