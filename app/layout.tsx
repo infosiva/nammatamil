@@ -115,6 +115,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             } catch(e){}
           })();
         `}</Script>
+        {/* Umami analytics */}
+        <Script
+          async
+          src="http://31.97.56.148:3100/script.js"
+          data-website-id="ec922b30-df35-4192-8e5e-956167f08d60"
+          strategy="afterInteractive"
+        />
         {/* Kill Vercel's built-in feedback widget — we have our own */}
         <Script id="kill-vercel-feedback" strategy="afterInteractive">{`
           (function(){
