@@ -156,11 +156,9 @@ function HeroCard({ item }: { item: NewsItem }) {
   const [err, setErr] = useState(false)
   return (
     <a href={goLink(item.link, 'hero')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', position: 'relative', borderRadius: 10, overflow: 'hidden' }}
+      style={{ display: 'block', textDecoration: 'none', position: 'relative', borderRadius: 10, overflow: 'hidden', aspectRatio: '4/3' }}
       className="nt-hero"
     >
-      {/* 3:2 on mobile, 16:9 on desktop */}
-      <div style={{ paddingTop: 'min(66.66%, 56.25vw)' }} className="nt-hero-ratio" />
       <div style={{ position: 'absolute', inset: 0 }}>
         {item.imageUrl && !err
           // eslint-disable-next-line @next/next/no-img-element
@@ -341,6 +339,45 @@ function Skel({ h = 50, r = 6 }: { h?: number; r?: number }) {
   return <div style={{ height: h, borderRadius: r, background: 'rgba(255,255,255,0.05)', animation: 'shimmer 1.6s ease-in-out infinite' }} />
 }
 
+// ── Info bar — date, story count, Chennai time, theme ────────────────────────
+function InfoBar({ newsCount, accent, accentName }: { newsCount: number; accent: string; accentName: string }) {
+  const now = new Date()
+  const dateStr = now.toLocaleDateString('ta-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })
+  const dayOfWeek = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()]
+  // Tamil Nadu day name
+  const tamilDay: Record<string, string> = { Sun: 'ஞாயிறு', Mon: 'திங்கள்', Tue: 'செவ்வாய்', Wed: 'புதன்', Thu: 'வியாழன்', Fri: 'வெள்ளி', Sat: 'சனி' }
+  const tDay = tamilDay[dayOfWeek]
+
+  return (
+    <div style={{ background: '#0c0c10', borderBottom: `1px solid ${T.border}` }}>
+      <div className="nt-w" style={{ display: 'flex', alignItems: 'center', gap: 0, padding: '6px 0', flexWrap: 'wrap' }}>
+        {/* Date + day */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: T.text, whiteSpace: 'nowrap' }}>
+            {tDay} · {now.getDate()} {now.toLocaleDateString('en-IN', { month: 'short' })} {now.getFullYear()}
+          </span>
+          <span style={{ fontSize: 10, color: T.muted, whiteSpace: 'nowrap' }}>{timeStr} IST</span>
+        </div>
+        {/* Stats pills */}
+        <div className="nt-infobar-stats" style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {newsCount > 0 && (
+            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: `${accent}18`, color: accent, border: `1px solid ${accent}35`, whiteSpace: 'nowrap' }}>
+              {newsCount} செய்திகள்
+            </span>
+          )}
+          <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: 'rgba(255,255,255,0.05)', color: T.muted, border: `1px solid ${T.border}`, whiteSpace: 'nowrap' }}>
+            📍 Chennai
+          </span>
+          <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: `${accent}10`, color: accent, border: `1px solid ${accent}25`, whiteSpace: 'nowrap', textTransform: 'capitalize' }}>
+            ◉ {accentName}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const TVK_PROMO: NewsItem = {
   title: 'Thalapathy Vijay — TVK கட்சி | Tamil Nadu CM Race 2026',
   desc: '', link: 'https://en.wikipedia.org/wiki/Tamilaga_Vettri_Kazhagam',
@@ -457,57 +494,83 @@ export default function HomeNewsPortal() {
           </div>
         </div>
 
-        {/* accent color indicator chip — subtle "today's vibe" */}
-        <div style={{ background: T.bg2, borderBottom: `1px solid ${T.border}`, padding: '4px 0' }}>
-          <div className="nt-w" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: T.accent, flexShrink: 0 }} />
-            <span style={{ fontSize: 9.5, color: T.muted }}>Today's edition</span>
-            <span style={{ fontSize: 9.5, color: T.accent, fontWeight: 700, textTransform: 'capitalize' }}>{ACCENT.name} theme</span>
-          </div>
-        </div>
+        {/* ── INFO BAR — date + quick stats + today theme ────────────────── */}
+        <InfoBar newsCount={all.length} accent={T.accent} accentName={ACCENT.name} />
 
         <div className="nt-w nt-vpad">
 
           {/* ══════════════════════════════════════════════════════════════════
-              TOP SECTION — hero + 2 story cards + trending sidebar
+              TOP ZONE — all visible before scroll
+              Mobile:  hero full-width → 2 mini cards side by side
+              Desktop: [hero 2col | story-stack 1col | trending 1col]  4-col grid
               ══════════════════════════════════════════════════════════════════ */}
-          <div className="nt-top" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16, marginBottom: 18 }}>
 
-            {/* Main: hero + story row */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {loading ? (
-                <>
-                  <Skel h={220} r={10} />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <Skel h={130} /><Skel h={130} />
+          {/* ── Mobile top: hero + 2 side-by-side mini cards ─────────────────── */}
+          <div className="nt-mob-top" style={{ marginBottom: 16 }}>
+            {loading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Skel h={200} r={10} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <Skel h={110} /><Skel h={110} />
+                </div>
+              </div>
+            ) : heroItem ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {heroPool.length > 1 && (
+                  <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                    {heroPool.map((_, i) => (
+                      <button key={i} onClick={() => setHeroIdx(i)}
+                        style={{ width: i === heroIdx ? 20 : 4, height: 4, borderRadius: 99, background: i === heroIdx ? T.accent : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', padding: 0, transition: 'width 0.25s ease' }} />
+                    ))}
                   </div>
-                </>
-              ) : heroItem ? (
-                <>
-                  {/* Dot nav */}
+                )}
+                <AnimatePresence mode="wait">
+                  <motion.div key={heroItem.link} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+                    <HeroCard item={heroItem} />
+                  </motion.div>
+                </AnimatePresence>
+                {/* 2 mini cards immediately below hero — visible before scroll */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {filtered.slice(1, 3).map((it, i) => <StoryCard key={i} item={it} size="sm" />)}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* ── Desktop top: 4-col grid (all above fold) ─────────────────────── */}
+          <div className="nt-desk-top" style={{ display: 'none', gap: 12, marginBottom: 18 }}>
+
+            {/* Hero — spans 2 cols */}
+            <div className="nt-hero-col">
+              {loading ? <Skel h={340} r={10} /> : heroItem ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, height: '100%' }}>
                   {heroPool.length > 1 && (
                     <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
                       {heroPool.map((_, i) => (
                         <button key={i} onClick={() => setHeroIdx(i)}
-                          style={{ width: i === heroIdx ? 20 : 4, height: 4, borderRadius: 99, background: i === heroIdx ? T.accent : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', padding: 0, transition: 'width 0.25s ease, background 0.25s ease' }} />
+                          style={{ width: i === heroIdx ? 20 : 4, height: 4, borderRadius: 99, background: i === heroIdx ? T.accent : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', padding: 0, transition: 'width 0.25s ease' }} />
                       ))}
                     </div>
                   )}
                   <AnimatePresence mode="wait">
-                    <motion.div key={heroItem.link} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+                    <motion.div key={heroItem.link} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ flex: 1 }}>
                       <HeroCard item={heroItem} />
                     </motion.div>
                   </AnimatePresence>
-                  {/* 2 story cards below hero */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    {filtered.slice(1, 3).map((it, i) => <StoryCard key={i} item={it} />)}
-                  </div>
-                </>
+                </div>
               ) : null}
             </div>
 
-            {/* Trending sidebar — desktop only */}
-            <div className="nt-tend" style={{ display: 'none' }}>
+            {/* Story stack — 2 cards vertically */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {loading
+                ? <><Skel h={160} r={8} /><Skel h={160} r={8} /></>
+                : filtered.slice(1, 3).map((it, i) => <StoryCard key={i} item={it} />)
+              }
+            </div>
+
+            {/* Trending sidebar */}
+            <div>
               <div style={{ background: T.bg2, border: `1px solid ${T.border}`, borderRadius: 10, padding: '14px 14px 10px', position: 'sticky', top: 108 }}>
                 <SH label="Trending" color={T.gold} icon={TrendingUp} />
                 {loading
@@ -625,15 +688,19 @@ export default function HomeNewsPortal() {
           @media(min-width:1024px) { .nt-w { padding-left: 28px; padding-right: 28px; } }
           .nt-vpad { padding-top: 16px; padding-bottom: 8px; }
 
-          /* ── Top section ──────────────────── */
+          /* ── Mobile/desktop top zone toggle ── */
+          .nt-mob-top  { display: block; }
+          .nt-desk-top { display: none !important; }
           @media(min-width:960px) {
-            .nt-top  { grid-template-columns: 1fr 280px !important; align-items: start; }
-            .nt-tend { display: block !important; }
-            .nt-tend-m { display: none !important; }
+            .nt-mob-top  { display: none !important; }
+            .nt-desk-top { display: grid !important; grid-template-columns: 2fr 1fr 1fr; align-items: start; }
+            .nt-hero-col { /* hero spans naturally as 2fr */ }
+            .nt-tend-m   { display: none !important; }
           }
 
-          /* ── Hero ratio — 3:2 mobile, 16:9 desktop ── */
-          @media(min-width:640px) { .nt-hero-ratio { padding-top: 56.25% !important; } }
+          /* ── Hero — 4:3 mobile, 16:9 desktop ── */
+          @media(min-width:640px) { .nt-hero { aspect-ratio: 16/9 !important; } }
+          @media(min-width:960px)  { .nt-hero { aspect-ratio: unset !important; min-height: 320px; height: 100%; } }
 
           /* ── Cinema ───────────────────────── */
           @media(min-width:960px)  { .nt-cm-g { grid-template-columns: repeat(12,1fr) !important; } .nt-cm-s { display:none !important; } }
