@@ -13,19 +13,27 @@ export default function VisitorCounter({ compact }: { compact?: boolean }) {
   useEffect(() => {
     let sid = sessionStorage.getItem('nt_sid')
     if (!sid) { sid = Math.random().toString(36).slice(2); sessionStorage.setItem('nt_sid', sid) }
-
-    fetch('/api/log-visit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ page: window.location.pathname, ref: document.referrer, session_id: sid }),
-    }).catch(() => {})
+    const sessionId = sid
 
     const hit = async () => {
       try {
-        const res = await fetch('/api/visitors', { cache: 'no-store' })
+        const res = await fetch('/api/visitors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionId }),
+          cache: 'no-store',
+        })
         if (res.ok) setData(await res.json())
       } catch { /* silent */ }
     }
+
+    // Also log page + referrer to tracker-api (fire-and-forget)
+    fetch('/api/log-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: window.location.pathname, ref: document.referrer, session_id: sessionId }),
+    }).catch(() => {})
+
     hit()
     const interval = setInterval(hit, 60_000)
     return () => clearInterval(interval)
