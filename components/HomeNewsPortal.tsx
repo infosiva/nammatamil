@@ -348,7 +348,7 @@ function StatBar({ newsCount, sourceCount, tamilDate, festival }: {
   tamilDate: ReturnType<typeof getTamilDate>; festival?: typeof FESTIVALS[0]
 }) {
   return (
-    <div style={{ background: '#0d0d14', borderBottom: `1px solid ${T.border}`, padding: '7px 0' }}>
+    <div style={{ background: '#0d0d14', borderBottom: `1px solid ${T.border}`, padding: '5px 0' }}>
       <div className="nt-w nt-stat-bar" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         {/* Story count */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 6, background: `${T.accent}14`, border: `1px solid ${T.accent}28` }}>
@@ -376,11 +376,11 @@ function StatBar({ newsCount, sourceCount, tamilDate, festival }: {
           </div>
         )}
         {/* Time */}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5 }}>
-          <VisitorCounter />
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
           <span style={{ fontSize: 9, color: T.dim }}>
             {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false })} IST
           </span>
+          <VisitorCounter compact />
         </div>
       </div>
     </div>
@@ -423,8 +423,8 @@ function HeroCard({ item, idx }: { item: NewsItem; idx: number }) {
   const [err, setErr] = useState(false)
   return (
     <a href={goLink(item.link, 'hero')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', position: 'relative', borderRadius: 10, overflow: 'hidden', aspectRatio: '16/9', maxHeight: 220 }}
-      className="nt-hero">
+      style={{ display: 'block', textDecoration: 'none', position: 'relative', borderRadius: 10, overflow: 'hidden', height: 'clamp(190px,22vw,260px)' }}
+      className="nt-hero nt-hero-card">
       <div style={{ position: 'absolute', inset: 0 }}>
         {item.imageUrl && !err
           // eslint-disable-next-line @next/next/no-img-element
@@ -899,7 +899,7 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
   return (
     <div>
       {/* News category sub-tabs */}
-      <div style={{ display: 'flex', gap: 3, padding: '8px 0', overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 14 }}>
+      <div style={{ display: 'flex', gap: 3, padding: '4px 0', overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 10 }}>
         {NEWS_CATS.map(cat => {
           const active = newsCat === cat.key
           const Ic = cat.icon
@@ -1251,16 +1251,18 @@ function SerialsTab() {
         if (!chSerials.length) return null
         const c = CC[ch] ?? T.teal
         return (
-          <div key={ch} style={{ marginBottom: 14, background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 14px' }}>
+          <div key={ch} className="nt-section-mb" style={{ marginBottom: 14, background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 14px' }}>
             <SH label={ch} color={c} icon={Tv2} sub={`${chSerials.length} ongoing`} />
-            {chSerials.map(s => (
-              <div key={s.id} style={{ position: 'relative' }}>
-                {s.airTime && nowMin >= timeToMin(s.airTime) && nowMin <= timeToMin(s.airTime) + 30 && (
-                  <div style={{ position: 'absolute', right: 0, top: 14, fontSize: 8, fontWeight: 900, padding: '2px 6px', borderRadius: 3, background: T.red, color: '#fff', zIndex: 2 }}>ON AIR</div>
-                )}
-                <SerialCard serial={s} />
-              </div>
-            ))}
+            <div className="nt-serial-ch">
+              {chSerials.map(s => (
+                <div key={s.id} style={{ position: 'relative' }}>
+                  {s.airTime && nowMin >= timeToMin(s.airTime) && nowMin <= timeToMin(s.airTime) + 30 && (
+                    <div style={{ position: 'absolute', right: 0, top: 14, fontSize: 8, fontWeight: 900, padding: '2px 6px', borderRadius: 3, background: T.red, color: '#fff', zIndex: 2 }}>ON AIR</div>
+                  )}
+                  <SerialCard serial={s} />
+                </div>
+              ))}
+            </div>
           </div>
         )
       })}
@@ -1488,7 +1490,7 @@ export default function HomeNewsPortal() {
         .nt-w { max-width: 1280px; margin: 0 auto; padding-left: 14px; padding-right: 14px; }
         @media(min-width:640px)  { .nt-w { padding-left: 20px; padding-right: 20px; } }
         @media(min-width:1024px) { .nt-w { padding-left: 28px; padding-right: 28px; } }
-        .nt-vpad { padding-top: 14px; padding-bottom: 8px; }
+        .nt-vpad { padding-top: 10px; padding-bottom: 8px; }
 
         /* Main tabs — show English labels only on mobile to save space */
         @media(max-width:400px) {
@@ -1536,6 +1538,19 @@ export default function HomeNewsPortal() {
           .nt-stat-bar > div { flex-shrink: 0; }
           .nt-vpad { padding-top: 10px !important; }
           .nt-w { padding-left: 10px !important; padding-right: 10px !important; }
+          /* Tighter section spacing on mobile */
+          .nt-section-mb { margin-bottom: 10px !important; }
+          /* Serials: channel cards → horizontal strip on mobile */
+          .nt-serial-cards { display: flex; flex-direction: column; }
+          .nt-serial-strip { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+          .nt-serial-strip::-webkit-scrollbar { display: none; }
+          .nt-serial-strip > * { flex-shrink: 0; min-width: 140px; max-width: 140px; }
+          /* Cinema card grid 2-col on mobile */
+          .nt-cm-grid-mobile { display: grid; grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
+          /* Hero fixed height on mobile */
+          .nt-hero-card { height: 185px !important; }
+          /* Serial channel: show only first 3, hide rest */
+          .nt-serial-ch > *:nth-child(n+4) { display: none; }
         }
 
         /* Hero zoom */
