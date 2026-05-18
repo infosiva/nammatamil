@@ -176,6 +176,31 @@ body > * { position: relative; z-index: 1; }
   }
 }
 
+/* ── News feed 2-column layout (news left, sidebar right) ── */
+.nt-feed-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 900px) {
+  .nt-feed-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 310px);
+    align-items: start;
+  }
+  .nt-feed-sidebar {
+    position: sticky;
+    top: 100px;
+  }
+  .nt-ipl-mobile {
+    display: none;
+  }
+}
+@media (max-width: 899px) {
+  .nt-feed-sidebar-desktop {
+    display: none;
+  }
+}
+
 /* ── Scrolling ticker ── */
 @keyframes ticker {
   0%   { transform: translateX(0); }

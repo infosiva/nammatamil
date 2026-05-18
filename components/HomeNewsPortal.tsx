@@ -913,59 +913,45 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
         })}
       </div>
 
-      {/* Hero + sidebar grid */}
-      <div className="nt-top" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14, marginBottom: 14 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {loading ? (
-            <><Sk h={200} r={10} mb={10} /><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}><Sk h={120} /><Sk h={120} /></div></>
-          ) : heroItem ? (
-            <>
-              {heroPool.length > 1 && (
-                <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
-                  {heroPool.map((_, i) => (
-                    <button key={i} onClick={() => setHeroIdx(i)} style={{ width: i === heroIdx ? 18 : 4, height: 4, borderRadius: 99, background: i === heroIdx ? T.accent : 'rgba(255,255,255,0.14)', border: 'none', cursor: 'pointer', padding: 0, transition: 'width 0.22s ease, background 0.22s ease' }} />
-                  ))}
+      {/* 2-column layout: left=hero+feed, right=sidebar (desktop only) */}
+      <div className="nt-feed-grid">
+
+        {/* LEFT — hero image + story tiles + news feed */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* Hero + 2 tiles */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {loading ? (
+              <><Sk h={200} r={10} mb={10} /><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}><Sk h={120} /><Sk h={120} /></div></>
+            ) : heroItem ? (
+              <>
+                {heroPool.length > 1 && (
+                  <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                    {heroPool.map((_, i) => (
+                      <button key={i} onClick={() => setHeroIdx(i)} style={{ width: i === heroIdx ? 18 : 4, height: 4, borderRadius: 99, background: i === heroIdx ? T.accent : 'rgba(255,255,255,0.14)', border: 'none', cursor: 'pointer', padding: 0, transition: 'width 0.22s ease, background 0.22s ease' }} />
+                    ))}
+                  </div>
+                )}
+                <AnimatePresence mode="wait">
+                  <motion.div key={heroItem.link} initial={{ opacity: 0, scale: 0.99 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}>
+                    <HeroCard item={heroItem} idx={heroIdx} />
+                  </motion.div>
+                </AnimatePresence>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  {filtered.slice(1, 3).map((it, i) => <StoryTile key={i} item={it} idx={i} />)}
                 </div>
-              )}
-              <AnimatePresence mode="wait">
-                <motion.div key={heroItem.link} initial={{ opacity: 0, scale: 0.99 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}>
-                  <HeroCard item={heroItem} idx={heroIdx} />
-                </motion.div>
-              </AnimatePresence>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {filtered.slice(1, 3).map((it, i) => <StoryTile key={i} item={it} idx={i} />)}
-              </div>
-            </>
-          ) : null}
-        </div>
-        {/* desktop trending sidebar */}
-        <div className="nt-tend" style={{ display: 'none' }}>
-          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '13px 13px 8px', position: 'sticky', top: 110 }}>
-            <SH label="Trending" color={T.gold} icon={TrendingUp} />
-            {loading
-              ? Array.from({ length: 9 }).map((_, i) => <Sk key={i} h={42} r={4} mb={6} />)
-              : trending.map((it, i) => <TrendRow key={i} item={it} rank={i + 1} />)
-            }
+              </>
+            ) : null}
           </div>
-        </div>
-      </div>
 
-      {/* IPL Live strip — prominent above news feed */}
-      <div style={{ background: `linear-gradient(135deg, ${T.green}12 0%, ${T.card} 60%)`, border: `1px solid ${T.green}25`, borderRadius: 10, padding: '10px 12px 12px', marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <SH label="IPL Live" color={T.green} icon={Trophy} />
-          <button onClick={() => {/* parent sets tab */}} style={{ fontSize: 10, fontWeight: 700, color: T.green, background: `${T.green}18`, border: `1px solid ${T.green}30`, borderRadius: 5, padding: '3px 9px', cursor: 'pointer' }}>
-            Full scoreboard →
-          </button>
-        </div>
-        <div style={{ borderRadius: 7, overflow: 'hidden', border: `1px solid ${T.border}` }}>
-          <CricketWidget compact />
-        </div>
-      </div>
+          {/* IPL strip — mobile only (on desktop it's in sidebar) */}
+          <div className="nt-ipl-mobile" style={{ background: `linear-gradient(135deg, ${T.green}12 0%, ${T.card} 60%)`, border: `1px solid ${T.green}25`, borderRadius: 10, padding: '10px 12px 12px' }}>
+            <SH label="IPL Live" color={T.green} icon={Trophy} />
+            <div style={{ borderRadius: 7, overflow: 'hidden', border: `1px solid ${T.border}` }}>
+              <CricketWidget compact />
+            </div>
+          </div>
 
-      {/* Main feed + sidebar */}
-      <div className="nt-low" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
-        <div>
+          {/* News feed */}
           <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, overflow: 'hidden' }}>
             <div style={{ padding: '12px 12px 0' }}>
               <SH label="செய்திகள்" color={T.accent} icon={Newspaper} />
@@ -994,13 +980,43 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
             )}
           </div>
         </div>
-        <div className="nt-side" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="nt-tend-m">
-            <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 12px' }}>
-              <SH label="Trending" color={T.gold} icon={TrendingUp} />
-              {loading ? Array.from({ length: 6 }).map((_, i) => <Sk key={i} h={40} r={4} mb={5} />) : trending.slice(0, 8).map((it, i) => <TrendRow key={i} item={it} rank={i + 1} />)}
+
+        {/* RIGHT — sticky sidebar (desktop) */}
+        <div className="nt-feed-sidebar nt-feed-sidebar-desktop" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* IPL compact */}
+          <div style={{ background: `linear-gradient(135deg, ${T.green}12 0%, ${T.card} 70%)`, border: `1px solid ${T.green}25`, borderRadius: 10, padding: '12px 12px 14px' }}>
+            <SH label="IPL Live" color={T.green} icon={Trophy} />
+            <div style={{ borderRadius: 7, overflow: 'hidden', border: `1px solid ${T.border}` }}>
+              <CricketWidget compact />
             </div>
           </div>
+
+          {/* Trending */}
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: '12px 12px' }}>
+            <SH label="Trending" color={T.gold} icon={TrendingUp} />
+            {loading ? Array.from({ length: 8 }).map((_, i) => <Sk key={i} h={40} r={4} mb={5} />) : trending.slice(0, 10).map((it, i) => <TrendRow key={i} item={it} rank={i + 1} />)}
+          </div>
+
+          {/* TVK teaser */}
+          <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.07) 0%, rgba(99,102,241,0.06) 100%)', border: '1px solid rgba(245,158,11,0.22)', borderRadius: 10, padding: '12px 14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+              <Zap style={{ width: 13, height: 13, color: '#f59e0b' }} />
+              <span style={{ fontSize: 11, fontWeight: 900, color: T.text, letterSpacing: '0.08em', textTransform: 'uppercase' }}>விஜய் 1st</span>
+              <span style={{ marginLeft: 'auto', fontSize: 8, fontWeight: 900, padding: '2px 6px', borderRadius: 4, background: '#f59e0b', color: '#000' }}>HOT</span>
+            </div>
+            <p style={{ margin: '0 0 10px', fontSize: 12.5, fontWeight: 700, color: T.sub, lineHeight: 1.4, fontFamily: "'Noto Serif Tamil', serif" }}>
+              Thalapathy Vijay — TN CM Race 2026. TVK-வின் சமீபத்திய செய்திகள்.
+            </p>
+            <button
+              onClick={() => {
+                const tabBtn = document.querySelector<HTMLElement>('[data-tab="tvk"]')
+                tabBtn?.click()
+              }}
+              style={{ width: '100%', padding: '7px 0', borderRadius: 7, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+              TVK செய்திகள் <ChevronRight style={{ width: 10, height: 10 }} />
+            </button>
+          </div>
+
           <AdUnit size="rectangle" />
         </div>
       </div>
@@ -1452,7 +1468,7 @@ export default function HomeNewsPortal() {
               const active = tab === t.key
               const Ic = t.icon
               return (
-                <button key={t.key} onClick={() => setTab(t.key)}
+                <button key={t.key} data-tab={t.key} onClick={() => setTab(t.key)}
                   style={{ flexShrink: 0, position: 'relative', display: 'flex', alignItems: 'center', gap: 5, padding: '6px 13px', fontSize: 12, fontWeight: active ? 800 : 500, color: active ? '#fff' : T.muted, background: 'transparent', border: 'none', borderRadius: 7, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   {active && <motion.span layoutId="main-tab-pill" style={{ position: 'absolute', inset: 0, borderRadius: 7, background: t.color, zIndex: -1 }} transition={{ type: 'spring', stiffness: 480, damping: 36 }} />}
                   <Ic style={{ width: 11, height: 11 }} />
