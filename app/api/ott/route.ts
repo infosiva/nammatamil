@@ -174,7 +174,7 @@ async function fetchFromTMDB(): Promise<OTTMovie[]> {
 
   try {
     // Fetch Tamil movies on OTT (with_watch_providers=IN)
-    const url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_KEY}&with_original_language=ta&watch_region=IN&with_watch_monetization_types=flatrate&sort_by=release_date.desc&primary_release_date.gte=2024-01-01&vote_count.gte=10&page=1`
+    const url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_KEY}&with_original_language=ta&watch_region=IN&with_watch_monetization_types=flatrate&sort_by=release_date.desc&primary_release_date.gte=2024-06-01&vote_count.gte=5&page=1`
 
     const res = await fetch(url, { signal: AbortSignal.timeout(6000) })
     if (!res.ok) return []
@@ -257,6 +257,6 @@ export async function GET() {
 
   return NextResponse.json(
     { source, count: movies.length, movies },
-    { headers: { 'Cache-Control': 'public, s-maxage=21600, stale-while-revalidate=3600' } }
+    { headers: { 'Cache-Control': 'public, s-maxage=7200, stale-while-revalidate=1800' } }
   )
 }

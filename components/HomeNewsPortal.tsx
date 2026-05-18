@@ -349,7 +349,7 @@ function StatBar({ newsCount, sourceCount, tamilDate, festival }: {
 }) {
   return (
     <div style={{ background: '#0d0d14', borderBottom: `1px solid ${T.border}`, padding: '7px 0' }}>
-      <div className="nt-w" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+      <div className="nt-w nt-stat-bar" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         {/* Story count */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 6, background: `${T.accent}14`, border: `1px solid ${T.accent}28` }}>
           <Rss style={{ width: 9, height: 9, color: T.accent }} />
@@ -423,7 +423,7 @@ function HeroCard({ item, idx }: { item: NewsItem; idx: number }) {
   const [err, setErr] = useState(false)
   return (
     <a href={goLink(item.link, 'hero')} target="_blank" rel="noopener noreferrer"
-      style={{ display: 'block', textDecoration: 'none', position: 'relative', borderRadius: 10, overflow: 'hidden', aspectRatio: '16/9' }}
+      style={{ display: 'block', textDecoration: 'none', position: 'relative', borderRadius: 10, overflow: 'hidden', aspectRatio: '16/9', maxHeight: 220 }}
       className="nt-hero">
       <div style={{ position: 'absolute', inset: 0 }}>
         {item.imageUrl && !err
@@ -862,7 +862,6 @@ function CalendarPanel({ all }: { all: NewsItem[] }) {
 // ── Tab: News ─────────────────────────────────────────────────────────────────
 function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boolean; cinemaGrid: CinemaMovie[] }) {
   const [newsCat, setNewsCat] = useState('all')
-  const [showMore, setShowMore] = useState(false)
   const [heroIdx, setHeroIdx] = useState(0)
   const heroTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -893,7 +892,9 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
   }, [heroPool.length])
 
   const listStart = filtered.length >= 3 ? 3 : 1
-  const listItems = showMore ? filtered.slice(listStart) : filtered.slice(listStart, listStart + 24)
+  const PAGE = 12
+  const [page, setPage] = useState(1)
+  const listItems = filtered.slice(listStart, listStart + PAGE * page)
 
   return (
     <div>
@@ -903,7 +904,7 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
           const active = newsCat === cat.key
           const Ic = cat.icon
           return (
-            <button key={cat.key} onClick={() => { setNewsCat(cat.key); setShowMore(false) }}
+            <button key={cat.key} onClick={() => { setNewsCat(cat.key); setPage(1) }}
               style={{ flexShrink: 0, position: 'relative', display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', fontSize: 11.5, fontWeight: active ? 800 : 500, color: active ? '#fff' : T.muted, background: 'transparent', border: 'none', borderRadius: 6, cursor: 'pointer', whiteSpace: 'nowrap' }}>
               {active && <motion.span layoutId="news-cat-pill" style={{ position: 'absolute', inset: 0, borderRadius: 6, background: cat.color, zIndex: -1 }} transition={{ type: 'spring', stiffness: 500, damping: 38 }} />}
               <Ic style={{ width: 10, height: 10 }} />
@@ -969,12 +970,12 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
                 </motion.div>
               )
             }
-            {!loading && filtered.length > listStart + 24 && (
+            {!loading && filtered.length > listStart + PAGE * page && (
               <div style={{ padding: '10px 12px 12px' }}>
-                <button onClick={() => setShowMore(s => !s)} className="nt-more"
+                <button onClick={() => setPage(p => p + 1)} className="nt-more"
                   style={{ width: '100%', padding: '9px 0', borderRadius: 7, background: T.raised, border: `1px solid ${T.border2}`, color: T.muted, fontSize: 11.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                  {showMore ? 'Show less' : `Load more · ${filtered.length - listStart - 24} more`}
-                  <ChevronRight style={{ width: 11, height: 11, transform: showMore ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
+                  {`Load more · ${filtered.length - listStart - PAGE * page} more`}
+                  <ChevronRight style={{ width: 11, height: 11 }} />
                 </button>
               </div>
             )}
@@ -1032,8 +1033,6 @@ function NewsTab({ all, loading, cinemaGrid }: { all: NewsItem[]; loading: boole
         </div>
       </div>
 
-      {/* Music strip */}
-      <MusicStrip />
     </div>
   )
 }
@@ -1104,9 +1103,6 @@ function CinemaTab({ cinemaNews, allCinema }: { cinemaNews: NewsItem[]; allCinem
 
   return (
     <motion.div variants={fadeIn} initial="hidden" animate="visible">
-
-      {/* Music strip */}
-      <MusicStrip />
 
       {/* Celebrity gossip */}
       {celebNews.length > 0 && (
@@ -1520,6 +1516,27 @@ export default function HomeNewsPortal() {
 
         /* Calendar two-col */
         @media(min-width:768px) { .nt-cal-g { grid-template-columns: 1fr 1fr !important; } }
+
+        /* News feed grid — single col mobile, 2-col desktop */
+        .nt-feed-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        @media(min-width:960px) { .nt-feed-grid { grid-template-columns: 1fr 268px; align-items: start; } }
+
+        /* Sidebar — desktop only */
+        .nt-feed-sidebar-desktop { display: none; }
+        @media(min-width:960px) { .nt-feed-sidebar-desktop { display: flex; } }
+
+        /* IPL mobile strip — mobile only */
+        .nt-ipl-mobile { display: block; }
+        @media(min-width:960px) { .nt-ipl-mobile { display: none !important; } }
+
+        /* Stat bar — compact on mobile */
+        @media(max-width:639px) {
+          .nt-stat-bar { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; }
+          .nt-stat-bar::-webkit-scrollbar { display: none; }
+          .nt-stat-bar > div { flex-shrink: 0; }
+          .nt-vpad { padding-top: 10px !important; }
+          .nt-w { padding-left: 10px !important; padding-right: 10px !important; }
+        }
 
         /* Hero zoom */
         .nt-hero { transition: transform 0.22s cubic-bezier(.23,1,.32,1); }
