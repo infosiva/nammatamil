@@ -20,6 +20,24 @@ export interface Movie {
 }
 
 export const movies: Movie[] = [
+  // ── 2026 — Hot Right Now ─────────────────────────────────────────────
+  {
+    id: 'm40',
+    slug: 'karuppu-2026',
+    title: 'Karuppu',
+    year: 2026,
+    director: 'Pa. Ranjith',
+    cast: ['Dhanush', 'Jyotika', 'Aishwarya Rajesh'],
+    genre: ['Drama', 'Social', 'Action'],
+    language: 'Tamil',
+    description: 'Pa. Ranjith\'s hard-hitting social drama following the lives of marginalised communities fighting for dignity and justice in contemporary Tamil Nadu. Raw, powerful, unmissable.',
+    streamingOn: ['Netflix'],
+    rating: 8.4,
+    gradient: 'from-gray-900 via-gray-800 to-slate-700',
+    badge: '🔥 Trending Now',
+    ottDate: '2026-05-09',
+    thumbnail: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4e/Karuppu_film_poster.jpg/220px-Karuppu_film_poster.jpg',
+  },
   // ── 2026 — Latest Releases ───────────────────────────────────────────
   {
     id: 'm28',

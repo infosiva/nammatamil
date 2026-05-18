@@ -478,13 +478,66 @@ export default function HomeNewsPortal() {
           </div>
         </div>
 
-        {/* accent color indicator chip — subtle "today's vibe" */}
-        <div style={{ background: T.bg2, borderBottom: `1px solid ${T.border}`, padding: '4px 0' }}>
-          <div className="nt-w" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: T.accent, flexShrink: 0 }} />
-            <span style={{ fontSize: 9.5, color: T.muted }}>Today's edition</span>
-            <span style={{ fontSize: 9.5, color: T.accent, fontWeight: 700, textTransform: 'capitalize' }}>{ACCENT.name} theme</span>
+        {/* ── INFO BAR ─────────────────────────────────────────────────────── */}
+        <div style={{ background: '#0c0c10', borderBottom: `1px solid ${T.border}`, padding: '5px 0' }}>
+          <div className="nt-w" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            {(() => {
+              const now = new Date()
+              const TDAYS = ['ஞாயிறு','திங்கள்','செவ்வாய்','புதன்','வியாழன்','வெள்ளி','சனி']
+              const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+              const h = now.getHours().toString().padStart(2,'0')
+              const m = now.getMinutes().toString().padStart(2,'0')
+              return (
+                <>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: T.text }}>
+                    {TDAYS[now.getDay()]} · {now.getDate()} {MONTHS[now.getMonth()]} {now.getFullYear()}
+                  </span>
+                  <span style={{ fontSize: 10, color: T.muted }}>📍 Chennai · {h}:{m} IST</span>
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: 5, alignItems: 'center' }}>
+                    {all.length > 0 && (
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: `${T.accent}18`, color: T.accent, border: `1px solid ${T.accent}30` }}>
+                        {all.length} செய்திகள்
+                      </span>
+                    )}
+                    <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 99, background: T.bg3, color: T.muted, border: `1px solid ${T.border2}`, textTransform: 'capitalize' }}>◉ {ACCENT.name}</span>
+                  </div>
+                </>
+              )
+            })()}
           </div>
+        </div>
+
+        {/* ── KARUPPU SPOTLIGHT BANNER ──────────────────────────────────────── */}
+        <div className="nt-w" style={{ paddingTop: 12 }}>
+          <Link href="/movies/karuppu-2026" style={{ textDecoration: 'none', display: 'block' }}>
+            <div style={{ background: 'linear-gradient(135deg, #1a0a0a 0%, #0f0f13 40%, #0a0a1a 100%)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, position: 'relative', overflow: 'hidden' }}
+              className="nt-karuppu">
+              {/* glow */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(ellipse 60% 80% at 10% 50%, rgba(239,68,68,0.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
+              {/* poster thumb */}
+              <div style={{ flexShrink: 0, width: 52, height: 78, borderRadius: 7, overflow: 'hidden', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/4e/Karuppu_film_poster.jpg/220px-Karuppu_film_poster.jpg"
+                  alt="Karuppu" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+              </div>
+              {/* text */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 9, fontWeight: 900, padding: '2px 8px', borderRadius: 3, background: '#ef4444', color: '#fff', letterSpacing: '0.08em' }}>🔥 TRENDING</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Netflix · 2026</span>
+                  <span style={{ fontSize: 9, color: '#f5a623', fontWeight: 800 }}>★ 8.4</span>
+                </div>
+                <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 800, color: '#fff', fontFamily: "'Noto Serif', Georgia, serif", letterSpacing: '-0.01em' }}>
+                  Karuppu — Pa. Ranjith's boldest film yet
+                </p>
+                <p style={{ margin: 0, fontSize: 11.5, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>
+                  Dhanush · Jyotika · Aishwarya Rajesh · Now streaming on Netflix
+                </p>
+              </div>
+              <ChevronRight style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
+            </div>
+          </Link>
         </div>
 
         <div className="nt-w nt-vpad">
@@ -663,6 +716,10 @@ export default function HomeNewsPortal() {
 
           /* ── Lower grid ───────────────────── */
           @media(min-width:960px) { .nt-low { grid-template-columns: 1fr 280px !important; align-items: start; } }
+
+          /* ── Karuppu banner ──────────────────*/
+          .nt-karuppu { transition: border-color 0.15s, transform 0.15s ease; }
+          .nt-karuppu:hover { border-color: rgba(239,68,68,0.6) !important; transform: translateY(-1px); }
 
           /* ── Hover / interaction ──────────── */
           .nt-hero  { transition: transform 0.2s cubic-bezier(.23,1,.32,1); }
