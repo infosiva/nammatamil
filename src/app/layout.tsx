@@ -4,6 +4,7 @@ import SharedNavbar from '../../components/SharedNavbar'
 import Footer from '../../components/Footer'
 import CookieConsent from '../../components/CookieConsent'
 import type { BrandConfig } from '../../components/SharedNavbar'
+import FloatingChatWrapper from '../../components/FloatingChatWrapper'
 
 export const brand: BrandConfig = {
   name: 'NammaTamil',
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="flex-1 pt-16">{children}</main>
         <Footer siteName="NammaTamil" />
         <CookieConsent />
+        <FloatingChatWrapper />
       </body>
     </html>
   )

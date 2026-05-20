@@ -303,7 +303,7 @@ export default function Home() {
           </div>
 
           {/* Big editorial headline */}
-          <h1 className="text-5xl md:text-7xl lg:text-[88px] font-black leading-[1.0] mb-6 text-white tracking-tight fade-up delay-100"
+          <h1 className="text-5xl md:text-4xl md:text-5xl lg:text-[88px] font-black leading-[1.0] mb-6 text-white tracking-tight fade-up delay-100"
             style={{ fontFamily: "'Georgia', 'Times New Roman', serif", letterSpacing: '-0.03em', textShadow: '0 2px 40px rgba(0,0,0,0.5)' }}>
             Plan your<br />
             <span style={{
@@ -579,7 +579,7 @@ export default function Home() {
       </div>
 
       {/* ── RESULTS ────────────────────────────────────────────────────── */}
-      <div ref={resultsRef} className="max-w-4xl mx-auto px-6 pb-24">
+      <div ref={resultsRef} className="max-w-4xl mx-auto px-6 pb-12">
         {apiError && (
           <div className="rounded-2xl border border-red-500/30 p-6 text-center mb-8"
             style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)' }}>
@@ -765,7 +765,7 @@ export default function Home() {
       </div>
 
       {/* ── WHY PRO ────────────────────────────────────────────────────── */}
-      <section className="px-6 py-20" style={{ borderTop: '1px solid rgba(124,45,2,0.2)' }}>
+      <section className="px-6 py-10" style={{ borderTop: '1px solid rgba(124,45,2,0.2)' }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400/60 mb-3">Why Pro?</div>
@@ -796,7 +796,7 @@ export default function Home() {
       </section>
 
       {/* ── PRICING ────────────────────────────────────────────────────── */}
-      <section id="pricing" className="px-6 py-20">
+      <section id="pricing" className="px-6 py-10">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400/60 mb-3">Pricing</div>
@@ -887,7 +887,7 @@ export default function Home() {
       </section>
 
       {/* ── FLIGHT PRICE TRACKER TEASER ────────────────────────────────── */}
-      <section className="px-6 pb-20 max-w-4xl mx-auto">
+      <section className="px-6 pb-10 max-w-4xl mx-auto">
         <div className="rounded-2xl px-8 py-8 text-center relative overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, rgba(12,74,110,0.4) 0%, rgba(124,45,2,0.35) 100%)',
