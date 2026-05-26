@@ -875,8 +875,8 @@ export default function Home() {
                 ))}
               </div>
               <div>
-                <div className="text-sm font-semibold text-white">Loved by travellers worldwide</div>
-                <div className="text-xs text-white/40">Trusted by 1,000+ explorers · 4.9 ★ average</div>
+                <div className="text-sm font-semibold text-white">Plan any trip, free</div>
+                <div className="text-xs text-white/40">AI-powered · Day-by-day itineraries · No card required</div>
               </div>
             </div>
             <div className="text-right">
