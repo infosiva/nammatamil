@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import './globals.css'
 import SharedNavbar from '../../components/SharedNavbar'
 import Footer from '../../components/Footer'
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer siteName="NammaTamil" />
         <CookieConsent />
         <FloatingChatWrapper />
+        <Script defer data-site="nammatamil.live" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
       </body>
     </html>
   )
