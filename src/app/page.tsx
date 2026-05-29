@@ -10,7 +10,6 @@ const TRAVEL_TOUR: TourStep[] = [
 ]
 import RegisterGate from '@/lib/shared/RegisterGate'
 import { Spotlight } from '@/components/aceternity/spotlight'
-import { CardContainer, CardBody, CardItem } from '@/components/aceternity/card-3d'
 
 const INTERESTS = ['Food & Dining', 'Culture & History', 'Nature & Hiking', 'Art & Museums', 'Nightlife', 'Shopping', 'Adventure Sports', 'Photography']
 const BUDGETS = ['Budget', 'Moderate', 'Luxury']
@@ -141,11 +140,11 @@ function printItinerary(itinerary: Itinerary, withKids: boolean) {
 }
 
 const DESTINATION_CARDS = [
-  { city: 'Bali',      emoji: '🌴', tag: 'Tropical',  gradient: 'from-[#0c4a6e] via-[#0e7490] to-[#ea580c]' },
-  { city: 'Paris',     emoji: '🗼', tag: 'Romance',   gradient: 'from-[#7c2d12] via-[#c2410c] to-[#b45309]' },
-  { city: 'Tokyo',     emoji: '⛩️',  tag: 'Culture',   gradient: 'from-[#831843] via-[#be185d] to-[#c2410c]' },
-  { city: 'New York',  emoji: '🗽', tag: 'Urban',     gradient: 'from-[#0c4a6e] via-[#1e40af] to-[#ea580c]' },
-  { city: 'Santorini', emoji: '🏛️', tag: 'Scenic',    gradient: 'from-[#1e3a5f] via-[#0369a1] to-[#f97316]' },
+  { city: 'Bali',      emoji: '🌴', tag: 'Tropical',  img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=80&fit=crop&crop=center' },
+  { city: 'Paris',     emoji: '🗼', tag: 'Romance',   img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80&fit=crop&crop=center' },
+  { city: 'Tokyo',     emoji: '⛩️',  tag: 'Culture',   img: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80&fit=crop&crop=center' },
+  { city: 'New York',  emoji: '🗽', tag: 'Urban',     img: 'https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?w=600&q=80&fit=crop&crop=center' },
+  { city: 'Santorini', emoji: '🏛️', tag: 'Scenic',    img: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=600&q=80&fit=crop&crop=center' },
 ]
 
 const WHY_PRO = [
@@ -372,38 +371,39 @@ export default function Home() {
         <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400/60 text-center mb-6">Popular destinations</div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
           {DESTINATION_CARDS.map(card => (
-            <CardContainer key={card.city} containerClassName="w-full">
-              <CardBody className="w-full">
-                <CardItem translateZ={40} className="w-full">
-                  <button
-                    onClick={() => setDestination(card.city)}
-                    className={`group relative overflow-hidden rounded-2xl aspect-[3/4] md:aspect-[2/3] bg-gradient-to-br ${card.gradient} transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full`}
-                    style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-                    {/* Texture overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    {/* Glow on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{ background: 'radial-gradient(circle at 50% 80%, rgba(249,115,22,0.25) 0%, transparent 70%)' }} />
-                    <div className="relative z-10 flex flex-col items-center justify-end h-full pb-5 gap-1.5">
-                      <CardItem translateZ={60} className="text-4xl md:text-5xl drop-shadow-lg mb-1 group-hover:scale-110 transition-transform duration-300">
-                        {card.emoji}
-                      </CardItem>
-                      <CardItem translateZ={50} className="font-black text-base md:text-lg text-white tracking-tight" style={{ fontFamily: "'Georgia', serif", textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-                        {card.city}
-                      </CardItem>
-                      <CardItem translateZ={40} className="px-2.5 py-0.5 rounded-full text-white/70 text-[10px] font-semibold uppercase tracking-wider" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                        {card.tag}
-                      </CardItem>
-                    </div>
-                    {/* Hover CTA */}
-                    <div className="absolute inset-x-0 bottom-0 py-2 flex justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0"
-                      style={{ background: 'linear-gradient(to top, rgba(249,115,22,0.6), transparent)' }}>
-                      <span className="text-[11px] text-orange-200 font-bold">Plan this trip →</span>
-                    </div>
-                  </button>
-                </CardItem>
-              </CardBody>
-            </CardContainer>
+            <button
+              key={card.city}
+              onClick={() => setDestination(card.city)}
+              className="group relative w-full overflow-hidden rounded-2xl aspect-[3/4] cursor-pointer"
+              style={{ border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+              {/* Photo background — scales on hover, not the card */}
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+                style={{ backgroundImage: `url('${card.img}')` }}
+              />
+              {/* Persistent dark gradient at bottom for text legibility */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+              {/* Hover orange glow at bottom */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: 'radial-gradient(ellipse at 50% 110%, rgba(249,115,22,0.30) 0%, transparent 60%)' }} />
+              {/* Content pinned to bottom */}
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-5 px-2 gap-1.5">
+                <span className="text-3xl md:text-4xl drop-shadow-lg mb-0.5 group-hover:scale-110 transition-transform duration-300 inline-block">
+                  {card.emoji}
+                </span>
+                <span className="font-black text-sm md:text-base text-white tracking-tight drop-shadow-lg text-center" style={{ fontFamily: "'Georgia', serif", textShadow: '0 2px 10px rgba(0,0,0,0.7)' }}>
+                  {card.city}
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-white/80 text-[10px] font-semibold uppercase tracking-wider"
+                  style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}>
+                  {card.tag}
+                </span>
+              </div>
+              {/* Hover CTA strip */}
+              <div className="absolute inset-x-0 bottom-0 py-2 flex justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 z-20">
+                <span className="text-[10px] text-orange-200 font-bold tracking-wide">Plan this trip →</span>
+              </div>
+            </button>
           ))}
         </div>
       </section>
