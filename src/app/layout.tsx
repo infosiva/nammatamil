@@ -10,12 +10,12 @@ import SchemaOrg from '../../components/SchemaOrg'
 
 export const brand: BrandConfig = {
   name: 'NammaTamil',
-  tagline: 'உங்கள் தமிழ் செய்திகள் — AI-powered Tamil news and culture.',
+  tagline: 'Discover Tamil Nadu — The Way Locals Know It',
   icon: '🌿',
-  color: '#7c3aed',
+  color: '#f97316',
   url: 'https://nammatamil.live',
   navLinks: [
-    { label: 'செய்திகள்', href: '/' },
+    { label: 'Plan a Trip', href: '/' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
   ],
@@ -23,13 +23,13 @@ export const brand: BrandConfig = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nammatamil.live'),
-  title: 'NammaTamil — Tamil News, Culture & Stories',
-  description: 'உங்கள் தமிழ் செய்திகள். AI-curated Tamil news, culture, and stories for the global Tamil community. Get latest Tamil news daily.',
-  keywords: ['Tamil news', 'தமிழ் செய்திகள்', 'Tamil culture', 'Tamil stories', 'Tamil media', 'Tamil community', 'Tamil news portal'],
+  title: 'NammaTamil — AI Tamil Nadu Travel Guide | Local Knowledge',
+  description: 'Plan your Tamil Nadu trip with AI. Temples, hill stations, hidden villages — personalized itineraries rooted in local culture. Free travel planner.',
+  keywords: ['Tamil Nadu travel', 'Tamil Nadu tourism', 'places to visit in Tamil Nadu', 'Tamil Nadu temple tour', 'Madurai tour', 'Ooty travel guide', 'AI travel planner India', 'Tamil Nadu itinerary'],
   authors: [{ name: 'NammaTamil' }],
   openGraph: {
-    title: 'NammaTamil — Tamil News & Culture',
-    description: 'உங்கள் தமிழ் செய்திகள். AI-curated Tamil news for the global Tamil community.',
+    title: 'NammaTamil — AI Tamil Nadu Travel Guide',
+    description: 'AI-powered travel planning rooted in 2,000 years of Dravidian culture. Temples, hill stations, hidden villages — planned around your pace.',
     type: 'website',
     locale: 'ta_IN',
     siteName: 'NammaTamil',
@@ -38,13 +38,13 @@ export const metadata: Metadata = {
       url: 'https://nammatamil.live/og-image.png',
       width: 1200,
       height: 630,
-      alt: 'NammaTamil - Tamil News & Culture'
+      alt: 'NammaTamil - AI Tamil Nadu Travel Guide'
     }]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NammaTamil — Tamil News & Culture',
-    description: 'AI-curated Tamil news and culture stories for the global Tamil community.',
+    title: 'NammaTamil — AI Tamil Nadu Travel Guide',
+    description: 'Plan your Tamil Nadu trip with AI. Temples, hill stations, hidden villages — personalized itineraries rooted in local culture.',
     images: ['https://nammatamil.live/og-image.png']
   },
   robots: { index: true, follow: true },

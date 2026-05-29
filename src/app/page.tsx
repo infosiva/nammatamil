@@ -140,30 +140,40 @@ function printItinerary(itinerary: Itinerary, withKids: boolean) {
 }
 
 const DESTINATION_CARDS = [
-  { city: 'Bali',      emoji: '🌴', tag: 'Tropical',  img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=80&fit=crop&crop=center' },
-  { city: 'Paris',     emoji: '🗼', tag: 'Romance',   img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80&fit=crop&crop=center' },
-  { city: 'Tokyo',     emoji: '⛩️',  tag: 'Culture',   img: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80&fit=crop&crop=center' },
-  { city: 'New York',  emoji: '🗽', tag: 'Urban',     img: 'https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?w=600&q=80&fit=crop&crop=center' },
-  { city: 'Santorini', emoji: '🏛️', tag: 'Scenic',    img: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=600&q=80&fit=crop&crop=center' },
+  { city: 'Madurai',     emoji: '🏛️', tag: 'Temple City',    img: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600&q=80&fit=crop&crop=center', pills: ['Dravidian architecture', 'Temple city'] },
+  { city: 'Chennai',     emoji: '🌊', tag: 'Coastal',        img: 'https://images.unsplash.com/photo-1582560475093-ba66accbc424?w=600&q=80&fit=crop&crop=center', pills: ['Coastal culture', 'Colonial heritage'] },
+  { city: 'Ooty',        emoji: '🍃', tag: 'Hill Station',   img: 'https://images.unsplash.com/photo-1599661046827-dacff0c0f09a?w=600&q=80&fit=crop&crop=center', pills: ['Hill station', 'Monsoon-safe'] },
+  { city: 'Rameswaram',  emoji: '🕌', tag: 'Pilgrimage',     img: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=600&q=80&fit=crop&crop=center', pills: ['Sacred pilgrimage', 'Coastal'] },
+  { city: 'Kanyakumari', emoji: '🌅', tag: 'Southernmost',   img: 'https://images.unsplash.com/photo-1587922546307-776227941871?w=600&q=80&fit=crop&crop=center', pills: ['Southernmost tip', 'Sunrise views'] },
+  { city: 'Kodaikanal',  emoji: '🌿', tag: 'Offbeat Hills',  img: 'https://images.unsplash.com/photo-1562176566-e9afd27531d4?w=600&q=80&fit=crop&crop=center', pills: ['Offbeat hill station', 'Local favourite'] },
+]
+
+const FESTIVALS = [
+  { month: 'Jan', name: 'Pongal', emoji: '🌾', desc: 'Harvest festival — 4 days of celebrations' },
+  { month: 'Apr', name: 'Chithirai', emoji: '🏛️', desc: "Madurai's grand temple chariot festival" },
+  { month: 'Jun', name: 'Aadi Perukku', emoji: '💧', desc: 'River goddess celebration, Kaveri banks' },
+  { month: 'Oct', name: 'Navaratri', emoji: '🪆', desc: '9 nights of dance and Golu dolls' },
+  { month: 'Nov', name: 'Karthigai Deepam', emoji: '🪔', desc: 'Festival of lights, Tiruvannamalai' },
+  { month: 'Dec', name: 'Margazhi', emoji: '🎵', desc: 'Classical music and dance season, Chennai' },
 ]
 
 const WHY_PRO = [
-  { icon: '∞', title: 'Unlimited trips', desc: 'Generate as many itineraries as you want, any day.' },
-  { icon: '🗺️', title: 'Multi-city routing', desc: 'Plan complex trips spanning multiple cities seamlessly.' },
-  { icon: '🏨', title: 'Hotel recommendations', desc: 'Curated stays matched to your budget and style.' },
-  { icon: '📄', title: 'Offline PDF export', desc: 'Download your full itinerary — no internet needed.' },
+  { icon: '∞', title: 'Unlimited trips', desc: 'Generate as many Tamil Nadu itineraries as you want, any day.' },
+  { icon: '🗺️', title: 'Multi-district routing', desc: 'Plan temple circuits, hill station combos and coastal routes seamlessly.' },
+  { icon: '🏨', title: 'Local stay picks', desc: 'Heritage hotels, homestays and guesthouses curated by locale and budget.' },
+  { icon: '📄', title: 'Offline PDF export', desc: 'Download your full itinerary — perfect for areas with weak connectivity.' },
 ]
 
 const TRUST = [
-  { stat: '1,000+', label: 'Travelers planned with RoamPlan' },
-  { stat: '195+',   label: 'Destinations covered worldwide' },
-  { stat: '60s',    label: 'Average time to full itinerary' },
+  { stat: '38+', label: 'Districts of Tamil Nadu covered' },
+  { stat: '2,000', label: 'Years of Dravidian culture behind every plan' },
+  { stat: '60s',  label: 'Average time to full itinerary' },
 ]
 
 const SAMPLE_DAYS = [
-  { day: 1, theme: 'Arrival & Old Town Wander', morning: 'Airport pickup → Hotel check-in', afternoon: 'Wander the old medina & local souks', evening: 'Rooftop dinner with panoramic views' },
-  { day: 2, theme: 'Temples, Markets & Street Food', morning: 'Sacred temple tour at sunrise', afternoon: 'Street food crawl with local guide', evening: 'Traditional cooking class dinner' },
-  { day: 3, theme: 'Nature & Hidden Gems', morning: 'Hike to waterfall viewpoint', afternoon: 'Secret lagoon swim & kayaking', evening: 'Beachside sunset cocktails' },
+  { day: 1, theme: 'Arrival & Meenakshi Amman Temple', morning: 'Chennai flight → Madurai arrival, Hotel check-in', afternoon: 'Meenakshi Amman Temple — Dravidian architecture at its finest', evening: 'Kottu Parotta & filter coffee at a local mess' },
+  { day: 2, theme: 'Thirumalai Nayakkar Palace & Local Markets', morning: 'Thirumalai Nayakkar Mahal — 17th century Indo-Saracenic palace', afternoon: 'Puthu Mandapam textile market & street food crawl', evening: 'Rooftop dinner with views of the Gopuram at dusk' },
+  { day: 3, theme: 'Hill Country — Kodaikanal Drive', morning: 'Early drive through ghats — misty valleys and tea estates', afternoon: 'Coaker\'s Walk panorama, Bear Shola Falls', evening: 'Bonfire dinner at a local homestay' },
 ]
 
 export default function Home() {
@@ -298,24 +308,23 @@ export default function Home() {
           {/* Editorial badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full border border-orange-500/40 bg-orange-900/25 backdrop-blur-sm text-orange-300 text-xs font-bold uppercase tracking-widest fade-up">
             <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-            AI-Powered Travel Planning · Free
+            AI Travel Planner · Tamil Nadu · Free
           </div>
 
           {/* Big editorial headline */}
-          <h1 className="text-5xl md:text-4xl md:text-5xl lg:text-[88px] font-black leading-[1.0] mb-6 text-white tracking-tight fade-up delay-100"
+          <h1 className="text-5xl md:text-4xl md:text-5xl lg:text-[80px] font-black leading-[1.0] mb-6 text-white tracking-tight fade-up delay-100"
             style={{ fontFamily: "'Georgia', 'Times New Roman', serif", letterSpacing: '-0.03em', textShadow: '0 2px 40px rgba(0,0,0,0.5)' }}>
-            Plan your<br />
+            Discover Tamil Nadu<br />
             <span style={{
               background: 'linear-gradient(135deg, #fb923c 0%, #f97316 30%, #fbbf24 60%, #f59e0b 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-            }}>dream trip</span><br />
-            in seconds.
+            }}>The Way Locals Know It</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-white/60 max-w-xl mx-auto mb-10 leading-relaxed fade-up delay-200">
-            Tell AI where you want to go. Get a full day-by-day itinerary with hotels, restaurants, weather and hidden gems — free.
+          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed fade-up delay-200">
+            AI-powered travel planning rooted in 2,000 years of Dravidian culture. Temples, hill stations, hidden villages — planned around your pace, not a package price.
           </p>
 
           {/* Hero search bar — editorial card style */}
@@ -334,7 +343,7 @@ export default function Home() {
                   value={destination}
                   onChange={e => setDestination(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && (generate(), formRef.current?.scrollIntoView({ behavior: 'smooth' }))}
-                  placeholder="Where do you want to go? Paris, Bali, Tokyo…"
+                  placeholder="Where in Tamil Nadu? Madurai, Ooty, Rameswaram…"
                   className="flex-1 bg-transparent py-3 text-sm text-white placeholder-white/35 focus:outline-none"
                 />
               </div>
@@ -366,10 +375,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── DESTINATION CARDS — 5 cards with travel magazine feel ──────── */}
+      {/* ── DESTINATION CARDS — Tamil Nadu destinations ──────────────── */}
       <section className="px-6 py-16 max-w-6xl mx-auto">
-        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400/60 text-center mb-6">Popular destinations</div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400/60 text-center mb-2">Explore Tamil Nadu</div>
+        <p className="text-center text-white/30 text-xs mb-8">Click any destination to start planning your itinerary</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {DESTINATION_CARDS.map(card => (
             <button
               key={card.city}
@@ -382,28 +392,58 @@ export default function Home() {
                 style={{ backgroundImage: `url('${card.img}')` }}
               />
               {/* Persistent dark gradient at bottom for text legibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
               {/* Hover orange glow at bottom */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 style={{ background: 'radial-gradient(ellipse at 50% 110%, rgba(249,115,22,0.30) 0%, transparent 60%)' }} />
               {/* Content pinned to bottom */}
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-5 px-2 gap-1.5">
-                <span className="text-3xl md:text-4xl drop-shadow-lg mb-0.5 group-hover:scale-110 transition-transform duration-300 inline-block">
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-4 px-2 gap-1">
+                <span className="text-2xl md:text-3xl drop-shadow-lg mb-0.5 group-hover:scale-110 transition-transform duration-300 inline-block">
                   {card.emoji}
                 </span>
-                <span className="font-black text-sm md:text-base text-white tracking-tight drop-shadow-lg text-center" style={{ fontFamily: "'Georgia', serif", textShadow: '0 2px 10px rgba(0,0,0,0.7)' }}>
+                <span className="font-black text-sm text-white tracking-tight drop-shadow-lg text-center" style={{ fontFamily: "'Georgia', serif", textShadow: '0 2px 10px rgba(0,0,0,0.7)' }}>
                   {card.city}
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-white/80 text-[10px] font-semibold uppercase tracking-wider"
-                  style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}>
-                  {card.tag}
-                </span>
+                {/* Cultural context pills */}
+                <div className="flex flex-wrap justify-center gap-1 mt-1">
+                  {card.pills.map(pill => (
+                    <span key={pill} className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+                      style={{ background: 'rgba(251,146,60,0.15)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.25)' }}>
+                      {pill}
+                    </span>
+                  ))}
+                </div>
               </div>
               {/* Hover CTA strip */}
               <div className="absolute inset-x-0 bottom-0 py-2 flex justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 z-20">
                 <span className="text-[10px] text-orange-200 font-bold tracking-wide">Plan this trip →</span>
               </div>
             </button>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FESTIVAL CALENDAR STRIP ───────────────────────────────────── */}
+      <section className="px-6 pb-16 max-w-6xl mx-auto">
+        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400/60 mb-2">Tamil Nadu Festival Calendar</div>
+        <p className="text-white/30 text-xs mb-5">Plan your visit around Tamil Nadu&apos;s living cultural calendar</p>
+        <div className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
+          {FESTIVALS.map(f => (
+            <div key={f.name} className="flex-shrink-0 snap-start rounded-xl p-3 flex flex-col gap-1"
+              style={{
+                width: 130,
+                minHeight: 108,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(249,115,22,0.18)',
+                backdropFilter: 'blur(16px)',
+              }}>
+              <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#fb923c' }}>{f.month}</div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-lg">{f.emoji}</span>
+                <span className="text-xs font-bold text-white leading-tight">{f.name}</span>
+              </div>
+              <p className="text-[10px] text-white/45 leading-relaxed">{f.desc}</p>
+            </div>
           ))}
         </div>
       </section>
@@ -426,12 +466,12 @@ export default function Home() {
           <div className="px-6 py-5 flex items-center justify-between"
             style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(249,115,22,0.05)' }}>
             <div>
-              <h3 className="text-2xl font-black text-white" style={{ fontFamily: "'Georgia', serif" }}>Bali, Indonesia</h3>
-              <p className="text-white/40 text-sm mt-0.5">7-day itinerary · Moderate budget · Culture & Food focus</p>
+              <h3 className="text-2xl font-black text-white" style={{ fontFamily: "'Georgia', serif" }}>Madurai + Kodaikanal, Tamil Nadu</h3>
+              <p className="text-white/40 text-sm mt-0.5">5-day itinerary · Moderate budget · Culture & Nature focus</p>
             </div>
             <div className="px-3 py-1.5 rounded-xl text-sm font-semibold text-amber-400"
               style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)' }}>
-              Est. $1,200–$1,800
+              Est. ₹12,000–₹22,000
             </div>
           </div>
           {/* Mock days */}
@@ -464,10 +504,10 @@ export default function Home() {
             style={{ background: 'linear-gradient(to bottom, rgba(12,36,64,0.0) 0%, rgba(12,36,64,0.95) 100%)' }}>
             <p className="text-white/50 text-sm mb-4">+ 4 more days generated for your trip…</p>
             <button
-              onClick={() => { setDestination('Bali'); formRef.current?.scrollIntoView({ behavior: 'smooth' }) }}
+              onClick={() => { setDestination('Madurai'); formRef.current?.scrollIntoView({ behavior: 'smooth' }) }}
               className="px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03]"
               style={{ background: 'linear-gradient(135deg, #f97316, #d97706)', boxShadow: '0 8px 30px rgba(249,115,22,0.35)' }}>
-              Generate your own free itinerary →
+              Plan your Tamil Nadu trip free →
             </button>
           </div>
         </div>
@@ -492,7 +532,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
             <div className="md:col-span-2">
               <label className="text-[10px] font-bold uppercase tracking-widest text-white/35 mb-2 block">Where to?</label>
-              <input value={destination} onChange={e => setDestination(e.target.value)} onKeyDown={e => e.key === 'Enter' && generate()} placeholder="Paris, Tokyo, Bali, New York…" className={inputCls} />
+              <input value={destination} onChange={e => setDestination(e.target.value)} onKeyDown={e => e.key === 'Enter' && generate()} placeholder="Madurai, Ooty, Rameswaram, Kanyakumari…" className={inputCls} />
             </div>
             <div>
               <label className="text-[10px] font-bold uppercase tracking-widest text-white/35 mb-2 block">Duration — <span className="text-orange-400 font-semibold normal-case">{duration} {duration === 1 ? 'day' : 'days'}</span></label>
@@ -899,10 +939,10 @@ export default function Home() {
           <div className="relative z-10">
             <div className="text-2xl mb-3">✈️ 💰</div>
             <h3 className="text-xl font-black text-white mb-2" style={{ fontFamily: "'Georgia', serif" }}>
-              Flight & Currency Tracker — Coming Soon
+              Temple & Train Route Planner — Coming Soon
             </h3>
             <p className="text-white/50 text-sm max-w-lg mx-auto">
-              Track live flight prices, get fare alerts, and see real-time currency exchange rates for your destination — all inside RoamPlan Pro.
+              Auto-plan temple circuits with IRCTC train timing, local bus routes between hill stations, and weather-based best-time recommendations — all inside NammaTamil Pro.
             </p>
             <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full text-orange-300 text-xs font-bold uppercase tracking-widest"
               style={{ background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.25)' }}>
@@ -915,37 +955,37 @@ export default function Home() {
       <GuidedTour steps={TRAVEL_TOUR} storageKey="roamplan_tour_v1" accentColor="#0ea5e9" />
 
       {/* Competitor comparison */}
-      <section style={{ borderTop:'1px solid rgba(14,165,233,0.15)', padding:'48px 24px' }}>
+      <section style={{ borderTop:'1px solid rgba(249,115,22,0.15)', padding:'48px 24px' }}>
         <div style={{ maxWidth:800, margin:'0 auto' }}>
           <div style={{ textAlign:'center', marginBottom:32 }}>
-            <p style={{ fontSize:10, color:'rgba(14,165,233,0.5)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:8 }}>How we compare</p>
-            <h2 style={{ fontSize:20, fontWeight:800, color:'#f0f9ff' }}>RoamPlan vs alternatives</h2>
+            <p style={{ fontSize:10, color:'rgba(249,115,22,0.5)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:8 }}>How we compare</p>
+            <h2 style={{ fontSize:20, fontWeight:800, color:'#fff7ed' }}>NammaTamil vs alternatives</h2>
           </div>
           <div style={{ overflowX:'auto' }}>
             <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
               <thead>
-                <tr style={{ borderBottom:'1px solid rgba(14,165,233,0.2)' }}>
-                  {['Feature','RoamPlan','TripAdvisor','Google Trips','Airbnb'].map((h,i) => (
+                <tr style={{ borderBottom:'1px solid rgba(249,115,22,0.2)' }}>
+                  {['Feature','NammaTamil','TripAdvisor','MakeMyTrip','TN Tourism'].map((h,i) => (
                     <th key={h} style={{ padding:'10px 12px', textAlign:i===0?'left':'center',
-                      color: i===1 ? '#0ea5e9' : 'rgba(255,255,255,0.3)', fontWeight:700, fontSize:11, letterSpacing:'0.05em' }}>{h}</th>
+                      color: i===1 ? '#fb923c' : 'rgba(255,255,255,0.3)', fontWeight:700, fontSize:11, letterSpacing:'0.05em' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {[
-                  ['AI itinerary builder','✅ Claude AI','❌','❌','❌'],
-                  ['Budget breakdown','✅ Detailed','⚠️ Estimates','❌','❌'],
-                  ['Accommodation booking','⚠️ Links','✅ Full','❌','✅ Full'],
-                  ['No login required','✅','❌','❌','❌'],
-                  ['Custom day-by-day plan','✅ AI-written','❌','✅ Basic','❌'],
-                  ['Offline access','✅ Export PDF','❌','✅','❌'],
+                  ['Local cultural context','✅ Deep storytelling','❌ Category labels','❌ Booking only','⚠️ Rich, unusable'],
+                  ['AI day-by-day itinerary','✅ Free, instant','❌','❌','❌'],
+                  ['Tamil Nadu specialist','✅ Every district','⚠️ Generic India','⚠️ Generic India','✅ Poor UX'],
+                  ['Festival + season guidance','✅ Built-in','❌','❌','⚠️ Static PDFs'],
+                  ['No login required','✅','❌','❌','✅'],
+                  ['Offline PDF export','✅','❌','✅ Booking only','❌'],
                   ['Cost','Free / Pro','Free','Free','Free'],
                 ].map(row => (
-                  <tr key={row[0]} style={{ borderBottom:'1px solid rgba(14,165,233,0.07)' }}>
+                  <tr key={row[0]} style={{ borderBottom:'1px solid rgba(249,115,22,0.07)' }}>
                     {row.map((cell,i) => (
                       <td key={i} style={{ padding:'9px 12px', textAlign:i===0?'left':'center',
-                        color: i===1 ? '#0ea5e9' : i===0 ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.25)',
-                        background: i===1 ? 'rgba(14,165,233,0.04)' : 'transparent', fontSize:11 }}>{cell}</td>
+                        color: i===1 ? '#fb923c' : i===0 ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.25)',
+                        background: i===1 ? 'rgba(249,115,22,0.04)' : 'transparent', fontSize:11 }}>{cell}</td>
                     ))}
                   </tr>
                 ))}
@@ -956,19 +996,19 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer style={{ borderTop:'1px solid rgba(14,165,233,0.12)', padding:'24px', background:'rgba(2,8,23,0.9)' }}>
+      <footer style={{ borderTop:'1px solid rgba(249,115,22,0.12)', padding:'24px', background:'rgba(2,8,23,0.9)' }}>
         <div style={{ maxWidth:900, margin:'0 auto', display:'flex', flexWrap:'wrap', justifyContent:'space-between', alignItems:'center', gap:16 }}>
           <div>
-            <span style={{ fontWeight:900, fontSize:15, color:'#0ea5e9' }}>RoamPlan</span>
-            <p style={{ fontSize:11, color:'rgba(255,255,255,0.25)', marginTop:4 }}>AI travel planner — build your perfect trip in minutes.</p>
+            <span style={{ fontWeight:900, fontSize:15, color:'#fb923c' }}>NammaTamil</span>
+            <p style={{ fontSize:11, color:'rgba(255,255,255,0.25)', marginTop:4 }}>AI Tamil Nadu travel planner — plan your perfect trip in minutes.</p>
           </div>
           <div style={{ display:'flex', gap:20, flexWrap:'wrap' }}>
-            {[['About','/about'],['Privacy','/privacy'],['Terms','/terms'],['Cookie Policy','/cookies']].map(([label,href]) => (
+            {[['About','/about'],['Privacy','/privacy'],['Terms','/terms'],['Contact','/contact']].map(([label,href]) => (
               <a key={label} href={href} style={{ fontSize:11, color:'rgba(255,255,255,0.25)', textDecoration:'none' }}
-                onMouseOver={e=>(e.currentTarget.style.color='#0ea5e9')} onMouseOut={e=>(e.currentTarget.style.color='rgba(255,255,255,0.25)')}>{label}</a>
+                onMouseOver={e=>(e.currentTarget.style.color='#fb923c')} onMouseOut={e=>(e.currentTarget.style.color='rgba(255,255,255,0.25)')}>{label}</a>
             ))}
           </div>
-          <p style={{ fontSize:10, color:'rgba(255,255,255,0.15)' }}>© 2026 RoamPlan</p>
+          <p style={{ fontSize:10, color:'rgba(255,255,255,0.15)' }}>© 2026 NammaTamil</p>
         </div>
       </footer>
     </main>
@@ -989,13 +1029,13 @@ function RoamPlanCookieBanner() {
       backdropFilter:'blur(16px)', display:'flex', alignItems:'center', justifyContent:'space-between',
       gap:16, flexWrap:'wrap' }}>
       <p style={{ fontSize:12, color:'rgba(255,255,255,0.45)', maxWidth:600, lineHeight:1.5 }}>
-        RoamPlan uses essential cookies to save your trip plans and preferences. No tracking, no ads.{' '}
-        <a href="/privacy" style={{ color:'#0ea5e9', textDecoration:'underline', cursor:'pointer' }}>Privacy policy</a>
+        NammaTamil uses essential cookies to save your trip plans and preferences. No tracking, no ads.{' '}
+        <a href="/privacy" style={{ color:'#fb923c', textDecoration:'underline', cursor:'pointer' }}>Privacy policy</a>
       </p>
       <div style={{ display:'flex', gap:10 }}>
         <button onClick={() => { localStorage.setItem('rp_cookies_ok','1'); setVisible(false) }}
           style={{ fontSize:12, fontWeight:700, padding:'7px 20px', borderRadius:8,
-            background:'linear-gradient(135deg,#0ea5e9,#0284c7)', color:'#fff', border:'none', cursor:'pointer' }}>
+            background:'linear-gradient(135deg,#f97316,#d97706)', color:'#fff', border:'none', cursor:'pointer' }}>
           Accept
         </button>
         <button onClick={() => setVisible(false)}
