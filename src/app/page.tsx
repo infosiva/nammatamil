@@ -16,6 +16,18 @@ const T = {
   red: '#ef4444',
 }
 
+// Category-specific Unsplash thumbnail images (free, no API key)
+const CATEGORY_IMG: Record<string, string> = {
+  'அரசியல்':       'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=600&q=70&auto=format',
+  'சினிமா':        'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=70&auto=format',
+  'விளையாட்டு':    'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=600&q=70&auto=format',
+  'தமிழகம்':       'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=600&q=70&auto=format',
+  'உலகம்':         'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=70&auto=format',
+  'தொழில்நுட்பம்': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=70&auto=format',
+  'வாழ்க்கை':     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=70&auto=format',
+  'default':        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=70&auto=format',
+}
+
 // ─── Breaking ticker ───────────────────────────────────────────
 function BreakingTicker() {
   const doubled = [...BREAKING_TICKERS, ...BREAKING_TICKERS]
@@ -128,14 +140,20 @@ function HeroCard({ item }: { item: NewsItem }) {
         cursor: 'pointer',
       }}
     >
-      {/* Image placeholder with gradient */}
+      {/* Thumbnail */}
       <div style={{
-        height: 200,
-        background: `linear-gradient(135deg, #1a2f1a 0%, #0d1f0d 100%)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative',
+        height: 200, position: 'relative', overflow: 'hidden',
+        background: '#1a2f1a',
       }}>
-        <span style={{ fontSize: 48, opacity: 0.6 }}>{CATEGORY_ICONS[item.category]}</span>
+        <img
+          src={item.imageUrl || CATEGORY_IMG[item.category] || CATEGORY_IMG.default}
+          alt={item.titleEn}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          loading="lazy"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }} />
+        <span style={{ position: 'absolute', bottom: 10, right: 10, fontSize: 28, opacity: 0.85 }}>{CATEGORY_ICONS[item.category]}</span>
         {item.breaking && (
           <span style={{
             position: 'absolute', top: 10, left: 10,
@@ -199,10 +217,20 @@ function CompactCard({ item, index }: { item: NewsItem; index: number }) {
         animation: `fadeUp 0.3s ease-out ${index * 0.05}s both`,
       }}
     >
-      {/* Index number */}
-      <span style={{ fontSize: 18, fontWeight: 900, color: T.text3, minWidth: 24, paddingTop: 2, fontVariantNumeric: 'tabular-nums' }}>
-        {String(index + 1).padStart(2, '0')}
-      </span>
+      {/* Thumbnail */}
+      <div style={{ width: 64, height: 64, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: '#1a2f1a', position: 'relative' }}>
+        <img
+          src={item.imageUrl || CATEGORY_IMG[item.category] || CATEGORY_IMG.default}
+          alt=""
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          loading="lazy"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+        />
+        <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 18 }}>{CATEGORY_ICONS[item.category]}</span>
+        <span style={{ position: 'absolute', bottom: 2, right: 3, fontSize: 8, fontWeight: 900, color: 'rgba(255,255,255,0.5)', fontVariantNumeric: 'tabular-nums' }}>
+          {String(index + 1).padStart(2, '0')}
+        </span>
+      </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
           {item.breaking && (
