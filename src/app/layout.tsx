@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import FloatingChatWrapper from '../../components/FloatingChatWrapper'
+import FeedbackWidget from '@/components/FeedbackWidget'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nammatamil.live'),
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ margin: 0, padding: 0 }}>
         {children}
         <FloatingChatWrapper />
+        <FeedbackWidget siteName="NammaTamil" />
         <Script defer data-site="nammatamil.live" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
       </body>
     </html>
