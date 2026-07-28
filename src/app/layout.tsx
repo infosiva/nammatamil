@@ -30,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ta" suppressHydrationWarning>
       <head>
+        <meta name="google-adsense-account" content="ca-pub-4237294630161176" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
