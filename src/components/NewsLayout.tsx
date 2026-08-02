@@ -125,7 +125,14 @@ function HeroGrid({ featured, sidebar }: { featured: NewsItem; sidebar: NewsItem
       </a>
 
       {/* Sidebar */}
-      <div style={{ background: '#fff', display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <div style={{ background: '#fff', display: 'flex', flexDirection: 'column', gap: 1, minHeight: 400 }}>
+        {sidebar.length === 0 && (
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', textAlign: 'center' }}>
+            <p style={{ fontSize: 13, color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>
+              இந்த பிரிவில் மேலும் செய்திகள் விரைவில்
+            </p>
+          </div>
+        )}
         {sidebar.slice(0, 3).map((item) => (
           <a key={item.id} href={item.sourceUrl} target="_blank" rel="noopener noreferrer" style={{
             textDecoration: 'none', display: 'flex', gap: 12, padding: '14px 16px',
@@ -196,7 +203,12 @@ export default function NewsLayout({ articles }: { articles: NewsItem[] }) {
     : articles.filter(n => n.category === activeCategory)
 
   const featured = filtered[0]
-  const sidebar = filtered.slice(1, 4)
+  const sidebarBase = filtered.slice(1, 4)
+  // Backfill sparse categories with cross-category trending items so the
+  // sidebar never renders shorter than the featured image beside it.
+  const sidebar = sidebarBase.length >= 3
+    ? sidebarBase
+    : [...sidebarBase, ...articles.filter(a => a.id !== featured?.id && !sidebarBase.some(s => s.id === a.id))].slice(0, 3)
   const grid = filtered.slice(4)
 
   return (

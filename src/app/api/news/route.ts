@@ -3,13 +3,15 @@ import { checkRateLimit } from '@/lib/rateLimit'
 import type { NewsItem, Category } from '@/lib/news'
 
 // Free Tamil RSS feeds — no API key required
+// NOTE: Dinamalar dropped its /rss/*.xml feeds (site rebuilt on Next.js, all now 404).
+// Replaced 2026-08-02 with ABP Live Tamil — confirmed live, matching <item>/CDATA structure.
 const RSS_SOURCES = [
-  { url: 'https://www.dinamalar.com/rss/Tamil_Nadu.xml',    source: 'Dinamalar',    category: 'தமிழகம்'       as Category },
-  { url: 'https://www.dinamalar.com/rss/Politics.xml',      source: 'Dinamalar',    category: 'அரசியல்'       as Category },
-  { url: 'https://www.dinamalar.com/rss/Cinema.xml',        source: 'Dinamalar',    category: 'சினிமா'        as Category },
-  { url: 'https://www.dinamalar.com/rss/Sports.xml',        source: 'Dinamalar',    category: 'விளையாட்டு'    as Category },
-  { url: 'https://www.dinamalar.com/rss/World.xml',         source: 'Dinamalar',    category: 'உலகம்'         as Category },
-  { url: 'https://www.dinamalar.com/rss/Technology.xml',    source: 'Dinamalar',    category: 'தொழில்நுட்பம்' as Category },
+  { url: 'https://tamil.abplive.com/news/tamil-nadu/feed', source: 'ABP Live Tamil', category: 'தமிழகம்'       as Category },
+  { url: 'https://tamil.abplive.com/news/politics/feed',   source: 'ABP Live Tamil', category: 'அரசியல்'       as Category },
+  { url: 'https://tamil.abplive.com/entertainment/feed',   source: 'ABP Live Tamil', category: 'சினிமா'        as Category },
+  { url: 'https://tamil.abplive.com/sports/feed',          source: 'ABP Live Tamil', category: 'விளையாட்டு'    as Category },
+  { url: 'https://tamil.abplive.com/news/india/feed',      source: 'ABP Live Tamil', category: 'உலகம்'         as Category },
+  { url: 'https://tamil.abplive.com/technology/feed',      source: 'ABP Live Tamil', category: 'தொழில்நுட்பம்' as Category },
 ]
 
 function stripHtml(html: string): string {
