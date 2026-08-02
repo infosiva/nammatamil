@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { CATEGORIES, CATEGORY_ICONS, BREAKING_TICKERS, timeAgo, type Category, type NewsItem } from '@/lib/news'
+import PromoBar from './PromoBar'
 
 const CATEGORY_IMG: Record<string, string> = {
   'அரசியல்':       'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&q=75&auto=format',
@@ -231,6 +232,9 @@ export default function NewsLayout({ articles }: { articles: NewsItem[] }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '10px 0', borderBottom: '1px solid #e2e8f0', marginBottom: 20 }}>
           <span style={{ fontSize: 12, color: '#64748b' }}>📰 {articles.length} செய்திகள்</span>
           <span style={{ fontSize: 12, color: '#64748b' }}>🕐 ஒவ்வொரு 10 நிமிடமும் புதுப்பிக்கப்படும்</span>
+          <span style={{ marginLeft: 'auto' }}>
+            <PromoBar />
+          </span>
         </div>
 
         {/* Category tabs */}
