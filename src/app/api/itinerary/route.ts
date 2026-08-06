@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { callAI } from '@/lib/ai'
+import { checkRateLimit } from '@/lib/rateLimit'
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for') ?? 'unknown'
+  const rl = checkRateLimit(ip, 10)
+  if (!rl.ok) return new Response('Rate limit exceeded', { status: 429 })
+
   try {
     const { destination, duration, budget, travel_style, interests, travel_with } = await req.json()
     const withKids = travel_with === 'Family with Kids'

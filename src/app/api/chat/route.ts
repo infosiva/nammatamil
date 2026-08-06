@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit } from '@/lib/rateLimit'
 
 export const runtime = 'nodejs'
 
@@ -12,6 +13,10 @@ Help users understand Tamil Nadu news, politics, cinema, sports, and culture. An
 Be concise, factual, and neutral. If asked about something outside Tamil news/culture, say: "நான் NammaTamil-க்காக பயிற்சி பெற்றேன். பொது கேள்விகளுக்கு Google அல்லது ChatGPT-ஐ பயன்படுத்துங்கள்."`
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for') ?? 'unknown'
+  const rl = checkRateLimit(ip, 10)
+  if (!rl.ok) return new Response('Rate limit exceeded', { status: 429 })
+
   try {
     const body = await req.json()
     const messages: Message[] = body.messages
