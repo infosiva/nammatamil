@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | RoamPlan",
-  description: "Privacy policy for RoamPlan — how we collect, use and protect your data.",
+  title: "Privacy Policy | NammaTamil",
+  description: "Privacy policy for NammaTamil — how we collect, use and protect your data.",
   robots: { index: true, follow: true },
 };
 
@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
       <p className="opacity-50 mb-10">Last updated: 13 May 2026</p>
 
       <Section title="1. Who We Are">
-        <p>RoamPlan (https://roamplan.app) is operated by an independent developer. AI travel planner — personalised itineraries, hotel picks and local tips in minutes.</p>
+        <p>NammaTamil (https://nammatamil.live) is operated by an independent developer. NammaTamil aggregates Tamil news headlines and publishes original Tamil Nadu travel guides.</p>
         <p className="mt-2">Contact: <a href="mailto:info.siva@gmail.com" className="underline">info.siva@gmail.com</a></p>
       </Section>
 
@@ -118,7 +118,7 @@ export default function PrivacyPolicyPage() {
         </p>
       </Section>
 
-      <p className="mt-10 opacity-40 text-xs">© 2026 RoamPlan. All rights reserved.</p>
+      <p className="mt-10 opacity-40 text-xs">© 2026 NammaTamil. All rights reserved.</p>
     </main>
   );
 }

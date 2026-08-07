@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | RoamPlan",
-  description: "Terms of service for RoamPlan — your rights and responsibilities when using our service.",
+  title: "Terms of Service | NammaTamil",
+  description: "Terms of service for NammaTamil — your rights and responsibilities when using our service.",
   robots: { index: true, follow: true },
 };
 
@@ -14,13 +14,16 @@ export default function TermsPage() {
 
       <Section title="1. Acceptance of Terms">
         <p>
-          By accessing or using RoamPlan (https://roamplan.app), you agree to be bound by these Terms of Service.
+          By accessing or using NammaTamil (https://nammatamil.live), you agree to be bound by these Terms of Service.
           If you do not agree, please do not use the service.
         </p>
       </Section>
 
       <Section title="2. Description of Service">
-        <p>AI travel planner — personalised itineraries, hotel picks and local tips in minutes.</p>
+        <p>
+          NammaTamil aggregates Tamil-language news headlines from third-party publishers and publishes
+          original Tamil Nadu travel guides, including an AI-assisted itinerary planner.
+        </p>
         <p className="mt-2">
           The service is provided free of charge. We reserve the right to modify, suspend or discontinue
           the service at any time without notice.
@@ -50,8 +53,10 @@ export default function TermsPage() {
 
       <Section title="5. Intellectual Property">
         <p>
-          All original content, design and code on this service is owned by or licensed to RoamPlan.
-          You may not reproduce, distribute or create derivative works without our written permission.
+          Original content, design and code on this service — including travel guides and the AI
+          itinerary planner — is owned by or licensed to NammaTamil. Aggregated news headlines and
+          summaries remain the property of their respective publishers; NammaTamil links to the original
+          source for each story and does not claim authorship of third-party content.
         </p>
         <p className="mt-2">
           User-submitted content (if applicable) remains your property. By submitting content, you grant
@@ -84,7 +89,7 @@ export default function TermsPage() {
 
       <Section title="9. Limitation of Liability">
         <p>
-          To the fullest extent permitted by law, RoamPlan shall not be liable for any indirect,
+          To the fullest extent permitted by law, NammaTamil shall not be liable for any indirect,
           incidental, special or consequential damages arising from your use of the service, even if
           we have been advised of the possibility of such damages.
         </p>
@@ -92,8 +97,8 @@ export default function TermsPage() {
 
       <Section title="10. Governing Law">
         <p>
-          These terms are governed by the laws of England and Wales. Any disputes shall be subject to
-          the exclusive jurisdiction of the courts of England and Wales.
+          These terms are governed by the laws of India. Any disputes shall be subject to the exclusive
+          jurisdiction of the courts of India.
         </p>
       </Section>
 
@@ -111,7 +116,7 @@ export default function TermsPage() {
         </p>
       </Section>
 
-      <p className="mt-10 opacity-40 text-xs">© 2026 RoamPlan. All rights reserved.</p>
+      <p className="mt-10 opacity-40 text-xs">© 2026 NammaTamil. All rights reserved.</p>
     </main>
   );
 }

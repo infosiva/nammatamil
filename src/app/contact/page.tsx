@@ -11,7 +11,7 @@ export default function ContactPage() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-16 text-sm leading-relaxed">
       <h1 className="text-3xl font-bold mb-2">Contact Us</h1>
-      <p className="opacity-50 mb-10">RoamPlan — https://roamplan.app</p>
+      <p className="opacity-50 mb-10">NammaTamil — https://nammatamil.live</p>
 
       <div className="mb-8">
         <p>
@@ -28,7 +28,7 @@ export default function ContactPage() {
           <li><strong>Feature requests</strong> — tell us what you&apos;d like to see.</li>
           <li><strong>Privacy / data requests</strong> — see our <a href="/privacy" className="underline">Privacy Policy</a> for your rights.</li>
           <li><strong>Advertising</strong> — for ad-related queries, contact Google AdSense directly.</li>
-          <li><strong>Copyright / DMCA</strong> — include the infringing URL and your ownership evidence.</li>
+          <li><strong>Copyright / DMCA</strong> — include the infringing URL and your ownership evidence. NammaTamil links to headlines from third-party Tamil news publishers; we remove any feed or link on a valid publisher request.</li>
         </ul>
       </div>
 
@@ -38,7 +38,7 @@ export default function ContactPage() {
         <p className="mt-3 opacity-40 text-xs">We aim to respond within 2 business days.</p>
       </div>
 
-      <p className="mt-10 opacity-40 text-xs">© 2026 RoamPlan. All rights reserved.</p>
+      <p className="mt-10 opacity-40 text-xs">© 2026 NammaTamil. All rights reserved.</p>
     </main>
   );
 }

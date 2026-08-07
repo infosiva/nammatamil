@@ -1,34 +1,54 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About | RoamPlan",
-  description: "About RoamPlan — AI travel planner — personalised itineraries, hotel picks and local tips in minutes.",
+  title: "About NammaTamil | நம்ம Tamil",
+  description: "About NammaTamil — how we curate Tamil Nadu and global Tamil news, cinema and trending stories for the Tamil community worldwide.",
   robots: { index: true, follow: true },
 };
 
 export default function AboutPage() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-16 text-sm leading-relaxed">
-      <h1 className="text-3xl font-bold mb-6">About RoamPlan</h1>
+      <h1 className="text-3xl font-bold mb-6">About NammaTamil</h1>
 
       <section className="mb-8">
-        <p className="text-base leading-7">AI travel planner — personalised itineraries, hotel picks and local tips in minutes.</p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">What We Offer</h2>
-        <p>
-          RoamPlan is a free service built to make travel planning more accessible through the power of artificial intelligence.
-          Our tools are designed to be intuitive, fast and available to everyone — no subscription required to get started.
+        <p className="text-base leading-7">
+          நம்ம Tamil (NammaTamil) is a free news hub built for Tamil readers everywhere — in Tamil Nadu,
+          across India, and in the wider Tamil diaspora. We track politics, cinema, sports and everyday
+          life in Tamil Nadu and pull it into one place, updated every ten minutes.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">Built with AI</h2>
+        <h2 className="text-lg font-semibold mb-3">What We Cover</h2>
         <p>
-          We use state-of-the-art AI models to deliver personalised, high-quality results. Our systems
-          are continuously improving based on user feedback and the latest advances in AI research.
-          All AI-generated content is clearly presented as such — we believe in transparency.
+          Our homepage refreshes automatically with the latest Tamil-language headlines from established
+          news outlets — politics and governance from Tamil Nadu and the Union government, Kollywood
+          cinema news and release updates, cricket and IPL coverage, and technology stories relevant to
+          Tamil readers. Every headline links back to the original publisher so you can read the full
+          story at the source.
+        </p>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold mb-3">How We Curate</h2>
+        <p>
+          NammaTamil is an automated aggregator, not a newsroom — we do not employ reporters and we do
+          not claim authorship of the articles we link to. What we add is curation: pulling multiple
+          Tamil news feeds into a single, fast-loading, mobile-friendly page, refreshed on a fixed
+          schedule, so you don&apos;t have to check five different sites to keep up with Tamil Nadu.
+          Copyright for every linked article remains with its original publisher.
+        </p>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold mb-3">Travel Guides</h2>
+        <p>
+          Alongside news, we publish original local guides for Tamil Nadu travel — temple tour
+          itineraries, hill station and pilgrimage guides — written for readers planning a trip, with an
+          AI-assisted day-by-day planner you can generate for free. See{" "}
+          <a href="/tamil-nadu-temple-tour" className="underline">Tamil Nadu Temple Tour</a> and{" "}
+          <a href="/places-to-visit-in-tamil-nadu" className="underline">Places to Visit in Tamil Nadu</a>.
         </p>
       </section>
 
@@ -44,7 +64,7 @@ export default function AboutPage() {
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-3">Advertising</h2>
         <p>
-          RoamPlan is supported by advertising through Google AdSense. Ads help us keep the service
+          NammaTamil is supported by advertising through Google AdSense. Ads help us keep the service
           free for everyone. We work to ensure ads are relevant and non-intrusive.
         </p>
       </section>
@@ -52,14 +72,14 @@ export default function AboutPage() {
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-3">Get in Touch</h2>
         <p>
-          We&apos;d love to hear from you — feedback, bug reports or partnership enquiries are all welcome.
-          Reach us at{" "}
+          Spotted an outdated headline, a broken link, or want a publisher removed from our feed? We&apos;d
+          love to hear from you. Reach us at{" "}
           <a href="mailto:info.siva@gmail.com" className="underline">info.siva@gmail.com</a> or use our{" "}
           <a href="/contact" className="underline">contact page</a>.
         </p>
       </section>
 
-      <p className="mt-10 opacity-40 text-xs">© 2026 RoamPlan. All rights reserved.</p>
+      <p className="mt-10 opacity-40 text-xs">© 2026 NammaTamil. All rights reserved.</p>
     </main>
   );
 }
