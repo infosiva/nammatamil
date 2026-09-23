@@ -196,7 +196,7 @@ function ArticleCard({ item }: { item: NewsItem }) {
 }
 
 // ─── Main layout ──────────────────────────────────────────────────────────────
-export default function NewsLayout({ articles }: { articles: NewsItem[] }) {
+export default function NewsLayout({ articles, showBreakingTicker = true }: { articles: NewsItem[]; showBreakingTicker?: boolean }) {
   const [activeCategory, setActiveCategory] = useState<Category>('அனைத்தும்')
 
   const filtered = activeCategory === 'அனைத்தும்'
@@ -224,7 +224,7 @@ export default function NewsLayout({ articles }: { articles: NewsItem[] }) {
         @media(min-width:641px) and (max-width:900px){ .article-grid{ grid-template-columns:repeat(2,1fr) !important; } }
       `}</style>
 
-      <BreakingTicker />
+      {showBreakingTicker && <BreakingTicker />}
       <Navbar />
 
       <main style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px 60px' }}>

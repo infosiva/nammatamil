@@ -1,10 +1,12 @@
 import { SAMPLE_HEADLINES } from '@/lib/news'
 import NewsLayout from '@/components/NewsLayout'
 import type { NewsItem } from '@/lib/news'
+import { getSiteFlags } from '@/lib/flags'
 
 export const revalidate = 600 // revalidate every 10 minutes
 
 export default async function HomePage() {
+  const flags = await getSiteFlags('nammatamil')
   let articles: NewsItem[] = SAMPLE_HEADLINES
 
   try {
@@ -28,7 +30,7 @@ export default async function HomePage() {
       <h1 style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
         NammaTamil — Tamil News, Cinema &amp; Trending Stories
       </h1>
-      <NewsLayout articles={articles} />
+      <NewsLayout articles={articles} showBreakingTicker={flags.breaking_ticker} />
     </>
   )
 }
