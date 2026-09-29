@@ -41,7 +41,29 @@ export async function POST(req: NextRequest) {
       }),
     })
 
-    if (!res.ok || !res.body) return NextResponse.json({ error: 'AI request failed' }, { status: 502 })
+    if (!res.ok || !res.body) {
+      // Fallback: Groq refused (retired model, bad key, rate limit) -> Gemini, returned as the same plain-text stream
+      const gk = process.env.GEMINI_API_KEY
+      if (gk) {
+        try {
+          const gr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${gk}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: messages.filter(m => m.role !== 'system').map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
+              generationConfig: { maxOutputTokens: 600, temperature: 0.6 },
+            }),
+          })
+          if (gr.ok) {
+            const gj = await gr.json()
+            const gt = gj.candidates?.[0]?.content?.parts?.[0]?.text
+            if (gt) return new NextResponse(gt, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache' } })
+          }
+        } catch { /* fall through */ }
+      }
+      return NextResponse.json({ error: 'AI request failed' }, { status: 502 })
+    }
 
     const readable = new ReadableStream({
       async start(controller) {
