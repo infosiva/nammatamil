@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { CATEGORIES, CATEGORY_ICONS, BREAKING_TICKERS, timeAgo, type Category, type NewsItem } from '@/lib/news'
 import PromoBar from './PromoBar'
+import { SpotlightCard } from "@infosiva/shared-ui/modern";
 
 const CATEGORY_IMG: Record<string, string> = {
   'அரசியல்':       'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&q=75&auto=format',
@@ -273,7 +274,7 @@ export default function NewsLayout({ articles, showBreakingTicker = true }: { ar
             </h3>
             <div className="article-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               {grid.map(item => (
-                <ArticleCard key={item.id} item={item} />
+                <SpotlightCard key={item.id}><ArticleCard item={item} /></SpotlightCard>
               ))}
             </div>
           </>

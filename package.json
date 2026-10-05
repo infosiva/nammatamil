@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
+    "@infosiva/shared-ui": "^1.4.4",
     "@vercel/edge-config": "^1.4.3",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.39.0",
+    "framer-motion": "^12.43.0",
     "groq-sdk": "^1.2.0",
     "lucide-react": "^1.14.0",
     "next": "15.3.9",

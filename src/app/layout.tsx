@@ -3,6 +3,7 @@ import './globals.css'
 import FloatingChatWrapper from '../../components/FloatingChatWrapper'
 import FeedbackWidget from '@/components/FeedbackWidget'
 
+import { MotionProvider } from "@infosiva/shared-ui/modern";
 export const metadata: Metadata = {
   metadataBase: new URL('https://nammatamil.live'),
   title: 'நம்ம Tamil — தமிழர்களுக்கான செய்திகள் | Tamil News',
@@ -50,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body style={{ margin: 0, padding: 0 }}>
-        {children}
+        <MotionProvider>{children}</MotionProvider>
         <FloatingChatWrapper />
         <FeedbackWidget siteName="NammaTamil" />
       </body>
