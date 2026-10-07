@@ -25,3 +25,9 @@ See git status in nammatamil. Renamed to .bak: icon.tsx (and theme.config.ts for
 - LLM05 improper output handling: model output rendered as text; not audited for HTML sinks. UNVERIFIED.
 - LLM06 excessive agency: no tool-calling agents audited. UNVERIFIED.
 - Others (supply chain, poisoning, embeddings, misinformation): not assessed.
+
+
+## ANIMATED SCOPE (gate items 19/21, derived from code 2026-10-07)
+- Moves: AnimatedBg, AnimatedBackground (ambient hero/background); CSS keyframes: ambientPulse, cloudDrift, ds-float, ds-shift, fadeUp, gateSlideUp, livePulse, pulse; transitions on interactive elements.
+- Trigger: page load (ambient) and hover/press (interactive). Reduced motion: honoured via prefers-reduced-motion block.
+- STATUS: scope documented from existing code only. Skill-stack passes (ui-ux-pro-max, emil-design-eng, impeccable critique, review-animations) and 375/1280 screenshot review are NOT yet run for this app. Item 21 stays OPEN until they are.
