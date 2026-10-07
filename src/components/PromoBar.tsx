@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { usePromo } from '@/hooks/usePromo'
 
-const ACCENT = '#dc2626'
+const ACCENT = 'var(--accent)'
 
 export default function PromoBar() {
   const { isUnlocked, daysLeft } = usePromo()
@@ -48,7 +48,7 @@ export default function PromoBar() {
     return (
       <button
         onClick={() => setOpen(true)}
-        style={{ fontSize: 12, color: '#64748b', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Noto Sans Tamil', sans-serif" }}
+        style={{ fontSize: 12, color: 'var(--text-2)', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Noto Sans Tamil', sans-serif" }}
       >
         Have a promo code?
       </button>
@@ -62,7 +62,7 @@ export default function PromoBar() {
         onChange={(e) => { setCode(e.target.value); setStatus('idle') }}
         onKeyDown={(e) => e.key === 'Enter' && submit()}
         placeholder="Enter code"
-        style={{ borderRadius: 6, border: '1px solid rgba(220,38,38,0.35)', padding: '3px 8px', fontSize: 12, width: 100 }}
+        style={{ borderRadius: 6, border: '1px solid color-mix(in srgb, var(--accent) 35%, transparent)', padding: '3px 8px', fontSize: 12, width: 100 }}
       />
       <button
         onClick={submit}
@@ -71,7 +71,7 @@ export default function PromoBar() {
       >
         {status === 'checking' ? '...' : 'Apply'}
       </button>
-      {status === 'invalid' && <span style={{ color: '#ef4444', fontSize: 11 }}>Invalid</span>}
+      {status === 'invalid' && <span style={{ color: 'var(--accent)', fontSize: 11 }}>Invalid</span>}
     </span>
   )
 }

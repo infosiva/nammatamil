@@ -13,7 +13,7 @@ export default function AnimatedBackground() {
       <div style={{
         position: 'absolute', top: '-10%', right: '-5%',
         width: '700px', height: '600px',
-        background: 'radial-gradient(ellipse, rgba(251,146,60,0.18) 0%, rgba(239,68,68,0.10) 40%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(251,146,60,0.18) 0%, color-mix(in srgb, var(--accent) 10%, transparent) 40%, transparent 70%)',
         filter: 'blur(80px)',
       }} />
 

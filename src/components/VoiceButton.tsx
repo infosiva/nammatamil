@@ -95,7 +95,7 @@ export default function VoiceButton({ onTranscript, lang = 'en-GB', color = '#f5
         data-state={state}
         className="relative w-14 h-14 rounded-full text-white flex items-center justify-center shadow-2xl transition-all duration-200 hover:scale-110 active:scale-95"
         style={{
-          background: state === 'error' ? '#ef4444' : color,
+          background: state === 'error' ? 'var(--accent)' : color,
           boxShadow: state === 'listening' ? `0 0 0 0 ${color}40, 0 8px 30px ${color}60` : `0 8px 30px ${color}40`,
         }}>
         {icons[state]}

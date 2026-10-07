@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import './globals.css'
 import FloatingChatWrapper from '../../components/FloatingChatWrapper'
 import FeedbackWidget from '@/components/FeedbackWidget'
+import { AnimatedBg } from '@/components/AnimatedBg'
+import Telemetry from '@/components/Telemetry'
+import { loadSiteTheme, buildThemeStyleTag, buildGa4Snippet } from '@/lib/theme-loader'
 
 import { MotionProvider } from "@infosiva/shared-ui/modern";
 export const metadata: Metadata = {
@@ -27,9 +30,11 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const theme = await loadSiteTheme('nammatamil')
+  const ga4 = buildGa4Snippet(theme)
   return (
-    <html lang="ta" suppressHydrationWarning>
+    <html lang="ta" data-layout={theme?.layout?.archetype ?? 'travel-magazine'} suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content="ca-pub-4237294630161176" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -49,9 +54,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             "inLanguage": "ta",
           })}}
         />
+        <style dangerouslySetInnerHTML={{ __html: buildThemeStyleTag(theme, { background: '#faf3e3', primary: '#237a57', secondary: '#c98a2b' }) }} />
+        {ga4 && <script async src={`https://www.googletagmanager.com/gtag/js?id=${theme?.analytics?.ga4Id}`} />}
+        {ga4 && <script dangerouslySetInnerHTML={{ __html: ga4 }} />}
       </head>
       <body style={{ margin: 0, padding: 0 }}>
+        <AnimatedBg theme={theme} />
         <MotionProvider>{children}</MotionProvider>
+        <Telemetry />
         <FloatingChatWrapper />
         <FeedbackWidget siteName="NammaTamil" />
       </body>

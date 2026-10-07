@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { CATEGORIES, CATEGORY_ICONS, BREAKING_TICKERS, timeAgo, type Category, type NewsItem } from '@/lib/news'
 import PromoBar from './PromoBar'
+import Logo from './Logo'
 import { SpotlightCard } from "@infosiva/shared-ui/modern";
 
 const CATEGORY_IMG: Record<string, string> = {
@@ -23,20 +24,20 @@ function getImg(item: NewsItem) {
 function BreakingTicker() {
   const doubled = [...BREAKING_TICKERS, ...BREAKING_TICKERS]
   return (
-    <div style={{ background: '#dc2626', overflow: 'hidden', height: 34, display: 'flex', alignItems: 'center' }}>
+    <div style={{ background: 'var(--accent)', overflow: 'hidden', height: 34, display: 'flex', alignItems: 'center' }}>
       <span style={{
         flexShrink: 0, padding: '0 14px',
         fontSize: 10, fontWeight: 900, letterSpacing: '1.5px', textTransform: 'uppercase',
-        color: '#fff', background: 'rgba(0,0,0,0.25)', height: '100%',
+        color: 'var(--surface)', background: 'rgba(0,0,0,0.25)', height: '100%',
         display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
       }}>
-        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#fff', display: 'inline-block', animation: 'pulse 1.4s ease-in-out infinite' }} />
+        <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--surface)', display: 'inline-block', animation: 'pulse 1.4s ease-in-out infinite' }} />
         LIVE
       </span>
       <div style={{ flex: 1, overflow: 'hidden' }}>
         <div className="ticker-track" style={{ display: 'inline-flex' }}>
           {doubled.map((t, i) => (
-            <span key={i} style={{ fontSize: 12, fontWeight: 600, color: '#fff', padding: '0 28px', whiteSpace: 'nowrap', fontFamily: "'Noto Sans Tamil', sans-serif" }}>
+            <span key={i} style={{ fontSize: 12, fontWeight: 600, color: 'var(--surface)', padding: '0 28px', whiteSpace: 'nowrap', fontFamily: "'Noto Sans Tamil', sans-serif" }}>
               {t} &nbsp;•
             </span>
           ))}
@@ -51,38 +52,17 @@ function Navbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 50,
-      background: '#fff',
+      background: 'var(--surface)',
       borderBottom: '1px solid #e2e8f0',
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       height: 56, display: 'flex', alignItems: 'center',
       padding: '0 20px', justifyContent: 'space-between',
     }}>
       <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-        <span style={{
-          width: 26, height: 26, borderRadius: 7,
-          background: 'linear-gradient(135deg, #991b1b, #dc2626)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="5" fill="white" />
-            <g stroke="white" strokeWidth="2" strokeLinecap="round">
-              <line x1="12" y1="1" x2="12" y2="4" />
-              <line x1="12" y1="20" x2="12" y2="23" />
-              <line x1="1" y1="12" x2="4" y2="12" />
-              <line x1="20" y1="12" x2="23" y2="12" />
-              <line x1="4.2" y1="4.2" x2="6.3" y2="6.3" />
-              <line x1="17.7" y1="17.7" x2="19.8" y2="19.8" />
-              <line x1="4.2" y1="19.8" x2="6.3" y2="17.7" />
-              <line x1="17.7" y1="6.3" x2="19.8" y2="4.2" />
-            </g>
-          </svg>
-        </span>
-        <span style={{ fontFamily: "'Noto Serif Tamil', serif", fontWeight: 900, fontSize: 20, color: '#0f172a' }}>
-          நம்ம<span style={{ color: '#dc2626' }}>Tamil</span>
-        </span>
+        <Logo />
       </a>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic', display: 'none' }} className="hidden md:block">
+        <span style={{ fontSize: 11, color: 'var(--text-3)', fontStyle: 'italic', display: 'none' }} className="hidden md:block">
           உங்கள் மொழியில் உலக செய்திகள்
         </span>
         <span style={{
@@ -101,7 +81,7 @@ function HeroGrid({ featured, sidebar }: { featured: NewsItem; sidebar: NewsItem
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: '1fr 340px', gap: 1,
-      background: '#e2e8f0', borderBottom: '1px solid #e2e8f0',
+      background: 'var(--border)', borderBottom: '1px solid #e2e8f0',
     }} className="hero-grid">
       {/* Featured */}
       <a href={featured.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block', position: 'relative', overflow: 'hidden', minHeight: 400 }}>
@@ -110,27 +90,27 @@ function HeroGrid({ featured, sidebar }: { featured: NewsItem; sidebar: NewsItem
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 24px' }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
             {featured.breaking && (
-              <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', color: '#fff', background: '#dc2626', borderRadius: 4, padding: '3px 8px' }}>BREAKING</span>
+              <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--surface)', background: 'var(--accent)', borderRadius: 4, padding: '3px 8px' }}>BREAKING</span>
             )}
             <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.15)', borderRadius: 4, padding: '3px 8px', fontFamily: "'Noto Sans Tamil', sans-serif" }}>
               {featured.category}
             </span>
           </div>
-          <h2 style={{ fontFamily: "'Noto Serif Tamil', serif", fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 10px', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <h2 style={{ fontFamily: "'Noto Serif Tamil', serif", fontSize: 22, fontWeight: 900, color: 'var(--surface)', margin: '0 0 10px', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {featured.title}
           </h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#fca5a5' }}>{featured.source}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'color-mix(in srgb, var(--accent) 35%, white)' }}>{featured.source}</span>
             <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>{timeAgo(featured.publishedAt)}</span>
           </div>
         </div>
       </a>
 
       {/* Sidebar */}
-      <div style={{ background: '#fff', display: 'flex', flexDirection: 'column', gap: 1, minHeight: 400 }}>
+      <div style={{ background: 'var(--surface)', display: 'flex', flexDirection: 'column', gap: 1, minHeight: 400 }}>
         {sidebar.length === 0 && (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', textAlign: 'center' }}>
-            <p style={{ fontSize: 13, color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>
+            <p style={{ fontSize: 13, color: 'var(--text-3)', margin: 0, lineHeight: 1.6 }}>
               இந்த பிரிவில் மேலும் செய்திகள் விரைவில்
             </p>
           </div>
@@ -138,27 +118,27 @@ function HeroGrid({ featured, sidebar }: { featured: NewsItem; sidebar: NewsItem
         {sidebar.slice(0, 3).map((item) => (
           <a key={item.id} href={item.sourceUrl} target="_blank" rel="noopener noreferrer" style={{
             textDecoration: 'none', display: 'flex', gap: 12, padding: '14px 16px',
-            background: '#fff', borderBottom: '1px solid #f1f5f9',
+            background: 'var(--surface)', borderBottom: '1px solid #f1f5f9',
             transition: 'background 150ms',
           }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#f8fafc')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'var(--surface)')}
           >
             <img src={getImg(item)} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} loading="lazy" />
             <div style={{ flex: 1, minWidth: 0 }}>
               {item.trending && (
-                <span style={{ fontSize: 9, fontWeight: 800, color: '#dc2626', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Trending</span>
+                <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--accent)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Trending</span>
               )}
-              <p style={{ fontFamily: "'Noto Sans Tamil', sans-serif", fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '2px 0 6px', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              <p style={{ fontFamily: "'Noto Sans Tamil', sans-serif", fontSize: 13, fontWeight: 700, color: 'var(--text)', margin: '2px 0 6px', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {item.title}
               </p>
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>{item.source} · {timeAgo(item.publishedAt)}</span>
+              <span style={{ fontSize: 11, color: 'var(--text-3)' }}>{item.source} · {timeAgo(item.publishedAt)}</span>
             </div>
           </a>
         ))}
         {/* Source attribution */}
-        <div style={{ padding: '12px 16px', marginTop: 'auto', borderTop: '1px solid #f1f5f9', background: '#f8fafc' }}>
-          <p style={{ fontSize: 10, color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>
+        <div style={{ padding: '12px 16px', marginTop: 'auto', borderTop: '1px solid #f1f5f9', background: 'var(--bg)' }}>
+          <p style={{ fontSize: 10, color: 'var(--text-3)', margin: 0, lineHeight: 1.6 }}>
             செய்திகள்: Dinamalar · The Hindu Tamil · Vikatan
           </p>
         </div>
@@ -170,7 +150,7 @@ function HeroGrid({ featured, sidebar }: { featured: NewsItem; sidebar: NewsItem
 // ─── Article card ─────────────────────────────────────────────────────────────
 function ArticleCard({ item }: { item: NewsItem }) {
   return (
-    <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, overflow: 'hidden', transition: 'box-shadow 150ms, transform 150ms', cursor: 'pointer' }}
+    <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', background: 'var(--surface)', border: '1px solid #e2e8f0', borderRadius: 10, overflow: 'hidden', transition: 'box-shadow 150ms, transform 150ms', cursor: 'pointer' }}
       onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none' }}
     >
@@ -181,15 +161,15 @@ function ArticleCard({ item }: { item: NewsItem }) {
         />
       </div>
       <div style={{ padding: '12px 14px 14px', flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', background: '#fef2f2', borderRadius: 4, padding: '2px 7px', alignSelf: 'flex-start', fontFamily: "'Noto Sans Tamil', sans-serif" }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'color-mix(in srgb, var(--accent) 8%, white)', borderRadius: 4, padding: '2px 7px', alignSelf: 'flex-start', fontFamily: "'Noto Sans Tamil', sans-serif" }}>
           {item.category}
         </span>
-        <p style={{ fontFamily: "'Noto Sans Tamil', sans-serif", fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <p style={{ fontFamily: "'Noto Sans Tamil', sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--text)', margin: 0, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {item.title}
         </p>
         <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>{item.source}</span>
-          <span style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(item.publishedAt)}</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)' }}>{item.source}</span>
+          <span style={{ fontSize: 11, color: 'var(--text-3)' }}>{timeAgo(item.publishedAt)}</span>
         </div>
       </div>
     </a>
@@ -214,7 +194,7 @@ export default function NewsLayout({ articles, showBreakingTicker = true }: { ar
   const grid = filtered.slice(4)
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', fontFamily: "'Noto Sans Tamil', sans-serif" }}>
+    <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: "'Noto Sans Tamil', sans-serif" }}>
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
         .ticker-track { animation: ticker 30s linear infinite; }
@@ -231,8 +211,8 @@ export default function NewsLayout({ articles, showBreakingTicker = true }: { ar
       <main style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px 60px' }}>
         {/* Stats bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '10px 0', borderBottom: '1px solid #e2e8f0', marginBottom: 20 }}>
-          <span style={{ fontSize: 12, color: '#64748b' }}>📰 {articles.length} செய்திகள்</span>
-          <span style={{ fontSize: 12, color: '#64748b' }}>🕐 ஒவ்வொரு 10 நிமிடமும் புதுப்பிக்கப்படும்</span>
+          <span style={{ fontSize: 12, color: 'var(--text-2)' }}>📰 {articles.length} செய்திகள்</span>
+          <span style={{ fontSize: 12, color: 'var(--text-2)' }}>🕐 ஒவ்வொரு 10 நிமிடமும் புதுப்பிக்கப்படும்</span>
           <span style={{ marginLeft: 'auto' }}>
             <PromoBar />
           </span>
@@ -247,8 +227,8 @@ export default function NewsLayout({ articles, showBreakingTicker = true }: { ar
               style={{
                 flexShrink: 0, padding: '6px 14px', borderRadius: 20,
                 border: activeCategory === cat ? 'none' : '1px solid #e2e8f0',
-                background: activeCategory === cat ? '#dc2626' : '#fff',
-                color: activeCategory === cat ? '#fff' : '#374151',
+                background: activeCategory === cat ? 'var(--accent)' : 'var(--surface)',
+                color: activeCategory === cat ? 'var(--surface)' : '#374151',
                 fontSize: 13, fontWeight: 600, cursor: 'pointer',
                 fontFamily: "'Noto Sans Tamil', sans-serif",
                 transition: 'background 120ms, color 120ms',
@@ -269,7 +249,7 @@ export default function NewsLayout({ articles, showBreakingTicker = true }: { ar
         {/* Article grid */}
         {grid.length > 0 && (
           <>
-            <h3 style={{ fontSize: 13, fontWeight: 800, color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 16px' }}>
+            <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-3)', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 16px' }}>
               மேலும் செய்திகள்
             </h3>
             <div className="article-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
@@ -281,7 +261,7 @@ export default function NewsLayout({ articles, showBreakingTicker = true }: { ar
         )}
 
         {articles.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '80px 0', color: '#94a3b8', fontSize: 15 }}>
+          <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--text-3)', fontSize: 15 }}>
             செய்திகள் ஏற்றுகிறது...
           </div>
         )}

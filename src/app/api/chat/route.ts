@@ -27,9 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     const groqKey = process.env.GROQ_API_KEY
-    if (!groqKey) return NextResponse.json({ error: 'AI not configured' }, { status: 503 })
-
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = groqKey ? await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${groqKey}` },
       body: JSON.stringify({
@@ -39,9 +37,9 @@ export async function POST(req: NextRequest) {
         temperature: 0.6,
         stream: true,
       }),
-    })
+    }).catch(() => null) : null
 
-    if (!res.ok || !res.body) {
+    if (!res || !res.ok || !res.body) {
       // Fallback: Groq refused (retired model, bad key, rate limit) -> Gemini, returned as the same plain-text stream
       const gk = process.env.GEMINI_API_KEY
       if (gk) {
@@ -62,7 +60,22 @@ export async function POST(req: NextRequest) {
           }
         } catch { /* fall through */ }
       }
-      return NextResponse.json({ error: 'AI request failed' }, { status: 502 })
+      // Third tier: Cerebras (OpenAI-compatible)
+      const ck = process.env.CEREBRAS_API_KEY
+      if (ck) {
+        try {
+          const cr = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ck}` },
+            body: JSON.stringify({ model: 'llama3.1-8b', messages: [{ role: 'system', content: systemPrompt }, ...messages], max_tokens: 600, temperature: 0.6 }),
+          })
+          if (cr.ok) {
+            const ct = (await cr.json()).choices?.[0]?.message?.content
+            if (ct) return new NextResponse(ct, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache' } })
+          }
+        } catch { /* fall through */ }
+      }
+      return new NextResponse('Sorry, the assistant is busy right now. Please try again in a moment.', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
     }
 
     const readable = new ReadableStream({
@@ -97,6 +110,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     console.error('[/api/chat]', err)
-    return NextResponse.json({ error: 'Chat failed' }, { status: 500 })
+    return new NextResponse('Sorry, the assistant is busy right now. Please try again in a moment.', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
   }
 }

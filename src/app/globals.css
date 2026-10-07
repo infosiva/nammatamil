@@ -3,18 +3,19 @@
 @import "tailwindcss";
 
 :root {
-  --bg:        #f8fafc;
-  --surface:   #ffffff;
-  --surface-2: #f1f5f9;
-  --border:    #e2e8f0;
-  --border-2:  #cbd5e1;
-  --text:      #0f172a;
-  --text-2:    #64748b;
-  --text-3:    #94a3b8;
-  --accent:    #dc2626;
-  --accent-2:  #b91c1c;
+  --bg:        var(--background, #faf3e3);
+  --surface:   #fffdf7;
+  --surface-2: #f4ecd6;
+  --border:    #e6dcc0;
+  --border-2:  #d4c8a6;
+  --text:      #2a2418;
+  --text-2:    #5f5740;
+  --text-3:    #7a7258;
+  --accent:    var(--theme-primary, #237a57);
+  --accent-2:  color-mix(in srgb, var(--accent) 80%, black);
 }
 
+html { background: var(--bg); }
 html, body {
   background: var(--bg);
   color: var(--text);
@@ -30,7 +31,7 @@ html, body {
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
 
 @keyframes ticker {
   0%   { transform: translateX(0); }
@@ -50,16 +51,23 @@ html, body {
   100% { background-position: 200% 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);
+  background: linear-gradient(90deg,var(--surface-2) 25%,var(--border) 50%,var(--surface-2) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 6px;
 }
 
 .news-card { transition: border-color 0.15s, box-shadow 0.15s; }
-.news-card:hover { border-color: #fca5a5 !important; box-shadow: 0 4px 16px rgba(220,38,38,0.10); }
+.news-card:hover { border-color: color-mix(in srgb, var(--accent) 35%, white) !important; box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 10%, transparent); }
 
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; }
 * { -webkit-tap-highlight-color: transparent; }
 img { max-width: 100%; height: auto; }
+
+/* body must be transparent so AnimatedBg shows through; html carries --bg */
+body { background: transparent !important; }
+html[data-layout="travel-magazine"] .news-card { border-radius: 4px; }
+html[data-layout="magazine-editorial"] .news-card { border-radius: 0; }
+html[data-layout="hero-chat"] .news-card, html[data-layout="bento-showcase"] .news-card { border-radius: 16px; }
+html[data-layout="finance-terminal"] .news-card, html[data-layout="tool-first-workbench"] .news-card { border-radius: 2px; }
