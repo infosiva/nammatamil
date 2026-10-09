@@ -3,6 +3,7 @@ import './globals.css'
 import FloatingChatWrapper from '../../components/FloatingChatWrapper'
 import FeedbackWidget from '@/components/FeedbackWidget'
 import { AnimatedBg } from '@/components/AnimatedBg'
+import { Analytics } from '@vercel/analytics/next'
 import Telemetry from '@/components/Telemetry'
 import { loadSiteTheme, buildThemeStyleTag, buildGa4Snippet } from '@/lib/theme-loader'
 
@@ -32,7 +33,9 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const theme = await loadSiteTheme('nammatamil')
-  const ga4 = buildGa4Snippet(theme)
+  // hub id wins; env is the fallback until the hub has nammatamil's id
+  const ga4Id = theme?.analytics?.ga4Id || process.env.NEXT_PUBLIC_GA4_ID
+  const ga4 = buildGa4Snippet(theme?.analytics?.ga4Id ? theme : { ...(theme ?? {}), analytics: { ...(theme?.analytics ?? {}), ga4Id } } as typeof theme)
   return (
     <html lang="ta" data-layout={theme?.layout?.archetype ?? 'travel-magazine'} suppressHydrationWarning>
       <head>
@@ -55,13 +58,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           })}}
         />
         <style dangerouslySetInnerHTML={{ __html: buildThemeStyleTag(theme, { background: '#faf3e3', primary: '#237a57', secondary: '#c98a2b' }) }} />
-        {ga4 && <script async src={`https://www.googletagmanager.com/gtag/js?id=${theme?.analytics?.ga4Id}`} />}
+        {ga4 && <script async src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`} />}
         {ga4 && <script dangerouslySetInnerHTML={{ __html: ga4 }} />}
       </head>
       <body style={{ margin: 0, padding: 0 }}>
         <AnimatedBg theme={theme} />
         <MotionProvider>{children}</MotionProvider>
         <Telemetry />
+        <Analytics />
         <FloatingChatWrapper />
         <FeedbackWidget siteName="NammaTamil" />
       </body>

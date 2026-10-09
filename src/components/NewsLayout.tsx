@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { CATEGORIES, CATEGORY_ICONS, BREAKING_TICKERS, timeAgo, type Category, type NewsItem } from '@/lib/news'
+import { CATEGORIES, CATEGORY_ICONS, timeAgo, type Category, type NewsItem } from '@/lib/news'
 import PromoBar from './PromoBar'
 import Logo from './Logo'
 import { SpotlightCard } from "@infosiva/shared-ui/modern";
@@ -21,8 +21,9 @@ function getImg(item: NewsItem) {
 }
 
 // ─── Breaking ticker ──────────────────────────────────────────────────────────
-function BreakingTicker() {
-  const doubled = [...BREAKING_TICKERS, ...BREAKING_TICKERS]
+function BreakingTicker({ headlines }: { headlines: string[] }) {
+  if (headlines.length === 0) return null
+  const doubled = [...headlines, ...headlines]
   return (
     <div style={{ background: 'var(--accent)', overflow: 'hidden', height: 34, display: 'flex', alignItems: 'center' }}>
       <span style={{
@@ -139,7 +140,7 @@ function HeroGrid({ featured, sidebar }: { featured: NewsItem; sidebar: NewsItem
         {/* Source attribution */}
         <div style={{ padding: '12px 16px', marginTop: 'auto', borderTop: '1px solid #f1f5f9', background: 'var(--bg)' }}>
           <p style={{ fontSize: 10, color: 'var(--text-3)', margin: 0, lineHeight: 1.6 }}>
-            செய்திகள்: Dinamalar · The Hindu Tamil · Vikatan
+            செய்திகள்: {[...new Set([featured, ...sidebar].map(a => a.source))].join(' · ')}
           </p>
         </div>
       </div>
@@ -177,7 +178,7 @@ function ArticleCard({ item }: { item: NewsItem }) {
 }
 
 // ─── Main layout ──────────────────────────────────────────────────────────────
-export default function NewsLayout({ articles, showBreakingTicker = true }: { articles: NewsItem[]; showBreakingTicker?: boolean }) {
+export default function NewsLayout({ articles, showBreakingTicker = true, top }: { articles: NewsItem[]; showBreakingTicker?: boolean; top?: React.ReactNode }) {
   const [activeCategory, setActiveCategory] = useState<Category>('அனைத்தும்')
 
   const filtered = activeCategory === 'அனைத்தும்'
@@ -205,10 +206,11 @@ export default function NewsLayout({ articles, showBreakingTicker = true }: { ar
         @media(min-width:641px) and (max-width:900px){ .article-grid{ grid-template-columns:repeat(2,1fr) !important; } }
       `}</style>
 
-      {showBreakingTicker && <BreakingTicker />}
+      {showBreakingTicker && <BreakingTicker headlines={articles.slice(0, 8).map(a => a.title)} />}
       <Navbar />
 
       <main style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px 60px' }}>
+        {top}
         {/* Stats bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '10px 0', borderBottom: '1px solid #e2e8f0', marginBottom: 20 }}>
           <span style={{ fontSize: 12, color: 'var(--text-2)' }}>📰 {articles.length} செய்திகள்</span>

@@ -71,3 +71,10 @@ html[data-layout="travel-magazine"] .news-card { border-radius: 4px; }
 html[data-layout="magazine-editorial"] .news-card { border-radius: 0; }
 html[data-layout="hero-chat"] .news-card, html[data-layout="bento-showcase"] .news-card { border-radius: 16px; }
 html[data-layout="finance-terminal"] .news-card, html[data-layout="tool-first-workbench"] .news-card { border-radius: 2px; }
+
+/* press + hover feedback for live data tiles (emil: fast ease-out, scale .97 on press) */
+.nt-tile,.nt-pill{transition:transform 160ms cubic-bezier(.23,1,.32,1),box-shadow 160ms cubic-bezier(.23,1,.32,1)}
+.nt-tile:active,.nt-pill:active{transform:scale(.97)}
+@media (hover:hover){.nt-tile:hover,.nt-pill:hover{box-shadow:0 4px 14px rgba(27,94,67,.16)}}
+.nt-tile:focus-visible,.nt-pill:focus-visible{outline:2px solid #1b5e43;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.nt-tile,.nt-pill{transition:none}.nt-tile:active,.nt-pill:active{transform:none}}

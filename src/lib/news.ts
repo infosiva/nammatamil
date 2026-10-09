@@ -51,15 +51,6 @@ export const CATEGORY_ICONS: Record<Category, string> = {
 // No sample headlines: the home page shows an honest empty state when the live feed is unavailable.
 export const SAMPLE_HEADLINES: NewsItem[] = []
 
-export const BREAKING_TICKERS = [
-  'சென்னையில் கனமழை எச்சரிக்கை — நாளை பள்ளிகளுக்கு விடுமுறை',
-  'IPL: RCB vs GT இன்று இரவு 7:30 மணிக்கு',
-  'தமிழக சட்டசபை: நாளை சிறப்பு கூட்டம்',
-  'விஜய் படம் அறிவிப்பு: ரசிகர்களுக்கு அசத்தல் பரிசு',
-  'US-India Trade Deal: முக்கிய பேச்சுவார்த்தை டெல்லியில்',
-  'நம்ம Tamil — உங்கள் மொழியில் உலக செய்திகள்',
-]
-
 export function timeAgo(iso: string): string {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000
   if (diff < 60)   return `${Math.round(diff)} நிமிடம் முன்`

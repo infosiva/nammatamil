@@ -45,7 +45,8 @@ async function fetchRSS(src: typeof RSS_SOURCES[0]): Promise<NewsItem[]> {
       const link     = block.match(/<link>([^<]+)<\/link>/)?.[1]?.trim() ?? '#'
       const pubDate  = block.match(/<pubDate>([^<]+)<\/pubDate>/)?.[1]?.trim() ?? new Date().toISOString()
       const descRaw  = block.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/)?.[1] ?? ''
-      const imgUrl   = extractImg(descRaw) ?? extractImg(block)
+      // ABP ships the article photo in <media:thumbnail>, not as an <img> in the description
+      const imgUrl   = block.match(/<media:(?:thumbnail|content)[^>]+url=["']([^"']+)["']/i)?.[1] ?? extractImg(descRaw) ?? extractImg(block)
 
       const title = stripHtml(titleRaw)
       const summary = stripHtml(descRaw).slice(0, 200)
