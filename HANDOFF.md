@@ -42,5 +42,5 @@ Resume: do the NOT DONE items, then commit by name + push.
 ## Gate exemptions & status (2026-10-09)
 - **User state / auth: EXEMPT.** Public news portal, no accounts, no per-user data. Per-viewer state (consent, promo unlock) lives in localStorage; promo validated server-side via hub. Revisit if saved-stories/personalisation is requested.
 - **Cookie banner vs FABs:** banner raised to zIndex 10000 so it sits above chat/feedback FABs until answered; FABs reachable after choice.
-- **Owner-blocked inputs:** GA4 `G-…` id (hub analytics.ga4Id or NEXT_PUBLIC_GA4_ID), NEXT_PUBLIC_POSTHOG_KEY, a hub-created promo code for redeem click-test, Vercel team routing (infosivas-projects vs sivaprakasam).
+- **Owner-blocked inputs:** GA4 `G-…` id (hub analytics.ga4Id or NEXT_PUBLIC_GA4_ID), NEXT_PUBLIC_POSTHOG_KEY, a hub-created promo code for redeem click-test.
 - **CTA warning (visual-qa):** election/trending tiles are the primary action; no separate CTA added.
