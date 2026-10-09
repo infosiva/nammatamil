@@ -56,7 +56,7 @@ export default function Telemetry() {
   if (!ask) return null
   const btn = { minHeight: 44, minWidth: 88, padding: '0 16px', borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: 'pointer' } as const
   return (
-    <div role="dialog" aria-label="Analytics consent" style={{ position: 'fixed', left: 12, right: 12, bottom: 12, zIndex: 60, maxWidth: 520, margin: '0 auto', background: '#ffffff', color: '#1a1a1a', border: '1px solid rgba(0,0,0,.15)', borderRadius: 14, padding: 14, boxShadow: '0 8px 30px rgba(0,0,0,.18)', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+    <div role="dialog" aria-label="Analytics consent" style={{ position: 'fixed', left: 12, right: 12, bottom: 12, zIndex: 10000, maxWidth: 520, margin: '0 auto', background: '#ffffff', color: '#1a1a1a', border: '1px solid rgba(0,0,0,.15)', borderRadius: 14, padding: 14, boxShadow: '0 8px 30px rgba(0,0,0,.18)', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
       <p style={{ flex: '1 1 220px', fontSize: 13, lineHeight: 1.4, margin: 0 }}>Allow anonymous usage stats (pages visited, no personal data) to help improve this site?</p>
       <button onClick={() => choose('denied')} style={{ ...btn, background: '#f1f1f1', color: '#1a1a1a', border: '1px solid rgba(0,0,0,.2)' }}>No thanks</button>
       <button onClick={() => choose('granted')} style={{ ...btn, background: '#1a1a1a', color: '#ffffff', border: '1px solid #1a1a1a' }}>Allow</button>
