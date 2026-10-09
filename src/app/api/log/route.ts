@@ -1,6 +1,9 @@
 import { NextRequest } from 'next/server'
+import { limited } from '@/lib/rateLimit'
 // Structured log sink: one JSON line per event to stdout (Vercel logs). Never throws, never 500.
 export async function POST(req: NextRequest) {
+  const rl = limited(req, 'log', 300)
+  if (rl) return rl
   try {
     const raw = await req.text()
     if (raw.length > 2048) return new Response(null, { status: 204 })

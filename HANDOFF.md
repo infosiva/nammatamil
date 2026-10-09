@@ -29,3 +29,12 @@
 
 ## Resume from here
 Get GA4 id, then user state / promo / PostHog / rate-limit, then commit on approval.
+
+## 2026-10-09 gate round (before push)
+- [x] Rate limits live-proven: /api/promo 10×200 then 429 + Retry-After 3597; chat 60, feedback 20+4KB cap, log 300
+- [x] Promo proxies hub `/api/access-codes/validate` (project nammatamil); invalid code -> `{"valid":false}` live. Valid-code redeem NOT click-tested: needs a hub admin-created code (owner)
+- [x] Events view / core_action / promo_redeem consent-gated (gtag + PostHog if key + usage log)
+- [x] visual-qa live: 0 fail. Fixed false-positive "LIVE overlaps ticker" in scripts/visual-qa.mjs (clip rects to overflow:hidden ancestors). Warn "broken images" = lazy-load timing; real check after scroll: 48 imgs, 0 broken
+- [ ] OWNER-BLOCKED: GA4 `G-…` id (hub analytics.ga4Id or NEXT_PUBLIC_GA4_ID), NEXT_PUBLIC_POSTHOG_KEY, a valid hub promo code to click-test redeem
+- [ ] NOT DONE: user state (auth + persisted per-user), full UI skill-stack evidence, cookie banner vs FAB overlap at 375, team routing question (infosivas-projects vs sivaprakasam)
+Resume: do the NOT DONE items, then commit by name + push.

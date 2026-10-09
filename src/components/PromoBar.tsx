@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react'
+import { logEvent } from '@/components/Telemetry'
 import { usePromo } from '@/hooks/usePromo'
 
 const ACCENT = 'var(--accent)'
@@ -35,6 +36,7 @@ export default function PromoBar() {
       })
       const data = await res.json()
       if (data.valid) {
+        logEvent('promo_redeem')
         window.location.reload()
       } else {
         setStatus('invalid')

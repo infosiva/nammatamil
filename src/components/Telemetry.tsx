@@ -13,8 +13,21 @@ function send(body: Record<string, unknown>) {
   } catch {}
 }
 
+const PH_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY
+const PH_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com'
+
+// Gate events: view, core_action, signup, promo_redeem. Consent-gated; fans out to usage log, GA4 and PostHog (if keyed).
 export function logEvent(name: string) {
-  try { if (localStorage.getItem(KEY) === 'granted') send({ kind: 'usage', name }) } catch {}
+  try {
+    if (localStorage.getItem(KEY) !== 'granted') return
+    send({ kind: 'usage', name })
+    ;(window as unknown as G).gtag?.('event', name)
+    if (PH_KEY) {
+      let id = localStorage.getItem('ph-id')
+      if (!id) { id = crypto.randomUUID(); localStorage.setItem('ph-id', id) }
+      fetch(`${PH_HOST}/capture/`, { method: 'POST', keepalive: true, body: JSON.stringify({ api_key: PH_KEY, event: name, distinct_id: id, properties: { path: location.pathname, site: 'nammatamil' } }) }).catch(() => {})
+    }
+  } catch {}
 }
 
 export default function Telemetry() {
@@ -28,13 +41,16 @@ export default function Telemetry() {
     const onErr = (e: ErrorEvent) => send({ kind: 'error', message: String(e.message).slice(0, 300), stack: String(e.error?.stack ?? '').slice(0, 800) })
     const onRej = (e: PromiseRejectionEvent) => send({ kind: 'error', message: String((e.reason as Error)?.message ?? e.reason).slice(0, 300), stack: '' })
     addEventListener('error', onErr); addEventListener('unhandledrejection', onRej)
-    logEvent('pageview')
-    return () => { removeEventListener('error', onErr); removeEventListener('unhandledrejection', onRej) }
+    // core_action = tapping live election tile / trending pill / article link (delegated, so server components stay server)
+    const onClick = (e: MouseEvent) => { if ((e.target as Element)?.closest?.('.nt-tile,.nt-pill,[data-core]')) logEvent('core_action') }
+    addEventListener('click', onClick)
+    logEvent('view')
+    return () => { removeEventListener('error', onErr); removeEventListener('unhandledrejection', onRej); removeEventListener('click', onClick) }
   }, [])
 
   const choose = (v: 'granted' | 'denied') => {
     try { localStorage.setItem(KEY, v) } catch {}
-    if (v === 'granted') { (window as unknown as G).gtag?.('consent', 'update', { analytics_storage: 'granted' }); logEvent('pageview') }
+    if (v === 'granted') { (window as unknown as G).gtag?.('consent', 'update', { analytics_storage: 'granted' }); logEvent('view') }
     setAsk(false)
   }
   if (!ask) return null
